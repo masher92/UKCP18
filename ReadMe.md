@@ -1,26 +1,187 @@
-## Project 2 - Scripts
+"""
+This file produces a cube containing a time series of hourly precipitation values
+for a specific geographical point near Leeds. 
+    
+NB:
+    Iris method for interpolating to a geographical location is extremely slow,
+    so trying a different method (need to check)
+    
+@author Molly Asher
+@Version 1
+"""
 
-This project contains tools to model the impact of a bomb exploding on the buildings in its vicinity using Arcmap.  
-This project builds on the contents of Practical 1 - Model Builder which created a ModelBuilder model to accomplish this.  
-The data it is based on can be found in Data/Practical1-4-Data.zip.      
+#############################################
+# Set up environment
+#############################################
+import iris
+import cartopy.crs as ccrs
+import os
+from scipy import spatial
+import itertools
+import iris.quickplot as qplt
+import warnings
+import copy
+from timeit import default_timer as timer
+#import time 
+warnings.simplefilter(action='ignore', category=FutureWarning)
 
-<b> The file "RunModelFromScript":</b>   
-Is an external (and standalone script) which runs the BombExplosion model created in ModelBuilder and stored in the Practical1_Models.tbx. 
-It takes as inputs: 
-* A shapefile containing the location of an explosion.
-* A shapefile containing the outlines and locations of the surrounding buildings.
-* A distance at which the impact of the explosion is felt.  
+# Check working directory
+#os.getcwd()
+# Define the local directory where the data is stored
+ddir="C:/Users/gy17m2a/Desktop/Molly/datadir2"
+#ddir="E:/PhD/UKCP18/datadir"
+os.chdir(ddir)
 
-It returns as outputs:  
-* A shapefile containing the outlines of the buildings impacted by the explosion.
+#############################################
+# Read in monthly cubes over a specified time range to a cube list
+#############################################
+# Make empty list to store filenames
+filenames = []
+# Loop through years and then months and append each filename to the list
+for year in range(1981,1992):    
+    for month in range(1,13):
+        month = str(month).zfill(2) 
+        filename = f"pr_rcp85_land-cpm_uk_2.2km_01_1hr_{year}{month}01-{year}{month}30.nc"
+        print(filename)
+        filenames.append(filename)
+       
+# Load in the cubes
+cubes = iris.load(filenames,'lwe_precipitation_rate')
 
-<b> The file "RunModelAsTool": </b>  
-Is a version of this script which is (only) executable from within a Python toolbox i.e. allows us to run the model as a tool. 
-It takes the same inputs and returns same output as above, but they must be input as parameters when running the tool.    
-This script is contained within the toolbox "Explosion Toolbox (v2).tbx"  
-			
-<b> The file "CreateLayerFile":</b>  
-Provides a script for converting a layer file into a shapefile.
+# Create a copy of cubes
+cubes_2 = copy.deepcopy(cubes)
 
-To Do:  
-Further improvements to this work would be to attach the script to a menu item, to make it more readily runable.
+#############################################
+# Define a sample point at which we are interested in extracting the precipitation timeseries.
+# Assign this the same projection as the projection data
+#############################################
+# Create a cartopy CRS representing the coordinate sytem of the data in the cube.
+rot_pole = cubes[0].coord('grid_latitude').coord_system.as_cartopy_crs()
+
+# Define a sample point of interest, in standard lat/long.
+# Use the rot_pole CRS to transform the sample point, with the stated original CRS into the same system
+original_crs = ccrs.Geodetic() # Instantiate an instance of Geodetic class i.e. that used in WGS
+lon, lat = -1.37818, 53.79282 # Coordinates of location in Garforth
+target_xy = rot_pole.transform_point(lon, lat, original_crs) # https://scitools.org.uk/cartopy/docs/v0.14/crs/index.html
+   
+# Store the sample points as tuples (with their coordinate name) in a list
+sample_points = [('grid_latitude', target_xy[1]), ('grid_longitude', target_xy[0])]
+
+#############################################
+# Method 1 for creating one concatenated time series cube for the location of interest
+    # Perform interpolation on each cube individually. Save each interpolated cube
+    # to a list which is converted to a Cubelist and, finally, concatenated into 1 cube. 
+#############################################
+start = timer()
+
+# Create a list to store the interpolated cubes
+interpolated_cubes = []  
+
+# Loop through each cube in cubes, perform interpolation, save interpolated cube
+# to list and delete larger cube
+for cube_idx in range(0,len(cubes)):
+    print('Cube with index: ', cube_idx)
+    # Check whether data is fully loaded
+    #print(cubes[0].has_lazy_data())
+    # Remove attributes which aren't the same across all the cubes (otherwise late concat fails)
+    for attr in ['creation_date', 'tracking_id', 'history']:
+        if attr in cubes[0].attributes:
+            del cubes[0].attributes[attr]
+                # Do the interpolation
+    
+    # Interpolate data to the sample location
+    interpolated = cubes[0].interpolate(sample_points, iris.analysis.Nearest())
+    # Check whether at this point data is fully loaded
+    # print(interpolated.has_lazy_data())
+    # Add interpolated cube to list of cubes
+    interpolated_cubes.append(interpolated)
+    # Delete the cube from the list and the interpolated cube from memory
+    del(interpolated)
+    del(cubes[0])
+
+# Create a cube list from the (standard python) list of cubes
+cubes = iris.cube.CubeList(interpolated_cubes)    
+    
+# Concatenate the cubes into one
+concat_cube = cubes.concatenate_cube()
+
+# reduce the dimensions (remove ensemble member dimension)
+concat_cube = concat_cube[0, :]
+
+print(round(timer() - start, 3), 'seconds')   
+
+#############################################
+# Method 2 for creating one concatenated time series cube for the location of interest
+    # Firstly, concatenate the Cubelist into one cube.
+    # Create a list of the latitudes and longitudes in the concatenated cube and find
+    # which of these locations is closest to the sample_point
+    # Extract the subset of the concatenated cube which refers to this location.
+#############################################
+start = timer()
+
+# Remove attributes which aren't the same across all the cubes.
+for cube in cubes_2:
+    for attr in ['creation_date', 'tracking_id', 'history']:
+        if attr in cube.attributes:
+            del cube.attributes[attr]
+
+# Concatenate the cubes into one
+concat_cube_2 = cubes_2.concatenate_cube()
+
+# Reduce the dimensions (remove ensemble member dimension)
+concat_cube_2 = concat_cube_2[0, :]
+    
+# Create a list of all the tuple pairs of latitude and longitudes
+locations = list(itertools.product(concat_cube_2.coord('grid_latitude').points, concat_cube_2.coord('grid_longitude').points))
+
+# Correct them so that 360 merges back into one
+corrected_locations = []
+for location in locations:
+    if location[0] >360:
+        new_lat = location[0] -360
+    else: 
+        new_lat = location[0]
+    if location[1] >360:
+        new_long = location[1] -360     
+    else:
+        new_long = location[1]
+    new_location = new_lat, new_long 
+    corrected_locations.append(new_location)
+
+# Find the index of the nearest neighbour of the sample point in the list of locations present in concat_cube
+tree = spatial.KDTree(corrected_locations)
+closest_point_idx = tree.query([(sample_points[0][1], sample_points[1][1])])[1][0]
+
+# Extract the lat and long values of this point using the index
+closest_lat = locations[closest_point_idx][0]
+closest_long = locations[closest_point_idx][1]
+
+# Use this closest lat, long pair to collapse the latitude and longitude dimensions
+# of the concatenated cube to keep just the time series for this closest point 
+time_series = concat_cube_2.extract(iris.Constraint(grid_latitude=closest_lat, grid_longitude = closest_long))
+print('Method 2 completed in ' , round(timer() - start, 3), 'seconds')   
+
+###########################################################
+# Check results
+###########################################################
+# Test whether the precipitation values produced by the 2 methods are the same
+(concat_cube.data==time_series.data).all()
+
+# PLot the two time_series and compare
+qplt.plot(concat_cube)
+plt.show()plt.show()
+#plt.savefig('E:/PhD/UKCP18/Outputs/1981_1990_ts.png')
+
+qplt.plot(time_series)
+plt.show()
+
+# Compare spatial location of two points
+
+
+
+
+
+
+
+
+
