@@ -5,7 +5,7 @@ For this analysis, we are interested in producing a long time-series, for instan
 
 The structure of the observations and projections data is different and so the process for extracting this timeseries varies slightly between the two.   
 
-For modelled projections:  
+<u>For modelled projections: </u> 
 * Read all of monthly cubes required for the time-series into a cubeList
 * Define the coordinates of the location of interest and convert these into the projection system in which the modelled data is stored (rotated pole)  
 * Concatenate the cubes and interpolate to the location of interest. 
@@ -15,7 +15,7 @@ For modelled projections:
         2. Concatenate cubeList into a single cube, find the latitude and longitude closest to the point of interest and then extract just the data for that lat/long from the cube (not sure whether this takes into account curvature of earth?). 
 
 
-For observations:  
+<u>For observations:</u>  
 * Read all of monthly cubes required for the time-series into a cubeList
 * Concatenate the list into one cube
 * Define the coordinates of the location of interest 
