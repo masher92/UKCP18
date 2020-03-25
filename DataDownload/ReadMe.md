@@ -11,5 +11,5 @@ So far, have downloaded 2.2km hourly precipitation projections, ensemble member 
 <ins>Observations</ins>  
 CEH-GEAR-1km data is not available via FTP, and has to be downloaded manually from: https://catalogue.ceh.ac.uk/datastore/eidchub/d4ddc781-25f3-423a-bba0-747cc82dc6fa/.
 
-<ins> To Do </ins>
+<ins> To Do </ins>  
 Could this be set-up to clip the data to the Leeds region on download to save on memory requirements?
