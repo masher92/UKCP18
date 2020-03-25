@@ -15,13 +15,13 @@ For modelled projections:
         2. Concatenate cubeList into a single cube, find the latitude and longitude closest to the point of interest and then extract just the data for that lat/long from the cube (not sure whether this takes into account curvature of earth?). 
 
 
-
-
 For observations:  
 * Read all of monthly cubes required for the time-series into a cubeList
-* 
+* Concatenate the list into one cube
+* Define the coordinates of the location of interest 
+* Find the lat/long in the observations which is closest to the location of interest.
+     1. The observations data structure is different to the projections. The lat, long and precipitation values are stored on 2D arrays each with the same dimensions. The corresponding data points are found at the point in the arrays with the same index, e.g. index of 2,3 means at the 3rd row, 4th column. 
+     2. Create tuples containing corresponding lat and long values, and loop through each tuple and determine which is closest to the location of interest.
+* Trim the concatenated cube to the location of interest by subsetting it with the index of the closest location     
 
-
-
-* 
 
