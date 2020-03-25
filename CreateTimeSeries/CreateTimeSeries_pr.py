@@ -28,10 +28,10 @@ import iris.quickplot as qplt
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 # Define the local directory where the data is stored
-ddir="C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/datadir/UKCP182"
+ddir="C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/datadir/UKCP18"
 os.chdir(ddir)
 
-month_filename = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/datadir/UKCP18/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19801201-19801230.nc"
+#month_filename = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/datadir/UKCP18/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19801201-19801230.nc"
 
 #############################################
 # Read in ten year's worth of data
@@ -168,46 +168,6 @@ print('Method 2 completed in ' , round(timer() - start, 3), 'seconds')
 # PLot the two time_series and compare
 qplt.plot(concat_cube)
 qplt.plot(time_series)
-
-
-# Compare spatial location of two points
-
-
-#############################################
-# Extract the data for a particular location
-#############################################
-# Store data in an array
-test_arr = np.array(concat_cube.data)
-
-# Filter out values less than 0.1mm/hour
-test_arr = test_arr[test_arr >0.1]
-
-# Create as a series
-test_pds = pd.Series(test_arr, name="Precipitation (mm/hour)")
-
-
-###########################
-# Plot pdf 
-ax = sns.distplot(test_arr)
-# Using the series allows the variable to be labelled
-ax = sns.distplot(test_pds)
-# Can choose whether to include a rug plot, or the histogram
-ax = sns.distplot(test_pds, rug=True, hist=False)
-# Can shade in the plot
-ax = sns.kdeplot(test_pds, shade = True, color = 'r')
-
-# Bandwidth is a measure of how closely the density should match the distribution
-sns.kdeplot(test_pds)
-sns.kdeplot(test_pds, bw=.1, label="bw: 0.2")
-sns.kdeplot(test_pds, bw=5, label="bw: 2")
-plt.legend();
-
-# Can also plot a parametric distribution and compare how well the data fits to it
-from scipy.stats import norm
-from scipy.stats import gamma
-ax = sns.distplot(test_pds, fit=norm, kde=False)
-sns.distplot(test_pds, kde=False, fit=gamma);
-
 
 
 
