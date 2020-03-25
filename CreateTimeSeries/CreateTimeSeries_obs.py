@@ -1,4 +1,3 @@
-
 # Import packages
 from numpy import array, shape
 import numpy as np
@@ -121,4 +120,14 @@ plt.xticks(rotation=45)
 
 iplt.plot(obs_pr_cubes_rv)
 plt.xticks(rotation=45)
+
+##############################################################################
+# Save timeseries - Format?
+##############################################################################
+# Store data in an array
+obs_arr = np.array(obs_pr_cubes_rv.data)
+
+# Convert to dataframe and save to file
+pd.DataFrame(obs_arr,  columns=['Precipitation',]).to_csv("C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/Outputs/TimeSeries/Obs_1990-1993_EM01.csv", index = False)
+
 
