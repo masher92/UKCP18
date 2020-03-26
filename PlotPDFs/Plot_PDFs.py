@@ -26,11 +26,12 @@ os.chdir(ddir)
 ###############################################################################
 # Read in the timeseries for which the PDF should be plotted
 ###############################################################################
-time_series = pd.read_csv("Obs_1990-1992.csv")
+time_series_obs = pd.read_csv("Obs_1990-1992.csv")
+time_series_pr = pd.read_csv("Pr_1980-1981_EM01.csv")
 
 # Remove values <0.1mm
-time_series = time_series[time_series['Precipitation (mm/hr)'] > 0.1]
-
+time_series_obs = time_series_obs[time_series_obs['Precipitation (mm/hr)'] > 0.1]
+time_series_pr = time_series_pr[time_series_pr['Precipitation (mm/hr)'] > 0.1]
 ###########################
 # Plot pdf 
 ax = sns.distplot(time_series['Precipitation (mm/hr)'])
@@ -41,6 +42,7 @@ ax = sns.kdeplot(time_series['Precipitation (mm/hr)'], shade = True, color = 'r'
 
 # Bandwidth is a measure of how closely the density should match the distribution
 sns.kdeplot(time_series['Precipitation (mm/hr)'])
+sns.kdeplot(time_series['Precipitation (mm/hr)'], bw=.01, label="bw: 0.2")
 sns.kdeplot(time_series['Precipitation (mm/hr)'], bw=.1, label="bw: 0.2")
 sns.kdeplot(time_series['Precipitation (mm/hr)'], bw=5, label="bw: 2")
 plt.legend();
@@ -52,3 +54,23 @@ ax = sns.distplot(time_series['Precipitation (mm/hr)'], fit=norm, kde=False)
 sns.distplot(time_series['Precipitation (mm/hr)'], kde=False, fit=gamma);
 
 
+#############################################################################
+# Plotting multiple on same plot e.g. observations and projections
+#############################################################################
+sns.distplot(time_series_obs['Precipitation (mm/hr)'], hist=False, rug=False, label = 'Observations')
+sns.distplot(time_series_pr['Precipitation (mm/hr)'], hist=False, rug=False, label = 'EM01')
+plt.legend()
+#plt.show()
+
+#############################################################################
+# Plotting with log scale
+#############################################################################
+ax = sns.distplot(time_series['Precipitation (mm/hr)'], rug=False, hist=False)
+ax.set_yscale('log')
+ax.set_xscale('log')
+
+
+sns.distplot(time_series_obs['Precipitation (mm/hr)'], hist=False, rug=False, label = 'Observations').set_yscale('log')
+sns.distplot(time_series_pr['Precipitation (mm/hr)'], hist=False, rug=False, label = 'EM01')
+plt.legend()
+#plt.show()

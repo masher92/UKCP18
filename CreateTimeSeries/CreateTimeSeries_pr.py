@@ -151,7 +151,7 @@ for location in locations:
 # Find the index of the nearest neighbour of the sample point in the list of locations present in concat_cube
 tree = spatial.KDTree(corrected_locations)
 closest_point_idx = tree.query([(sample_points[0][1], sample_points[1][1])])[1][0]
-s
+
 # Extract the lat and long values of this point using the index
 closest_lat = locations[closest_point_idx][0]
 closest_long = locations[closest_point_idx][1]
