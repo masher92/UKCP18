@@ -190,7 +190,7 @@ df = pd.DataFrame({'Date': np.array(concat_cube.coord('yyyymmddhh').points),
                   'Precipitation (mm/hr)': np.array(concat_cube.data)})
 
 # Format the date column
-df['Date_Formatted'] =  pd.to_datetime(df['Date'], format='%Y%m%d%H')
+df['Date_Formatted'] =  pd.to_datetime(df['Date'], format='%Y%m%d%H',  errors='coerce')
 
 # Write to a csv
 df.to_csv("C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/Outputs/TimeSeries/Pr_{start_year}-{end_year}_EM01.csv", index = False)

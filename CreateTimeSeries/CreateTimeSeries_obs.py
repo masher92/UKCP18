@@ -128,9 +128,8 @@ plt.xticks(rotation=45)
 ###########################################################
 # Save cube 
 ###########################################################
-iris.save(concat_cube, 
+iris.save(obs_pr_cubes_rv, 
           f'C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/Outputs/TimeSeries_cubes/Obs_{start_year}-{end_year}.nc')
-
 
 
 ##############################################################################
