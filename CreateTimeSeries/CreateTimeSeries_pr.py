@@ -33,7 +33,9 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 ddir="C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/datadir/UKCP18"
 os.chdir(ddir)
 
-#month_filename = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/datadir/UKCP18/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19801201-19801230.nc"
+# Data date range
+start_year = 1980
+end_year = 1982
 
 #############################################
 # Read in ten year's worth of data
@@ -41,7 +43,7 @@ os.chdir(ddir)
 # Define filenames for the ten years of required data
 pattern = os.path.join(r'pr_rcp85_land-cpm_uk_2.2km_01_1hr_{}*')
 filenames =[]
-for year in range(1980,1981):
+for year in range(start_year,end_year+1):
     wildcard = pattern.format(year)
     # print(wildcard)
     for filename in glob.glob(wildcard):
@@ -117,63 +119,71 @@ print(round(timer() - start, 3), 'seconds')
     # which of these locations is closest to the sample_point
     # Extract the subset of the concatenated cube which refers to this location.
 #############################################
-start = timer()
-
-# Remove attributes which aren't the same across all the cubes.
-for cube in cubes_2:
-    for attr in ['creation_date', 'tracking_id', 'history']:
-        if attr in cube.attributes:
-            del cube.attributes[attr]
-
-# Concatenate the cubes into one
-concat_cube_2 = cubes_2.concatenate_cube()
-
-# Reduce the dimensions (remove ensemble member dimension)
-concat_cube_2 = concat_cube_2[0, :]
-    
-# Create a list of all the tuple pairs of latitude and longitudes
-locations = list(itertools.product(concat_cube_2.coord('grid_latitude').points, concat_cube_2.coord('grid_longitude').points))
-
-# Correct them so that 360 merges back into one
-corrected_locations = []
-for location in locations:
-    if location[0] >360:
-        new_lat = location[0] -360
-    else: 
-        new_lat = location[0]
-    if location[1] >360:
-        new_long = location[1] -360     
-    else:
-        new_long = location[1]
-    new_location = new_lat, new_long 
-    corrected_locations.append(new_location)
-
-# Find the index of the nearest neighbour of the sample point in the list of locations present in concat_cube
-tree = spatial.KDTree(corrected_locations)
-closest_point_idx = tree.query([(sample_points[0][1], sample_points[1][1])])[1][0]
-
-# Extract the lat and long values of this point using the index
-closest_lat = locations[closest_point_idx][0]
-closest_long = locations[closest_point_idx][1]
-
-# Use this closest lat, long pair to collapse the latitude and longitude dimensions
-# of the concatenated cube to keep just the time series for this closest point 
-time_series = concat_cube_2.extract(iris.Constraint(grid_latitude=closest_lat, grid_longitude = closest_long))
-print('Method 2 completed in ' , round(timer() - start, 3), 'seconds')   
-
+# =============================================================================
+# start = timer()
+# 
+# # Remove attributes which aren't the same across all the cubes.
+# for cube in cubes_2:
+#     for attr in ['creation_date', 'tracking_id', 'history']:
+#         if attr in cube.attributes:
+#             del cube.attributes[attr]
+# 
+# # Concatenate the cubes into one
+# concat_cube_2 = cubes_2.concatenate_cube()
+# 
+# # Reduce the dimensions (remove ensemble member dimension)
+# concat_cube_2 = concat_cube_2[0, :]
+#     
+# # Create a list of all the tuple pairs of latitude and longitudes
+# locations = list(itertools.product(concat_cube_2.coord('grid_latitude').points, concat_cube_2.coord('grid_longitude').points))
+# 
+# # Correct them so that 360 merges back into one
+# corrected_locations = []
+# for location in locations:
+#     if location[0] >360:
+#         new_lat = location[0] -360
+#     else: 
+#         new_lat = location[0]
+#     if location[1] >360:
+#         new_long = location[1] -360     
+#     else:
+#         new_long = location[1]
+#     new_location = new_lat, new_long 
+#     corrected_locations.append(new_location)
+# 
+# # Find the index of the nearest neighbour of the sample point in the list of locations present in concat_cube
+# tree = spatial.KDTree(corrected_locations)
+# closest_point_idx = tree.query([(sample_points[0][1], sample_points[1][1])])[1][0]
+# 
+# # Extract the lat and long values of this point using the index
+# closest_lat = locations[closest_point_idx][0]
+# closest_long = locations[closest_point_idx][1]
+# 
+# # Use this closest lat, long pair to collapse the latitude and longitude dimensions
+# # of the concatenated cube to keep just the time series for this closest point 
+# time_series = concat_cube_2.extract(iris.Constraint(grid_latitude=closest_lat, grid_longitude = closest_long))
+# print('Method 2 completed in ' , round(timer() - start, 3), 'seconds')   
+# 
+# =============================================================================
 ###########################################################
 # Check results
 ###########################################################
 # Test whether the precipitation values produced by the 2 methods are the same
-(concat_cube.data==time_series.data).all()
+#(concat_cube.data==time_series.data).all()
 
 # PLot the two time_series and compare
-qplt.plot(concat_cube)
-qplt.plot(time_series)
+#qplt.plot(concat_cube)
+#qplt.plot(time_series)
+
+###########################################################
+# Save cube 
+###########################################################
+iris.save(concat_cube, 
+          f'C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/Outputs/TimeSeries_cubes/Pr_{start_year}-{end_year}.nc')
 
 
 ##############################################################################
-# Save timeseries - Format?
+# Save dataframe
 ##############################################################################
 # Create a dataframe containing the date and the precipitation data
 df = pd.DataFrame({'Date': np.array(concat_cube.coord('yyyymmddhh').points),
@@ -183,7 +193,7 @@ df = pd.DataFrame({'Date': np.array(concat_cube.coord('yyyymmddhh').points),
 df['Date_Formatted'] =  pd.to_datetime(df['Date'], format='%Y%m%d%H')
 
 # Write to a csv
-df.to_csv("C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/Outputs/TimeSeries/Pr_1980-1981_EM01.csv", index = False)
+df.to_csv("C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/Outputs/TimeSeries/Pr_{start_year}-{end_year}_EM01.csv", index = False)
 
 
 

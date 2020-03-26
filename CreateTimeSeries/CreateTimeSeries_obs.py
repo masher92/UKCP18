@@ -125,8 +125,16 @@ plt.xticks(rotation=45)
 iplt.plot(obs_pr_cubes_rv)
 plt.xticks(rotation=45)
 
+###########################################################
+# Save cube 
+###########################################################
+iris.save(concat_cube, 
+          f'C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/Outputs/TimeSeries_cubes/Obs_{start_year}-{end_year}.nc')
+
+
+
 ##############################################################################
-# Save timeseries - Format?
+# Save dataframe
 ##############################################################################
 # Create a dataframe containing the date and the precipitation data
 df = pd.DataFrame({'Date': np.array(obs_pr_cubes_rv.coord('time').points),
