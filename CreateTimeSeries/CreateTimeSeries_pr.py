@@ -23,8 +23,10 @@ import warnings
 import copy
 from timeit import default_timer as timer
 import glob
+import numpy as np
 import iris.quickplot as qplt
-#import time 
+import pandas as pd
+#import datetime
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 # Define the local directory where the data is stored
@@ -39,7 +41,7 @@ os.chdir(ddir)
 # Define filenames for the ten years of required data
 pattern = os.path.join(r'pr_rcp85_land-cpm_uk_2.2km_01_1hr_{}*')
 filenames =[]
-for year in range(1980,1991):
+for year in range(1980,1981):
     wildcard = pattern.format(year)
     # print(wildcard)
     for filename in glob.glob(wildcard):
@@ -149,7 +151,7 @@ for location in locations:
 # Find the index of the nearest neighbour of the sample point in the list of locations present in concat_cube
 tree = spatial.KDTree(corrected_locations)
 closest_point_idx = tree.query([(sample_points[0][1], sample_points[1][1])])[1][0]
-
+s
 # Extract the lat and long values of this point using the index
 closest_lat = locations[closest_point_idx][0]
 closest_long = locations[closest_point_idx][1]
@@ -168,6 +170,20 @@ print('Method 2 completed in ' , round(timer() - start, 3), 'seconds')
 # PLot the two time_series and compare
 qplt.plot(concat_cube)
 qplt.plot(time_series)
+
+
+##############################################################################
+# Save timeseries - Format?
+##############################################################################
+# Create a dataframe containing the date and the precipitation data
+df = pd.DataFrame({'Date': np.array(concat_cube.coord('yyyymmddhh').points),
+                  'Precipitation (mm/hr)': np.array(concat_cube.data)})
+
+# Format the date column
+df['Date_Formatted'] =  pd.to_datetime(df['Date'], format='%Y%m%d%H')
+
+# Write to a csv
+df.to_csv("C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/Outputs/TimeSeries/Pr_1980-1981_EM01.csv", index = False)
 
 
 
