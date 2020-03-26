@@ -21,12 +21,16 @@ import matplotlib.animation as animation
 ddir="C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/datadir/CEH-GEAR"
 os.chdir(ddir)
 
+# Data date range
+start_year = 1990
+end_year = 1992
+
 #############################################
 # Read in ten year's worth of data
 #############################################
 # Loop through years and then months and append each filename to the list
 filenames = []
-for year in range(1990, 1993):
+for year in range(start_year, end_year+1):
     for month in range(1,13):
         month = str(month).zfill(2) 
         filename = f"CEH-GEAR-1hr_{year}{month}.nc"
@@ -124,10 +128,15 @@ plt.xticks(rotation=45)
 ##############################################################################
 # Save timeseries - Format?
 ##############################################################################
-# Store data in an array
-obs_arr = np.array(obs_pr_cubes_rv.data)
+# Create a dataframe containing the date and the precipitation data
+df = pd.DataFrame({'Date': np.array(obs_pr_cubes_rv.coord('time').points),
+                  'Precipitation (mm/hr)': np.array(obs_pr_cubes_rv.data)})
 
-# Convert to dataframe and save to file
-pd.DataFrame(obs_arr,  columns=['Precipitation',]).to_csv("C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/Outputs/TimeSeries/Obs_1990-1993_EM01.csv", index = False)
+# Format the date column
+df['Date_Formatted'] =  obs_pr_cubes_rv.coord('time').units.num2date(obs_pr_cubes_rv.coord('time').points)
+
+# Write to a csv
+df.to_csv(f"C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/Outputs/TimeSeries/Obs_{start_year}-{end_year}.csv", index = False)
+
 
 
