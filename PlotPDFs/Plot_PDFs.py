@@ -66,11 +66,16 @@ plt.legend()
 # Plotting with log scale
 #############################################################################
 ax = sns.distplot(time_series['Precipitation (mm/hr)'], rug=False, hist=False)
-ax.set_yscale('log')
+#ax.set_yscale('log')
 ax.set_xscale('log')
 
-
-sns.distplot(time_series_obs['Precipitation (mm/hr)'], hist=False, rug=False, label = 'Observations').set_yscale('log')
-sns.distplot(time_series_pr['Precipitation (mm/hr)'], hist=False, rug=False, label = 'EM01')
+sns.distplot(time_series_obs['Precipitation (mm/hr)'], hist=False, rug=False, label = 'Observations').set_xscale('log')
+sns.distplot(time_series_pr['Precipitation (mm/hr)'], hist=False, rug=False, label = 'EM01').set_xscale('log')
 plt.legend()
 #plt.show()
+
+#############################################################################
+# Plotting CDF
+#############################################################################
+kwargs = {'cumulative': True}
+sns.distplot(time_series_obs['Precipitation (mm/hr)'], hist_kws=kwargs, kde_kws=kwargs)
