@@ -30,23 +30,25 @@ import pandas as pd
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 # Define the local directory where the data is stored
-ddir="C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/datadir/UKCP18"
+ddir="C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/datadir/UKCP18/04/"
 os.chdir(ddir)
 
 # Data date range
-start_year = 1980
-end_year = 1982
+start_year = 1990
+end_year = 1996
+em = '04'
 
 #############################################
 # Read in ten year's worth of data
 #############################################
 # Define filenames for the ten years of required data
-pattern = os.path.join(r'pr_rcp85_land-cpm_uk_2.2km_01_1hr_{}*')
+pattern = os.path.join(r'pr_rcp85_land-cpm_uk_2.2km_{}_1hr_{}*')
 filenames =[]
 for year in range(start_year,end_year+1):
-    wildcard = pattern.format(year)
-    # print(wildcard)
+    wildcard = pattern.format(em, year)
+    #print(wildcard)
     for filename in glob.glob(wildcard):
+        #print (filename)
         filenames.append(filename)
         
 # Load in the cubes
@@ -179,7 +181,7 @@ print(round(timer() - start, 3), 'seconds')
 # Save cube 
 ###########################################################
 iris.save(concat_cube, 
-          f'C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/Outputs/TimeSeries_cubes/Pr_{start_year}-{end_year}.nc')
+          f'C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/Outputs/TimeSeries_cubes/Pr_{start_year}-{end_year}_EM{em}.nc')
 
 
 ##############################################################################
@@ -193,7 +195,7 @@ df = pd.DataFrame({'Date': np.array(concat_cube.coord('yyyymmddhh').points),
 df['Date_Formatted'] =  pd.to_datetime(df['Date'], format='%Y%m%d%H',  errors='coerce')
 
 # Write to a csv
-df.to_csv("C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/Outputs/TimeSeries/Pr_{start_year}-{end_year}_EM01.csv", index = False)
+df.to_csv(f"C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/Outputs/TimeSeries/Pr_{start_year}-{end_year}_EM{em}.csv", index = False)
 
 
 

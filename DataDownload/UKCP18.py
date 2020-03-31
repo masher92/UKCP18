@@ -11,7 +11,7 @@ from getpass import getpass # Allows typing password invisibly
 os.getcwd()
 
 # Define the local directory name to put data in
-ddir="C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/datadir/UKCP18"
+ddir="C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/datadir/UKCP18/04/"
 
 # If directory doesn't exist make it
 if not os.path.isdir(ddir):
@@ -33,11 +33,11 @@ f=ftplib.FTP("ftp.ceda.ac.uk", uuname, ppword)
 # Note 1980 only has December, similarly 2000 has January-November
 # Try-catch expressions allows for this. 
 # Download attempted, for failed attempt empty files are created, so these must be deleted
-for year in range(1980, 1991) :
+for year in range(1994, 2001) :
     # Loop through months
-    for month in [1,2,3,4,5,6,7,8,9,10,11,12]:
+    for month in [1,2,3,4,5]:
         # Loop over members
-        for member in ['01']: # note 02 and 03 are absent, this is currently a string
+        for member in ['04']: # note 02 and 03 are absent, this is currently a string
             # Loop through variables (precipitation and temperature)
             for var in (["pr"]):
                  # Change the remote directory to reflect correct member and variable
