@@ -1,11 +1,8 @@
 ## Data download
 
-<ins>Projections</ins>  
-UKCP18 projections can be accessed through 3 main entry points:
-* Web
-* User interface (https://ukclimateprojections-ui.metoffice.gov.uk/user/login?next=%2Fsubmit%2Fform%3Fproc_id%3DLS3A_Subset_01)
-* CEDA catalogue- UKCP18.py script automates download from here via an FTP.
-
+<ins>UKCP18 Projections</ins>  
+The projections are available via an FTP connection from the CEDA data catalogue. The UKCP18.py script automates download from here.  
+It is also possible to access the data through a User interface at https://ukclimateprojections-ui.metoffice.gov.uk/user/login?next=%2Fsubmit%2Fform%3Fproc_id%3DLS3A_Subset_01  
 So far, have downloaded 2.2km hourly precipitation projections, ensemble member 01, 1980-1990.
 
 <ins>Observations</ins>  
