@@ -33,8 +33,8 @@ time_series_pr_04 = pd.read_csv("Pr_1990-1996_EM04.csv")
 
 # Remove values <0.1mm
 time_series_obs = time_series_obs[time_series_obs['Precipitation (mm/hr)'] > 0.1]
-time_series_pr_01 = time_series_pr[time_series_pr_01['Precipitation (mm/hr)'] > 0.1]
-time_series_pr_04 = time_series_pr[time_series_pr_04['Precipitation (mm/hr)'] > 0.1]
+time_series_pr_01 = time_series_pr_01[time_series_pr_01['Precipitation (mm/hr)'] > 0.1]
+time_series_pr_04 = time_series_pr_04[time_series_pr_04['Precipitation (mm/hr)'] > 0.1]
 
 ###########################
 # Select which time series to plot
@@ -93,9 +93,11 @@ plt.legend()
 plt.ylabel('Probability density')
 #plt.show()
 
-
 #############################################################################
 # Plotting CDF
 #############################################################################
 kwargs = {'cumulative': True}
 sns.distplot(time_series_obs['Precipitation (mm/hr)'], hist_kws=kwargs, kde_kws=kwargs)
+
+
+
