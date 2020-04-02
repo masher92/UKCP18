@@ -27,8 +27,8 @@ time_series_obs = pd.read_csv("C:/Users/gy17m2a/OneDrive - University of Leeds/P
 # Remove values <0.1mm
 time_series_obs = time_series_obs[time_series_obs['Precipitation (mm/hr)'] > 0.1]
 
-# Create header for testing
-time_series_obs = time_series_obs
+df = time_series_obs
+df2 = df[df['Date_Formatted'].isnull()]
 
 # Remove NA values (these are non-date dates e.g. 30th February)
 time_series_obs = time_series_obs.dropna()
@@ -37,7 +37,7 @@ time_series_obs = time_series_obs.dropna()
 time_series_obs.set_index(pd.to_datetime(time_series_obs['Date_Formatted']), inplace = True)
 time_series_obs['Date_Formatted'] = pd.to_datetime(time_series_obs['Date_Formatted'])
 
-# Plot with yearly threshold markers and a precipitation threshold line
+#########################  Plot with yearly threshold markers and a precipitation threshold line
 fig, ax = plt.subplots()
 # Show only years on the axis
 ax.xaxis.set_major_formatter(DateFormatter('%Y'))
@@ -48,6 +48,25 @@ plt.xlabel('Year')
 plt.axhline(y=8, color='r', linestyle='-',linewidth=1)
 for year in range(min(time_series_obs['Date_Formatted']).year,max(time_series_obs['Date_Formatted']).year + 1):
     plt.axvline(dt.datetime(year,1,1),color='r',linewidth=1)
+
+
+#########################  PoT, quantile threshold
+# Find the Xth percentile values
+P_99 = np.percentile(time_series_obs['Precipitation (mm/hr)'], 99) # return 50th percentile, e.g median.
+P_97 = np.percentile(time_series_obs['Precipitation (mm/hr)'], 97) # return 50th percentile, e.g median.   
+
+fig, ax = plt.subplots()
+# Show only years on the axis
+ax.xaxis.set_major_formatter(DateFormatter('%Y'))
+ax.plot(time_series_obs['Date_Formatted'], time_series_obs['Precipitation (mm/hr)'], 'o', color='black', markersize = 1, label='_nolegend_')
+#plt.xticks(rotation=70)
+plt.ylabel('Precipitation (mm/hr)')
+plt.xlabel('Year')
+plt.axhline(y=P_99, color='r', linestyle='solid',linewidth=2, label='99thP')
+plt.axhline(y=P_97, color='g', linestyle='solid',linewidth=2, label='95thP')
+for year in range(min(time_series_obs['Date_Formatted']).year,max(time_series_obs['Date_Formatted']).year + 1):
+    plt.axvline(dt.datetime(year,1,1),color='black',linewidth=0.3, linestyle = 'dashed')
+plt.legend()
 
 ######################### Plot with highest value in each year highlighted
 # Calculate highest value in each year    
@@ -65,8 +84,6 @@ for year in range(min(time_series_obs.index).year,max(time_series_obs.index).yea
     plt.axvline(dt.datetime(year,1,1),color='r',linewidth=1, linestyle = 'dashed')    
 
 ######################### Plot with highest value in each hydrological year highlighted
-test = time_series_obs[0:1000]
-
 # Function to give a hydrological year to each row
 def assign_hy(row):
     if row.Date_Formatted.month>=10:
