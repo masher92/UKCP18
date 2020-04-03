@@ -46,14 +46,13 @@ pr_ts_cube = pr_ts_cube.extract(days_constraint)
 ###############################################################################
 # Load in one month's worth of data in a cube for whole of country
 ###############################################################################                               
-filename = "datadir/UKCP18/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19821101-19821130.nc"
+filename = "datadir/UKCP18/01/1980-2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19821101-19821130.nc"
 month_uk_cube = iris.load(filename,'lwe_precipitation_rate')[0]
 # Remove ensemble member dimension
 month_uk_cube = month_uk_cube[0, :]
 
 # Extract the data which matches the constraint
 month_uk_cube = month_uk_cube.extract(days_constraint)
-
 
 #################################################################
 # Trim the precipitation cube to a narrower area
@@ -70,8 +69,8 @@ lat_constraint = iris.Constraint(grid_latitude=lambda cell: 1.25 < cell < 1.35)
 long_constraint = iris.Constraint(grid_longitude=lambda cell: 360.60 < cell < 360.70)
 
 # DO the trimming
-#trimmed = ds.extract(lat_constraint)
-#trimmed = trimmed.extract(long_constraint)
+month_uk_cube = month_uk_cube.extract(lat_constraint)
+month_uk_cube = month_uk_cube.extract(long_constraint)
 
 ###############################################################################
 # Plot the timeseries
