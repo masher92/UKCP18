@@ -13,6 +13,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.dates import DateFormatter
 import datetime as dt
+from datetime import timedelta
 
 # Define the local directory where the data is stored
 ddir="C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/Outputs/TimeSeries/"
@@ -26,9 +27,6 @@ time_series_obs = pd.read_csv("C:/Users/gy17m2a/OneDrive - University of Leeds/P
 
 # Remove values <0.1mm
 time_series_obs = time_series_obs[time_series_obs['Precipitation (mm/hr)'] > 0.1]
-
-df = time_series_obs
-df2 = df[df['Date_Formatted'].isnull()]
 
 # Remove NA values (these are non-date dates e.g. 30th February)
 time_series_obs = time_series_obs.dropna()
@@ -58,6 +56,12 @@ P_97 = np.percentile(time_series_obs['Precipitation (mm/hr)'], 97) # return 50th
 # Highlight values higher than that line
 values_over_threshold = time_series_obs[time_series_obs['Precipitation (mm/hr)'] > P_99]
 
+# COunt number of observations over line in each year
+# Add a year column
+values_over_threshold['CY'] = values_over_threshold['Date_Formatted'].dt.year
+count_exceedences = values_over_threshold.groupby('CY').count()
+count_exceedences['Date'].mean()
+
 fig, ax = plt.subplots()
 # Show only years on the axis
 ax.xaxis.set_major_formatter(DateFormatter('%Y'))
@@ -76,112 +80,8 @@ plt.legend()
 ## Declustering ###
 # E.g. Discard any value within 2 days of the initial value
 # The other option is runs which stipulates that any value over the threshold separated by fewer than r non-extreme values is dependent
-from datetime import timedelta
-values_over_threshold['window_end'] = values_over_threshold['Date_Formatted']  + timedelta(days=2)
-values_over_threshold = values_over_threshold.head()
-
-# Test df
-df = values_over_threshold[['Date_Formatted', 'Precipitation (mm/hr)', 'HY']] 
-df['window_end'] = df.Date_Formatted + pd.Timedelta(days=2)
-
-
-def get_windows(data):
-    #print(data)
-    print(data.iloc[0])
-    
-    
-    window_end = data.iloc[0].window_end
-    print
-    print(window_end)
-    for index, row in data.iloc[1:].iterrows():
-        if window_end > row.time:
-            df.loc[index, 'window_end'] = window_end
-        else:
-            window_end = row.window_end
-
-values_over_threshold.reset_index(drop = True, inplace = True)
-
-# this applies this function to each row (I think!)
-values_over_threshold.apply(lambda x: get_windows(x))
-
-
-
-
-# =============================================================================
-# def get_windows(data):
-#     print('hello')
-#     # The data is the first row of the df, reformatted as a column
-#     print(data)
-#     # Data.iloc[0] is the first row from the column (which was originally the row)
-#     # I.e. the date
-#     print(data.iloc[0])
-#     # Select the window end of the row
-#     window_end = data.window_end
-#     print(window_end)
-#     
-#     for index, row in df.iloc[1:].iterrows():
-#         if window_end > row.Date_Formatted:
-#             print('Yes')
-#             df.loc[index, 'window_end'] = window_end
-#         else:
-#             window_end = row.window_end
-# =============================================================================
-# =============================================================================
-# 
-# # Applies to each row
-# df.apply(lambda x: get_windows(x), axis = 1)
-# data = df.iloc[1]
-# 
-# data=df
-# 
-# df.iloc[0].window_end
-# 
-# 
-# 
-# # Test df
-# df = values_over_threshold[['Date_Formatted', 'Precipitation (mm/hr)', 'HY']] 
-# df['window_end'] = df.Date_Formatted + pd.Timedelta(days=2)
-# df['Cluster'] = 1
-# 
-# # For each row:
-#             # find the window end
-#             # Check if the date of the next row is smaller than that window end
-#             # If it is then Assign it to the Cluster and check next row, and so on
-#             # If it is not, move on to the next row
-#             # Check all other rrows in the df:
-#                 
-#             # Also need to expand window end 
-# 
-# def get_windows(data):
-#     print(data.index)
-#     print('Starting row analysis')
-#     # Select the window end of the row
-#     window_end = data.window_end
-#     
-#     print("End of window of this row", window_end)
-#    # print(window_end)
-#    # print (df)
-#     for index, row in df.iloc[1:].iterrows():
-#         print(row.Date_Formatted)
-#         print(window_end)
-#         print(index)
-#         if window_end > row.Date_Formatted:
-#             print('Yes')
-#             df.loc[index, 'Cluster'] = 
-#             #df.loc[index, 'window_end'] = window_end
-#         else:
-#             window_end = row.window_end
-# 
-# # Applies to each row
-# df.apply(lambda x: get_windows(x), axis = 1)
-# 
-# 
-# df.iloc[0][0] > df.iloc[1][0]
-# 
-# =============================================================================
-
 # Create test df
-df = values_over_threshold[0:100]
+df = values_over_threshold
 
 # Reset index, as numbered index is needed
 df.reset_index(drop = True, inplace = True)
@@ -195,7 +95,7 @@ df['Cluster'] = 1
 # Iterate through each row in the dataframe, starting at the 2nd row (1st row has 
 # now preceding day to compare to)
 for index, row in df.iloc[1:].iterrows():
-    print(index)
+   # print(index)
     # Find the index of the previous row
     previous_line_idx =index -1
     # Find whether the date when the time window of the previous event ends is
@@ -203,17 +103,34 @@ for index, row in df.iloc[1:].iterrows():
     if row.Date_Formatted > df.iloc[previous_line_idx].window_end:
         # If so, assign all events afterwards to a new cluster
         for index, row in df.iloc[index:].iterrows():
-            df.loc[index, 'Cluster']= df.iloc[99].Cluster + 1
-    else:
+            df.loc[index, 'Cluster'] = df.iloc[index].Cluster + 1
+   #else:
         # If not then do nothing; i.e. this row remains in the same cluster
-        print("no")
-
+    #   print("no")
 
 ## Keep only the highest value from each cluster
-        
+highest_cluster_values = df[df['Precipitation (mm/hr)'] == df.groupby('Cluster')['Precipitation (mm/hr)'].transform('max')]
+highest_cluster_values.set_index(pd.to_datetime(highest_cluster_values['Date_Formatted']), inplace = True)
+
+# Find the number in each year
+highest_cluster_values['CY'] = highest_cluster_values['Date_Formatted'].dt.year
+count_exceedences = highest_cluster_values.groupby('CY').count()
+count_exceedences['Date'].mean()
 
 
-
+fig, ax = plt.subplots()
+# Show only years on the axis
+ax.xaxis.set_major_formatter(DateFormatter('%Y'))
+ax.plot(time_series_obs['Date_Formatted'], time_series_obs['Precipitation (mm/hr)'], 'o', color='black', markersize = 1, label='_nolegend_')
+#plt.xticks(rotation=70)
+plt.ylabel('Precipitation (mm/hr)')
+plt.xlabel('Year')
+plt.axhline(y=P_99, color='firebrick', linestyle='solid',linewidth=1, label='99thP')
+ax.plot(highest_cluster_values.index, highest_cluster_values['Precipitation (mm/hr)'], 'o', lw = 0,  color='red', markersize = 1, label='_nolegend_')
+#plt.axhline(y=P_97, color='g', linestyle='solid',linewidth=2, label='95thP')
+for year in range(min(time_series_obs['Date_Formatted']).year,max(time_series_obs['Date_Formatted']).year + 1):
+    plt.axvline(dt.datetime(year,1,1),color='green',linewidth=0.3, linestyle = 'solid')
+plt.legend()
 
 
 ######################### Plot with highest value in each year highlighted
@@ -229,7 +146,7 @@ plt.ylabel('Precipitation (mm/hr)')
 plt.xlabel('Year')
 ax.plot(max_yearly_value.index, max_yearly_value['Precipitation (mm/hr)'], 'o', color='red', markersize = 1.5)
 for year in range(min(time_series_obs.index).year,max(time_series_obs.index).year + 1):
-    plt.axvline(dt.datetime(year,1,1),color='r',linewidth=1, linestyle = 'dashed')    
+    plt.axvline(dt.datetime(year,1,1),color='g',linewidth=0.4, linestyle = 'solid')   
 
 ######################### Plot with highest value in each hydrological year highlighted
 # Function to give a hydrological year to each row
