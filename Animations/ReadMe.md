@@ -8,5 +8,6 @@ For instance, the time-series of precipitation values for a location in Leeds fo
 
 Two animations at different spatial resolutions covering the same time-period, with the location in Leeds marked on are shown below. 
 
-![Animation](Figs/test.gif)
+![Animation](Figs/1982_zoom.gif)
+![Animation](Figs/1982_megazoom.gif)
 
