@@ -23,6 +23,9 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 ddir="C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
 os.chdir(ddir)
 
+# Speify path to ffmpeg wrier
+plt.rcParams['animation.ffmpeg_path'] = 'ffmpeg-20200225-36451f9-win64-static/bin/ffmpeg'
+
 # Data date range
 start_year = 1990
 end_year = 1992

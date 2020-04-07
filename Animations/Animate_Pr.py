@@ -23,12 +23,15 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 ddir="C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
 os.chdir(ddir)
 
+# Speify path to ffmpeg wrier
+plt.rcParams['animation.ffmpeg_path'] = 'ffmpeg-20200225-36451f9-win64-static/bin/ffmpeg'
+
 # Data date range
 start_year = 1980
 end_year = 1982
 
 # Time constraint for which to test the data
-days_constraint = iris.Constraint(time=lambda cell: PartialDateTime(year = end_year, month=11, day=12) < cell.point < PartialDateTime(year = end_year, month=11, day=14))
+days_constraint = iris.Constraint(time=lambda cell: PartialDateTime(year = end_year, month=11, day=1) < cell.point < PartialDateTime(year = end_year, month=11, day=14))
 
 ###############################################################################
 # Load in a timeseries for a specific location (data to be checked)
@@ -75,7 +78,9 @@ month_uk_cube = month_uk_cube.extract(long_constraint)
 ###############################################################################
 # Plot the timeseries
 ###############################################################################
+
 qplt.plot(pr_ts_cube)
+#plt.xticks(rotation=90)
 plt.show()
 
 ###############################################################################
@@ -117,11 +122,10 @@ def init():
 def animate(frame):
     return draw(frame)
 
-
 from matplotlib import rc, animation
 rc('animation', html='html5')
 
 ani = animation.FuncAnimation(fig, animate, frames, interval=500, save_count=50, blit=False, init_func=init,repeat=False)
-ani.save('Outputs/Animations/test.mp4', writer=animation.FFMpegWriter(fps=8))
+ani.save('Outputs/Animations/test2.mp4', writer=animation.FFMpegWriter(fps=8))
 
 
