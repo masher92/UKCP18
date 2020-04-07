@@ -1,13 +1,12 @@
 ## Animations  
 
-Creates animations over the whole of the UK, or trimmed to a more local area, which cycle through the hourly precipitation projections.  
+In order to sense check whether the process for clipping the data to a location of interest has worked, an animation which cycles through hourly precipitation accumulations is created with the location of interest marked on. This can be compared against a time-series plot for the same time period to check for accuracy. 
 
-The purpose of this is to provide a means of testing whether a timeseries created for a particular location seems to be accurate.  
-For instance, the time-series of precipitation values for a location in Leeds for 1981 is shown below.
+For instance, the time-series of precipitation values for a location in Leeds for some days in November 1982 is shown below.
 
 ![Animation](Figs/ts_1982.png)
 
-then can then animate the precipitation for 1981 with that location marked on the map and visually check whether the plot seems to be showing the right information. 
+Two animations at different spatial resolutions covering the same time-period, with the location in Leeds marked on are shown below. 
 
 ![Animation](Figs/test.gif)
 
