@@ -60,16 +60,14 @@ month_uk_cube = month_uk_cube.extract(days_constraint)
 #################################################################
 # Trim the precipitation cube to a narrower area
 ###############################################################################
-#lat_constraint = iris.Constraint(grid_latitude=lambda cell: -1 < cell < 2)
-#long_constraint = iris.Constraint(grid_longitude=lambda cell: 359 < cell < 362)
+# Zoom
+lat_constraint = iris.Constraint(grid_latitude=lambda cell: -1 < cell < 2)
+long_constraint = iris.Constraint(grid_longitude=lambda cell: 359 < cell < 362)
 
-# More zoomed in 
+# Mega Zoom
 #lat_constraint = iris.Constraint(grid_latitude=lambda cell: 0.95 < cell < 1.55)
 #long_constraint = iris.Constraint(grid_longitude=lambda cell: 360.5 < cell < 360.9)
 
-# More zoomed in 
-lat_constraint = iris.Constraint(grid_latitude=lambda cell: 1.25 < cell < 1.35)
-long_constraint = iris.Constraint(grid_longitude=lambda cell: 360.60 < cell < 360.70)
 
 # DO the trimming
 month_uk_cube = month_uk_cube.extract(lat_constraint)
@@ -78,7 +76,6 @@ month_uk_cube = month_uk_cube.extract(long_constraint)
 ###############################################################################
 # Plot the timeseries
 ###############################################################################
-
 qplt.plot(pr_ts_cube)
 #plt.xticks(rotation=90)
 plt.show()
@@ -122,10 +119,11 @@ def init():
 def animate(frame):
     return draw(frame)
 
+# Not sure what, if anything, this does
 from matplotlib import rc, animation
 rc('animation', html='html5')
 
 ani = animation.FuncAnimation(fig, animate, frames, interval=500, save_count=50, blit=False, init_func=init,repeat=False)
-ani.save('Outputs/Animations/test2.mp4', writer=animation.FFMpegWriter(fps=8))
+ani.save('PythonScripts/UKCP18/Animations/Figs/1982_whole.mp4', writer=animation.FFMpegWriter(fps=8))
 
 

@@ -29,7 +29,7 @@ os.chdir(ddir)
 ###############################################################################
 time_series_obs = pd.read_csv("Obs_1990-1992.csv")
 time_series_pr_01 = pd.read_csv("Pr_1980-2001_EM01.csv")
-time_series_pr_04 = pd.read_csv("Pr_1990-1996_EM04.csv")
+time_series_pr_04 = pd.read_csv("Pr_1980-1997_EM04.csv")
 
 # Remove values <0.1mm
 time_series_obs = time_series_obs[time_series_obs['Precipitation (mm/hr)'] > 0.1]
@@ -37,13 +37,15 @@ time_series_pr_01 = time_series_pr_01[time_series_pr_01['Precipitation (mm/hr)']
 time_series_pr_04 = time_series_pr_04[time_series_pr_04['Precipitation (mm/hr)'] > 0.1]
 
 # Cut them all to the same time period
-mask = (time_series_pr_01['Date_Formatted'] > '1990-01-01 00:00:00') & (time_series_pr_01['Date_Formatted'] <= '1992-12-31 23:00:00')
-time_series_pr_01 = time_series_pr_01.loc[mask]
+#mask = (time_series_pr_01['Date_Formatted'] > '1990-01-01 00:00:00') & (time_series_pr_01['Date_Formatted'] <= '1992-12-31 23:00:00')
+#time_series_pr_01 = time_series_pr_01.loc[mask]
 
-mask = (time_series_pr_04['Date_Formatted'] > '1990-01-01 00:00:00') & (time_series_pr_04['Date_Formatted'] <= '1992-12-31 23:00:00')
-time_series_pr_04 = time_series_pr_04.loc[mask]
+#mask = (time_series_pr_04['Date_Formatted'] > '1990-01-01 00:00:00') & (time_series_pr_04['Date_Formatted'] <= '1992-12-31 23:00:00')
+#time_series_pr_04 = time_series_pr_04.loc[mask]
 
-###########################
+#################################################################################
+# Test plotting of just one PDF
+#################################################################################
 # Select which time series to plot
 time_series = time_series_obs
 
