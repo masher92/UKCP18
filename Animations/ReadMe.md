@@ -6,3 +6,4 @@ The purpose of this is to provide a means of testing whether a timeseries create
 
 [](Figs/test.gif)
 [](Figs/test.mp4)
+![Alt Text](https://media.giphy.com/media/vFKqnCdLPNOKc/giphy.gif)
