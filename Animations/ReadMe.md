@@ -5,7 +5,7 @@ In order to sense check whether the process for clipping the data to a location 
 For instance, the time-series of precipitation values for a location in Leeds for some days in November 1982 is shown below.
 
 <p align="center">
-  <img width="460" height="300" src="Figs/ts_1982.png">
+  <img src="Figs/ts_1982.png">
 </p>
 
 Two animations at different spatial resolutions covering the same time-period, with the location in Leeds marked on are shown below. 
