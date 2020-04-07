@@ -30,13 +30,13 @@ import pandas as pd
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 # Define the local directory where the data is stored
-ddir="C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/datadir/UKCP18/01/1980-2001"
+ddir="C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/datadir/UKCP18/04/1980-2001"
 os.chdir(ddir)
 
 # Data date range
 start_year = 1980
-end_year = 2001
-em = '01'
+end_year = 1997
+em = '04'
 
 #############################################
 # Read in ten year's worth of data
