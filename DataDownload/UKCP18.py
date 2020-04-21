@@ -1,5 +1,3 @@
-# RUn from cmd -- python "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/PythonScripts/UKCP18/DataDownload/UKCP18.py"
-
 # masher
 #Uganda11
 
