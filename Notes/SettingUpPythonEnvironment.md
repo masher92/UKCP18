@@ -7,7 +7,7 @@ conda install spyder
 When Spyder opens, check tools, prefereces, python interpretor and make sure it is within the same environment
 
 ### To install Iris:
-conda install -c conda-forge iris
+conda install -c conda-forge iris  
 conda install -c conda-forge iris-sample-data
 
 ### To install nc-time-axis (needed for plotting)
