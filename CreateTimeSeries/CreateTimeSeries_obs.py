@@ -2,36 +2,28 @@
 from numpy import array, shape
 import numpy as np
 import iris
-from cartopy import geodesic
 import matplotlib as mpl
 import os
-import time
 import matplotlib.pyplot as plt
-import matplotlib
 import iris.plot as iplt
 import iris.quickplot as qplt
 import pandas as pd
-import copy
 from timeit import default_timer as timer
 import warnings
 warnings.simplefilter(action='ignore', category=UserWarning)
-# This is needed for the animation plot to work
-#plt.rcParams['animation.ffmpeg_path'] ='C:\\Users\\gy17m2a\\OneDrive - University of Leeds\\PhD\\DataAnalysis\\ffmpeg-20200225-36451f9-win64-static\\bin\\ffmpeg.exe'
-import matplotlib.animation as animation
-#import shapely
 
 # Stops warning on loading Iris cubes
 iris.FUTURE.netcdf_promote = True
 iris.FUTURE.netcdf_no_unlimited = True
 
-# Define the local directory where the data is stored; set this as work dir
+# Set locations of scripts as working directory 
 os.chdir("/nfs/a319/gy17m2a/Scripts")
 from config import *
 from Obs_functions import *
 
-############################################
-# Read in data
-#############################################
+############################################################
+# Read in monthly cubes and concatenate into one long timeseries cube
+###########################################################
 # List all the files
 filenames =os.listdir("/nfs/a319/gy17m2a/CEH-GEAR")
 file_dir = "/nfs/a319/gy17m2a/CEH-GEAR/% s"
@@ -57,10 +49,10 @@ closest_idx = find_idx_closestpoint(cube_list, lat, lon, flip = False)
 closest_idx_fl = find_idx_closestpoint(cube_list, lat, lon, flip = True)
 
 #############################################################################
-# Check that data has been extracted for correct location
-# This just plots data for the index of the array that it was found to be closest
-# to the location of interest
-# Doesn't have real coordinates but shows dot in correct location
+# Check that the index returned by this process matches expected location.
+# Use one hour of data to get the shape of the data.
+# Set all values to 0; expect for at the location found above.
+# Plot and check location
 ##############################################################################
 hour = obs_pr_cubes[1]
 #Extract the data
@@ -81,7 +73,7 @@ contour =plt.axes().set_aspect('equal')
 plt.plot(closest_idx_fl[1], closest_idx_fl[0], 'o', color='black', markersize = 3) 
 
 #############################################################################
-# Create timeseries
+# Trim the concatenated cube to the location of interest
 ##############################################################################
 # Keep all of the first dimension (time), and trim to just the location of interest
 interpolated_cube = obs_pr_cubes[:,closest_idx[0], closest_idx[1]]
