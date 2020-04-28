@@ -27,3 +27,5 @@ The structure of the observations and projections data is different and so the p
 * Trim the concatenated cube to the location of interest by subsetting it with the index of the closest location     
 
 
+NB: CEH-GEAR data is in OSGB1936 / BNG (they appear in the code to be in the same system as the coordinates we are providing)
+
