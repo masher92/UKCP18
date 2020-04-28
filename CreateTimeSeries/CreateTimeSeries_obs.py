@@ -1,3 +1,12 @@
+###### Notes on structure of these cubes
+# This IRIS cube has a different structure to the UKCP18 data.
+# This is something to do with it being in the rotated pole co-ordinate system
+# Latitude and longitude are provided on 2d Array. Imagine that the values
+# for these that correspond would appear on top of each other if these arrays
+# were stacked. I.e. accessing the values from the arrays with the same index
+# gives corresponding values. 
+
+
 # Import packages
 from numpy import array, shape
 import numpy as np
