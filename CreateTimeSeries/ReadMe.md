@@ -5,6 +5,8 @@ For this analysis, a long time-series is required, covering the whole of one of 
 
 The structure of the observations and projections data is different and so the process for extracting this timeseries varies slightly between the two.   
 
+<i> NB: Might seem logical to first concatenate the monthly cubes into one cube and then interpolate just this cube. However, when I attempted to do this on my computer it crashed the computer (something to do with the file being too large to store in memory). Trying this approach on the SEE server it didn't crash but was still slower than with the methods below. </i>
+
 <ins>For modelled projections: </ins> 
 * Read all of monthly cubes required for the time-series into a cubeList
 * Define the coordinates of the location of interest and convert these into the projection system in which the modelled data is stored (rotated pole)  
@@ -24,4 +26,6 @@ The structure of the observations and projections data is different and so the p
      2. Create tuples containing corresponding lat and long values, and loop through each tuple and determine which is closest to the location of interest.
 * Trim the concatenated cube to the location of interest by subsetting it with the index of the closest location     
 
+
+NB: CEH-GEAR data is in OSGB1936 / BNG (they appear in the code to be in the same system as the coordinates we are providing)
 
