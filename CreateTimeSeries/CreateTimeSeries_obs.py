@@ -16,6 +16,7 @@ import os
 import matplotlib.pyplot as plt
 import iris.plot as iplt
 import iris.quickplot as qplt
+from iris.time import PartialDateTime 
 import pandas as pd
 from timeit import default_timer as timer
 import warnings
@@ -55,7 +56,7 @@ cube_list = iris.load(filenames[0])
 # For just creating a time series and not plotting, flipping is not really necesary
 # but can be used in the testing below
 closest_idx = find_idx_closestpoint(cube_list, lat, lon, flip = False)
-closest_idx_fl = find_idx_closestpoint(cube_list, lat, lon, flip = True)
+#closest_idx_fl = find_idx_closestpoint(cube_list, lat, lon, flip = True)
 
 #############################################################################
 # Check that the index returned by this process matches expected location.
@@ -63,23 +64,23 @@ closest_idx_fl = find_idx_closestpoint(cube_list, lat, lon, flip = True)
 # Set all values to 0; expect for at the location found above.
 # Plot and check location
 ##############################################################################
-hour = obs_pr_cubes[1]
-#Extract the data
-hour_data = hour.data
-# Flip the data so it's not upside down
-hour_data_fl = np.flipud(hour_data)
-# Fill empty values with NaN
-hour_data_fl = hour_data_fl.filled(np.nan) 
-# Fill all places with 0
-hour_data_fl.fill(0)
-# Fill the location with a different value
-hour_data_fl[closest_idx_fl[0],closest_idx_fl[1]] = 7
+# hour = obs_pr_cubes[1]
+# #Extract the data
+# hour_data = hour.data
+# # Flip the data so it's not upside down
+# hour_data_fl = np.flipud(hour_data)
+# # Fill empty values with NaN
+# hour_data_fl = hour_data_fl.filled(np.nan) 
+# # Fill all places with 0
+# hour_data_fl.fill(0)
+# # Fill the location with a different value
+# hour_data_fl[closest_idx_fl[0],closest_idx_fl[1]] = 7
 
-# Plot
-contour = plt.contourf(hour_data_fl)
-contour = plt.colorbar()
-contour =plt.axes().set_aspect('equal') 
-plt.plot(closest_idx_fl[1], closest_idx_fl[0], 'o', color='black', markersize = 3) 
+# # Plot
+# contour = plt.contourf(hour_data_fl)
+# contour = plt.colorbar()
+# contour =plt.axes().set_aspect('equal') 
+# plt.plot(closest_idx_fl[1], closest_idx_fl[0], 'o', color='black', markersize = 3) 
 
 #############################################################################
 # Trim the concatenated cube to the location of interest
@@ -94,6 +95,15 @@ plt.xticks(rotation=45)
 iplt.plot(obs_pr_cubes)
 plt.xticks(rotation=45)
 
+#############################################################################
+# Cut to time period matching up with UKCP18 data
+##############################################################################
+# Time constraint for which to test the data
+days_constraint = iris.Constraint(time=lambda cell: PartialDateTime(year = 1990, month=1, day=11) < cell.point < PartialDateTime(year = 2001, month=1, day=1))
+
+# Trim data to this time period
+interpolated_cube_1990_2001 = interpolated_cube.extract(days_constraint)
+
 ############################################################################
 # Create as dataframe
 ##############################################################################
@@ -101,13 +111,21 @@ plt.xticks(rotation=45)
 df = pd.DataFrame({'Date': np.array(interpolated_cube.coord('time').points),
                   'Precipitation (mm/hr)': np.array(interpolated_cube.data),
                   'Date_formatted': interpolated_cube.coord('time').units.num2date(interpolated_cube.coord('time').points)})
+
+# Create a dataframe containing the date and the precipitation data
+df_1990_2001 = pd.DataFrame({'Date': np.array(interpolated_cube_1990_2001.coord('time').points),
+                  'Precipitation (mm/hr)': np.array(interpolated_cube_1990_2001.data),
+                  'Date_formatted': interpolated_cube_1990_2001.coord('time').units.num2date(interpolated_cube_1990_2001.coord('time').points)})
+
 ###########################################################
 # Save cube and csv
 ###########################################################
 iris.save(interpolated_cube, 
           "/nfs/a319/gy17m2a/Outputs/CEH-GEAR/Armley/1990-2014.nc")
+iris.save(interpolated_cube_1990_2001, 
+          "/nfs/a319/gy17m2a/Outputs/CEH-GEAR/Armley/1990-2001.nc")
 
 df.to_csv("/nfs/a319/gy17m2a/Outputs/CEH-GEAR/Armley/1990-2014.csv", index = False)
-
+df_1990_2001.to_csv("/nfs/a319/gy17m2a/Outputs/CEH-GEAR/Armley/1990-2001.csv", index = False)
 
 
