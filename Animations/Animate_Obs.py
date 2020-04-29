@@ -1,11 +1,13 @@
+# Script is very temperamental
+#The plt.rcParams line seemingly needs to come straight after the plt.rcParams
+# Can which locaiton of ffmpeg with "which ffmpeg" on linux
+
 #############################################
 # Set up environment
 #############################################
 import iris
 import os
 import iris.quickplot as qplt
-#import iris
-import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import cartopy.feature as cfeat
 import iris.plot as iplt
@@ -17,14 +19,13 @@ import numpy as np
 import pandas as pd
 import matplotlib.dates as mdates
 import matplotlib  
+import matplotlib.pyplot as plt
+plt.rcParams['animation.ffmpeg_path'] = '/usr/bin/ffmpeg'
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
-# Specify path to ffmpeg wrier
-#plt.rcParams['animation.ffmpeg_path'] = 'ffmpeg-20200225-36451f9-win64-static/bin/ffmpeg'
-
 os.chdir("/nfs/a319/gy17m2a/Scripts")
-from config import *
-from Obs_functions import *
+#from config import *
+#from Obs_functions import *
 
 ###############################################################################
 # Load in a timeseries for a specific location (data to be checked)
@@ -107,9 +108,22 @@ def init():
 def animate(frame):
     return draw(frame)
 
-ani = animation.FuncAnimation(fig, animate, frames, interval=5000, blit=False, init_func=init,
-                              repeat=False)
-ani.save('/nfs/a319/gy17m2a/Outputs/CEH-GEAR/Armley/Dec1990.mp4', writer=animation.FFMpegWriter(fps=8))
-#plt.close(fig)
+
+# Not sure what, if anything, this does
+from matplotlib import rc, animation
+rc('animation', html='html5')
+
+ani = animation.FuncAnimation(fig, animate, frames, interval=10, save_count=50, blit=False, init_func=init,repeat=False)
+ani.save('/nfs/a319/gy17m2a/Outputs/CEH-GEAR/Armley/Obs_Dec1980.mp4', writer=animation.FFMpegWriter(fps=8))
+
+# ani = animation.FuncAnimation(fig, animate, frames, interval=10, save_count=50, blit=False, 
+#                               init_func=init,repeat=False)
+# #ani = animation.FuncAnimation(fig, animate, frames, interval=5000, blit=False, init_func=init,repeat=False)
+# ani.save('/nfs/a319/gy17m2a/Outputs/CEH-GEAR/Armley/Dec19902.mp4', writer=animation.FFMpegWriter(fps=8))
+# #plt.close(fig)
+
+# from matplotlib import rc, animation
+# rc('animation', html = 'html5')
+
 
 

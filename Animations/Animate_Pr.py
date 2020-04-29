@@ -1,11 +1,13 @@
+# Script is very temperamental
+#The plt.rcParams line seemingly needs to come straight after the plt.rcParams
+# Can which locaiton of ffmpeg with "which ffmpeg" on linux
+
 #############################################
 # Set up environment
 #############################################
 import iris
 import os
 import iris.quickplot as qplt
-#import iris
-import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import cartopy.feature as cfeat
 import iris.plot as iplt
@@ -17,28 +19,27 @@ import numpy as np
 import pandas as pd
 import matplotlib.dates as mdates
 import matplotlib  
+import matplotlib.pyplot as plt
+plt.rcParams['animation.ffmpeg_path'] = '/usr/bin/ffmpeg'
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 # Define the local directory where the data is stored
-ddir="C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
+ddir="/nfs/a319/gy17m2a/"
 os.chdir(ddir)
 
-# Speify path to ffmpeg wrier
-plt.rcParams['animation.ffmpeg_path'] = 'ffmpeg-20200225-36451f9-win64-static/bin/ffmpeg'
-
-# Data date range
-start_year = 1980
-end_year = 1982
+# Specify path to ffmpeg wrier
+#plt.rcParams['animation.ffmpeg_path'] = '/nfs/a319/gy17m2a/ffmpeg-latest-win64-static/bin/ffmpeg'
+#plt.rcParams['animation.ffmpeg_path'] = '/usr/bin/ffmpeg'
+#plt.rcParams['animation.ffmpeg_path'] = 'ffmpeg-20200225-36451f9-win64-static/bin/ffmpeg'
 
 # Time constraint for which to test the data
-days_constraint = iris.Constraint(time=lambda cell: PartialDateTime(year = end_year, month=11, day=1) < cell.point < PartialDateTime(year = end_year, month=11, day=14))
+days_constraint = iris.Constraint(time=lambda cell: PartialDateTime(year = 1980, month=12, day=1) < cell.point < PartialDateTime(year = 1980, month=12, day=5))
 
 ###############################################################################
 # Load in a timeseries for a specific location (data to be checked)
 ###############################################################################
 # Load in the time series cube
-pr_ts_cube = iris.load(f'Outputs/TimeSeries_cubes/Pr_{start_year}-{end_year}.nc')[0]
-print(pr_ts_cube)
+pr_ts_cube = iris.load('Outputs/TimeSeries_cubes/Armley/2.2km/EM01_1980-2001.nc')[0]
 # load in the time series dataframe
 #pr_ts_df = pd.read_csv(f"Outputs/TimeSeries/Pr_{start_year}-{end_year}_EM01.csv")
 #print(pr_ts_df)
@@ -49,7 +50,7 @@ pr_ts_cube = pr_ts_cube.extract(days_constraint)
 ###############################################################################
 # Load in one month's worth of data in a cube for whole of country
 ###############################################################################                               
-filename = "datadir/UKCP18/01/1980-2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19821101-19821130.nc"
+filename = "UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19801201-19801230.nc"
 month_uk_cube = iris.load(filename,'lwe_precipitation_rate')[0]
 # Remove ensemble member dimension
 month_uk_cube = month_uk_cube[0, :]
@@ -67,7 +68,6 @@ long_constraint = iris.Constraint(grid_longitude=lambda cell: 359 < cell < 362)
 # Mega Zoom
 #lat_constraint = iris.Constraint(grid_latitude=lambda cell: 0.95 < cell < 1.55)
 #long_constraint = iris.Constraint(grid_longitude=lambda cell: 360.5 < cell < 360.9)
-
 
 # DO the trimming
 month_uk_cube = month_uk_cube.extract(lat_constraint)
@@ -123,7 +123,8 @@ def animate(frame):
 from matplotlib import rc, animation
 rc('animation', html='html5')
 
-ani = animation.FuncAnimation(fig, animate, frames, interval=500, save_count=50, blit=False, init_func=init,repeat=False)
-ani.save('PythonScripts/UKCP18/Animations/Figs/1982_whole.mp4', writer=animation.FFMpegWriter(fps=8))
+ani = animation.FuncAnimation(fig, animate, frames, interval=10, save_count=50, blit=False, init_func=init,repeat=False)
+ani.save('Outputs/CEH-GEAR/Armley/Dec1980.mp4', writer=animation.FFMpegWriter(fps=8))
+
 
 
