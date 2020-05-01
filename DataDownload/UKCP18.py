@@ -1,6 +1,9 @@
 # masher
 #Uganda11
 
+# Run as python UKCP18.py from_year to_year ensemble_members
+# e.g. python UKCP18.py 1980 2001 1,2,3,4,5
+
 import ftplib
 import os
 from getpass import getpass # Allows typing password invisibly
@@ -12,7 +15,7 @@ to_year = sys.argv[2]
 
 # Extract from input values the ensemble members and zero pad them
 members = [str(member).zfill(2) for member in sys.argv[3].split(',')]    
-print("Downloading data for ensemble members " + sys.argv[3]) + " for years between " + from_year + " and " + to_year
+print("Downloading data for ensemble members " + str(sys.argv[3]) + " for years between " + str(from_year) + " and " + str(to_year))
 
 # Define the years for which UKCP18 data exists
 years_available = list(range(1980, 2001)) + list(range(2020, 2041)) + list(range(2061, 2081))
@@ -37,9 +40,9 @@ for member in members:
         if 1980 <= year <= 2001:
           ddir = "/nfs/a319/gy17m2a/UKCP18/2.2km/" + member + '/1980_2001' 
         elif 2020 <= year <= 2041:
-          ddir = "/nfs/a319/gy17m2a/UKCP18/2.2km/" + member + '/2021_2040' 
-        elif 2061 <= year <= 2080:
-          ddir = "/nfs/a319/gy17m2a/UKCP18/2.2km/" + member + '/2061_2080'    
+          ddir = "/nfs/a319/gy17m2a/UKCP18/2.2km/" + member + '/2020_2041' 
+        elif 2060 <= year <= 2081:
+          ddir = "/nfs/a319/gy17m2a/UKCP18/2.2km/" + member + '/2060_2081'    
         print("Data for ensemble member " + member + " for year " + str(year) + " to be stored in: " + ddir)        
               
       # If directory doesn't exist make it
@@ -51,14 +54,15 @@ for member in members:
         os.chdir(ddir)
   
         # Loop through months
-        for month in [1,2,3,4,5,6,7,8,9,10,11,12]:
+        for month in [5]:
+        #for month in [1,2,3,4,5,6,7,8,9,10,11,12]:
           for var in (["pr"]):
             # Define filename, note the use of "360 day years (12 months with 30 days)"
             ffile="%s_rcp85_land-cpm_uk_2.2km_%s_1hr_%.4d%.2d01-%.4d%.2d30.nc" % (var, member, year, month, year, month)
             # If the file does not exist, then download it
             if os.path.exists(ffile):
               print ("File " + ffile + ' already exists, skipping to next file')
-            else:
+          #  else:
               # Change the remote directory to reflect correct member and variable
               f.cwd("/badc/ukcp18/data/land-cpm/uk/2.2km/rcp85/"+member+"/"+var+"/1hr/latest")
               print('File ' + ffile +  ' does not already exist, attempting to retrieve')
