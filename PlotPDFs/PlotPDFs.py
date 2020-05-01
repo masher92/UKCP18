@@ -2,154 +2,77 @@
 # Set up environment
 #############################################
 import os
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
-import numpy as np
+#import numpy as np
 import pandas as pd
-from scipy.stats import norm
-from scipy.stats import gamma
-from scipy import stats
+#from scipy.stats import norm
+#from scipy.stats import gamma
+#from scipy import stats
+
+#root_dir = '/nfs/a319/gy17m2a/'
+root_dir = 'C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/RemoteServer/'
 
 # Define the local directory where the data is stored; set this as work dir
-os.chdir("/nfs/a319/gy17m2a/Scripts")
+os.chdir('C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/PythonScripts/UKCP18/PlotPDFs/')
 
-from config import *
-
+from Plotting_functions import *
+#from config import *
+location ='Armley'
 
 #############################################
 # Read in data
 #############################################
-# All ensemble members for projections
-precip_ts = []
-for i in [1,4,5,6,7,8,9,10,11,12,13,15]:
-    precip_ts.append('/nfs/a319/gy17m2a/Outputs/TimeSeries_csv/{}/2.2km/EM{}_1980-2001.csv'.format(location, str(i).zfill(2)))
-
-# Add observations data
-precip_ts.append('/nfs/a319/gy17m2a/Outputs/CEH-GEAR/{}/1990-2001.csv'.format(location))
-bin_nos = 200
-
-
+# Create a dictionary with the ensemble member as the key and the dataframe as value
+# Carry out preprocessing of data
 precip_ts ={}
 for i in [1,4,5,6,7,8,9,10,11,12,13,15]:
-    precip_ts['EM_'+str(i)] = '/nfs/a319/gy17m2a/Outputs/TimeSeries_csv/{}/2.2km/EM{}_1980-2001.csv'.format(location, str(i).zfill(2))
-
-# Add observations data
-precip_ts['Obs'] = '/nfs/a319/gy17m2a/Outputs/CEH-GEAR/{}/1990-2001.csv'.format(location)
-
-bin_nos = 200
-
-###############################################################################
-# Histogram and frequency polygons (i.e. connecting midpoint of histogram bins)
-###############################################################################
-bin_nos = 150
-for key, filename in precip_ts.items():
-    # Read in the csv as a PD dataframe
-    df = pd.read_csv(filename)
-    # Cut all to same number of decimal places
-    #df['Precipitation (mm/hr)'] = df['Precipitation (mm/hr)'].round(1)
-    # Remove values <0.1mm
-    wethours = df[df['Precipitation (mm/hr)'] > 0.1]
-    # Create a histogram and save the bin edges and the values in each bin
-    values, bin_edges = np.histogram(wethours['Precipitation (mm/hr)'], bins=bin_nos, density=True)
-    # Calculate the bin central positions
-    bin_centres =  0.5*(bin_edges[1:] + bin_edges[:-1])
-    # Draw the plot
-    plt.plot(bin_centres, values, label = key, linewidth = 1)
-    #plt.plot(bin_centres, values, color='black', marker='o',markersize =1, linewidth=0.5, markerfacecolor = 'red')
-    #plt.hist(wethours['Precipitation (mm/hr)'], bins = bin_no, density = True, color = 'white', edgecolor = 'black', linewidth= 0.5)
-
-plt.legend()
-#plt.title('1990-1992')
-plt.xlabel('Precipitation (mm/hr)')
-plt.ylabel('Probability density')
-plt.title(str(bin_nos) + " bins")
-plt.yscale('log')
-#plt.xlim(0,10)
-
-
-###############################################################################
-# Method for plotting histogram according to method in Holloway (2012)
-###############################################################################
-bin_nos = 18
-plot_density = 'No'
-plot_fc = 'Yes'
-
-
-for key, filename in precip_ts.items():
-    # Read in the csv as a PD dataframe
-    df = pd.read_csv(filename)
+    #precip_ts['EM_'+str(i)] = root_dir + 'Outputs/TimeSeries_csv/{}/2.2km/EM{}_1980-2001.csv'.format(location, str(i).zfill(2))
+    filename = root_dir + 'Outputs/TimeSeries_csv/{}/2.2km/EM{}_1980-2001.csv'.format(location, str(i).zfill(2))
+    df = pd.read_csv(filename, index_col=None, header=0)
     # Cut all to same number of decimal places
     df['Precipitation (mm/hr)'] = df['Precipitation (mm/hr)'].round(1)
     # Remove values <0.1mm
     wethours = df[df['Precipitation (mm/hr)'] > 0.1]
-   
-       
-    # Create logarithmically spaced bins
-    # Need to go slightly under the number e.g. 0.2 otherwise it excluded values of exactly 0.2
-    #bins = 10 ** np.linspace(np.log10(0.1), np.log10(30), 50)
-    bins = np.logspace(np.log10(0.19),np.log10(wethours['Precipitation (mm/hr)'].max()), bin_nos)  
+    # Save as dictionary entry alongside ensemble member number name
+    precip_ts['EM_'+str(i)] = wethours
     
-    # Find the numbers of precipitation measurements in each bin   
-    freqs, bin_edges = np.histogram(wethours['Precipitation (mm/hr)'], bins= bins, density=False)
-    # Find the centre point of each bin for plotting
-    bin_centres =  0.5*(bin_edges[1:] + bin_edges[:-1])    
-   
-    if plot_density == 'Yes':    
+# Create one dataframe containing all the ensemble member's data merged
+merged_ensembles = pd.concat(precip_ts.values(), axis=0, ignore_index=True)
 
-        # Find the density of each bin as the number of measurements in the bin divided 
-        # by the sum of the the total number of measurememnts in the dataset and the 
-        # bin width in mm/hr
-        densities = []
-        for i in range(0,len(freqs)):
-            bin_width = bin_edges[i+1]  - bin_edges[i]
-            density = freqs[i] /(bin_width*wethours['Precipitation (mm/hr)'].count())
-            densities.append(density)
-    
-       # Use in built np.histogram density calculator
-        density, bin_edges = np.histogram(wethours['Precipitation (mm/hr)'], bins= bins, density=True)
-        # Plot - test whether these are the same
-        # plt.plot(bin_centres, density, linewidth = 1.5, label = 'Np Density')
-        # plt.plot(bin_centres, densities, linewidth = 1.5, label = 'Custom Density')
-        # plt.hist(wethours['Precipitation (mm/hr)'], bins = bins, histtype = 'step', density = 'True')
-        # plt.gca().set_xscale("log")
-        # plt.legend()
-        
-        # Plot 
-        plt.plot(bin_centres, densities, linewidth = 1.5, label = key)
-        #plt.hist(wethours['Precipitation (mm/hr)'], bins = bins, histtype = 'step', density = True)
-        plt.gca().set_xscale("log")
-        plt.gca().set_yscale("log")   
-        plt.legend()
-        plt.xlabel('Precipitation (mm/hr)')
-        plt.ylabel('Probability density')
-        #plt.xlim(0,1)
+# Add observations data to the dictionary
+obs_df = pd.read_csv(root_dir + 'Outputs/CEH-GEAR/{}/1990-2014.csv'.format(location))
+wethours_obs = obs_df[obs_df['Precipitation (mm/hr)'] > 0.1]
+precip_ts['Observations'] = wethours_obs
+
+# Create a seperate dictionary containing the merged ensemble member data and the observations data
+obs_vs_proj = {'Observations' : wethours_obs, 'Merged Ensembles' :  merged_ensembles}
+
+###############################################################################
+# Plots
+###############################################################################
+x_axis = 'linear'
+y_axis = 'linear'
+bin_nos = 100
+bins_if_log_spaced= bin_nos
+
+# Equal spaced histogram
+equal_spaced_histogram(obs_vs_proj, bin_nos,x_axis, y_axis)
+equal_spaced_histogram(precip_ts, bin_nos,x_axis, y_axis)
+     
+# Log spaced histogram
+log_spaced_histogram(obs_vs_proj, bin_nos,x_axis, y_axis)    
+log_spaced_histogram(precip_ts, bin_nos,x_axis, y_axis)    
  
-    if plot_fc == 'Yes':    
-        # Find the sum of the rain rates for all included values
-        R = wethours['Precipitation (mm/hr)'].sum()
-        
-        fcs = []
-        for i in range(0,len(freqs)):
-            # Find parameters
-            r = bin_centres[i]
-            n_r = freqs[i]   
-            delta_r = bin_edges[i+1]  - bin_edges[i]
-            # Implement formula
-            fc = (r * n_r)/(R*delta_r)
-            # Add values to list
-            fcs.append(fc)
-        
-        # Plot 
-        plt.plot(bin_centres, fcs, linewidth = 1.5, label = timeseries[:-4])
-        #plt.hist(wethours['Precipitation (mm/hr)'], bins = bins, histtype = 'step', density = True)
-        plt.gca().set_xscale("log")
-        plt.gca().set_yscale("log")   
-        plt.legend()
-        plt.xlabel('Precipitation (mm/hr)')
-        plt.ylabel('Fraction of total precipitation per rain rate')
-        #plt.xlim(0,1)
-
+# Fractional contribution
+fractional_contribution(obs_vs_proj, bin_nos,x_axis, y_axis)   
+fractional_contribution(precip_ts, bin_nos,x_axis, y_axis) 
+             
+# Log histogram with adaptation     
+log_discrete_histogram(obs_vs_proj, bin_nos,x_axis, y_axis) 
+log_discrete_histogram(precip_ts, bin_nos,x_axis, y_axis) 
+ 
     
 ########################################################
 # Testing effect of moving bottom bin starting point away from the lowest value
