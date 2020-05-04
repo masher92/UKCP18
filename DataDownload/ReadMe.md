@@ -8,7 +8,7 @@ The UKCP18.py script automates download from the CEDA catalogue. The script is s
 e.g. python UKCP18.py from_year to_year ensemble_members
 e.g. python UKCP18.py 1980 2001 1,2,3,4,5
 
-12km data is available here: ~http://data.ceda.ac.uk/badc/ukcp18/data/land-rcm/eur/12km~ http://data.ceda.ac.uk/badc/ukcp18/data/land-rcm/uk/12km/rcp85/01/pr/day/latest
+12km data is available here: ~http://data.ceda.ac.uk/badc/ukcp18/data/land-rcm/eur/12km~ <-- for the whole of Europe. http://data.ceda.ac.uk/badc/ukcp18/data/land-rcm/uk/12km/rcp85/01/pr/day/latest <-- for just UK.
 
 <ins>Observations</ins>  
 CEH-GEAR-1km data is not available via FTP, and has to be downloaded manually from: https://catalogue.ceh.ac.uk/datastore/eidchub/d4ddc781-25f3-423a-bba0-747cc82dc6fa/.
