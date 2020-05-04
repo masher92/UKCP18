@@ -42,7 +42,7 @@ for i in [1,4,5,6,7,8,9,10,11,12,13,15]:
 merged_ensembles = pd.concat(precip_ts.values(), axis=0, ignore_index=True)
 
 # Add observations data to the dictionary
-obs_df = pd.read_csv(root_dir + 'Outputs/CEH-GEAR/{}/1990-2014.csv'.format(location))
+obs_df = pd.read_csv(root_dir + 'Outputs/CEH-GEAR/{}/1990-2001.csv'.format(location))
 wethours_obs = obs_df[obs_df['Precipitation (mm/hr)'] > 0.1]
 precip_ts['Observations'] = wethours_obs
 
@@ -53,8 +53,8 @@ obs_vs_proj = {'Observations' : wethours_obs, 'Merged Ensembles' :  merged_ensem
 # Plots
 ###############################################################################
 x_axis = 'linear'
-y_axis = 'linear'
-bin_nos = 100
+y_axis = 'log'
+bin_nos = 50
 bins_if_log_spaced= bin_nos
 
 # Equal spaced histogram

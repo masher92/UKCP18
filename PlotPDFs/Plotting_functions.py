@@ -136,13 +136,8 @@ def fractional_contribution(dict, bin_nos, x_axis_scaling = 'linear', y_axis_sca
 def log_discrete_histogram(dict, bin_nos, x_axis_scaling = 'linear', y_axis_scaling = 'linear'):
     
     # Create bin edges based on data in all of the dataframes, i.e. use the same bin edges for all dataframes
-    min_values = []
-    max_values = []
-    for key, df in dict.items():
-        max_values.append(df['Precipitation (mm/hr)'].max())
-        min_values.append(df['Precipitation (mm/hr)'].min())
-    max_value = max(max_values)
-    min_value = min(min_values)
+    #min_value = find_min_max_dict_values(dict)[0]
+    max_value = find_min_max_dict_values(dict)[1]
 
     # Maybe min value shoudl be set at 0.05 to make the spacings at the right place
     min_value = 0.05
@@ -152,7 +147,7 @@ def log_discrete_histogram(dict, bin_nos, x_axis_scaling = 'linear', y_axis_scal
     # Find edges of bins 
     bin_edges=log_discrete_bins(min_value,max_value,bins_if_log_spaced,discretisation)
     #print ("Based on " + str(bins_if_log_spaced) + " log spaced bins, " + str(len(bin_edges)) + " bins created with " + str(min_value) + str (max_value))
-    
+    fig, ax = plt.subplots()
     for key, df in dict.items():
         # Find the numbers of precipitation measurements in each bin   
         densities, bin_edges = np.histogram(df['Precipitation (mm/hr)'], bins= bin_edges, density=True)
@@ -174,7 +169,12 @@ def log_discrete_histogram(dict, bin_nos, x_axis_scaling = 'linear', y_axis_scal
     plt.xscale(x_axis_scaling)
     plt.yscale(y_axis_scaling)
         
-        
+    # Remove scientific notation from y-axis
+    for axis in [ax.yaxis]:
+        formatter = ScalarFormatter()
+        formatter.set_scientific(False)
+        ax.yaxis.set_major_formatter(formatter)
+    
         
 ## Holloway method manually applied
 # # Find the numbers of precipitation measurements in each bin   
