@@ -41,8 +41,9 @@ def log_discrete_bins(min_value,max_value,bins_if_log_spaced,discretisation):
 ########################################################
 ### Plotting functions
 ########################################################
-navy = mpatches.Patch(color='navy', label='Observations')
-firebrick = mpatches.Patch(color='firebrick', label='Projections')
+navy_patch = mpatches.Patch(color='navy', label='Observations 1990-2014')
+blue_patch = mpatches.Patch(color='dodgerblue', label='Observations 1990-2001')
+firebrick_patch = mpatches.Patch(color='firebrick', label='Projections 1980-2001')
 
 def equal_spaced_histogram (dict, bin_nos, x_axis_scaling = 'linear', y_axis_scaling = 'linear'):
     for key, df in dict.items():
@@ -51,14 +52,16 @@ def equal_spaced_histogram (dict, bin_nos, x_axis_scaling = 'linear', y_axis_sca
         # Calculate the bin central positions
         bin_centres =  0.5*(bin_edges[1:] + bin_edges[:-1])
         # Draw the plot
-        if key == 'Observations':
-            plt.plot(bin_centres, values,linewidth = 1, color = 'navy')
+        if key == 'Observations_1990_2014':
+            plt.plot(bin_centres, values ,linewidth = 1, color = 'navy')
+        elif key == 'Observations_1990_2001':
+            plt.plot(bin_centres, values,linewidth = 1, color = 'dodgerblue')
         else:
             plt.plot(bin_centres, values,  linewidth = 1, color = 'firebrick')
         #plt.plot(bin_centres, values, color='black', marker='o',markersize =1, linewidth=0.5, markerfacecolor = 'red')
         #plt.hist(wethours['Precipitation (mm/hr)'], bins = bin_no, density = True, color = 'white', edgecolor = 'black', linewidth= 0.5)
     
-    plt.legend(handles=[navy, firebrick])
+    plt.legend(handles=[navy_patch, blue_patch, firebrick_patch])
     plt.xlabel('Precipitation (mm/hr)')
     plt.ylabel('Probability density')
     plt.title(str(bin_nos) + " bins")
@@ -70,6 +73,7 @@ def log_spaced_histogram(dict, bin_nos, x_axis_scaling = 'linear', y_axis_scalin
     # Find maximum and minimum values across all dataframes in dictionary
     min_value = find_min_max_dict_values(dict)[0]
     max_value = find_min_max_dict_values(dict)[1]
+    min_value = 0.5
     
     for key, df in dict.items():
         # Create logarithmically spaced bins
@@ -81,12 +85,14 @@ def log_spaced_histogram(dict, bin_nos, x_axis_scaling = 'linear', y_axis_scalin
         density, bin_edges = np.histogram(df['Precipitation (mm/hr)'], bins= bins, density=True)
         bin_centres =  0.5*(bin_edges[1:] + bin_edges[:-1])  
         # Draw the plot
-        if key == 'Observations':
+        if key == 'Observations_1990_2014':
             plt.plot(bin_centres, density ,linewidth = 1, color = 'navy')
+        elif key == 'Observations_1990_2001':
+            plt.plot(bin_centres, density ,linewidth = 1, color = 'dodgerblue')
         else:
             plt.plot(bin_centres, density,  linewidth = 1, color = 'firebrick')
         
-    plt.legend(handles=[navy, firebrick])
+    plt.legend(handles=[navy_patch, blue_patch, firebrick_patch])
     plt.xlabel('Precipitation (mm/hr)')
     plt.ylabel('Probability density')
     plt.title(str(bin_nos) + " bins")
@@ -98,8 +104,10 @@ def fractional_contribution(dict, bin_nos, x_axis_scaling = 'linear', y_axis_sca
     # Find maximum and minimum values across all dataframes in dictionary
     min_value = find_min_max_dict_values(dict)[0]
     max_value = find_min_max_dict_values(dict)[1]
+    min_value =0.5
     
     for key, df in dict.items():
+        dd = min_value-0.01 if min_value < 0 else min_value 
         # Create log spaced bins
         bins = np.logspace(np.log10(min_value-0.01),np.log10(max_value), bin_nos)  
         # Find the numbers of precipitation measurements in each bin   
@@ -120,12 +128,14 @@ def fractional_contribution(dict, bin_nos, x_axis_scaling = 'linear', y_axis_sca
             # Add values to list
             fcs.append(fc)
         # Draw the plot
-        if key == 'Observations':
+        if key == 'Observations_1990_2014':
             plt.plot(bin_centres, fcs ,linewidth = 1, color = 'navy')
+        elif key == 'Observations_1990_2001':
+            plt.plot(bin_centres, fcs ,linewidth = 1, color = 'dodgerblue')
         else:
             plt.plot(bin_centres, fcs,  linewidth = 1, color = 'firebrick')
         
-    plt.legend(handles=[navy, firebrick])
+    plt.legend(handles=[navy_patch, blue_patch, firebrick_patch])
     plt.xlabel('Precipitation (mm/hr)')
     plt.ylabel('Fractional contribution to rainfall')
     plt.title(str(bin_nos) + " bins")
@@ -147,6 +157,7 @@ def log_discrete_histogram(dict, bin_nos, x_axis_scaling = 'linear', y_axis_scal
     # Find edges of bins 
     bin_edges=log_discrete_bins(min_value,max_value,bins_if_log_spaced,discretisation)
     #print ("Based on " + str(bins_if_log_spaced) + " log spaced bins, " + str(len(bin_edges)) + " bins created with " + str(min_value) + str (max_value))
+   
     fig, ax = plt.subplots()
     for key, df in dict.items():
         # Find the numbers of precipitation measurements in each bin   
@@ -156,24 +167,21 @@ def log_discrete_histogram(dict, bin_nos, x_axis_scaling = 'linear', y_axis_scal
         # Plot
        # plt.plot(bin_centres, densities, linewidth = 1.5, label = key)
         # Draw the plot
-        if key == 'Observations':
+        if key == 'Observations_1990_2014':
+            plt.plot(bin_centres, densities ,linewidth = 1, color = 'dodgerblue')
+        elif key == 'Observations_1990_2001':
             plt.plot(bin_centres, densities ,linewidth = 1, color = 'navy')
         else:
             plt.plot(bin_centres, densities,  linewidth = 1, color = 'firebrick')
 
 
-    plt.legend(handles=[navy, firebrick])
+    plt.legend(handles=[blue_patch, navy_patch, firebrick_patch])
     plt.xlabel('Precipitation (mm/hr)')
     plt.ylabel('Probability density')
     plt.title(str(len(bin_edges)) + " bins")
     plt.xscale(x_axis_scaling)
     plt.yscale(y_axis_scaling)
-        
-    # Remove scientific notation from y-axis
-    for axis in [ax.yaxis]:
-        formatter = ScalarFormatter()
-        formatter.set_scientific(False)
-        ax.yaxis.set_major_formatter(formatter)
+    
     
         
 ## Holloway method manually applied
