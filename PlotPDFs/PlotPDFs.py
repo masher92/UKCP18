@@ -20,7 +20,6 @@ os.chdir('C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/Pytho
 from Plotting_functions import *
 #from config import *
 location ='Armley'
-just_wet_hours = 'No'
 
 #############################################
 # Read in data
@@ -36,42 +35,26 @@ for i in [1,4,5,6,7,8,9,10,11,12,13,15]:
     df['Precipitation (mm/hr)'] = df['Precipitation (mm/hr)'].round(1)
     # Remove values <0.1mm
     wethours = df[df['Precipitation (mm/hr)'] > 0.1]
-    if just_wet_hours == 'Yes':
-        # Save as dictionary entry alongside ensemble member number name
-        precip_ts['EM_'+str(i)] = wethours
-    else:
-        precip_ts['EM_'+str(i)] = df
+    # Save as dictionary entry alongside ensemble member number name
+    precip_ts['EM_'+str(i)] = wethours
     
 # Create one dataframe containing all the ensemble member's data merged
 merged_ensembles = pd.concat(precip_ts.values(), axis=0, ignore_index=True)
 
 # Add observations data to the dictionary
-obs_1990_2001 = pd.read_csv(root_dir + 'Outputs/CEH-GEAR/{}/1990-2001.csv'.format(location))
-obs_1990_2001[obs_1990_2001['Precipitation (mm/hr)'] <0 ] = 0
-wethours_1990_2001 = obs_1990_2001[obs_1990_2001['Precipitation (mm/hr)'] > 0.1]
-if just_wet_hours == 'Yes':
-    precip_ts['Observations_1990_2001'] = wethours_1990_2001
-else:
-    precip_ts['Observations_1990_2001'] = obs_1990_2001
-
-# Add observations data to the dictionary
-obs_1990_2014 = pd.read_csv(root_dir + 'Outputs/CEH-GEAR/{}/1990-2014.csv'.format(location))
-obs_1990_2014[obs_1990_2014['Precipitation (mm/hr)'] <0 ] = 0
-wethours_1990_2014 = obs_1990_2014[obs_1990_2014['Precipitation (mm/hr)'] > 0.1]
-if just_wet_hours == 'Yes':
-    precip_ts['Observations_1990_2014'] = wethours_1990_2014
-else:
-    precip_ts['Observations_1990_2014'] = obs_1990_2014
+obs_df = pd.read_csv(root_dir + 'Outputs/CEH-GEAR/{}/1990-2001.csv'.format(location))
+wethours_obs = obs_df[obs_df['Precipitation (mm/hr)'] > 0.1]
+precip_ts['Observations'] = wethours_obs
 
 # Create a seperate dictionary containing the merged ensemble member data and the observations data
-obs_vs_proj = {'Observations_1990_2014' : wethours_1990_2014, 'Observations_1990_2001' : wethours_1990_2001, 'Merged Ensembles' :  merged_ensembles}
+obs_vs_proj = {'Observations' : wethours_obs, 'Merged Ensembles' :  merged_ensembles}
 
 ###############################################################################
 # Plots
 ###############################################################################
 x_axis = 'linear'
 y_axis = 'log'
-bin_nos = 59
+bin_nos = 10
 bins_if_log_spaced= bin_nos
 
 # Equal spaced histogram
