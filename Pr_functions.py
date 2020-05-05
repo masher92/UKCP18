@@ -122,6 +122,11 @@ def create_concat_cube_one_location_m3 (cube_list, sample_point):
 
 
 def concat_cube_multiple_neighbours_m3 (cube_list, sample_point, n_nearest_neighbours):
+'''
+Returns a dataframe.
+Not possible to create as a concatenated cube because the latitiude and longitude 
+values are not the same in every cube.
+'''    
     # Remove attributes which aren't the same across all the cubes.
      for cube in cube_list:
          for attr in ['creation_date', 'tracking_id', 'history']:
@@ -156,7 +161,7 @@ def concat_cube_multiple_neighbours_m3 (cube_list, sample_point, n_nearest_neigh
      #closest_point_idx = tree.query([(sample_point[0][1], sample_point[1][1])])[1][0]
      closest_points_idxs = tree.query([(sample_point[0][1], sample_point[1][1])], k =n_nearest_neighbours )[1][0]
      
-     time_series_ls = []
+     time_series_df = []
      for point in closest_points_idxs:
          # Extract the lat and long values of this point using the index
          closest_lat = locations[point][0]
@@ -164,6 +169,12 @@ def concat_cube_multiple_neighbours_m3 (cube_list, sample_point, n_nearest_neigh
          # Use this closest lat, long pair to collapse the latitude and longitude dimensions
          # of the concatenated cube to keep just the time series for this closest point 
          time_series = concat_cube.extract(iris.Constraint(grid_latitude=closest_lat, grid_longitude = closest_long))
-         time_series_ls.append(time_series)
-    
-     return (time_series_ls)  
+         # Store data as a dataframe
+         ts_df = pd.DataFrame({'Date': np.array(time_series.coord('yyyymmddhh').points),
+                          'Precipitation (mm/hr)': np.array(time_series.data)})
+         
+         # Add to list of dataframes
+         time_series_df.append(ts_df)
+     # Join all dataframes into one         
+     df = pd.concat(list_of_dataframes)
+     return (time_series_ls)   
