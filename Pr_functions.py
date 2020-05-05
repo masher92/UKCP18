@@ -2,6 +2,8 @@ import cartopy.crs as ccrs
 import iris
 import itertools
 from scipy import spatial
+from timeit import default_timer as timer
+from iris.pandas import as_cube, as_series, as_data_frame 
 
 def define_loc_of_interest(cube, lon, lat):
     #############################################
@@ -161,7 +163,7 @@ values are not the same in every cube.
      #closest_point_idx = tree.query([(sample_point[0][1], sample_point[1][1])])[1][0]
      closest_points_idxs = tree.query([(sample_point[0][1], sample_point[1][1])], k =n_nearest_neighbours )[1][0]
      
-     time_series_df = []
+     time_series_dfs = []
      for point in closest_points_idxs:
          # Extract the lat and long values of this point using the index
          closest_lat = locations[point][0]
@@ -169,12 +171,30 @@ values are not the same in every cube.
          # Use this closest lat, long pair to collapse the latitude and longitude dimensions
          # of the concatenated cube to keep just the time series for this closest point 
          time_series = concat_cube.extract(iris.Constraint(grid_latitude=closest_lat, grid_longitude = closest_long))
+         
          # Store data as a dataframe
+         start = timer()
          ts_df = pd.DataFrame({'Date': np.array(time_series.coord('yyyymmddhh').points),
                           'Precipitation (mm/hr)': np.array(time_series.data)})
+         print("Cubes joined and interpolated to location at " + str(round((timer() - start)/60, 2)) + ' minutes')
+         
+         
+         start = timer()
+         time_series.remove_coord("time")
+         time_series.remove_coord("month_number")
+         time_series.remove_coord("year")
+         test = iris.pandas.as_data_frame  (time_series) 
+         print("Cubes joined and interpolated to location at " + str(round((timer() - start)/60, 2)) + ' minutes')
          
          # Add to list of dataframes
-         time_series_df.append(ts_df)
+         time_series_dfs.append(ts_df)
      # Join all dataframes into one         
-     df = pd.concat(list_of_dataframes)
-     return (time_series_ls)   
+     df = pd.concat(time_series_dfs)
+     return df  
+ 
+
+ 
+    
+
+
+
