@@ -124,11 +124,9 @@ def create_concat_cube_one_location_m3 (cube_list, sample_point):
 
 
 def concat_cube_multiple_neighbours_m3 (cube_list, sample_point, n_nearest_neighbours):
-'''
-Returns a dataframe.
-Not possible to create as a concatenated cube because the latitiude and longitude 
-values are not the same in every cube.
-'''    
+#Returns a dataframe.
+#Not possible to create as a concatenated cube because the latitiude and longitude 
+#values are not the same in every cube.
     # Remove attributes which aren't the same across all the cubes.
      for cube in cube_list:
          for attr in ['creation_date', 'tracking_id', 'history']:
@@ -173,28 +171,46 @@ values are not the same in every cube.
          time_series = concat_cube.extract(iris.Constraint(grid_latitude=closest_lat, grid_longitude = closest_long))
          
          # Store data as a dataframe
+         #time_series = time_series[0:100000]
          start = timer()
          ts_df = pd.DataFrame({'Date': np.array(time_series.coord('yyyymmddhh').points),
-                          'Precipitation (mm/hr)': np.array(time_series.data)})
+                         'Precipitation (mm/hr)': np.array(time_series.lazy_data())})
          print("Cubes joined and interpolated to location at " + str(round((timer() - start)/60, 2)) + ' minutes')
-         
-         
-         start = timer()
-         time_series.remove_coord("time")
-         time_series.remove_coord("month_number")
-         time_series.remove_coord("year")
-         test = iris.pandas.as_data_frame  (time_series) 
-         print("Cubes joined and interpolated to location at " + str(round((timer() - start)/60, 2)) + ' minutes')
-         
-         # Add to list of dataframes
+          # Add to list of dataframes
          time_series_dfs.append(ts_df)
+         print("Created dataframe for nearest neighbour at " + str(point))
      # Join all dataframes into one         
      df = pd.concat(time_series_dfs)
      return df  
  
+# Testing of fastest method
+# time_series = concat_cube.extract(iris.Constraint(grid_latitude=closest_lat, grid_longitude = closest_long))
+# time_series = time_series[0:100000]
+# print(time_series.has_lazy_data())
+# # Store data as a dataframe
+# start = timer()
+# ts_df = pd.DataFrame({'Date': np.array(time_series.coord('yyyymmddhh').points),
+#                  'Precipitation (mm/hr)': np.array(time_series.data)})
+# print("Cubes joined and interpolated to location at " + str(round((timer() - start)/60, 2)) + ' minutes')
+# print(time_series.has_lazy_data())
+   
+# time_series = concat_cube.extract(iris.Constraint(grid_latitude=closest_lat, grid_longitude = closest_long))
+# time_series = time_series[0:100000]
+# print(time_series.has_lazy_data())
+# start = timer()
+# time_series.remove_coord("time")
+# time_series.remove_coord("month_number")
+# time_series.remove_coord("year")
+# test = iris.pandas.as_data_frame  (time_series) 
+# print("Cubes joined and interpolated to location at " + str(round((timer() - start)/60, 2)) + ' minutes')
+# print(time_series.has_lazy_data())
 
- 
-    
-
-
+# time_series = concat_cube.extract(iris.Constraint(grid_latitude=closest_lat, grid_longitude = closest_long))
+# time_series = time_series[0:100000]
+# print(time_series.has_lazy_data())
+# start = timer()
+# ts_df = pd.DataFrame({'Date': np.array(time_series.coord('yyyymmddhh').points),
+#                  'Precipitation (mm/hr)': np.array(time_series.lazy_data())})
+# print("Cubes joined and interpolated to location at " + str(round((timer() - start)/60, 2)) + ' minutes')
+# print(time_series.has_lazy_data())
 
