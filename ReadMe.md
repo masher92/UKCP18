@@ -4,4 +4,7 @@
 Each month has 30 days: this creates a problem when converting the date to a timestamp format as it cannot recognise 30 days in February. 
 
 <ins> To do </ins>  
-Update scripts so there is a file with functions and then can just run one script which does all the processing and saving various things (checking first if they already exist) rather than having to go in and out of various files. 
+Update scripts so there is a file with functions and then can just run one script which does all the processing and saving various things (checking first if they already exist) rather than having to go in and out of various files.   
+
+<ins Running file with sys.argv within Spyder </ins>  
+Open Run -> Configuration per file (Ctrl + f6) and enter the variables into command line arguments and press run.
