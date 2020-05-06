@@ -22,19 +22,21 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 #iris.FUTURE.netcdf_promote = True
 #iris.FUTURE.netcdf_no_unlimited = True
 
-sys.path.insert(0, '/nfs/a319/gy17m2a/Scripts/')
-os.chdir("/nfs/a319/gy17m2a/Scripts")
+sys.path.insert(0, root_fp + 'Scripts/UKCP18')
+#os.chdir("/nfs/a319/gy17m2a/Scripts")
+
 from config import *
 from Pr_functions import *
+
 members = sys.argv[1].split(',')
 for em in members:
     # Check em has a leading zero
     em = em.zfill(2)
     print ("Checking timeseries for " + location + " using ensemble member " + em + " over years " + str(start_year) + "-" + str(end_year))
     # Create paths to the folders where the outputs would be stored
-    cubefolder_fp =r'/nfs/a319/gy17m2a/Outputs/UKCP18/{}/2.2km/TimeSeries_cubes'.format(location)
+    cubefolder_fp = root_fp + "Outputs/UKCP18/{}/2.2km/TimeSeries_cubes".format(location)
     cube_fp =  cubefolder_fp + '/EM{}_{}-{}.nc'.format(em, start_year, end_year)
-    csvfolder_fp =r'/nfs/a319/gy17m2a/Outputs/UKCP18/{}/2.2km/TimeSeries_csv'.format(location)
+    csvfolder_fp =root_fp + "Outputs/UKCP18/{}/2.2km/TimeSeries_csv".format(location)
     csv_fp = csvfolder_fp + '/EM{}_{}-{}.csv'.format(em, start_year, end_year)
     
     # If both the csv and the cube exist, then read them from their location
@@ -56,7 +58,7 @@ for em in members:
         filenames =[]
         for year in range(start_year,end_year+1):
             # Create filepath to correct folder using ensemble member and year
-            general_filename = r'/nfs/a319/gy17m2a/UKCP18/2.2km/{}/{}/pr_rcp85_land-cpm_uk_2.2km_{}_1hr_{}*'.format(em, yrs_range, em, year)
+            general_filename = root_fp + 'Scripts/UKCP18/2.2km/{}/{}/pr_rcp85_land-cpm_uk_2.2km_{}_1hr_{}*'.format(em, yrs_range, em, year)
             #print(general_filename)
             # Find all files in directory which start with this string
             for filename in glob.glob(general_filename):
