@@ -1,3 +1,6 @@
+# Define root file path
+root_fp = "/nfs/a319/gy17m2a/Scripts/UKCP18/"
+
 # Data date range
 start_year = 2060
 end_year = 2081
