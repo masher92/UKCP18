@@ -19,23 +19,22 @@ import pandas as pd
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 # Stops warning on loading Iris cubes
-iris.FUTURE.netcdf_promote = True
-iris.FUTURE.netcdf_no_unlimited = True
+#iris.FUTURE.netcdf_promote = True
+#iris.FUTURE.netcdf_no_unlimited = True
 
-sys.path.insert(0, '/nfs/a319/gy17m2a/Scripts/config.py')
+sys.path.insert(0, '/nfs/a319/gy17m2a/Scripts/')
 os.chdir("/nfs/a319/gy17m2a/Scripts")
 from config import *
 from Pr_functions import *
-
 members = sys.argv[1].split(',')
 for em in members:
     # Check em has a leading zero
     em = em.zfill(2)
     print ("Checking timeseries for " + location + " using ensemble member " + em + " over years " + str(start_year) + "-" + str(end_year))
     # Create paths to the folders where the outputs would be stored
-    cubefolder_fp =r'/nfs/a319/gy17m2a/Outputs/TimeSeries_cubes/{}/2.2km'.format(location)
+    cubefolder_fp =r'/nfs/a319/gy17m2a/Outputs/UKCP18/{}/2.2km/TimeSeries_cubes'.format(location)
     cube_fp =  cubefolder_fp + '/EM{}_{}-{}.nc'.format(em, start_year, end_year)
-    csvfolder_fp =r'/nfs/a319/gy17m2a/Outputs/TimeSeries_csv/{}/2.2km'.format(location)
+    csvfolder_fp =r'/nfs/a319/gy17m2a/Outputs/UKCP18/{}/2.2km/TimeSeries_csv'.format(location)
     csv_fp = csvfolder_fp + '/EM{}_{}-{}.csv'.format(em, start_year, end_year)
     
     # If both the csv and the cube exist, then read them from their location
@@ -50,7 +49,7 @@ for em in members:
           yrs_range = "1980_2001" 
         elif 2020 <= start_year <= 2041:
            yrs_range = "2020_2041" 
-        elif 2061 <= start_year <= 2080:
+        elif 2060 <= start_year <= 2081:
            yrs_range = "2060_2081"  
       
         # Create list of names of cubes for between the years specified
@@ -100,7 +99,7 @@ for em in members:
         #############################################
         # Convert to a dataframe
         #############################################
-        print("Converting to dataframe")
+        print("Converting to dataframe")       
         start_dfconversion_timer = timer()
         ts_df = pd.DataFrame({'Date': np.array(ts_cube.coord('yyyymmddhh').points),
                           'Precipitation (mm/hr)': np.array(ts_cube.data)})
@@ -124,13 +123,12 @@ for em in members:
 
           
         # Create directory if it doesn't exist already
-        if not os.path.isdir(cubefolder_fp):
-            os.makedirs(cubefolder_fp)
+        if not os.path.isdir(csvfolder_fp):
+            os.makedirs(csvdolder_fp)
         # Write to a csv
         ts_df.to_csv(csv_fp, index = False)
         print("Saving csv to " + csv_fp)
-        
-        
+                
         print("Complete")
         #iris.fileformats.netcdf.save(ts_cube, '/nfs/a319/gy17m2a/Outputs/TimeSeries_cubes/Armley/2.2km/EM07_1980-2001_test.nc', unlimited_dimensions = ['time'], chunksizes = [50])
         

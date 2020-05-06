@@ -33,24 +33,22 @@ for em in members:
     em = em.zfill(2)
     print ("Checking timeseries for " + location + " using ensemble member " + em + " over years " + str(start_year) + "-" + str(end_year))
     # Create paths to the folders where the outputs would be stored
-    cubefolder_fp =r'/nfs/a319/gy17m2a/Outputs/TimeSeries_cubes/{}/2.2km'.format(location)
-    cube_fp =  cubefolder_fp + '/EM{}_{}-{}.nc'.format(em, start_year, end_year)
     csvfolder_fp =r'/nfs/a319/gy17m2a/Outputs/TimeSeries_csv/{}/2.2km'.format(location)
     csv_fp = csvfolder_fp + '/5NearestNeighbours/EM{}_{}-{}.csv'.format(em, start_year, end_year)
     
     # If both the csv and the cube exist, then read them from their location
-    if os.path.exists(csv_fp) & os.path.exists(cube_fp):
-        print (csv_fp + " and " + cube_fp + ' already exist.')
+    if os.path.exists(csv_fp) :
+        print (csv_fp + ' already exist.')
     # If either the csv or the cube doesn't exist, then run the code to create them
     else:
-        print("Either " + csv_fp + " or " + cube_fp + ' does not exist, creating...')
+        print(csv_fp + ' does not exist, creating...')
         
         # Define the local directory where the data is stored
         if 1980 <= start_year <= 2001:
           yrs_range = "1980_2001" 
         elif 2020 <= start_year <= 2041:
            yrs_range = "2020_2041" 
-        elif 2061 <= start_year <= 2080:
+        elif 2060 <= start_year <= 2081:
            yrs_range = "2060_2081"  
       
         # Create list of names of cubes for between the years specified
@@ -63,15 +61,10 @@ for em in members:
             for filename in glob.glob(general_filename):
                 #print(filename)
                 filenames.append(filename)
-         
-        #Load in the cubes
-        #print(filenames[239])
-        #for i in range(239,240):
-        #    print(i)
-        #    iris.load(filenames[i],'lwe_precipitation_rate')
           
         monthly_cubes_list = iris.load(filenames,'lwe_precipitation_rate')
         print(str(len(monthly_cubes_list)) + " cubes found for this time period.")
+        
         #############################################
         # Convert the WGS coordiantes of the point of interest into the same coordinate
         # system as the precipitation cubes

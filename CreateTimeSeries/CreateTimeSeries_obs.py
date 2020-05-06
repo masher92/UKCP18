@@ -5,7 +5,7 @@
 # for these that correspond would appear on top of each other if these arrays
 # were stacked. I.e. accessing the values from the arrays with the same index
 # gives corresponding values. 
-
+#sss
 
 # Import packages
 from numpy import array, shape
@@ -27,8 +27,9 @@ iris.FUTURE.netcdf_promote = True
 iris.FUTURE.netcdf_no_unlimited = True
 
 # Set locations of scripts as working directory 
-os.chdir("/nfs/a319/gy17m2a/Scripts")
-from config import *
+os.chdir("/nfs/a319/gy17m2a/Scripts/")
+os.getcwd()
+#from config import *
 from Obs_functions import *
 
 ############################################################
