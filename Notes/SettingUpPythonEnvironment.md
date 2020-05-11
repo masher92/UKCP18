@@ -12,3 +12,6 @@ conda install -c conda-forge iris-sample-data
 
 ### To install nc-time-axis (needed for plotting)
 conda install -c conda-forge nc-time-axis
+
+### To install geopandas
+conda install -c conda-forge geopandas
