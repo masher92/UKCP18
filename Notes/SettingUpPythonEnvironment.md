@@ -16,15 +16,15 @@ conda install -c conda-forge nc-time-axis
 ### To install geopandas
 conda install -c conda-forge geopandas
 
-ukcp18 - fixing
-conda install -c conda-forge cf-units
+### To install tilemapbase
 
-hateyou
-conda create --name hateyou
-conda activate hateyou
-conda install descartes
-conda install -c conda-forge geopandas
-conda install rtree
-conda install -c conda-forge iris
-conda install -c conda-forge nc-time-axis
-conda install -c conda-forge spyder
+
+### hateyou - think this was working fine  
+conda create --name hateyou  
+conda activate hateyou  
+conda install descartes  
+conda install -c conda-forge geopandas  
+conda install rtree  
+conda install -c conda-forge iris  
+conda install -c conda-forge nc-time-axis  
+conda install -c conda-forge spyder  
