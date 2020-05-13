@@ -18,6 +18,9 @@ conda install -c conda-forge geopandas
 
 ### To install tilemapbase
 
+### To install folium  
+conda install -c conda-forge folium  
+
 
 ### hateyou - think this was working fine  
 conda create --name hateyou  
