@@ -22,13 +22,20 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 #iris.FUTURE.netcdf_promote = True
 #iris.FUTURE.netcdf_no_unlimited = True
 
+# Provide root_fp as argument
+#root_fp = sys.argv[1]
+root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
+start_year = 1981
+end_year = 2000 
+
 sys.path.insert(0, root_fp + 'Scripts/UKCP18')
 #os.chdir("/nfs/a319/gy17m2a/Scripts")
 
 from config import *
 from Pr_functions import *
 
-members = sys.argv[1].split(',')
+members = ["1","2","3"]
+#members = sys.argv[2].split(',')
 for em in members:
     # Check em has a leading zero
     em = em.zfill(2)
@@ -58,7 +65,7 @@ for em in members:
         filenames =[]
         for year in range(start_year,end_year+1):
             # Create filepath to correct folder using ensemble member and year
-            general_filename = root_fp + 'Scripts/UKCP18/2.2km/{}/{}/pr_rcp85_land-cpm_uk_2.2km_{}_1hr_{}*'.format(em, yrs_range, em, year)
+            general_filename = root_fp + 'datadir/UKCP18/2.2km/{}/{}/pr_rcp85_land-cpm_uk_2.2km_{}_1hr_{}*'.format(em, yrs_range, em, year)
             #print(general_filename)
             # Find all files in directory which start with this string
             for filename in glob.glob(general_filename):
@@ -79,21 +86,24 @@ for em in members:
         #############################################
         sample_point = define_loc_of_interest(monthly_cubes_list, lon, lat)
         
+        # Reconvert
+        cs = monthly_cubes_list[0].coord_system()
+        lon_calc, lat_calc = iris.analysis.cartography.unrotate_pole(np.array(sample_point[1][1]), np.array(sample_point[0][1]), cs.grid_north_pole_longitude, cs.grid_north_pole_latitude)
+        
         #############################################
         # Create a single cube containing a precipitation timeseries for the 
         # location of interest
-        #############################################
-        #start = timer()
-        #ts_cube = create_concat_cube_one_location_m1(monthly_cubes_list, sample_point)
-        #print(round(timer() - start, 3), 'seconds')   
-        
-        #start = timer()
-        #ts_cube2 = create_concat_cube_one_location_m2(monthly_cubes_list, sample_point)
-        #print(round(timer() - start, 3), 'seconds')  
-        
+        #############################################    
         start = timer()
-        ts_cube = create_concat_cube_one_location_m3(monthly_cubes_list, sample_point)
+        results = create_concat_cube_one_location_m3(monthly_cubes_list, sample_point)
+        ts_cube = results[0]
         print("Cubes joined and interpolated to location at " + str(lat)+ "," + str(lon) + ' in ' + str(round((timer() - start)/60, 1)) + ' minutes')
+        
+        # Check centre location of grid cell it used (in lat, lon)
+        lon_calc, lat_calc = iris.analysis.cartography.unrotate_pole(np.array(results[2]), np.array(results[1]), cs.grid_north_pole_longitude, cs.grid_north_pole_latitude)
+        # Find the index of the closest point
+        index = results[3]
+        
         ## Cmpare outputs
         #qplt.plot(ts_cube3)
         #(ts_cube2.data==ts_cube.data).all()
@@ -137,9 +147,20 @@ for em in members:
 
     
 
-
-
-
+##############################################################################
+### Checking this approach
+##############################################################################
+# It is possible to conduct a check on which grid cell the data is being extracted
+# for using the index of the grid cell returned by the create_concat_cube_one_location_m3
+# function.
+        
+# Create a test dataset with all points with same value
+# Set value at the index returned above to something different
+# And then plot data spatially, and see which grid cell is highlighted.        
+# test_data = np.full((hour_uk_cube.shape), 7, dtype=int)
+# test_data_rs = test_data.reshape(-1)
+# test_data_rs[INDEX] = 500
+# test_data = test_data_rs.reshape(test_data.shape)
 
 
 

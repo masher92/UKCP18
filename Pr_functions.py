@@ -23,62 +23,6 @@ def define_loc_of_interest(cube, lon, lat):
     return(sample_points)
 
 
-def create_concat_cube_one_location_m1 (cube_list, sample_point):
-
-    # Create a list to store the interpolated cubes
-    interpolated_cubes = []  
-    
-    # Loop through each cube in cubes, perform interpolation, save interpolated cube
-    # to list and delete larger cube
-    for cube_idx in range(0,len(cube_list)):
-        print('Interpolating cube with index: ', cube_idx)
-        # Check whether data is fully loaded
-        #print(cubes[0].has_lazy_data())
-        # Remove attributes which aren't the same across all the cubes (otherwise later concat fails)
-        for attr in ['creation_date', 'tracking_id', 'history']:
-            if attr in cube_list[cube_idx].attributes:
-                del cube_list[cube_idx].attributes[attr]
-                    # Do the interpolation
-        
-        # Interpolate data to the sample location
-        interpolated = cube_list[cube_idx].interpolate(sample_point, iris.analysis.Nearest())
-        # Check whether at this point data is fully loaded
-        # print(interpolated.has_lazy_data())
-        # Add interpolated cube to list of cubes
-        interpolated_cubes.append(interpolated)
-        # Delete the cube from the list and the interpolated cube from memory
-        #del(interpolated)
-        #del(cubes[cube_idx])
-    
-    # Create a cube list from the (standard python) list of cubes
-    interpolated_cube_list = iris.cube.CubeList(interpolated_cubes)    
-        
-    # Concatenate the cubes into one
-    interpolated_cubes_concat = interpolated_cube_list.concatenate_cube()
-    
-    # reduce the dimensions (remove ensemble member dimension)
-    interpolated_cubes_concat = interpolated_cubes_concat[0, :]
-    print ("Single interpolated cube created")
-    return (interpolated_cubes_concat)
-
-def create_concat_cube_one_location_m2 (cube_list, sample_point):
-    for cube_idx in range(0,len(cube_list)):      
-        for attr in ['creation_date', 'tracking_id', 'history']:
-                    if attr in cube_list[cube_idx].attributes:
-                        del cube_list[cube_idx].attributes[attr]
-                        # Do the interpolation
-     
-    # Concatenate the cubes into one
-    interpolated_cubes_concat = cube_list.concatenate_cube()
-        
-    # reduce the dimensions (remove ensemble member dimension)
-    interpolated_cubes_concat = interpolated_cubes_concat[0, :]
-         
-    # Interpolate data to the sample location
-    interpolated = interpolated_cubes_concat.interpolate(sample_point, iris.analysis.Nearest())
-    return (interpolated)
-
-
 def create_concat_cube_one_location_m3 (cube_list, sample_point):
     # Remove attributes which aren't the same across all the cubes.
      for cube in cube_list:
@@ -120,7 +64,7 @@ def create_concat_cube_one_location_m3 (cube_list, sample_point):
      # Use this closest lat, long pair to collapse the latitude and longitude dimensions
      # of the concatenated cube to keep just the time series for this closest point 
      time_series = concat_cube.extract(iris.Constraint(grid_latitude=closest_lat, grid_longitude = closest_long))
-     return (time_series)     
+     return (time_series, closest_lat, closest_long, closest_point_idx)     
 
 
 def concat_cube_multiple_neighbours_m3 (cube_list, sample_point, n_nearest_neighbours):
@@ -214,3 +158,58 @@ def concat_cube_multiple_neighbours_m3 (cube_list, sample_point, n_nearest_neigh
 # print("Cubes joined and interpolated to location at " + str(round((timer() - start)/60, 2)) + ' minutes')
 # print(time_series.has_lazy_data())
 
+
+# def create_concat_cube_one_location_m1 (cube_list, sample_point):
+
+#     # Create a list to store the interpolated cubes
+#     interpolated_cubes = []  
+    
+#     # Loop through each cube in cubes, perform interpolation, save interpolated cube
+#     # to list and delete larger cube
+#     for cube_idx in range(0,len(cube_list)):
+#         print('Interpolating cube with index: ', cube_idx)
+#         # Check whether data is fully loaded
+#         #print(cubes[0].has_lazy_data())
+#         # Remove attributes which aren't the same across all the cubes (otherwise later concat fails)
+#         for attr in ['creation_date', 'tracking_id', 'history']:
+#             if attr in cube_list[cube_idx].attributes:
+#                 del cube_list[cube_idx].attributes[attr]
+#                     # Do the interpolation
+        
+#         # Interpolate data to the sample location
+#         interpolated = cube_list[cube_idx].interpolate(sample_point, iris.analysis.Nearest())
+#         # Check whether at this point data is fully loaded
+#         # print(interpolated.has_lazy_data())
+#         # Add interpolated cube to list of cubes
+#         interpolated_cubes.append(interpolated)
+#         # Delete the cube from the list and the interpolated cube from memory
+#         #del(interpolated)
+#         #del(cubes[cube_idx])
+    
+#     # Create a cube list from the (standard python) list of cubes
+#     interpolated_cube_list = iris.cube.CubeList(interpolated_cubes)    
+        
+#     # Concatenate the cubes into one
+#     interpolated_cubes_concat = interpolated_cube_list.concatenate_cube()
+    
+#     # reduce the dimensions (remove ensemble member dimension)
+#     interpolated_cubes_concat = interpolated_cubes_concat[0, :]
+#     print ("Single interpolated cube created")
+#     return (interpolated_cubes_concat)
+
+# def create_concat_cube_one_location_m2 (cube_list, sample_point):
+#     for cube_idx in range(0,len(cube_list)):      
+#         for attr in ['creation_date', 'tracking_id', 'history']:
+#                     if attr in cube_list[cube_idx].attributes:
+#                         del cube_list[cube_idx].attributes[attr]
+#                         # Do the interpolation
+     
+#     # Concatenate the cubes into one
+#     interpolated_cubes_concat = cube_list.concatenate_cube()
+        
+#     # reduce the dimensions (remove ensemble member dimension)
+#     interpolated_cubes_concat = interpolated_cubes_concat[0, :]
+         
+#     # Interpolate data to the sample location
+#     interpolated = interpolated_cubes_concat.interpolate(sample_point, iris.analysis.Nearest())
+#     return (interpolated)
