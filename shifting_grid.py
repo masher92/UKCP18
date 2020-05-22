@@ -47,8 +47,10 @@ os.chdir("C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/")
 # Create a cube creating on hour's worth of data.
 filename = "datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19801201-19801230.nc"
 month_uk_cube = iris.load(filename,'lwe_precipitation_rate')[0]
-# Remove ensemble member dimension and keep one time slice
-hour_uk_cube = month_uk_cube[0, 1,:,:]
+# Remove ensemble member dimension 
+month_uk_cube = month_uk_cube[0, :,:,:]
+# Get just one timeslice
+hour_uk_cube = month_uk_cube[1,:,:]
 
 ##############################################################################
 #### Get arrays of lats and longs of centre points in Web Mercator projection
@@ -114,15 +116,19 @@ ax.pcolormesh(lons_cornerpoints, lats_cornerpoints, within_geometry, cmap =c.Lis
 leeds_gdf.plot(ax=ax, categorical=True, alpha=0.9, edgecolor='green', color='none', linewidth=6)
 ax.tick_params(labelsize='xx-large')
 
+
+##############################################################################
+#### Find indices of points within Leeds
+##############################################################################
+index = np.where(centre_within_geometry== 1)
+
 ##############################################################################
 #### Testing
 ##############################################################################
 # Create test data array where all points are 0
 test_data = np.full((data.shape), 0, dtype=int)
 
-# Find the indexes of one of the points within Leeds
-index = np.where(centre_within_geometry== 1)
-# Set its value to 500
+# Set te value of one point within Leeds to 500
 test_data[index[0][0], index[1][0]] = 500
 
 # Check where the highlighted cell is and where the centre point is
@@ -135,12 +141,52 @@ ax.plot(lons_cornerpoints_1d, lons_cornerpoints_1d, "bo", markersize =10)
 ax.plot(lons_centrepoints[index[0][0], index[1][0]], lats_centrepoints[index[0][0], index[1][0]], "bo", markersize =10)
 ax.pcolormesh(lons_cornerpoints, lats_cornerpoints, test_data, linewidths=3, alpha = 0.5, edgecolor = 'black')
 
+##############################################################################
+#### Find mean and percentile values for each grid box
+##############################################################################
+# Trim monthly cube using same constraints (i.e. removing first row and column of
+# lats and longs)
+month_uk_cube_test = month_uk_cube[:,:605,:483]
 
+# Set up empty lists to store values
+precip_values, means, p99s, p97s, p90s = [], [], [], [], []
 
+# Create arrays of indices of the lats and lons of points within Leeds
+lats_idxs = index[0]
+lons_idxs = index[1]
 
+# For each pair of indices, extract just the cube found at that position
+# Store its precipitationd data values over the time period as a list
+for lat_idx, long_idx in zip(lats_idxs, lons_idxs):
+    cube_at_location = month_uk_cube[:, lat_idx,long_idx]
+    precip_at_location = cube_at_location.data
+    precip_values.append(precip_at_location)
 
+# For each pair of indices:
+# Create lists with mean and various percentile values
+for values in precip_values:
+    means.append(np.mean(values))
+    p99s.append(np.percentile(values,99))
+    p97s.append(np.percentile(values,97))
+    p90s.append(np.percentile(values,90))
 
+# Create a data array of the correct shape 
+# Populate with values using the cube indices and their associated values
+stats_array = np.full((within_geometry.shape), 0, dtype=float)
+for lat_idx, lon_idx, p99 in zip(lats_idxs, lons_idxs, p99s):
+    stats_array[lat_idx, lon_idx] = p99
 
+# Assign NA values to those points not within the geometry
+stats_array = np.where(within_geometry, stats_array, np.nan)  
+
+# Check where the highlighted cell is and where the centre point is
+fig, ax = plt.subplots(figsize=(20,20))
+extent = tilemapbase.extent_from_frame(leeds_gdf, buffer=5)
+plotter = tilemapbase.Plotter(extent, tilemapbase.tiles.build_OSM(), width=600)
+plotter.plot(ax)
+leeds_gdf.plot(ax=ax, categorical=True, alpha=0.9, edgecolor='green', color='none', linewidth=6)
+ax.plot(lons_cornerpoints_1d, lons_cornerpoints_1d, "bo", markersize =10)
+ax.pcolormesh(lons_cornerpoints, lats_cornerpoints, stats_array, linewidths=3, alpha = 0.5, edgecolor = 'black')
 
 
 
