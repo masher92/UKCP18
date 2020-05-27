@@ -142,11 +142,73 @@ ax.plot(lons_centrepoints[index[0][0], index[1][0]], lats_centrepoints[index[0][
 ax.pcolormesh(lons_cornerpoints, lats_cornerpoints, test_data, linewidths=3, alpha = 0.5, edgecolor = 'black')
 
 ##############################################################################
-#### Find mean and percentile values for each grid box
+#### Find mean and percentile values for each grid box (over a month)
 ##############################################################################
 # Trim monthly cube using same constraints (i.e. removing first row and column of
 # lats and longs)
 month_uk_cube_test = month_uk_cube[:,:605,:483]
+
+# Set up empty lists to store values
+precip_values, means, p99s, p97s, p90s = [], [], [], [], []
+
+# Create arrays of indices of the lats and lons of points within Leeds
+lats_idxs = index[0]
+lons_idxs = index[1]
+
+# For each pair of indices, extract just the cube found at that position
+# Store its precipitationd data values over the time period as a list
+for lat_idx, long_idx in zip(lats_idxs, lons_idxs):
+    cube_at_location = month_uk_cube[:, lat_idx,long_idx]
+    precip_at_location = cube_at_location.data.mean
+    precip_values.append(precip_at_location)
+
+
+f = month_uk_cube.collapsed('time', iris.analysis.MEAN)
+
+
+# For each pair of indices:
+# Create lists with mean and various percentile values
+for values in precip_values:
+    means.append(np.mean(values))
+    p99s.append(np.percentile(values,99))
+    p97s.append(np.percentile(values,97))
+    p90s.append(np.percentile(values,90))
+
+# Create a data array of the correct shape 
+# Populate with values using the cube indices and their associated values
+stats_array = np.full((within_geometry.shape), 0, dtype=float)
+for lat_idx, lon_idx, p99 in zip(lats_idxs, lons_idxs, p99s):
+    stats_array[lat_idx, lon_idx] = p99
+
+# Assign NA values to those points not within the geometry
+stats_array = np.where(within_geometry, stats_array, np.nan)  
+
+# Check where the highlighted cell is and where the centre point is
+fig, ax = plt.subplots(figsize=(20,20))
+extent = tilemapbase.extent_from_frame(leeds_gdf, buffer=5)
+plotter = tilemapbase.Plotter(extent, tilemapbase.tiles.build_OSM(), width=600)
+plotter.plot(ax)
+leeds_gdf.plot(ax=ax, categorical=True, alpha=0.9, edgecolor='green', color='none', linewidth=6)
+ax.plot(lons_cornerpoints_1d, lons_cornerpoints_1d, "bo", markersize =10)
+ax.pcolormesh(lons_cornerpoints, lats_cornerpoints, stats_array, linewidths=3, alpha = 0.5, edgecolor = 'black')
+
+
+
+##############################################################################
+#### Find mean and percentile values for each grid box (over 20 years!)
+##############################################################################
+monthly_cubes_list = iris.load(filenames,'lwe_precipitation_rate')
+
+for cube in monthly_cubes_list:
+    for attr in ['creation_date', 'tracking_id', 'history']:
+        if attr in cube.attributes:
+            del cube.attributes[attr]
+
+concat_cube = monthly_cubes_list.concatenate_cube()
+# Reduce the dimensions (remove ensemble member dimension)
+concat_cube = concat_cube[0, :]
+ 
+month_uk_cube = concat_cube[0,:,:605,:483]
 
 # Set up empty lists to store values
 precip_values, means, p99s, p97s, p90s = [], [], [], [], []
@@ -183,11 +245,13 @@ stats_array = np.where(within_geometry, stats_array, np.nan)
 fig, ax = plt.subplots(figsize=(20,20))
 extent = tilemapbase.extent_from_frame(leeds_gdf, buffer=5)
 plotter = tilemapbase.Plotter(extent, tilemapbase.tiles.build_OSM(), width=600)
-plotter.plot(ax)
-leeds_gdf.plot(ax=ax, categorical=True, alpha=0.9, edgecolor='green', color='none', linewidth=6)
-ax.plot(lons_cornerpoints_1d, lons_cornerpoints_1d, "bo", markersize =10)
-ax.pcolormesh(lons_cornerpoints, lats_cornerpoints, stats_array, linewidths=3, alpha = 0.5, edgecolor = 'black')
+plot = plotter.plot(ax)
+plot =ax.plot(lons_cornerpoints_1d, lons_cornerpoints_1d, "bo", markersize =10)
+plot = ax.pcolormesh(lons_cornerpoints, lats_cornerpoints, stats_array, linewidths=3, alpha = 0.5, edgecolor = 'black')
+plt.colorbar(plot,fraction=0.046, pad=0.04).ax.tick_params(labelsize='xx-large')  
+plot = leeds_gdf.plot(ax=ax, categorical=True, alpha=0.9, edgecolor='green', color='none', linewidth=6)  
+plot = ax.tick_params(labelsize='xx-large')
 
 
 
-
+  
