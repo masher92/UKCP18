@@ -111,7 +111,6 @@ dependencies:
   - locket=0.2.0
   - lxml=4.5.0
   - m2w64-gcc-libgfortran=5.3.0
-  - m2w64-gcc-libs=5.3.0
   - m2w64-gcc-libs-core=5.3.0
   - m2w64-gmp=6.1.0
   - m2w64-libwinpthread-git=5.0.0.4634.697f757
@@ -233,7 +232,6 @@ dependencies:
   - urllib3=1.25.8
   - vc=14.1
   - vincent=0.4.4
-  - vs2015_runtime=14.16.27012
   - watchdog=0.10.2
   - wcwidth=0.1.9
   - webencodings=0.5.1
@@ -259,5 +257,7 @@ dependencies:
     - pyqt5-sip==12.7.2
     - pyqtwebengine==5.14.0
     - tilemapbase==0.4.6
+    - vs2015_runtime=14.16.27012
+    - m2w64-gcc-libs=5.3.0
 prefix: C:\ProgramData\Anaconda3\envs\ukcp18_protected
 
