@@ -67,7 +67,6 @@ dependencies:
   - hdf4=4.2.13
   - hdf5=1.10.1
   - heapdict=1.0.1
-  - icc_rt=2019.0.0
   - icu=58.2
   - idna=2.9
   - imagesize=1.2.0
@@ -110,9 +109,6 @@ dependencies:
   - libxslt=1.1.33
   - locket=0.2.0
   - lxml=4.5.0
-  - m2w64-gcc-libgfortran=5.3.0
-  - m2w64-gcc-libs-core=5.3.0
-  - m2w64-gmp=6.1.0
   - m2w64-libwinpthread-git=5.0.0.4634.697f757
   - markupsafe=1.1.1
   - matplotlib=3.1.3
@@ -125,7 +121,6 @@ dependencies:
   - mkl_fft=1.0.15
   - mkl_random=1.1.0
   - msgpack-python=1.0.0
-  - msys2-conda-epoch=20160418
   - munch=2.5.0
   - nbconvert=5.6.1
   - nbformat=5.0.6
@@ -182,7 +177,6 @@ dependencies:
   - python_abi=3.6
   - pytz=2020.1
   - pywin32=227
-  - pywin32-ctypes=0.2.0
   - pywinpty=0.5.7
   - pyyaml=5.3.1
   - pyzmq=18.1.1
@@ -230,15 +224,11 @@ dependencies:
   - udunits2=2.2.27.6
   - ujson=1.35
   - urllib3=1.25.8
-  - vc=14.1
   - vincent=0.4.4
   - watchdog=0.10.2
   - wcwidth=0.1.9
   - webencodings=0.5.1
   - wheel=0.34.2
-  - win_inet_pton=1.1.0
-  - wincertstore=0.2
-  - winpty=0.4.3
   - wrapt=1.11.2
   - xerces-c=3.2.2
   - xz=5.2.5
@@ -259,5 +249,15 @@ dependencies:
     - tilemapbase==0.4.6
     - vs2015_runtime=14.16.27012
     - m2w64-gcc-libs=5.3.0
+    - winpty=0.4.3
+    - wincertstore=0.2
+    - win_inet_pton=1.1.0
+    - msys2-conda-epoch=20160418
+    - vc=14.1
+    - pywin32-ctypes=0.2.0
+    - m2w64-gcc-libgfortran=5.3.0
+    - m2w64-gcc-libs-core=5.3.0
+    - m2w64-gmp=6.1.0
+    - icc_rt=2019.0.0
 prefix: C:\ProgramData\Anaconda3\envs\ukcp18_protected
 
