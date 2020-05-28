@@ -109,7 +109,6 @@ dependencies:
   - libxslt=1.1.33
   - locket=0.2.0
   - lxml=4.5.0
-  - m2w64-libwinpthread-git=5.0.0.4634.697f757
   - markupsafe=1.1.1
   - matplotlib=3.1.3
   - matplotlib-base=3.1.3
@@ -176,8 +175,6 @@ dependencies:
   - python-language-server=0.31.10
   - python_abi=3.6
   - pytz=2020.1
-  - pywin32=227
-  - pywinpty=0.5.7
   - pyyaml=5.3.1
   - pyzmq=18.1.1
   - qdarkstyle=2.8.1
@@ -259,5 +256,8 @@ dependencies:
     - m2w64-gcc-libs-core=5.3.0
     - m2w64-gmp=6.1.0
     - icc_rt=2019.0.0
+    - pywin32=227
+    - pywinpty=0.5.7
+    - m2w64-libwinpthread-git=5.0.0.4634.697f757
 prefix: C:\ProgramData\Anaconda3\envs\ukcp18_protected
 
