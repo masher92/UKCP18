@@ -95,26 +95,55 @@ trimmed_concat_cube = concat_cube[:,:,0:605,0:483]
 wy_cube = trimmed_concat_cube[0,:,wy_lats_idxs,wy_lons_idxs]
 
 ##############################################################################
-#### Find mean and percentile values for each grid box (over a month)
+#### Find mean and percentile values for each grid box (over 20 years)
 ##############################################################################
+wy_cube.has_lazy_data()
+start = timer()
+means = wy_cube.collapsed('time', iris.analysis.MEAN)
+print(means)
+means.has_lazy_data()
+means.data
+end = timer()
+end-start
+
+start = timer()
+P_99 = wy_cube.collapsed('time',  iris.analysis.PERCENTILE, percent = [99])
+end = timer()
+P_99.has_lazy_data()
+
+
+start = timer()
+P_90 = wy_cube.collapsed('time',  iris.analysis.PERCENTILE, percent = [90])
+end = timer()
+P_90.has_lazy_data()
+
+
 # Set up empty lists to store values
 precip_values, means, p99s, p97s, p90s = [], [], [], [], []
 
 # For each pair of indices, extract just the cube found at that position
 # Store its precipitationd data values over the time period as a list
-for lat_idx, long_idx in zip(lats_idxs, lons_idxs):
+i=0
+for lat_idx, long_idx in zip(leeds_lats_idxs, leeds_lons_idxs):
     print(lat_idx, long_idx)
+    i=i+1
     cube_at_location = wy_cube[:, lat_idx,long_idx]
-    precip_at_location = cube_at_location.data.mean
+    precip_at_location = cube_at_location.data.mean()
     precip_values.append(precip_at_location)
 
 
-
+cube_at_location_test = cube_at_location[1:1000]
 cube_at_location.has_lazy_data()
-
+cube_at_location_test.data.mean()
 
 
 f = cube_at_location.collapsed('time', iris.analysis.MEAN)
+ff = f.data.tolist()
+f.data
+
+
+data = cube_at_location_test.data
+data.mean()
 
 
 
