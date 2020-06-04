@@ -1,12 +1,7 @@
-lats_idxs = np.array([269, 270, 271, 272, 273, 274, 275, 276, 277, 278, 279, 280, 281,
-       282, 283, 284, 285, 286, 287, 288, 289])
-lons_idxs = np.array([295, 296, 297, 298, 299, 300, 301, 302, 303, 304, 305, 306, 307,
-       308, 309, 310, 311, 312, 313, 314, 315, 316, 317, 318, 319, 320,
-       321, 322])
+'''
 
-#############################################
-# Set up environment
-#############################################
+'''
+
 import sys
 import iris
 import cartopy.crs as ccrs
@@ -24,10 +19,7 @@ import pandas as pd
 import geopandas as gpd
 import matplotlib.pyplot as plt
 import tilemapbase
-
-# Stops warning on loading Iris cubes
-#iris.FUTURE.netcdf_promote = True
-#iris.FUTURE.netcdf_no_unlimited = True
+import numpy as np
 
 # Provide root_fp as argument
 root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
@@ -42,6 +34,9 @@ end_year = 2000
 yrs_range = "1980_2001" 
 em = '01'
 
+#############################################
+# Read in files
+#############################################
 # Create list of names of cubes for between the years specified
 filenames =[]
 for year in range(start_year,end_year+1):
@@ -56,6 +51,18 @@ for year in range(start_year,end_year+1):
 monthly_cubes_list = iris.load(filenames,'lwe_precipitation_rate')
 print(str(len(monthly_cubes_list)) + " cubes found for this time period.")
 
+##############################################################################
+#### Create a shapely geometry of the outline of Leeds and West Yorks
+##############################################################################
+# Convert outline of Leeds into a polygon
+leeds_gdf = create_leeds_outline({'init' :'epsg:3785'})
+
+# Create geodataframe of the outline of West Yorkshire
+# Data from https://data.opendatasoft.com/explore/dataset/combined-authorities-april-2015-super-generalised-clipped-boundaries-in-england%40ons-public/export/
+wy_gdf = gpd.read_file("datadir/SpatialData/combined-authorities-april-2015-super-generalised-clipped-boundaries-in-england.shp") 
+wy_gdf = wy_gdf[wy_gdf['cauth15cd'] == 'E47000003']
+wy_gdf = wy_gdf.to_crs({'init' :'epsg:3785'}) 
+ 
 #############################################
 # Concat the cubes into one
 #############################################
@@ -68,51 +75,17 @@ for cube in monthly_cubes_list:
  # Concatenate the cubes into one
 concat_cube = monthly_cubes_list.concatenate_cube()
 
-#############################################
-# Trim to just lats and lons within West Yorks
-#############################################
-# Trim the lats and lons in the same way as the other....
-trimmed_concat_cube = concat_cube[:,:,0:605,0:483]
+# Remove ensemble member dimension
+concat_cube = concat_cube[0,:,:,:]
 
-# Remove ensemble member dimension and keep just lats and lons within West Yorks
-wy_cube = trimmed_concat_cube[0,:,lats_idxs,lons_idxs]
+############################################
+# Trim to include only grid cells whose coordinates (which represents the centre
+# point of the cell is within a certain region e.g. West Yorks)
+#############################################
+wy_cube = trim_to_wy(concat_cube)
 
-#############################################
-# Create shapely geometries of the outline of West Yorks and Leeds
-#############################################
-# Create geodataframe of the outline of West Yorkshire
-# Data from https://data.opendatasoft.com/explore/dataset/combined-authorities-april-2015-super-generalised-clipped-boundaries-in-england%40ons-public/export/
-wy_gdf = gpd.read_file("combined-authorities-april-2015-super-generalised-clipped-boundaries-in-england.shp") 
-wy_gdf = wy_gdf[wy_gdf['cauth15cd'] == 'E47000003']
-# Convert to web mercator
-#wy_gdf.crs = {'init' :'epsg:4783'}
-wy_gdf = wy_gdf.to_crs({'init' :'epsg:3785'}) 
-
-# Convert outline of Leeds into a polygon
-leeds_gdf = create_leeds_outline({'init' :'epsg:3785'})
-
-#############################################
-# Check with plotting the right area of cube has been subsetted
-# NB: this isn't quite right; not sure why.
-#############################################
 # Keep only one timeslice
 wy_cube_ts = wy_cube[0,:,:]
-
-# Find lats and lons and check plotting
-lats_centrepoints = wy_cube_ts.coord('latitude').points
-lons_centrepoints = wy_cube_ts.coord('longitude').points
-lons_centrepoints,lats_centrepoints= transform(Proj(init='epsg:4326'),Proj(init='epsg:3785'),lons_centrepoints,lats_centrepoints)
-
-# Plot
-fig, ax = plt.subplots(figsize=(20,20))
-extent = tilemapbase.extent_from_frame(wy_gdf, buffer=5)
-plotter = tilemapbase.Plotter(extent, tilemapbase.tiles.build_OSM(), width=600)
-plotter.plot(ax)
-wy_gdf.plot(ax=ax, categorical=True, alpha=0.9, edgecolor='green', color='none', linewidth=6)
-# Add points at corners of grids
-ax.plot(lons_centrepoints.reshape(-1), lats_centrepoints.reshape(-1), "bo", markersize =10)
-ax.pcolormesh(lons_centrepoints, lats_centrepoints, wy_cube_ts.data, 
-              linewidths=3, alpha = 0.5, edgecolor = 'black')
 
 #############################################
 # Find which grid cell is closest to the point of interest
@@ -126,28 +99,34 @@ lon_sp_wm,lat_sp_wm= transform(Proj(init='epsg:4326'),Proj(init='epsg:3785'),lon
 interpolated = wy_cube_ts.interpolate(sample_point, iris.analysis.Nearest())
 print(interpolated)
 
-# Need to find out what the indicies are of this cube
+# Find out what the indicies are of this cube
 lat = interpolated.coord('latitude').points
 lon = interpolated.coord('longitude').points
-test = np.where(wy_cube_ts.coord('latitude').points == lat)
-idx_closestgrid = test[0][0], test[1][0]
+idx_closestgrid = np.where(wy_cube_ts.coord('latitude').points == lat)
 
 #############################################
-# Find which grid cell is closest to the point of interest
+# t
 #############################################
 # n=1, 3x3; n=2, 5x5; n=3, 7x7
 n=2
-central_lon = idx_closestgrid[0]
-central_lat = idx_closestgrid[1]
-lats = list(range(central_lat-n,central_lat + (n+1)))
-lons = list(range(central_lon-n,central_lon + (n+1)))
+# Find the index of the grid covering the point of interest
+central_lon_idx = idx_closestgrid[0][0]
+central_lat_idx = idx_closestgrid[1][0]
 
+# Find the index of the surrounding area required
+lats_idxs = list(range(central_lat_idx-n,central_lat_idx + (n+1)))
+lons_idxs = list(range(central_lon_idx-n,central_lon_idx + (n+1)))
+
+# Create an empty array of the same size as the cube
 data = wy_cube_ts.data
 data.fill(0)
-for i in list(itertools.product(lons, lats)):
+
+# At the highlghited lat and lons index inset a value of 1
+for i in list(itertools.product(lons_idxs, lats_idxs)):
     print(i)
     data[i] = 1
-data[14,17] = 3
+# Give central point a different value
+data[central_lon_idx,central_lat_idx] = 3
 
 fig, ax = plt.subplots(figsize=(20,20))
 extent = tilemapbase.extent_from_frame(leeds_gdf, buffer=5)
