@@ -24,9 +24,7 @@ plt.rcParams['animation.ffmpeg_path'] = '/usr/bin/ffmpeg'
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 # Define the local directory where the data is stored
-ddir="/nfs/a319/gy17m2a/"
-os.chdir(ddir)
-
+os.chdir("C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/")
 # Specify path to ffmpeg wrier
 #plt.rcParams['animation.ffmpeg_path'] = '/nfs/a319/gy17m2a/ffmpeg-latest-win64-static/bin/ffmpeg'
 #plt.rcParams['animation.ffmpeg_path'] = '/usr/bin/ffmpeg'
@@ -50,7 +48,7 @@ pr_ts_cube = pr_ts_cube.extract(days_constraint)
 ###############################################################################
 # Load in one month's worth of data in a cube for whole of country
 ###############################################################################                               
-filename = "UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19801201-19801230.nc"
+filename = "datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19801201-19801230.nc"
 month_uk_cube = iris.load(filename,'lwe_precipitation_rate')[0]
 # Remove ensemble member dimension
 month_uk_cube = month_uk_cube[0, :]

@@ -22,19 +22,19 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 #iris.FUTURE.netcdf_promote = True
 #iris.FUTURE.netcdf_no_unlimited = True
 
+sys.path.insert(0, root_fp + 'Scripts/UKCP18')
+#os.chdir("/nfs/a319/gy17m2a/Scripts")
+
 # Provide root_fp as argument
 #root_fp = sys.argv[1]
 root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
-start_year = 1981
+start_year = 1980
 end_year = 2000 
-
-sys.path.insert(0, root_fp + 'Scripts/UKCP18')
-#os.chdir("/nfs/a319/gy17m2a/Scripts")
 
 from config import *
 from Pr_functions import *
 
-members = ["1","2","3"]
+members = ["1"]
 #members = sys.argv[2].split(',')
 for em in members:
     # Check em has a leading zero
@@ -80,6 +80,26 @@ for em in members:
           
         monthly_cubes_list = iris.load(filenames,'lwe_precipitation_rate')
         print(str(len(monthly_cubes_list)) + " cubes found for this time period.")
+
+
+        #############################################
+        # Concat the cubes into one
+        #############################################
+        # Remove attributes which aren't the same across all the cubes.
+        for cube in monthly_cubes_list:
+             for attr in ['creation_date', 'tracking_id', 'history']:
+                 if attr in cube.attributes:
+                     del cube.attributes[attr]
+         
+         # Concatenate the cubes into one
+         concat_cube = monthly_cubes_list.concatenate_cube()
+
+        #############################################
+        # Find part within West Yorkshire
+        #############################################
+        centre_within_geometry = GridCells_within_geometry(df, leeds_gdf, data)
+
+
         #############################################
         # Convert the WGS coordiantes of the point of interest into the same coordinate
         # system as the precipitation cubes
@@ -87,8 +107,8 @@ for em in members:
         sample_point = define_loc_of_interest(monthly_cubes_list, lon, lat)
         
         # Reconvert
-        cs = monthly_cubes_list[0].coord_system()
-        lon_calc, lat_calc = iris.analysis.cartography.unrotate_pole(np.array(sample_point[1][1]), np.array(sample_point[0][1]), cs.grid_north_pole_longitude, cs.grid_north_pole_latitude)
+        #cs = monthly_cubes_list[0].coord_system()
+        #lon_calc, lat_calc = iris.analysis.cartography.unrotate_pole(np.array(sample_point[1][1]), np.array(sample_point[0][1]), cs.grid_north_pole_longitude, cs.grid_north_pole_latitude)
         
         #############################################
         # Create a single cube containing a precipitation timeseries for the 
@@ -144,8 +164,7 @@ for em in members:
         print("Complete")
         #iris.fileformats.netcdf.save(ts_cube, '/nfs/a319/gy17m2a/Outputs/TimeSeries_cubes/Armley/2.2km/EM07_1980-2001_test.nc', unlimited_dimensions = ['time'], chunksizes = [50])
         
-
-    
+   
 
 ##############################################################################
 ### Checking this approach

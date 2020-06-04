@@ -10,12 +10,13 @@ import pandas as pd
 #from scipy.stats import norm
 #from scipy.stats import gamma
 #from scipy import stats
+from matplotlib.ticker import ScalarFormatter
 
 #root_dir = '/nfs/a319/gy17m2a/'
-root_dir = 'C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/RemoteServer/'
+root_dir = 'C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/'
 
 # Define the local directory where the data is stored; set this as work dir
-os.chdir('C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/PythonScripts/UKCP18/PlotPDFs/')
+os.chdir('C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/Scripts/UKCP18/PlotPDFs/')
 
 from Plotting_functions import *
 #from config import *
