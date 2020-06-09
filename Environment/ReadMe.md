@@ -4,3 +4,11 @@ conda env export --from-history > environment.yml -- didn't work
 conda env export --no-build > environment_nobuild.yml -- didn't work  
 
 Manually move all packages that come under the error message under the pip section in the .yml file. This gets rid of initial error message but get a different error instead.
+
+Successfully imported environment from desktop computer to remote server, by:  
+Create env.yml file on desktop  
+Run conda env create -f env.yml on remote server.  
+
+However, this wasn't working.  
+After running conda update -n base conda it worked
+
