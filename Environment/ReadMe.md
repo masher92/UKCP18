@@ -12,5 +12,9 @@ Create env.yml file on desktop
 Run conda env create -f env.yml on remote server.  
 
 However, this wasn't working.  
-After running conda update -n base conda it worked
+After running conda update -n base conda it worked  
+
+Further problems with the tilemapbase cache:  
+Resolved by running from tilemapbase import init  
+init(create = True)
 
