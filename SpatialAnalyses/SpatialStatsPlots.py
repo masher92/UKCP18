@@ -1,10 +1,11 @@
-lats = [388411, 382938, 460347 ,449320]
-lons = [399892, 450693, 456892, 398566]
+lats = [388411, 388411, 456892 ,456892]
+lons = [399892, 460347, 460347, 399892]
 polygon_geom = Polygon(zip(lats, lons))
 crs = {'init': 'epsg:27700'}
 polygon = gpd.GeoDataFrame(index=[0], crs=crs, geometry=[polygon_geom])       
 print(polygon.geometry)
 polygon.plot()
+
 
 
 '''
