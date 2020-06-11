@@ -1,13 +1,3 @@
-lats = [388411, 388411, 456892 ,456892]
-lons = [399892, 460347, 460347, 399892]
-polygon_geom = Polygon(zip(lats, lons))
-crs = {'init': 'epsg:27700'}
-polygon = gpd.GeoDataFrame(index=[0], crs=crs, geometry=[polygon_geom])       
-print(polygon.geometry)
-polygon.plot()
-
-
-
 '''
 Creates a cube over a 20 year time period
 Trims this to the square covering the WY extent
@@ -46,7 +36,7 @@ os.chdir(root_fp)
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/')
 from Pr_functions import *
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/SpatialAnalyses')
-from Plotting_functions import *
+from Spatial_plotting_functions import *
 
 start_year = 1980
 end_year = 2000 
@@ -82,6 +72,14 @@ wy_gdf = gpd.read_file("datadir/SpatialData/combined-authorities-april-2015-supe
 wy_gdf = wy_gdf[wy_gdf['cauth15cd'] == 'E47000003']
 wy_gdf = wy_gdf.to_crs({'init' :'epsg:3785'}) 
  
+lats = [384411, 384411, 456892 ,456892]
+lons = [399892, 458800, 458800, 399892]
+polygon_geom = Polygon(zip(lats, lons))
+crs = {'init': 'epsg:27700'}
+polygon = gpd.GeoDataFrame(index=[0], crs=crs, geometry=[polygon_geom])       
+polygon.plot()
+polygon= polygon.to_crs({'init' :'epsg:3785'}) 
+
 #############################################
 # Concat the cubes into one
 #############################################
@@ -93,7 +91,7 @@ for cube in monthly_cubes_list:
  
  # Concatenate the cubes into one
 concat_cube = monthly_cubes_list.concatenate_cube()
-
+#
 # Remove ensemble member dimension
 concat_cube = concat_cube[0,:,:,:]
 
@@ -101,7 +99,8 @@ concat_cube = concat_cube[0,:,:,:]
 # Trim to include only grid cells whose coordinates (which represents the centre
 # point of the cell is within a certain region e.g. West Yorks)
 #############################################
-wy_cube = trim_to_wy(concat_cube)
+#wy_cube = trim_to_wy(concat_cube)
+wy_cube = trim_to_gdf(concat_cube, polygon)
 
 ##############################################################################
 # Get arrays of lats and longs of left corners in Web Mercator projection
@@ -145,24 +144,41 @@ stats_array = stat.data
 #############################################
 # Blank out points not within Leeds - skip this step to get whole area
 #############################################
-centre_within_geometry = GridCells_within_geometry(lats_centrepoints.reshape(-1),lons_centrepoints.reshape(-1), leeds_gdf, wy_cube)
+centre_within_geometry = GridCells_within_geometry(lats_centrepoints.reshape(-1),lons_centrepoints.reshape(-1), polygon_wm, wy_cube)
 stats_array = np.where(centre_within_geometry, stat.data, np.nan)  
+
+
+leeds_cube = trim_to_gdf(wy_cube, polygon_wm)
+leeds_means = leeds_cube.collapsed('time', iris.analysis.MEAN)
+leeds_stats_array = leeds_means.data
+
+Leeds_lats_centrepoints = leeds_cube.coord('latitude').points
+leeds_lons_centrepoints = leeds_cube.coord('longitude').points
+# Convert to WM
+leeds_lons_centrepoints,leeds_lats_centrepoints= transform(Proj(init='epsg:4326'),Proj(init='epsg:3785'),lons_centrepoints,lats_centrepoints)
+
 
 #############################################################################
 #### # Plot - highlighting grid cells whose centre point falls within Leeds
 # Uses the lats and lons of the corner points but with the values derived from 
 # the associated centre point
 ##############################################################################
+lons_wm = [7110000, 7110000, 7162000 ,7162000]
+lats_wm = [-200000, -140000, -140000, -200000]
+polygon_geom_wm = Polygon(zip(lats_wm, lons_wm))
+crs = {'init': 'epsg:3785'}
+polygon_wm = gpd.GeoDataFrame(index=[0], crs=crs, geometry=[polygon_geom_wm])       
+
+
 fig, ax = plt.subplots(figsize=(20,20))
-extent = tilemapbase.extent_from_frame(leeds_gdf, buffer=5)
+extent = tilemapbase.extent_from_frame(polygon_wm, buffer=5)
 plot = plotter = tilemapbase.Plotter(extent, tilemapbase.tiles.build_OSM(), width=600)
 plot =plotter.plot(ax)
-# Add points at corners of grids
-#ax.plot(lons_centrepoints.reshape(-1), lats_centrepoints.reshape(-1), "bo", markersize =10)
-plot =ax.pcolormesh(lons_cornerpoints, lats_cornerpoints, stats_array,
-              linewidths=3, alpha = 1, edgecolor = 'black')
+ax.plot(lcc_lon, lcc_lat, "bo", markersize =10)
+plot =ax.pcolormesh(leeds_lons_cornerpoints, leeds_lats_cornerpoints, leeds_stats_array,
+              linewidths=3, alpha = 1, edgecolor = 'grey', cmap = 'GnBu')
 plt.colorbar(plot,fraction=0.046, pad=0.04).ax.tick_params(labelsize='xx-large')  
-plot =leeds_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='green', color='none', linewidth=6)
+plot =leeds_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='red', color='none', linewidth=6)
 plot =ax.tick_params(labelsize='xx-large')
 #plt.title("99th percentile",fontsize=50)
 
@@ -173,16 +189,28 @@ plot =ax.tick_params(labelsize='xx-large')
 #centre_within_geometry = GridCells_within_geometry(lats_centrepoints.reshape(-1),lons_centrepoints.reshape(-1), wy_gdf, wy_cube)
 #stats_array = np.where(centre_within_geometry, stat.data, np.nan)  
 
+lcc_lon = -173285.69
+lcc_lat = 7132610.01
+
+from matplotlib import cm
+blues = cm.get_cmap('Blues', 1200)
+
+lons_wm = [7076578.356866761, 7076578.356866761, 7167000 ,7167000]
+lats_wm = [-244471.09104387971, -130467.18510639721, -130467.18510639721, -244471.09104387971]
+polygon_geom_wm = Polygon(zip(lats_wm, lons_wm))
+crs = {'init': 'epsg:3785'}
+polygon_wm = gpd.GeoDataFrame(index=[0], crs=crs, geometry=[polygon_geom_wm])       
+
 fig, ax = plt.subplots(figsize=(20,20))
-extent = tilemapbase.extent_from_frame(wy_gdf, buffer=5)
-#plot = plotter = tilemapbase.Plotter(extent, tilemapbase.tiles.build_OSM(), width=600)
+extent = tilemapbase.extent_from_frame(polygon_wm)
+plot = plotter = tilemapbase.Plotter(extent, tilemapbase.tiles.build_OSM(), width=600)
 plot =plotter.plot(ax)
-# Add points at corners of grids
-#ax.plot(lons_centrepoints.reshape(-1), lats_centrepoints.reshape(-1), "bo", markersize =10)
+ax.plot(lcc_lon, lcc_lat, "bo", markersize =10)
 plot =ax.pcolormesh(lons_cornerpoints, lats_cornerpoints, stats_array,
-              linewidths=3, alpha = 1, edgecolor = 'black')
+              linewidths=3, alpha = 1, edgecolor = 'grey', cmap = 'GnBu')
 plt.colorbar(plot,fraction=0.046, pad=0.04).ax.tick_params(labelsize='xx-large')  
-plot =wy_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='green', color='none', linewidth=6)
-plot =leeds_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='red', color='none', linewidth=6)
+plot =wy_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=4)
+plot =polygon_wm.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=6)
+plot =leeds_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='red', color='none', linewidth=4)
 plot =ax.tick_params(labelsize='xx-large')
 #plt.title("99th percentile",fontsize=50)
