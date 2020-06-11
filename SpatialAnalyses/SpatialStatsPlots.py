@@ -1,3 +1,12 @@
+lats = [388411, 382938, 460347 ,449320]
+lons = [399892, 450693, 456892, 398566]
+polygon_geom = Polygon(zip(lats, lons))
+crs = {'init': 'epsg:27700'}
+polygon = gpd.GeoDataFrame(index=[0], crs=crs, geometry=[polygon_geom])       
+print(polygon.geometry)
+polygon.plot()
+
+
 '''
 Creates a cube over a 20 year time period
 Trims this to the square covering the WY extent
@@ -25,6 +34,8 @@ import geopandas as gpd
 import matplotlib.pyplot as plt
 import tilemapbase
 import numpy as np
+from shapely.geometry import Polygon
+
 
 # Provide root_fp as argument
 #root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
