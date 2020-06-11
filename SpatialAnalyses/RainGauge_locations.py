@@ -17,7 +17,7 @@ os.chdir("C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/")
 ##############################################################################
 #### Create a shapely geometry of the outline of Leeds
 ##############################################################################
-wards = gpd.read_file("england_cmwd_2011.shp")
+wards = gpd.read_file("datadir/SpatialData/england_cmwd_2011.shp")
 # Create column to merge on
 wards['City'] = 'Leeds'
 # Merge all wards into one outline

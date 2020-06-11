@@ -27,7 +27,9 @@ import tilemapbase
 import numpy as np
 
 # Provide root_fp as argument
-root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
+#root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
+root_fp = "/nfs/a319/gy17m2a/"
+
 os.chdir(root_fp)
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/')
 from Pr_functions import *
@@ -161,7 +163,7 @@ plot =ax.tick_params(labelsize='xx-large')
 
 fig, ax = plt.subplots(figsize=(20,20))
 extent = tilemapbase.extent_from_frame(wy_gdf, buffer=5)
-plot = plotter = tilemapbase.Plotter(extent, tilemapbase.tiles.build_OSM(), width=600)
+#plot = plotter = tilemapbase.Plotter(extent, tilemapbase.tiles.build_OSM(), width=600)
 plot =plotter.plot(ax)
 # Add points at corners of grids
 #ax.plot(lons_centrepoints.reshape(-1), lats_centrepoints.reshape(-1), "bo", markersize =10)
