@@ -6,7 +6,6 @@ and various percentiles of hourly rainfall.
 Plots these spatially, using pcolormesh and the bottom left corner coordinates
 '''
 
-
 import sys
 import iris
 import cartopy.crs as ccrs
@@ -29,8 +28,8 @@ from shapely.geometry import Polygon
 
 
 # Provide root_fp as argument
-#root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
-root_fp = "/nfs/a319/gy17m2a/"
+root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
+#root_fp = "/nfs/a319/gy17m2a/"
 
 os.chdir(root_fp)
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/')
@@ -57,7 +56,7 @@ for year in range(start_year,end_year+1):
         #print(filename)
         filenames.append(filename)
         
-monthly_cubes_list = iris.load(filenames,'lwe_precipitation_rate')
+monthly_cubes_list = iris.load(filename,'lwe_precipitation_rate')
 print(str(len(monthly_cubes_list)) + " cubes found for this time period.")
 
 ##############################################################################
@@ -72,13 +71,25 @@ wy_gdf = gpd.read_file("datadir/SpatialData/combined-authorities-april-2015-supe
 wy_gdf = wy_gdf[wy_gdf['cauth15cd'] == 'E47000003']
 wy_gdf = wy_gdf.to_crs({'init' :'epsg:3785'}) 
  
+# Create geodataframe of the square outline of West Yorkshire (in OGSB36)
 lats = [384411, 384411, 456892 ,456892]
 lons = [399892, 458800, 458800, 399892]
 polygon_geom = Polygon(zip(lats, lons))
 crs = {'init': 'epsg:27700'}
 polygon = gpd.GeoDataFrame(index=[0], crs=crs, geometry=[polygon_geom])       
-polygon.plot()
 polygon= polygon.to_crs({'init' :'epsg:3785'}) 
+
+# Create geodataframe of the square outline of Leeds (in web mercator)
+lons_wm = [7111000, 7111000, 7163000 ,7163000]
+lats_wm = [-202000, -140000, -140000, -202000]
+polygon_geom_wm = Polygon(zip(lats_wm, lons_wm))
+crs = {'init': 'epsg:3785'}
+polygon_wm = gpd.GeoDataFrame(index=[0], crs=crs, geometry=[polygon_geom_wm])       
+crs = {'init': 'epsg:27700'}
+
+# Location of centre of Leeds (Millenium Square)
+lcc_lon = -173285.69
+lcc_lat = 7132610.01
 
 #############################################
 # Concat the cubes into one
@@ -141,62 +152,37 @@ percentiles.has_lazy_data()
 stat= means
 stats_array = stat.data
 
-#############################################
-# Blank out points not within Leeds - skip this step to get whole area
-#############################################
-centre_within_geometry = GridCells_within_geometry(lats_centrepoints.reshape(-1),lons_centrepoints.reshape(-1), polygon_wm, wy_cube)
-stats_array = np.where(centre_within_geometry, stat.data, np.nan)  
-
-
-leeds_cube = trim_to_gdf(wy_cube, polygon_wm)
-leeds_means = leeds_cube.collapsed('time', iris.analysis.MEAN)
-leeds_stats_array = leeds_means.data
-
-Leeds_lats_centrepoints = leeds_cube.coord('latitude').points
-leeds_lons_centrepoints = leeds_cube.coord('longitude').points
-# Convert to WM
-leeds_lons_centrepoints,leeds_lats_centrepoints= transform(Proj(init='epsg:4326'),Proj(init='epsg:3785'),lons_centrepoints,lats_centrepoints)
-
+#############################################################################
+#### # Plot - uses the lats and lons of the corner points but with the values 
+# derived from the associated centre point
+##############################################################################
+within_leeds_outline = GridCells_within_geometry(lats_centrepoints.reshape(-1),lons_centrepoints.reshape(-1), polygon_wm, wy_cube)
+Leeds_stats_array = np.where(within_leeds_outline, stat.data, np.nan)  
 
 #############################################################################
 #### # Plot - highlighting grid cells whose centre point falls within Leeds
 # Uses the lats and lons of the corner points but with the values derived from 
 # the associated centre point
 ##############################################################################
-lons_wm = [7110000, 7110000, 7162000 ,7162000]
-lats_wm = [-200000, -140000, -140000, -200000]
-polygon_geom_wm = Polygon(zip(lats_wm, lons_wm))
-crs = {'init': 'epsg:3785'}
-polygon_wm = gpd.GeoDataFrame(index=[0], crs=crs, geometry=[polygon_geom_wm])       
-
-
 fig, ax = plt.subplots(figsize=(20,20))
-extent = tilemapbase.extent_from_frame(polygon_wm, buffer=5)
+extent = tilemapbase.extent_from_frame(polygon_wm)
 plot = plotter = tilemapbase.Plotter(extent, tilemapbase.tiles.build_OSM(), width=600)
 plot =plotter.plot(ax)
 ax.plot(lcc_lon, lcc_lat, "bo", markersize =10)
-plot =ax.pcolormesh(leeds_lons_cornerpoints, leeds_lats_cornerpoints, leeds_stats_array,
+plot =ax.pcolormesh(lons_cornerpoints, lats_cornerpoints, stats_array,
               linewidths=3, alpha = 1, edgecolor = 'grey', cmap = 'GnBu')
 plt.colorbar(plot,fraction=0.046, pad=0.04).ax.tick_params(labelsize='xx-large')  
-plot =leeds_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='red', color='none', linewidth=6)
 plot =ax.tick_params(labelsize='xx-large')
-#plt.title("99th percentile",fontsize=50)
-
+plot =polygon_wm.plot(ax=ax, categorical=True, alpha=1, edgecolor='red', color='none', linewidth=6)
+plot =leeds_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='red', color='none', linewidth=6)
 
 #############################################################################
 #### # Plot - West Yorks
 ##############################################################################
-#centre_within_geometry = GridCells_within_geometry(lats_centrepoints.reshape(-1),lons_centrepoints.reshape(-1), wy_gdf, wy_cube)
-#stats_array = np.where(centre_within_geometry, stat.data, np.nan)  
-
-lcc_lon = -173285.69
-lcc_lat = 7132610.01
-
-from matplotlib import cm
-blues = cm.get_cmap('Blues', 1200)
-
-lons_wm = [7076578.356866761, 7076578.356866761, 7167000 ,7167000]
-lats_wm = [-244471.09104387971, -130467.18510639721, -130467.18510639721, -244471.09104387971]
+# Create a new trimmed polygon outline - as the outer edge got lost in 
+# The process of converting to corner coordinates
+lons_wm = [7078000, 7078000, 7167000 ,7167000]
+lats_wm = [-244471, -131467, -131467, -244471]
 polygon_geom_wm = Polygon(zip(lats_wm, lons_wm))
 crs = {'init': 'epsg:3785'}
 polygon_wm = gpd.GeoDataFrame(index=[0], crs=crs, geometry=[polygon_geom_wm])       
