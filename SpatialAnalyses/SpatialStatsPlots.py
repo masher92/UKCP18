@@ -28,8 +28,8 @@ from shapely.geometry import Polygon
 
 
 # Provide root_fp as argument
-root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
-#root_fp = "/nfs/a319/gy17m2a/"
+#root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
+root_fp = "/nfs/a319/gy17m2a/"
 
 os.chdir(root_fp)
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/')
@@ -56,7 +56,7 @@ for year in range(start_year,end_year+1):
         #print(filename)
         filenames.append(filename)
         
-monthly_cubes_list = iris.load(filename,'lwe_precipitation_rate')
+monthly_cubes_list = iris.load(filenames,'lwe_precipitation_rate')
 print(str(len(monthly_cubes_list)) + " cubes found for this time period.")
 
 ##############################################################################
@@ -168,12 +168,12 @@ fig, ax = plt.subplots(figsize=(20,20))
 extent = tilemapbase.extent_from_frame(polygon_wm)
 plot = plotter = tilemapbase.Plotter(extent, tilemapbase.tiles.build_OSM(), width=600)
 plot =plotter.plot(ax)
-ax.plot(lcc_lon, lcc_lat, "bo", markersize =10)
-plot =ax.pcolormesh(lons_cornerpoints, lats_cornerpoints, stats_array,
+#ax.plot(lcc_lon, lcc_lat, "bo", markersize =10)
+plot =ax.pcolormesh(lons_cornerpoints, lats_cornerpoints, Leeds_stats_array,
               linewidths=3, alpha = 1, edgecolor = 'grey', cmap = 'GnBu')
 plt.colorbar(plot,fraction=0.046, pad=0.04).ax.tick_params(labelsize='xx-large')  
 plot =ax.tick_params(labelsize='xx-large')
-plot =polygon_wm.plot(ax=ax, categorical=True, alpha=1, edgecolor='red', color='none', linewidth=6)
+plot =polygon_wm.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=6)
 plot =leeds_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='red', color='none', linewidth=6)
 
 #############################################################################
