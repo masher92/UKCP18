@@ -139,6 +139,57 @@ def trim_to_gdf (cube, gdf):
     return cube
 
 
+def trim_to_gdf_em (cube, gdf):
+    '''
+    Description
+    ----------
+        
+
+    Parameters
+    ----------
+
+
+    Returns
+    -------
+
+    
+    '''
+
+    geometry_poly = Polygon(gdf['geometry'].iloc[0])
+    
+    # Create 1d array of lat and lons and convert to WM
+    lons = cube.coord('longitude').points.reshape(-1)
+    lats = cube.coord('latitude').points.reshape(-1)
+    lons,lats= transform(Proj(init='epsg:4326'),Proj(init='epsg:3785'),lons,lats)
+
+    # Get one timeslice of data
+    one_ts = cube[:,0,:,:]
+    
+    # Go through each lat, lon pair and check if within the geometry
+    within_geometry = []
+    for lon, lat in zip(lons, lats):
+        this_point = Point(lon, lat)
+        res = this_point.within(geometry_poly)
+        #res = leeds_poly.contains(this_point)
+        within_geometry.append(res)
+    # Convert to array
+    within_geometry = np.array(within_geometry)
+    # Convert from a long array into one of the shape of the data
+    within_geometry = np.array(within_geometry).reshape(one_ts.shape)
+    # Convert to 0s and 1s
+    within_geometry = within_geometry.astype(int)
+    # Mask out values of 0
+    within_geometry = np.ma.masked_array(within_geometry, within_geometry < 1)
+
+    indices= np.where(within_geometry== 1)
+    lats_idxs = np.unique(indices[0])
+    lons_idxs = np.unique(indices[1])
+    
+    cube = cube[:,lats_idxs,lons_idxs]
+ #   cube = cube[:,np.append(lats_idxs, 291),np.append(lons_idxs, 324)]
+    return cube
+
+
 
 def trim_to_wy (cube):
     '''
