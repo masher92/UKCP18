@@ -1,3 +1,6 @@
+## Trying to ccomibne multiple ensemble members
+# But concatenate not working because it says ther is some difference in their
+#ensemble member coordinate
 '''
 Creates a cube over a 20 year time period
 Trims this to the square covering the WY extent
@@ -28,8 +31,8 @@ from shapely.geometry import Polygon
 
 
 # Provide root_fp as argument
-root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
-#root_fp = "/nfs/a319/gy17m2a/"
+#root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
+root_fp = "/nfs/a319/gy17m2a/"
 
 os.chdir(root_fp)
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/')
@@ -77,7 +80,7 @@ lcc_lat = 7132610.01
 ##############################################################################
 #### 
 ##############################################################################
-members = ['01', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
+members = ['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
 wy_cubes = []
 for em in members:
     print (em)
@@ -92,7 +95,7 @@ for em in members:
             #print(filename)
             filenames.append(filename)
             
-    monthly_cubes_list = iris.load(filename,'lwe_precipitation_rate')
+    monthly_cubes_list = iris.load(filenames,'lwe_precipitation_rate')
     print(str(len(monthly_cubes_list)) + " cubes found for this time period.")
     
     #############################################
@@ -103,24 +106,24 @@ for em in members:
          for attr in ['creation_date', 'tracking_id', 'history']:
              if attr in cube.attributes:
                  del cube.attributes[attr]
-         cube = cube[0,:,:,:]
-         cube = trim_to_gdf(cube, polygon)
      
     # Concatenate the cubes into one
     concat_cube = monthly_cubes_list.concatenate_cube()
     #
     # Remove ensemble member dimension
-    concat_cube = concat_cube[0,:,:,:]
+    #concat_cube = concat_cube[0,:,:,:]
     
     ############################################
     # Trim to include only grid cells whose coordinates (which represents the centre
     # point of the cell is within a certain region e.g. West Yorks)
     #############################################
     #wy_cube = trim_to_wy(concat_cube)
-    wy_cube = trim_to_gdf(concat_cube, polygon)
+    wy_cube = trim_to_gdf_em(concat_cube, polygon)
     wy_cubes.append(wy_cube)
     
 # Concatenate the cubes into one
-wy_cubes = iris.cube.CubeList(wy_cubes)
-    
-concat_ems = wy_cubes.concatenate_cube()
+wy_cubes_iris = iris.cube.CubeList(wy_cubes)
+concat_ems = wy_cubes_iris.concatenate_cube()
+
+test = wy_cubes[5].coord('ensemble_member').points
+concat_ems = wy_cubes_iris.merge_cube()
