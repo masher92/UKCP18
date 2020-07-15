@@ -175,7 +175,7 @@ def trim_to_gdf_em (cube, gdf):
     # Convert to array
     within_geometry = np.array(within_geometry)
     # Convert from a long array into one of the shape of the data
-    within_geometry = np.array(within_geometry).reshape(one_ts.shape)
+    within_geometry = np.array(within_geometry).reshape(one_ts.shape[1], one_ts.shape[2])
     # Convert to 0s and 1s
     within_geometry = within_geometry.astype(int)
     # Mask out values of 0
@@ -185,7 +185,7 @@ def trim_to_gdf_em (cube, gdf):
     lats_idxs = np.unique(indices[0])
     lons_idxs = np.unique(indices[1])
     
-    cube = cube[:,lats_idxs,lons_idxs]
+    cube = cube[:,:,lats_idxs,lons_idxs]
  #   cube = cube[:,np.append(lats_idxs, 291),np.append(lons_idxs, 324)]
     return cube
 

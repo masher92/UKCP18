@@ -141,7 +141,7 @@ lons_centrepoints,lats_centrepoints= transform(Proj(init='epsg:4326'),Proj(init=
 means = wy_cube.collapsed('time', iris.analysis.MEAN)
 means.has_lazy_data()
 
-percentiles = wy_cube.collapsed('time', iris.analysis.PERCENTILE, percent=[90, 95, 97, 99])
+percentiles = wy_cube.collapsed('time', iris.analysis.PERCENTILE, percent=[99.99])
 p_90 = percentiles[0,:,:]
 p_95 = percentiles[1,:,:]
 p_97 = percentiles[2,:,:]
@@ -149,7 +149,7 @@ p_99 = percentiles[3,:,:]
 percentiles.has_lazy_data()
 
 # Select which stat to use for plotting
-stat= means
+stat= percentiles
 stats_array = stat.data
 
 #############################################################################
@@ -168,7 +168,7 @@ fig, ax = plt.subplots(figsize=(20,20))
 extent = tilemapbase.extent_from_frame(polygon_wm)
 plot = plotter = tilemapbase.Plotter(extent, tilemapbase.tiles.build_OSM(), width=600)
 plot =plotter.plot(ax)
-#ax.plot(lcc_lon, lcc_lat, "bo", markersize =10)
+ax.plot(lcc_lon, lcc_lat, "bo", markersize =10)
 plot =ax.pcolormesh(lons_cornerpoints, lats_cornerpoints, Leeds_stats_array,
               linewidths=3, alpha = 1, edgecolor = 'grey', cmap = 'GnBu')
 cbar = plt.colorbar(plot,fraction=0.036, pad=0.02)
@@ -197,7 +197,8 @@ plot =plotter.plot(ax)
 ax.plot(lcc_lon, lcc_lat, "bo", markersize =10)
 plot =ax.pcolormesh(lons_cornerpoints, lats_cornerpoints, stats_array,
               linewidths=3, alpha = 1, edgecolor = 'grey', cmap = 'GnBu')
-plt.colorbar(plot,fraction=0.046, pad=0.04).ax.tick_params(labelsize='xx-large')  
+cbar = plt.colorbar(plot,fraction=0.036, pad=0.02)
+cbar.ax.tick_params(labelsize='xx-large', size = 10, pad=0.04) 
 plot =wy_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=4)
 plot =polygon_wm.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=6)
 plot =leeds_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='red', color='none', linewidth=4)
