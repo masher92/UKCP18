@@ -2,7 +2,7 @@ import numpy as np
 import geopandas as gpd
 import iris
 from pyproj import Proj, transform
-from shapely.geometry import Point, Polygon
+from shapely.geometry import Point, Polygon, MultiPolygon
 
 def create_leeds_outline (required_proj):
     '''
@@ -246,6 +246,69 @@ def trim_to_wy (cube):
     cube = cube[:,np.append(lats_idxs, 291),np.append(lons_idxs, 324)]
     return cube
 
+
+def trim_to_thenorth (cube):
+    '''
+    Description
+    ----------
+    Data from https://geoportal.statistics.gov.uk/datasets/regions-december-2015-full-extent-boundaries-in-england/data
+
+    Parameters
+    ----------
+
+
+    Returns
+    -------
+
+    
+    '''
+    # Create geodataframe of West Yorks
+    uk_regions = gpd.read_file(root_fp + "datadir/SpatialData/Region__December_2015__Boundaries-shp/Region__December_2015__Boundaries.shp") 
+    northern_regions = uk_regions.loc[uk_regions['rgn15nm'].isin(['North East', 'North West', 'Yorkshire and The Humber'])]
+    northern_regions = northern_regions.to_crs({'init' :'epsg:3785'}) 
+    
+    # Merge the three regions into one
+    northern_regions['merging_col'] = 0
+    northern_regions_combi = northern_regions.dissolve(by='merging_col')
+    
+    # Check by plotting
+    fig, ax = plt.subplots(figsize=(20,20))
+    plot =northern_regions_combi.plot(ax=ax, categorical=True, alpha=1, edgecolor='red', color='none', linewidth=6)
+     
+    geometry_poly = MultiPolygon(northern_regions_combi['geometry'].iloc[0])
+    
+    # Create 1d array of lat and lons and convert to WM
+    lons = cube.coord('longitude').points.reshape(-1)
+    lats = cube.coord('latitude').points.reshape(-1)
+    lons,lats= transform(Proj(init='epsg:4326'),Proj(init='epsg:3785'),lons,lats)
+
+    # Get one timeslice of data
+    one_ts = cube[0,:,:]
+    
+    # Go through each lat, lon pair and check if within the geometry
+    within_geometry = []
+    for lon, lat in zip(lons, lats):
+        this_point = Point(lon, lat)
+        res = this_point.within(geometry_poly)
+        #res = leeds_poly.contains(this_point)
+        within_geometry.append(res)
+    # Convert to array
+    within_geometry = np.array(within_geometry)
+    # Convert from a long array into one of the shape of the data
+    within_geometry = np.array(within_geometry).reshape(one_ts.shape)
+    # Convert to 0s and 1s
+    within_geometry = within_geometry.astype(int)
+    # Mask out values of 0
+    within_geometry = np.ma.masked_array(within_geometry, within_geometry < 1)
+
+
+    indices= np.where(within_geometry== 1)
+    lats_idxs = np.unique(indices[0])
+    lons_idxs = np.unique(indices[1])
+    
+    #cube = cube[:,lats_idxs,lons_idxs]
+    cube = cube[:,np.append(lats_idxs, 291),np.append(lons_idxs, 324)]
+    return cube
 
 
 
