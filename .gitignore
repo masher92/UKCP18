@@ -1,0 +1,4 @@
+*.dat
+results/	results/
+!**/__pycache__/
+Outputs/
