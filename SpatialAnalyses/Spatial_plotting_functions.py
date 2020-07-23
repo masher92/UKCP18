@@ -4,8 +4,7 @@ import iris
 from pyproj import Proj, transform
 from shapely.geometry import Point, Polygon, MultiPolygon
 
-root_fp = "/nfs/a319/gy17m2a/"
-=======
+root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
 
 def create_leeds_outline (required_proj):
     '''
@@ -275,13 +274,8 @@ def trim_to_thenorth (cube):
     northern_regions_combi = northern_regions.dissolve(by='merging_col')
     
     # Check by plotting
-<<<<<<< HEAD
     #fig, ax = plt.subplots(figsize=(20,20))
     #plot =northern_regions_combi.plot(ax=ax, categorical=True, alpha=1, edgecolor='red', color='none', linewidth=6)
-=======
-    fig, ax = plt.subplots(figsize=(20,20))
-    plot =northern_regions_combi.plot(ax=ax, categorical=True, alpha=1, edgecolor='red', color='none', linewidth=6)
->>>>>>> 09176ee92677dc4da4828a9b252d80bc126fd78b
      
     geometry_poly = MultiPolygon(northern_regions_combi['geometry'].iloc[0])
     
@@ -315,11 +309,8 @@ def trim_to_thenorth (cube):
     lons_idxs = np.unique(indices[1])
     
     #cube = cube[:,lats_idxs,lons_idxs]
-    cube = cube[:,np.append(lats_idxs, 291),np.append(lons_idxs, 324)]
-<<<<<<< HEAD
+  #  cube = cube[:,np.append(lats_idxs, 291),np.append(lons_idxs, 324)]
     cube = cube[:,np.append(lats_idxs, np.max(lats_idxs) + 1),np.append(lons_idxs, np.max(lons_idxs) + 1)]
-=======
->>>>>>> 09176ee92677dc4da4828a9b252d80bc126fd78b
     return cube
 
 

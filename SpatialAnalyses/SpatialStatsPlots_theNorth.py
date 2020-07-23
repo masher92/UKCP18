@@ -27,10 +27,6 @@ import tilemapbase
 import numpy as np
 from shapely.geometry import Polygon
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 09176ee92677dc4da4828a9b252d80bc126fd78b
 # Provide root_fp as argument
 #root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
 root_fp = "/nfs/a319/gy17m2a/"

@@ -9,8 +9,8 @@ end_year = 2081
 members = ['7']
 
 # Coordinates of location to download data for
-lon = -1.588883
-lat =  53.801994
+lon = -1.37818
+lat =  53.79282
 # Name for this location
 location = 'Armley'
 

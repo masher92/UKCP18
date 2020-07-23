@@ -27,6 +27,8 @@ location ='Armley'
 #############################################
 # Create a dictionary with the ensemble member as the key and the dataframe as value
 # Carry out preprocessing of data
+total = 0
+wet_total = 0
 precip_ts ={}
 for i in [1,4,5,6,7,8,9,10,11,12,13,15]:
     #precip_ts['EM_'+str(i)] = root_dir + 'Outputs/TimeSeries_csv/{}/2.2km/EM{}_1980-2001.csv'.format(location, str(i).zfill(2))
@@ -36,10 +38,13 @@ for i in [1,4,5,6,7,8,9,10,11,12,13,15]:
     df['Precipitation (mm/hr)'] = df['Precipitation (mm/hr)'].round(1)
     # Keep only entries between 1990-2001
     df = df[(df['Date_Formatted'] > '1990-01-01') & (df['Date_Formatted']< '2000-12-31')]
+    total = total + len(df)
     # Remove values <0.1mm
-    wethours = df[df['Precipitation (mm/hr)'] > 0.1]
+    #wethours = df[df['Precipitation (mm/hr)'] > 0.1]
+    wethours = df
     # Save as dictionary entry alongside ensemble member number name
     precip_ts['EM_'+str(i)] = wethours
+    wet_total = wet_total + len(wethours)
     
 # Create one dataframe containing all the ensemble member's data merged
 merged_ensembles = pd.concat(precip_ts.values(), axis=0, ignore_index=True)
@@ -49,54 +54,67 @@ obs_df = pd.read_csv(root_dir + 'Outputs/CEH-GEAR/{}/1990-2001.csv'.format(locat
 # Keep only entries between 1990-2001
 obs_df = obs_df[(obs_df['Date_formatted'] > '1990-01-01') & (obs_df['Date_formatted']< '2000-12-31')]
 # Remove values <0.1mm
-wethours_obs = obs_df[obs_df['Precipitation (mm/hr)'] > 0.1]
+#wethours_obs = obs_df[obs_df['Precipitation (mm/hr)'] > 0.1]
+wethours_obs = obs_df
+# Add to dict
 precip_ts['Observations'] = wethours_obs
 
 # Create a seperate dictionary containing the merged ensemble member data and the observations data
 obs_vs_proj = {'Observations' : wethours_obs, 'Merged Ensembles' :  merged_ensembles}
 
-###############################################################################
-# Plots
-###############################################################################
-x_axis = 'linear'
-y_axis = 'log'
-bin_nos =60
-bins_if_log_spaced= bin_nos
-
-# Equal spaced histogram
-equal_spaced_histogram(obs_vs_proj, bin_nos,x_axis, y_axis)
-equal_spaced_histogram(precip_ts, bin_nos,x_axis, y_axis)
-     
-# Log spaced histogram
-log_spaced_histogram(obs_vs_proj, bin_nos,x_axis, y_axis)    
-log_spaced_histogram(precip_ts, bin_nos,x_axis, y_axis)    
- 
-# Fractional contribution
-fractional_contribution(obs_vs_proj, bin_nos,x_axis, y_axis)   
-fractional_contribution(precip_ts, bin_nos,x_axis, y_axis) 
-             
-# Log histogram with adaptation     
-log_discrete_histogram(obs_vs_proj, bin_nos,x_axis, y_axis) 
-log_discrete_histogram(precip_ts, bin_nos,x_axis, y_axis) 
- 
+keys = []
+p_99_99 = []
+p_99_95 = []
+p_99_9 = []
+p_99_5 = []
+p_99 = []
+p_95 =[]
+p_90 = []
+p_80 = []
+p_70 = []
+p_60 = []
+p_50 = []
+for key, value in precip_ts.items():
+    df = precip_ts[key]
+    p_99_99.append(df['Precipitation (mm/hr)'].quantile(0.9999))
+    p_99_95.append(df['Precipitation (mm/hr)'].quantile(0.9995))
+    p_99_9.append(df['Precipitation (mm/hr)'].quantile(0.999))
+    p_99_5.append(df['Precipitation (mm/hr)'].quantile(0.995))
+    p_99.append(df['Precipitation (mm/hr)'].quantile(0.99))
+    p_95.append(df['Precipitation (mm/hr)'].quantile(0.95))
+    p_90.append(df['Precipitation (mm/hr)'].quantile(0.9))
+    p_80.append(df['Precipitation (mm/hr)'].quantile(0.8))
+    p_70.append(df['Precipitation (mm/hr)'].quantile(0.7))
+    p_60.append(df['Precipitation (mm/hr)'].quantile(0.6))
+    p_50.append(df['Precipitation (mm/hr)'].quantile(0.5))
+    keys.append(key)
     
-########################################################
-# Testing effect of moving bottom bin starting point away from the lowest value
-#bin_nos = 250
-#bin_div_1 = np.linspace(wethours['Precipitation (mm/hr)'].min(), wethours['Precipitation (mm/hr)'].max(),bin_nos).tolist()
-#bin_div_2 = np.linspace(wethours['Precipitation (mm/hr)'].min()-0.05, wethours['Precipitation (mm/hr)'].max()-0.05,bin_nos).tolist()
-#bin_div_3 = np.linspace(wethours['Precipitation (mm/hr)'].min()-0.1, wethours['Precipitation (mm/hr)'].max()-0.1,bin_nos).tolist()
-#bin_div_4 = np.linspace(wethours['Precipitation (mm/hr)'].min()+0.5, wethours['Precipitation (mm/hr)'].max()+0.5,bin_nos).tolist()
-#bin_divs = [bin_div_1, bin_div_2, bin_div_3, bin_div_4]
+    
+df= pd.DataFrame({'Key':keys, '50': p_50,
+                 '60': p_60, '70': p_70,  
+                  '80': p_80, '90': p_90,
+                 '95': p_95, '99': p_99,
+                 '99.5': p_99_5, '99.9': p_99_9,
+                '99.95': p_99_95, '99.99': p_99_99})
 
-# Plotting
-#for bin_div in bin_divs:
-#    # Create a histogram and save the bin edges and the values in each bin
-#    values, bin_edges = np.histogram(wethours['Precipitation (mm/hr)'], bins=bin_nos, density=True)
-#    # Calculate the bin central positions
-#    bin_centres =  0.5*(bin_edges[1:] + bin_edges[:-1])
-#    # Draw the plot
-#    plt.plot(bin_centres, values, label = timeseries[:-4], linewidth = 1)
-#    #plt.plot(bin_centres, values, color='black', marker='o',markersize =1, linewidth=0.5, markerfacecolor = 'red')
+test = df.transpose()
+test = test.rename(columns=test.iloc[0]).drop(test.index[0])
+
+# Plot
+navy_patch = mpatches.Patch(color='navy', label='Observations')
+red_patch = mpatches.Patch(color='firebrick', label='Projections')
+
+for key, value in precip_ts.items():
+    print(key)
+    if key == 'Observations':
+        plt.plot(test[key], color = 'navy')
+    else:
+        plt.plot(test[key], color = 'firebrick')
+    plt.xlabel('Percentile')
+    plt.ylabel('Precipitation (mm/hr)')
+    plt.legend(handles=[red_patch, navy_patch])
+    plt.yscale('log')
+    plt.xticks(rotation = 23)
+
 
 
