@@ -27,7 +27,10 @@ import tilemapbase
 import numpy as np
 from shapely.geometry import Polygon
 
+<<<<<<< HEAD
+=======
 
+>>>>>>> 09176ee92677dc4da4828a9b252d80bc126fd78b
 # Provide root_fp as argument
 #root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
 root_fp = "/nfs/a319/gy17m2a/"
@@ -65,7 +68,6 @@ print(str(len(monthly_cubes_list)) + " cubes found for this time period.")
 ##############################################################################
 # Convert outline of Leeds into a polygon
 leeds_gdf = create_leeds_outline({'init' :'epsg:3785'})
-
 
 # Create geodataframe of West Yorks
 uk_regions = gpd.read_file(root_fp + "datadir/SpatialData/Region__December_2015__Boundaries-shp/Region__December_2015__Boundaries.shp") 
@@ -106,7 +108,11 @@ concat_cube = concat_cube[0,:,:,:]
 # point of the cell is within a certain region e.g. West Yorks)
 #############################################
 #wy_cube = trim_to_wy(concat_cube)
+<<<<<<< HEAD
+wy_cube = trim_to_theNorth(concat_cube)
+=======
 wy_cube = trim_to_gdf(concat_cube, polygon)
+>>>>>>> 09176ee92677dc4da4828a9b252d80bc126fd78b
 
 ##############################################################################
 # Get arrays of lats and longs of left corners in Web Mercator projection
@@ -136,6 +142,17 @@ lons_centrepoints,lats_centrepoints= transform(Proj(init='epsg:4326'),Proj(init=
 means = wy_cube.collapsed('time', iris.analysis.MEAN)
 means.has_lazy_data()
 
+<<<<<<< HEAD
+#percentiles = wy_cube.collapsed('time', iris.analysis.PERCENTILE, percent=[99.99])
+#p_90 = percentiles[0,:,:]
+#p_95 = percentiles[1,:,:]
+#p_97 = percentiles[2,:,:]
+#p_99 = percentiles[3,:,:]
+#percentiles.has_lazy_data()
+
+# Select which stat to use for plotting
+stat= means
+=======
 percentiles = wy_cube.collapsed('time', iris.analysis.PERCENTILE, percent=[99.99])
 p_90 = percentiles[0,:,:]
 p_95 = percentiles[1,:,:]
@@ -145,6 +162,7 @@ percentiles.has_lazy_data()
 
 # Select which stat to use for plotting
 stat= percentiles
+>>>>>>> 09176ee92677dc4da4828a9b252d80bc126fd78b
 stats_array = stat.data
 
 #############################################################################
@@ -163,7 +181,10 @@ fig, ax = plt.subplots(figsize=(20,20))
 extent = tilemapbase.extent_from_frame(polygon_northern)
 plot = plotter = tilemapbase.Plotter(extent, tilemapbase.tiles.build_OSM(), width=600)
 plot =plotter.plot(ax)
+<<<<<<< HEAD
+=======
 ax.plot(lcc_lon, lcc_lat, "bo", markersize =10)
+>>>>>>> 09176ee92677dc4da4828a9b252d80bc126fd78b
 plot =ax.pcolormesh(lons_cornerpoints, lats_cornerpoints, Leeds_stats_array,
               linewidths=3, alpha = 1, edgecolor = 'grey', cmap = 'GnBu')
 cbar = plt.colorbar(plot,fraction=0.036, pad=0.02)
