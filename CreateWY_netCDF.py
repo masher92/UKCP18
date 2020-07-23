@@ -16,16 +16,17 @@ import geopandas as gpd
 import matplotlib.pyplot as plt
 import tilemapbase
 import numpy as np
+import iris.coord_categorisation
 
 # Provide root_fp as argument
-#root_fp = "/nfs/a319/gy17m2a/"
-root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
+root_fp = "/nfs/a319/gy17m2a/"
+#root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
 
 os.chdir(root_fp)
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/')
 from Pr_functions import *
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/SpatialAnalyses')
-from Plotting_functions import *
+from Spatial_plotting_functions import *
 
 start_year = 1980
 end_year = 2000 
@@ -83,4 +84,52 @@ concat_cube = concat_cube[0,:,:,:]
 wy_cube = trim_to_wy(concat_cube)
 
 # Keep only one timeslice
-wy_cube_ts = wy_cube[0,:,:]
+#wy_cube_ts = wy_cube[0,:,:]
+
+#iris.save(wy_cube, "/nfs/a319/gy17m2a/Scripts/UKCP18/Outputs/wy_cube_em01.nc")
+#wy_cube =iris.load("/nfs/a319/gy17m2a/Scripts/UKCP18/Outputs/wy_cube_em01.nc")[0]
+print(wy_cube)
+
+
+iris.coord_categorisation.add_season_year(wy_cube,'time', name = "season_year")
+iris.coord_categorisation.add_season(wy_cube,'time', name = "clim_season")
+
+annual_seasonal_max = wy_cube.aggregated_by(['season_year', 'clim_season'], iris.analysis.MAX)
+print(repr(annual_seasonal_max))
+print(annual_seasonal_max)
+iris.save(annual_seasonal_max, "/nfs/a319/gy17m2a/Scripts/UKCP18/Outputs/wy_cube_em01_seasonalmax.nc")
+
+# Keep only JJA
+
+jja = annual_seasonal_max.extract(iris.Constraint(clim_season = 'jja'))
+
+# Coords 1D
+lats = jja.coord('grid_latitude').points
+lons = jja.coord('grid_longitude').points
+
+# Convert to 2D
+lats_2d, lons_2d = np.meshgrid(lats, lons)
+
+# Convert to 1D
+lats_1d = lats_2d.reshape(-1)
+lons_1d = lons_2d.reshape(-1)
+
+# Create dataframe
+df = pd.DataFrame({'lons': lons_1d, "lats": lats_1d})
+
+#############################
+my_dict = {}
+for i in range(0, jja.shape[0]):
+    print(i)
+    # Get data from one timeslice
+    one_ts = jja[20,:,:]
+    # Extract data from one year 
+    data = one_ts.data.reshape(-1)
+    year  = one_ts.coord('season_year').points[0]
+    # Store as dictionary with the year name
+    my_dict[year] = data
+
+# Create as a dataframe
+test = pd.DataFrame(my_dict)
+
+test2 = test.set_index((df['lons'], df['lats']))
