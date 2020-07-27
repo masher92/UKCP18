@@ -51,11 +51,8 @@ monthly_cubes_list = iris.load(filenames,'lwe_precipitation_rate')
 print(str(len(monthly_cubes_list)) + " cubes found for this time period.")
 
 ##############################################################################
-#### Create a shapely geometry of the outline of Leeds and West Yorks
+#### Create a shapely geometry of West Yorks
 ##############################################################################
-# Convert outline of Leeds into a polygon
-leeds_gdf = create_leeds_outline({'init' :'epsg:3785'})
-
 # Create geodataframe of the outline of West Yorkshire
 # Data from https://data.opendatasoft.com/explore/dataset/combined-authorities-april-2015-super-generalised-clipped-boundaries-in-england%40ons-public/export/
 wy_gdf = gpd.read_file("datadir/SpatialData/combined-authorities-april-2015-super-generalised-clipped-boundaries-in-england.shp") 
@@ -82,28 +79,28 @@ concat_cube = concat_cube[0,:,:,:]
 # point of the cell is within a certain region e.g. West Yorks)
 #############################################
 wy_cube = trim_to_wy(concat_cube)
-
-# Keep only one timeslice
-#wy_cube_ts = wy_cube[0,:,:]
-
 #iris.save(wy_cube, "/nfs/a319/gy17m2a/Scripts/UKCP18/Outputs/wy_cube_em01.nc")
 #wy_cube =iris.load("/nfs/a319/gy17m2a/Scripts/UKCP18/Outputs/wy_cube_em01.nc")[0]
 print(wy_cube)
 
-
+############################################
+# Find the maximum value in each June-July_August period
+#############################################
+## Add season and season_year variables
 iris.coord_categorisation.add_season_year(wy_cube,'time', name = "season_year")
 iris.coord_categorisation.add_season(wy_cube,'time', name = "clim_season")
 
+# Aggregate to get just the maximum value in each seasonal yearly period
 annual_seasonal_max = wy_cube.aggregated_by(['season_year', 'clim_season'], iris.analysis.MAX)
-print(repr(annual_seasonal_max))
-print(annual_seasonal_max)
-iris.save(annual_seasonal_max, "/nfs/a319/gy17m2a/Scripts/UKCP18/Outputs/wy_cube_em01_seasonalmax.nc")
+#iris.save(annual_seasonal_max, "/nfs/a319/gy17m2a/Scripts/UKCP18/Outputs/wy_cube_em01_seasonalmax.nc")
 
 # Keep only JJA
-
 jja = annual_seasonal_max.extract(iris.Constraint(clim_season = 'jja'))
 
-# Coords 1D
+############################################
+# Reformat for use in R
+#############################################
+# Get the coords 1D
 lats = jja.coord('grid_latitude').points
 lons = jja.coord('grid_longitude').points
 

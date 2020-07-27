@@ -28,8 +28,8 @@ import numpy as np
 from shapely.geometry import Polygon
 
 # Provide root_fp as argument
-#root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
-root_fp = "/nfs/a319/gy17m2a/"
+root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
+#root_fp = "/nfs/a319/gy17m2a/"
 
 os.chdir(root_fp)
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/')
@@ -55,34 +55,34 @@ for year in range(start_year,end_year+1):
     for filename in glob.glob(general_filename):
         #print(filename)
         filenames.append(filename)
-        
+
+
+filenames = root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19801201-19801230.nc'  
 monthly_cubes_list = iris.load(filenames,'lwe_precipitation_rate')
 print(str(len(monthly_cubes_list)) + " cubes found for this time period.")
 
 ##############################################################################
 #### Create a shapely geometry of the outline of Leeds and West Yorks
 ##############################################################################
-# Convert outline of Leeds into a polygon
-leeds_gdf = create_leeds_outline({'init' :'epsg:3785'})
-
 # Create geodataframe of West Yorks
 uk_regions = gpd.read_file(root_fp + "datadir/SpatialData/Region__December_2015__Boundaries-shp/Region__December_2015__Boundaries.shp") 
-northern_regions = uk_regions.loc[uk_regions['rgn15nm'].isin(['North East', 'North West', 'Yorkshire and The Humber'])]
+northern_regions = uk_regions.loc[uk_regions['rgn15nm'].isin(['North West', ,'North East', 'Yorkshire and The Humber'])]
+#uk_regions = gpd.read_file(root_fp + "datadir/SpatialData/NUTS_Level_1__January_2018__Boundaries-shp/NUTS_Level_1__January_2018__Boundaries.shp") 
+#northern_regions = uk_regions.loc[uk_regions['nuts118nm'].isin(['North East (England)', 'North West (England)', 'Yorkshire and The Humber'])]
 northern_regions = northern_regions.to_crs({'init' :'epsg:3785'}) 
-
 # Merge the three regions into one
 northern_regions['merging_col'] = 0
 northern_regions_combi = northern_regions.dissolve(by='merging_col')
 
 # Check by plotting
-fig, ax = plt.subplots(figsize=(20,20))
-plot =northern_regions_combi.plot(ax=ax, categorical=True, alpha=1, edgecolor='red', color='none', linewidth=6)
+#fig, ax = plt.subplots(figsize=(20,20))
+#plot =northern_regions_combi.plot(ax=ax, categorical=True, alpha=1, edgecolor='red', color='none', linewidth=6)
  
+geometry_poly = Polygon(northern_regions_combi['geometry'].iloc[0])
 geometry_poly = MultiPolygon(northern_regions_combi['geometry'].iloc[0])
 
-crs = {'init': 'epsg:3785'}
-polygon_northern = gpd.GeoDataFrame(index=[0], crs=crs, geometry=[geometry_poly])    
-    
+polygon_northern = gpd.GeoDataFrame(index=[0], crs={'init': 'epsg:3785'}, geometry=[geometry_poly])   
+
 
 #############################################
 # Concat the cubes into one
@@ -103,12 +103,8 @@ concat_cube = concat_cube[0,:,:,:]
 # Trim to include only grid cells whose coordinates (which represents the centre
 # point of the cell is within a certain region e.g. West Yorks)
 #############################################
-#wy_cube = trim_to_wy(concat_cube)
-<<<<<<< HEAD
-wy_cube = trim_to_theNorth(concat_cube)
-=======
-wy_cube = trim_to_gdf(concat_cube, polygon)
->>>>>>> 09176ee92677dc4da4828a9b252d80bc126fd78b
+wy_cube = trim_to_thenorth(concat_cube)
+wy_cube = trim_to_wy(concat_cube)
 
 ##############################################################################
 # Get arrays of lats and longs of left corners in Web Mercator projection
@@ -138,34 +134,15 @@ lons_centrepoints,lats_centrepoints= transform(Proj(init='epsg:4326'),Proj(init=
 means = wy_cube.collapsed('time', iris.analysis.MEAN)
 means.has_lazy_data()
 
-<<<<<<< HEAD
-#percentiles = wy_cube.collapsed('time', iris.analysis.PERCENTILE, percent=[99.99])
-#p_90 = percentiles[0,:,:]
-#p_95 = percentiles[1,:,:]
-#p_97 = percentiles[2,:,:]
-#p_99 = percentiles[3,:,:]
-#percentiles.has_lazy_data()
-
 # Select which stat to use for plotting
 stat= means
-=======
-percentiles = wy_cube.collapsed('time', iris.analysis.PERCENTILE, percent=[99.99])
-p_90 = percentiles[0,:,:]
-p_95 = percentiles[1,:,:]
-p_97 = percentiles[2,:,:]
-p_99 = percentiles[3,:,:]
-percentiles.has_lazy_data()
-
-# Select which stat to use for plotting
-stat= percentiles
->>>>>>> 09176ee92677dc4da4828a9b252d80bc126fd78b
 stats_array = stat.data
 
 #############################################################################
 #### # Plot - uses the lats and lons of the corner points but with the values 
 # derived from the associated centre point
 ##############################################################################
-within_leeds_outline = GridCells_within_geometry(lats_centrepoints.reshape(-1),lons_centrepoints.reshape(-1), polygon_wm, wy_cube)
+within_leeds_outline = GridCells_within_geometry(lats_centrepoints.reshape(-1),lons_centrepoints.reshape(-1), polygon_northern, wy_cube)
 Leeds_stats_array = np.where(within_leeds_outline, stat.data, np.nan)  
 
 #############################################################################
@@ -177,17 +154,13 @@ fig, ax = plt.subplots(figsize=(20,20))
 extent = tilemapbase.extent_from_frame(polygon_northern)
 plot = plotter = tilemapbase.Plotter(extent, tilemapbase.tiles.build_OSM(), width=600)
 plot =plotter.plot(ax)
-<<<<<<< HEAD
-=======
-ax.plot(lcc_lon, lcc_lat, "bo", markersize =10)
->>>>>>> 09176ee92677dc4da4828a9b252d80bc126fd78b
+plot =polygon_northern.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=6)
 plot =ax.pcolormesh(lons_cornerpoints, lats_cornerpoints, Leeds_stats_array,
-              linewidths=3, alpha = 1, edgecolor = 'grey', cmap = 'GnBu')
+              linewidths=3, alpha = 1, cmap = 'GnBu')
 cbar = plt.colorbar(plot,fraction=0.036, pad=0.02)
 cbar.ax.tick_params(labelsize='xx-large', size = 10, pad=0.04) 
 #cbar.set_label(label='Precipitation (mm/hr)',weight='bold', size =20)
 #plt.colorbar(plot,fraction=0.036, pad=0.04).ax.tick_params(labelsize='xx-large')  
 plot =ax.tick_params(labelsize='xx-large')
-plot =polygon_wm.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=6)
-plot =leeds_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='red', color='none', linewidth=6)
+plot =polygon_northern.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=6)
 

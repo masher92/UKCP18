@@ -3,6 +3,8 @@ import geopandas as gpd
 import iris
 from pyproj import Proj, transform
 from shapely.geometry import Point, Polygon, MultiPolygon
+import matplotlib.pyplot as plt
+import tilemapbase
 
 root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
 
@@ -107,22 +109,20 @@ def trim_to_gdf (cube, gdf):
     '''
     Description
     ----------
-        Takes a cube and a GeoDataFrame related to a geometry to which to clip
-        the cube.
+        Masks the data in a cube so that cells outwith a provided geometry have no value
         
-
     Parameters
     ----------
         cube : Iris cube with 3 dimensions: Time, lat, long
+        gdf: A geodataframe corresponding to the region by which to mask the cube
           
     Returns
     -------
-
-    
+        cube: Iris cube with 3 dimensions with the data masked to the provided region
     '''
     
     # Create a Shapely Polygon from the geodataframe
-    geometry_poly = Polygon(gdf['geometry'].iloc[0])
+    #geometry_poly = Polygon(gdf['geometry'].iloc[0])
     
     # Create 1d array of lat and lons and convert to Web Mercator
     lons = cube.coord('longitude').points.reshape(-1)
@@ -139,7 +139,7 @@ def trim_to_gdf (cube, gdf):
     # This returns a masked array i.e. only cells that are within the geometry
     # have a value
     mask_2d = GridCells_within_geometry(lats,lons, gdf, one_ts)
-    
+
     # Convert this into a 3D mask
     # i.e the mask is repeated for each data timeslice
     mask_3d = np.repeat(mask_2d[np.newaxis,:, :], cube.shape[0], axis=0)
@@ -149,190 +149,9 @@ def trim_to_gdf (cube, gdf):
     masked_data = np.ma.masked_array(cube.data, np.logical_not(mask_3d))
     
     # Set this as the cubes data
-    cube.data = masked_data
+    #cube.data = masked_data
            
-    return cube
-
-
-def trim_to_gdf (cube, gdf):
-    '''
-    Description
-    ----------
-        Takes a cube and a GeoDataFrame related to a geometry to which to clip
-        the cube.
-        
-
-    Parameters
-    ----------
-        cube : Iris cube with 3 dimensions: Time, lat, long
-          
-    Returns
-    -------
-
-    
-    '''
-    
-    # Create a Shapely Polygon from the geodataframe
-    geometry_poly = Polygon(gdf['geometry'].iloc[0])
-    
-    # Create 1d array of lat and lons and convert to Web Mercator
-    lons = cube.coord('longitude').points.reshape(-1)
-    lats = cube.coord('latitude').points.reshape(-1)
-    lons,lats= transform(Proj(init='epsg:4326'),Proj(init='epsg:3785'),lons,lats)
-
-    # Get one timeslice of data
-    one_ts = cube[0,:,:]
-    
-    # Check spatial extent
-    qplt.contourf(one_ts)       
-    plt.gca().coastlines()    
-    
-    ############################################
-    for cube in monthly_cubes_list:
-     for attr in ['creation_date', 'tracking_id', 'history']:
-         if attr in cube.attributes:
-             del cube.attributes[attr]
- 
-     # Concatenate the cubes into one
-    concat_cube = monthly_cubes_list.concatenate_cube()
-    #
-    # Remove ensemble member dimension
-    concat_cube = concat_cube[0,:,:,:]
-    cube = concat_cube
-    
-    # Find which cells are within the geometry
-    # This returns an array in which any cells which are within the geometry
-    # have a 1 and the rest have a 0 
-    mask_2d = GridCells_within_geometry(lats,lons, gdf, one_ts)
-    mask_2d_rev = ~mask_2d
-    
-    # Get 3d data        
-    data = cube.data
-    # Make the mask 3d
-    mask_3d = np.repeat(mask_2d[np.newaxis,:, :], 720, axis=0)
-    # Mask the 3 dimensional data
-    #masked_data = np.ma.masked_array(data, mask_3d)
-    masked_data = np.ma.masked_array(data, np.logical_not(mask_3d))
-    
-    # Set this as the cubes data
-    cube.data = masked_data
-      
-    # Check spatial extent
-    one_ts = cube[100,:,:]
-    qplt.contourf(one_ts)       
-    plt.gca().coastlines()    
-    
-    
-    ################################
-    
-    # Get 3d data        
-    data = cube.data
-    # Make the mask 3d
-    mask_3d = np.repeat(cells_within_geometry[np.newaxis,:, :], 720, axis=0)
-    
-    test = mask_3d[1,:,:]
-    test = data[1,:,:]
-    
-    
-    masked_data = np.ma.masked_array(data, mask_3d)
-    #mask = ~mask
-    cube.data = masked_data
-
-    # Get one timeslice of data
-    one_ts = cube[0,:,:]
-    
-    # Check spatial extent
-    qplt.contourf(one_ts)       
-    plt.gca().coastlines()   
-
-    
-    
-    Go through each timeslice, and for each set any values outside the GDF as NA
-    for i in range(0,720):
-        print(i)
-        cube[i,:,:].data = np.where(cells_within_geometry, cube[i,:,:].data, np.nan)  
-    
-    ts = cube[i,:,:]
-    ts.data = np.where(cells_within_geometry, ts.data, np.nan)  
-    qplt.contourf(ts)  
-    plt.gca().coastlines()   
-    
-    cube[i,:,:].data = ts.data
-    
-    cube[i,:,:].data = np.where(cells_within_geometry, cube[i,:,:].data, np.nan)  
-    qplt.contourf(cube[i,:,:])  
-    
-    
-    cube[1,:,:].data[cube[i,:,:].data > 20] = 10.0
-    
-    cube[1,:,:].data.max()
-    
-
-    
-    
-    # Find the lat and long coordinates of those points which have a 1 i.e. are
-    # within the geometry
-    #indices= np.where(cells_within_geometry== 1)
-    #lats_idxs = np.unique(indices[0])
-    #lons_idxs = np.unique(indices[1])
-    
-    #cube = cube[:,lats_idxs,lons_idxs]
-    # Can't remember why this is plus 1?!
-    #cube = cube[:,np.append(lats_idxs, np.max(lats_idxs) + 1),np.append(lons_idxs, np.max(lons_idxs) + 1)]
-       
-    return cube
-
-
-# def trim_to_gdf (cube, gdf):
-#     '''
-#     Description
-#     ----------
-            
-
-#     Parameters
-#     ----------
-
-
-#     Returns
-#     -------
-
-    
-#     '''
-
-#     geometry_poly = Polygon(gdf['geometry'].iloc[0])
-    
-#     # Create 1d array of lat and lons and convert to WM
-#     lons = cube.coord('longitude').points.reshape(-1)
-#     lats = cube.coord('latitude').points.reshape(-1)
-#     lons,lats= transform(Proj(init='epsg:4326'),Proj(init='epsg:3785'),lons,lats)
-
-#     # Get one timeslice of data
-#     one_ts = cube[0,:,:]
-    
-#     # Go through each lat, lon pair and check if within the geometry
-#     within_geometry = []
-#     for lon, lat in zip(lons, lats):
-#         this_point = Point(lon, lat)
-#         res = this_point.within(geometry_poly)
-#         #res = leeds_poly.contains(this_point)
-#         within_geometry.append(res)
-#     # Convert to array
-#     within_geometry = np.array(within_geometry)
-#     # Convert from a long array into one of the shape of the data
-#     within_geometry = np.array(within_geometry).reshape(one_ts.shape)
-#     # Convert to 0s and 1s
-#     within_geometry = within_geometry.astype(int)
-#     # Mask out values of 0
-#     within_geometry = np.ma.masked_array(within_geometry, within_geometry < 1)
-
-#     indices= np.where(within_geometry== 1)
-#     lats_idxs = np.unique(indices[0])
-#     lons_idxs = np.unique(indices[1])
-    
-    
-#     cube = cube[:,np.append(lats_idxs, np.max(lats_idxs) + 1),np.append(lons_idxs, np.max(lons_idxs) + 1)]
-#     return cube
-
+    return masked_data
 
 
 def find_cornerpoint_coordinates (cube):
@@ -435,8 +254,12 @@ def GridCells_within_geometry(lats, lons, geometry_gdf, data):
 
     '''
     # Convert the geometry to a shapely geometry
-    geometry_poly = Polygon(geometry_gdf['geometry'].iloc[0])
- 
+    
+    if geometry_gdf.geom_type[0] == 'MultiPolygon':
+        geometry_poly = MultiPolygon(geometry_gdf['geometry'].iloc[0])
+    elif geometry_gdf.geom_type[0] == 'Polygon':
+        geometry_poly = Polygon(geometry_gdf['geometry'].iloc[0])
+        
     within_geometry = []
     for lon, lat in zip(lons, lats):
         this_point = Point(lon, lat)
@@ -453,6 +276,10 @@ def GridCells_within_geometry(lats, lons, geometry_gdf, data):
     within_geometry = np.ma.masked_array(within_geometry, within_geometry < 1)
     
     return within_geometry
+
+
+#mask_2d = GridCells_within_geometry(lats,lons, gdf, one_ts)
+
 
 
 # def GridCells_within_geometry(df, geometry_gdf, data):
@@ -529,26 +356,17 @@ def plot_cube_within_region (cube, region_outline_gdf):
     ##############################################################################
     # Cut off edge data to match size of corner points arrays.
     # First row and column lost in process of finding bottom left corner points.
-    cube = cube[1:, 1:]
+    if cube.ndim ==2:
+      cube = cube[1:, 1:]  
+    elif cube.ndim ==3:
+        cube = cube[0, 1:, 1:]
     
     # Get points in WGS84
     lats_centrepoints = cube.coord('latitude').points
     lons_centrepoints = cube.coord('longitude').points
     # Convert to WM
     lons_centrepoints,lats_centrepoints= transform(Proj(init='epsg:4326'),Proj(init='epsg:3785'),lons_centrepoints,lats_centrepoints)
-    
-    #############################################################################
-    # Find which grid cells are within the geometry being used e.g. Leeds, WY etc
-    # This uses the central coordinate
-    ##############################################################################
-    # Find which cells are within the geometry
-    cells_within_geometry = GridCells_within_geometry(lats_centrepoints.reshape(-1),lons_centrepoints.reshape(-1), region_outline_gdf, cube)
-    # Set any cells not withn the geometry as NAN
-    values_within_geometry = np.where(cells_within_geometry, cube.data, np.nan)  
-    
-    # This doesnt blank out those outside the boundaries
-    stats_array = cube.data
-    
+        
     #############################################################################
     #### # Plot - highlighting grid cells whose centre point falls within Leeds
     # Uses the lats and lons of the corner points but with the values derived from 
@@ -559,8 +377,9 @@ def plot_cube_within_region (cube, region_outline_gdf):
     plot = plotter = tilemapbase.Plotter(extent, tilemapbase.tiles.build_OSM(), width=600)
     plot =plotter.plot(ax)
     plot =region_outline_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=6)
-    plot =ax.pcolormesh(lons_cornerpoints, lats_cornerpoints, values_within_geometry,
-                  linewidths=3, edgecolor = 'grey', alpha = 1, cmap = 'GnBu')
+    # Add edgecolor = 'grey' for lines
+    plot =ax.pcolormesh(lons_cornerpoints, lats_cornerpoints, cube.data,
+                  linewidths=3, alpha = 1, cmap = 'GnBu')
     cbar = plt.colorbar(plot,fraction=0.036, pad=0.02)
     cbar.ax.tick_params(labelsize='xx-large', size = 10, pad=0.04) 
     #cbar.set_label(label='Precipitation (mm/hr)',weight='bold', size =20)
