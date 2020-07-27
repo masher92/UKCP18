@@ -144,7 +144,6 @@ def trim_to_gdf (cube, gdf):
     # i.e the mask is repeated for each data timeslice
     mask_3d = np.repeat(mask_2d[np.newaxis,:, :], cube.shape[0], axis=0)
     
-    
     # Mask the cubes data across all timeslices
     #masked_data = np.ma.masked_array(data, mask_3d)
     masked_data = np.ma.masked_array(cube.data, np.logical_not(mask_3d))
@@ -331,14 +330,6 @@ def mask_by_region (cube, gdf):
     #cube.data = masked_data
            
     return masked_data
-
-
-
-
-
-
-
-
 
 def plot_cube_within_region (cube, region_outline_gdf):
     '''
