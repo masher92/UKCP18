@@ -282,9 +282,9 @@ def trim_to_bbox_of_region (cube, gdf):
     imin, imax = minmax(region_inds[0])
     jmin, jmax = minmax(region_inds[1])
     
-    cube = cube[..., imin:imax+1, jmin:jmax+1]
+    trimmed_cube = cube[..., imin:imax+1, jmin:jmax+1]
     
-    return 
+    return trimmed_cube
 
 
 def mask_by_region (cube, gdf):
