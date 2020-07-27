@@ -144,6 +144,7 @@ def trim_to_gdf (cube, gdf):
     # i.e the mask is repeated for each data timeslice
     mask_3d = np.repeat(mask_2d[np.newaxis,:, :], cube.shape[0], axis=0)
     
+    
     # Mask the cubes data across all timeslices
     #masked_data = np.ma.masked_array(data, mask_3d)
     masked_data = np.ma.masked_array(cube.data, np.logical_not(mask_3d))
@@ -207,30 +208,6 @@ def find_cornerpoint_coordinates (cube):
     
     return (lats_wm_midpoints_2d, lons_wm_midpoints_2d)
     
-   
-# def get1D_lats (cube):
-    
-#     # Extract lats and longs in WGS84 as a 2D array
-#     lats = hour_uk_cube.coord('latitude').points
-#     lons = hour_uk_cube.coord('longitude').points
-    
-#     # Reshape to 1D for easier iteration.
-#     lons_1d = lons.reshape(-1)
-#     lats_1d = lats.reshape(-1)
-       
-#     ## Option 2 - using proj reprojections
-#     inProj = Proj(init='epsg:4326')
-#     outProj = Proj(init='epsg:3785')
-#     lons_wm_1d,lats_wm_1d = transform(inProj,outProj,lons_1d,lats_1d)
-    
-#     ############
-#     #test_df = pd.DataFrame({"lats": lats_wm_1d, 'lons': lons_wm_1d, 'data':data })
-    
-#     # Reshape them to the shape of the grid
-#     lats_wm_2d = np.array(lats_wm_1d).reshape(606,484)
-#     lons_wm_2d = np.array(lons_wm_1d).reshape(606,484)  
-
-
 def GridCells_within_geometry(lats, lons, geometry_gdf, data):
     '''
     Description
@@ -253,8 +230,10 @@ def GridCells_within_geometry(lats, lons, geometry_gdf, data):
         Points outwith Leeds are masked (True)
 
     '''
-    # Convert the geometry to a shapely geometry
+    # Reset index, either the number in [] to refer to geometry does not match 
+    geometry_gdf = geometry_gdf.reset_index()
     
+    # Convert the geometry to a shapely geometry
     if geometry_gdf.geom_type[0] == 'MultiPolygon':
         geometry_poly = MultiPolygon(geometry_gdf['geometry'].iloc[0])
     elif geometry_gdf.geom_type[0] == 'Polygon':
@@ -277,53 +256,87 @@ def GridCells_within_geometry(lats, lons, geometry_gdf, data):
     
     return within_geometry
 
-
-#mask_2d = GridCells_within_geometry(lats,lons, gdf, one_ts)
-
-
-
-# def GridCells_within_geometry(df, geometry_gdf, data):
-#     '''
-#     Description
-#     ----------
-#         Check whether each lat, long pair from provided arrays is found within
-#         the geometry.
-#         Create an array with points outwith Leeds masked
-
-#     Parameters
-#     ----------
-#         lats_1d_arr : array
-#             1D array of latitudes
-#         lons_1d_arr : array
-#             1D array of longitudes
-#     Returns
-#     -------
-#     within_geometry : masked array
-#         Array with values of 0 for points outwith Leeds
-#         and values of 1 for those within Leeds.
-#         Points outwith Leeds are masked (True)
-
-#     '''
-#     # Convert the geometry to a shapely geometry
-#     geometry_poly = Polygon(geometry_gdf['geometry'].iloc[0])
- 
-#     within_geometry = []
-#     for lon, lat in zip(df['Lon_centre'], df['Lat_centre']):
-#         this_point = Point(lon, lat)
-#         res = this_point.within(geometry_poly)
-#         #res = leeds_poly.contains(this_point)
-#         within_geometry.append(res)
-#     # Convert to array
-#     within_geometry = np.array(within_geometry)
-#     # Convert from a long array into one of the shape of the data
-#     within_geometry = np.array(within_geometry).reshape(605,483)
-#     # Convert to 0s and 1s
-#     within_geometry = within_geometry.astype(int)
-#     # Mask out values of 0
-#     within_geometry = np.ma.masked_array(within_geometry, within_geometry < 1)
     
-#     return within_geometry
+def trim_to_bbox_of_region (cube, gdf):
+    """
+
     
+    """
+    # Convert the regional gdf to WGS84
+    gdf = gdf.to_crs({'init' :'epsg:4326'}) 
+    
+    # Find the bounding box of the region
+    bbox = gdf.total_bounds
+    
+    # Find the lats and lons of the cube in WGS84
+    lons = cube.coord('longitude').points
+    lats = cube.coord('latitude').points
+
+    inregion = np.logical_and(np.logical_and(lons > bbox[0],
+                                             lons < bbox[2]),
+                              np.logical_and(lats > bbox[1],
+                                             lats < bbox[3]))
+    region_inds = np.where(inregion)
+    imin, imax = minmax(region_inds[0])
+    jmin, jmax = minmax(region_inds[1])
+    
+    cube = cube[..., imin:imax+1, jmin:jmax+1]
+    
+    return 
+
+
+def mask_by_region (cube, gdf):
+    '''
+    Description
+    ----------
+        Masks the data in a cube so that cells outwith a provided geometry have no value
+        
+    Parameters
+    ----------
+        cube : Iris cube with 3 dimensions: Time, lat, long
+        gdf: A geodataframe corresponding to the region by which to mask the cube
+          
+    Returns
+    -------
+
+    '''
+       
+    # Create 1d array of lat and lons and convert to Web Mercator
+    lons = cube.coord('longitude').points.reshape(-1)
+    lats = cube.coord('latitude').points.reshape(-1)
+    lons,lats= transform(Proj(init='epsg:4326'),Proj(init='epsg:3785'),lons,lats)
+
+    # Get one timeslice of data
+    one_ts = cube[0,:,:]
+    # Check spatial extent
+    #qplt.contourf(one_ts)       
+    #plt.gca().coastlines()    
+    
+    # Find which cells are within the geometry
+    # This returns a masked array i.e. only cells that are within the geometry
+    # have a value
+    mask_2d = GridCells_within_geometry(lats,lons, gdf, one_ts)
+
+    # Convert this into a 3D mask
+    # i.e the mask is repeated for each data timeslice
+    mask_3d = np.repeat(mask_2d[np.newaxis,:, :], cube.shape[0], axis=0)
+    
+    # Mask the cubes data across all timeslices
+    #masked_data = np.ma.masked_array(data, mask_3d)
+    masked_data = np.ma.masked_array(cube.data, np.logical_not(mask_3d))
+    
+    # Set this as the cubes data
+    #cube.data = masked_data
+           
+    return masked_data
+
+
+
+
+
+
+
+
 
 def plot_cube_within_region (cube, region_outline_gdf):
     '''
@@ -389,8 +402,70 @@ def plot_cube_within_region (cube, region_outline_gdf):
     
 
     
+# def GridCells_within_geometry(df, geometry_gdf, data):
+#     '''
+#     Description
+#     ----------
+#         Check whether each lat, long pair from provided arrays is found within
+#         the geometry.
+#         Create an array with points outwith Leeds masked
+
+#     Parameters
+#     ----------
+#         lats_1d_arr : array
+#             1D array of latitudes
+#         lons_1d_arr : array
+#             1D array of longitudes
+#     Returns
+#     -------
+#     within_geometry : masked array
+#         Array with values of 0 for points outwith Leeds
+#         and values of 1 for those within Leeds.
+#         Points outwith Leeds are masked (True)
+
+#     '''
+#     # Convert the geometry to a shapely geometry
+#     geometry_poly = Polygon(geometry_gdf['geometry'].iloc[0])
+ 
+#     within_geometry = []
+#     for lon, lat in zip(df['Lon_centre'], df['Lat_centre']):
+#         this_point = Point(lon, lat)
+#         res = this_point.within(geometry_poly)
+#         #res = leeds_poly.contains(this_point)
+#         within_geometry.append(res)
+#     # Convert to array
+#     within_geometry = np.array(within_geometry)
+#     # Convert from a long array into one of the shape of the data
+#     within_geometry = np.array(within_geometry).reshape(605,483)
+#     # Convert to 0s and 1s
+#     within_geometry = within_geometry.astype(int)
+#     # Mask out values of 0
+#     within_geometry = np.ma.masked_array(within_geometry, within_geometry < 1)
     
+#     return within_geometry
+   
     
+# def get1D_lats (cube):
     
+#     # Extract lats and longs in WGS84 as a 2D array
+#     lats = hour_uk_cube.coord('latitude').points
+#     lons = hour_uk_cube.coord('longitude').points
+    
+#     # Reshape to 1D for easier iteration.
+#     lons_1d = lons.reshape(-1)
+#     lats_1d = lats.reshape(-1)
+       
+#     ## Option 2 - using proj reprojections
+#     inProj = Proj(init='epsg:4326')
+#     outProj = Proj(init='epsg:3785')
+#     lons_wm_1d,lats_wm_1d = transform(inProj,outProj,lons_1d,lats_1d)
+    
+#     ############
+#     #test_df = pd.DataFrame({"lats": lats_wm_1d, 'lons': lons_wm_1d, 'data':data })
+    
+#     # Reshape them to the shape of the grid
+#     lats_wm_2d = np.array(lats_wm_1d).reshape(606,484)
+#     lons_wm_2d = np.array(lons_wm_1d).reshape(606,484)  
+
     
     
