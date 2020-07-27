@@ -21,8 +21,8 @@ import iris.coord_categorisation
 
 
 # Provide root_fp as argument
-root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
-#root_fp = "/nfs/a319/gy17m2a/"
+#root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
+root_fp = "/nfs/a319/gy17m2a/"
 
 os.chdir(root_fp)
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/')
@@ -96,8 +96,8 @@ concat_cube = concat_cube[0,:,:,:]
 regional_cube = trim_to_bbox_of_region(concat_cube, northern_gdf)
 
 # Check plotting
-#qplt.contourf(regional_cube[10,:,:])       
-#plt.gca().coastlines()   
+qplt.contourf(regional_cube[10,:,:])       
+plt.gca().coastlines()   
 # Check plotting #.2
 #plot_cube_within_region(regional_cube[112,:,:], northern_gdf)
 
