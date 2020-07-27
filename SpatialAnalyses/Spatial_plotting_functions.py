@@ -262,6 +262,8 @@ def trim_to_bbox_of_region (cube, gdf):
 
     
     """
+    minmax = lambda x: (np.min(x), np.max(x))
+    
     # Convert the regional gdf to WGS84
     gdf = gdf.to_crs({'init' :'epsg:4326'}) 
     

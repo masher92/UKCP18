@@ -21,8 +21,8 @@ import iris.coord_categorisation
 
 
 # Provide root_fp as argument
-#root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
-root_fp = "/nfs/a319/gy17m2a/"
+root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
+#root_fp = "/nfs/a319/gy17m2a/"
 
 os.chdir(root_fp)
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/')
@@ -90,50 +90,51 @@ concat_cube = monthly_cubes_list.concatenate_cube()
 # Remove ensemble member dimension
 concat_cube = concat_cube[0,:,:,:]
 
-############################################
-# Trim to include only grid cells whose coordinates (which represents the centre
-# point of the cell is within a certain region e.g. West Yorks)
 #############################################
-# northern_mask = trim_to_gdf(concat_cube, northern_gdf)
-# wy_mask = trim_to_gdf(concat_cube, wy_gdf)
-
-# northern_cube = concat_cube.copy()
-# northern_cube.data = northern_mask
-
-# wy_cube = concat_cube.copy()
-# wy_cube.data = wy_mask
-
-# Create a masked array - masking out all cells not within the region 
-regional_mask = trim_to_gdf(concat_cube, northern_gdf)
-# Copy the original cube (so as changes arent implemented in original cube as well)
-regional_cube = concat_cube.copy()
-# Set cubes data with the mask
-regional_cube.data = regional_mask
+# Trim the cube to the BBOX of the region of interest
+#############################################
+regional_cube = trim_to_bbox_of_region(concat_cube, northern_gdf)
 
 # Check plotting
-qplt.contourf(regional_cube[10,:,:])       
+#qplt.contourf(regional_cube[10,:,:])       
+#plt.gca().coastlines()   
+# Check plotting #.2
+#plot_cube_within_region(regional_cube[112,:,:], northern_gdf)
+
+#############################################
+# 
+#############################################
+# Create a masked array - masking out all cells not within the region 
+regional_mask = trim_to_gdf(regional_cube, northern_gdf)
+# Copy the original cube (so as changes arent implemented in original cube as well)
+masked_regional_cube = regional_cube.copy()
+# Set cubes data with the mask
+masked_regional_cube.data = regional_mask
+
+# Check plotting
+qplt.contourf(masked_regional_cube[10,:,:])       
 plt.gca().coastlines()   
 
 ############################################
 # Find the maximum value in each June-July_August period
 #############################################
 ## Add season and season_year variables
-iris.coord_categorisation.add_season_year(regional_cube,'time', name = "season_year")
-iris.coord_categorisation.add_season(regional_cube,'time', name = "clim_season")
+iris.coord_categorisation.add_season_year(masked_regional_cube,'time', name = "season_year")
+iris.coord_categorisation.add_season(masked_regional_cube,'time', name = "clim_season")
 
 # Aggregate to get just the maximum value in each seasonal yearly period
-annual_seasonal_max = regional_cube.aggregated_by(['season_year', 'clim_season'], iris.analysis.MAX)
+annual_seasonal_max = masked_regional_cube.aggregated_by(['season_year', 'clim_season'], iris.analysis.MAX)
 print(annual_seasonal_max)
 
 # Keep only JJA
 jja = annual_seasonal_max.extract(iris.Constraint(clim_season = 'jja'))
 
-#qplt.contourf(jja)       
-#plt.gca().coastlines()    
-
+ 
 ############################################
 # Check plotting
 #############################################
+qplt.contourf(jja[1,:,:])       
+plt.gca().coastlines()  
 plot_cube_within_region(jja, regional_gdf)
 
 ############################################
@@ -170,5 +171,9 @@ test = pd.DataFrame(my_dict)
 
 # Remove NA rows
 test = test.dropna()
+
+
+
+    
 
 
