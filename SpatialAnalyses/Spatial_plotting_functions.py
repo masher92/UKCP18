@@ -227,12 +227,12 @@ def mask_by_region (cube, gdf):
     
     # Mask the cubes data across all timeslices
     #masked_data = np.ma.masked_array(data, mask_3d)
-    masked_data = np.ma.masked_array(cube.data, np.logical_not(mask_3d))
+    #masked_data = np.ma.masked_array(cube.data, np.logical_not(mask_3d))
     
     # Set this as the cubes data
     #cube.data = masked_data
            
-    return masked_data
+    return mask_3d
 
 def plot_cube_within_region (cube, region_outline_gdf):
     '''

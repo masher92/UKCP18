@@ -36,7 +36,6 @@ yrs_range = "1980_2001"
 ems = ['12', '13', '15']
 region = 'WY'
 
-
 ############################################
 # Create regions
 #############################################
@@ -116,7 +115,7 @@ for em in ems:
     # Copy the original cube (so as changes arent implemented in original cube as well)
     masked_regional_cube = regional_cube.copy()
     # Set cubes data with the mask
-    masked_regional_cube.data = regional_mask
+    masked_regional_cube.data =  np.ma.masked_array(masked_regional_cube.data, np.logical_not(regional_mask))
     
     # Check plotting
     #qplt.contourf(masked_regional_cube[10,:,:])       
