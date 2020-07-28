@@ -219,11 +219,15 @@ def mask_by_region (cube, gdf):
     # Find which cells are within the geometry
     # This returns a masked array i.e. only cells that are within the geometry
     # have a value
+    seconds = time.time()
     mask_2d = GridCells_within_geometry(lats,lons, gdf, one_ts)
-
+    print("Seconds to run =", time.time() - seconds)	
+    
     # Convert this into a 3D mask
     # i.e the mask is repeated for each data timeslice
+    seconds = time.time()
     mask_3d = np.repeat(mask_2d[np.newaxis,:, :], cube.shape[0], axis=0)
+    print("Seconds to run =", time.time() - seconds)	
     
     # Mask the cubes data across all timeslices
     #masked_data = np.ma.masked_array(data, mask_3d)
