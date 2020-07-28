@@ -226,9 +226,9 @@ def mask_by_region (cube, gdf):
     
     # Convert this into a 3D mask
     # i.e the mask is repeated for each data timeslice
-    seconds = time.time()
-    mask_3d = np.repeat(mask_2d[np.newaxis,:, :], cube.shape[0], axis=0)
-    print("Seconds to run =", time.time() - seconds)	
+    #seconds = time.time()
+    #mask_3d = np.repeat(mask_2d[np.newaxis,:, :], cube.shape[0], axis=0)
+    #print("Seconds to run =", time.time() - seconds)	
     
     # Mask the cubes data across all timeslices
     #masked_data = np.ma.masked_array(data, mask_3d)
@@ -237,7 +237,7 @@ def mask_by_region (cube, gdf):
     # Set this as the cubes data
     #cube.data = masked_data
            
-    return mask_3d
+    return mask_2d
 
 def plot_cube_within_region (cube, region_outline_gdf):
     '''

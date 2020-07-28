@@ -123,10 +123,10 @@ for em in ems:
     # Copy the original cube (so as changes arent implemented in original cube as well)
     masked_regional_cube = regional_cube.copy()
     # Set cubes data with the mask
-    print("Masking cubes")
-    seconds = time.time()
-    masked_regional_cube.data =  np.ma.masked_array(masked_regional_cube.data, np.logical_not(regional_mask))
-    print ("Cube masked in: ", time.time() - seconds)
+    #print("Masking cubes")
+    #seconds = time.time()
+    #masked_regional_cube.data =  np.ma.masked_array(masked_regional_cube.data, np.logical_not(regional_mask))
+    #print ("Cube masked in: ", time.time() - seconds)
     
     # Check plotting
     #qplt.contourf(masked_regional_cube[10,:,:])       
@@ -145,8 +145,13 @@ for em in ems:
     
     # Keep only JJA
     jja = annual_seasonal_max.extract(iris.Constraint(clim_season = 'jja'))
-    
      
+    # Mask JJA
+    seconds = time.time()
+    mask_3d = np.repeat(regional_mask[np.newaxis,:, :], jja.shape[0], axis=0)
+    #print("Seconds to run =", time.time() - seconds)	
+    jja.data =  np.ma.masked_array(jja.data, np.logical_not(mask_3d))
+    
     ############################################
     # Check plotting
     #############################################
