@@ -268,11 +268,11 @@ def plot_cube_within_region (cube, region_outline_gdf):
     # Cut off edge data to match size of corner points arrays.
     # First row and column lost in process of finding bottom left corner points.
     # I think can do this so it works for either like [..., 1:,1:]
-    cube = cube[..., 1:,1:]
-    #if cube.ndim ==2:
-    #  cube = cube[1:, 1:]  
-    #elif cube.ndim ==3:
-    #    cube = cube[0, 1:, 1:]
+    #cube = cube[..., 1:,1:]
+    if cube.ndim ==2:
+      cube = cube[1:, 1:]  
+    elif cube.ndim ==3:
+        cube = cube[0, 1:, 1:]
     
     # Get points in WGS84
     lats_centrepoints = cube.coord('latitude').points

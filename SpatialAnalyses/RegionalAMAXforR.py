@@ -33,8 +33,8 @@ from Spatial_plotting_functions import *
 start_year = 1980
 end_year = 2000 
 yrs_range = "1980_2001" 
-ems = ['01', '03']
-region = 'Northern'
+ems = ['01', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
+region = 'WY'
 
 
 ############################################
@@ -52,14 +52,14 @@ northern_gdf = northern_gdf.to_crs({'init' :'epsg:3785'})
 northern_gdf['merging_col'] = 0
 northern_gdf = northern_gdf.dissolve(by='merging_col')
 
-regional_gdf = northern_gdf
+regional_gdf = wy_gdf
 
 #############################################
 # Read in files
 #############################################
 
 for em in ems:
-
+    print ("Ensemble member {}".format(em))
     # Create list of names of cubes for between the years specified
     filenames =[]
     for year in range(start_year,end_year+1):
@@ -98,13 +98,13 @@ for em in ems:
     #############################################
     # Trim the cube to the BBOX of the region of interest
     #############################################
-    regional_cube = trim_to_bbox_of_region(concat_cube, northern_gdf)
+    regional_cube = trim_to_bbox_of_region(concat_cube, regional_gdf)
     
     # Check plotting
-    qplt.contourf(regional_cube[10,:,:])       
-    plt.gca().coastlines()   
+    #qplt.contourf(regional_cube[10,:,:])       
+    #plt.gca().coastlines()   
     # Check plotting #.2
-    #plot_cube_within_region(regional_cube[112,:,:], northern_gdf)
+    #plot_cube_within_region(regional_cube[112,:,:], regional_gdf)
     
     #############################################
     # 
@@ -112,15 +112,16 @@ for em in ems:
     
     if not 'regional_mask' in globals():
         # Create a masked array - masking out all cells not within the region 
-        regional_mask = trim_to_gdf(regional_cube, northern_gdf)
+        regional_mask = trim_to_gdf(regional_cube, regional_gdf)
+        print('Creating regional_mask)')
     # Copy the original cube (so as changes arent implemented in original cube as well)
     masked_regional_cube = regional_cube.copy()
     # Set cubes data with the mask
     masked_regional_cube.data = regional_mask
     
     # Check plotting
-    qplt.contourf(masked_regional_cube[10,:,:])       
-    plt.gca().coastlines()   
+    #qplt.contourf(masked_regional_cube[10,:,:])       
+    #plt.gca().coastlines()   
     
     ############################################
     # Find the maximum value in each June-July_August period
@@ -140,26 +141,38 @@ for em in ems:
     ############################################
     # Check plotting
     #############################################
-    qplt.contourf(jja[1,:,:])       
-    plt.gca().coastlines()  
+    #qplt.contourf(jja[1,:,:])       
+    #plt.gca().coastlines()  
     plot_cube_within_region(jja, regional_gdf)
     
     ############################################
     # Reformat for use in R
     #############################################
     # Get the coords 1D
-    lats = jja.coord('grid_latitude').points
-    lons = jja.coord('grid_longitude').points
+    # lats = jja.coord('grid_latitude').points
+    # lons = jja.coord('grid_longitude').points
+    
+    # # Convert to 2D
+    # lats_2d, lons_2d = np.meshgrid(lats, lons)
+    
+    # # Convert to 1D
+    # lats_1d = lats_2d.reshape(-1)
+    # lons_1d = lons_2d.reshape(-1)
+    
+    # Get the coords 1D
+    lats_1d = jja.coord('latitude').points
+    lons_1d = jja.coord('longitude').points
     
     # Convert to 2D
-    lats_2d, lons_2d = np.meshgrid(lats, lons)
+    #lats_2d, lons_2d = np.meshgrid(lats, lons)
     
     # Convert to 1D
-    lats_1d = lats_2d.reshape(-1)
-    lons_1d = lons_2d.reshape(-1)
+    lats_1d = lats_1d.reshape(-1)
+    lons_1d = lons_1d.reshape(-1)
+    
     
     # Create dataframe
-    df = pd.DataFrame({'lons': lons_1d, "lats": lats_1d})
+    #df = pd.DataFrame({'lons': lons_1d, "lats": lats_1d})
     
     #############################
     # Create a dictionary with each key corresponding to a year and the values
@@ -178,14 +191,16 @@ for em in ems:
     # Create as a dataframe
     test = pd.DataFrame(my_dict)
     
+    # Join with lats and lons
+    test['lat'], test['lon'] = [lats_1d, lons_1d]
+    
     # Remove NA rows
     test = test.dropna()
     
-    
     # Save dataframe
-    ddir = root_fp + "Outputs/DataforR/{}/".format(region)
-    if not os.path.isdir(filepath_to_save):
-        os.makedirs(filepath_to_save)
+    ddir = "Outputs/DataforR/{}/".format(region)
+    if not os.path.isdir(ddir):
+        os.makedirs(ddir)
     test.to_csv(ddir + "em{}.csv".format(em), index = False)
     
     
