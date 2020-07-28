@@ -5,6 +5,7 @@ from pyproj import Proj, transform
 from shapely.geometry import Point, Polygon, MultiPolygon
 import matplotlib.pyplot as plt
 import tilemapbase
+import time 
 
 root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
 

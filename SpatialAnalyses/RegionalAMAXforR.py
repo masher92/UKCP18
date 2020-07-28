@@ -18,7 +18,9 @@ import tilemapbase
 import numpy as np
 from shapely.geometry import Polygon
 import iris.coord_categorisation
+import time 
 
+warnings.filterwarnings("ignore")
 
 # Provide root_fp as argument
 #root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
@@ -33,8 +35,8 @@ from Spatial_plotting_functions import *
 start_year = 1980
 end_year = 2000 
 yrs_range = "1980_2001" 
-ems = ['12', '13', '15']
-region = 'WY'
+ems = ['01,', '04','05', '06', '07', '08', '09', '10', '11']# '12', '13', '15']
+region = 'Northern'
 
 ############################################
 # Create regions
@@ -51,7 +53,7 @@ northern_gdf = northern_gdf.to_crs({'init' :'epsg:3785'})
 northern_gdf['merging_col'] = 0
 northern_gdf = northern_gdf.dissolve(by='merging_col')
 
-regional_gdf = wy_gdf
+regional_gdf = northern_gdf
 
 #############################################
 # Read in files
@@ -93,11 +95,14 @@ for em in ems:
     #
     # Remove ensemble member dimension
     concat_cube = concat_cube[0,:,:,:]
+    print ("Joined cubes into one")
     
     #############################################
     # Trim the cube to the BBOX of the region of interest
     #############################################
+    seconds = time.time()
     regional_cube = trim_to_bbox_of_region(concat_cube, regional_gdf)
+    print("Trimmed to extent of bbox in: ", time.time() - seconds)
     
     # Check plotting
     #qplt.contourf(regional_cube[10,:,:])       
@@ -108,14 +113,20 @@ for em in ems:
     #############################################
     # 
     #############################################
+    seconds = time.time()
     if not 'regional_mask' in globals():
         # Create a masked array - masking out all cells not within the region 
         regional_mask = mask_by_region(regional_cube, regional_gdf)
-        print('Creating regional_mask)')
+        print('Created regional_mask in: ', time.time() - seconds)
+    else: 
+        print('Regional mask already exists')
     # Copy the original cube (so as changes arent implemented in original cube as well)
     masked_regional_cube = regional_cube.copy()
     # Set cubes data with the mask
+    print("Masking cubes")
+    seconds = time.time()
     masked_regional_cube.data =  np.ma.masked_array(masked_regional_cube.data, np.logical_not(regional_mask))
+    print ("Cube masked in: ", time.time() - seconds)
     
     # Check plotting
     #qplt.contourf(masked_regional_cube[10,:,:])       
