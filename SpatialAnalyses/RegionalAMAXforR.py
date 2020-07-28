@@ -140,20 +140,19 @@ for em in ems:
     iris.coord_categorisation.add_season_year(masked_regional_cube,'time', name = "season_year")
     iris.coord_categorisation.add_season(masked_regional_cube,'time', name = "clim_season")
     
-    # Aggregate to get just the maximum value in each seasonal yearly period
-    print("Finding annual seasonal max")
-    seconds = time.time()
-    annual_seasonal_max = masked_regional_cube.aggregated_by(['season_year', 'clim_season'], iris.analysis.MAX)
-    print("Found annual seasonal max in: ", time.time() - seconds)	
-    
     # Keep only JJA
-    jja = annual_seasonal_max.extract(iris.Constraint(clim_season = 'jja'))
-     
+    jja = masked_regional_cube.extract(iris.Constraint(clim_season = 'jja'))
+    
+    # Aggregate to get just the maximum value in each seasonal yearly period
+    seconds = time.time()
+    annual_seasonal_max = jja.aggregated_by(['season_year'], iris.analysis.MAX)
+    print('Found annual seasonal max in: ', time.time() - seconds)
+    
     # Mask JJA
     seconds = time.time()
-    mask_3d = np.repeat(regional_mask[np.newaxis,:, :], jja.shape[0], axis=0)
-    jja.data =  np.ma.masked_array(jja.data, np.logical_not(mask_3d))
-    print("Masked to region in: ", time.time() - seconds)	
+    mask_3d = np.repeat(regional_mask[np.newaxis,:, :], annual_seasonal_max.shape[0], axis=0)
+    #print("Seconds to run =", time.time() - seconds)	
+    annual_seasonal_max.data =  np.ma.masked_array(annual_seasonal_max.data, np.logical_not(mask_3d))
     
     ############################################
     # Check plotting
