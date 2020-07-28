@@ -33,7 +33,7 @@ from Spatial_plotting_functions import *
 start_year = 1980
 end_year = 2000 
 yrs_range = "1980_2001" 
-ems = ['01', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
+ems = ['12', '13', '15']
 region = 'WY'
 
 
@@ -109,7 +109,6 @@ for em in ems:
     #############################################
     # 
     #############################################
-    
     if not 'regional_mask' in globals():
         # Create a masked array - masking out all cells not within the region 
         regional_mask = trim_to_gdf(regional_cube, regional_gdf)
