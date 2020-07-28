@@ -73,11 +73,11 @@ for em in ems:
             #print(filename)
             filenames.append(filename)
     
-    #filenames =[]
-    #filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19801201-19801230.nc')  
-    #filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19810101-19810130.nc') 
-    #filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19820601-19820630.nc') 
-    #filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19830601-19830630.nc') 
+    # filenames =[]
+    # filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19801201-19801230.nc')  
+    # filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19810101-19810130.nc') 
+    # filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19820601-19820630.nc') 
+    # filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19830601-19830630.nc') 
     
     monthly_cubes_list = iris.load(filenames,'lwe_precipitation_rate')
     print(str(len(monthly_cubes_list)) + " cubes found for this time period.")
@@ -105,22 +105,53 @@ for em in ems:
     regional_cube = trim_to_bbox_of_region(concat_cube, regional_gdf)
     print("Trimmed to extent of bbox in: ", time.time() - seconds)
     
-    # Check plotting
-    #qplt.contourf(regional_cube[10,:,:])       
-    #plt.gca().coastlines()   
-    # Check plotting #.2
-    #plot_cube_within_region(regional_cube[112,:,:], regional_gdf)
+    ############################################
+    # Cut to just June-July_August period
+    #############################################
+    ## Add season variables
+    iris.coord_categorisation.add_season(regional_cube,'time', name = "clim_season")
+    # Keep only JJA
+    jja = regional_cube.extract(iris.Constraint(clim_season = 'jja'))
+    
+    ###########################################
+    # Find statistic being used to regionalise rainfall
+    #############################################
+    iris.coord_categorisation.add_season_year(jja,'time', name = "season_year") 
+    # For each year, calculate statistic
+    seconds = time.time()
+    #yearly_stats = jja.aggregated_by(['season_year'], iris.analysis.MAX)
+    #yearly_stats = jja.aggregated_by(['season_year'], iris.analysis.MEAN)
+    yearly_stats = jja.aggregated_by(['season_year'], iris.analysis.PERCENTILE, percent=[99])
+    print('Found yearly stat in: ', time.time() - seconds)
     
     #############################################
     # 
     #############################################
-    seconds = time.time()
-    if not 'regional_mask' in globals():
-        # Create a masked array - masking out all cells not within the region 
-        regional_mask = mask_by_region(regional_cube, regional_gdf)
-        print('Created regional_mask in: ', time.time() - seconds)
-    else: 
-        print('Regional mask already exists')
+    if mask_to_region == True:
+        print ("Masking to region")
+        if not 'regional_mask' in globals():
+            seconds = time.time()
+            regional_mask = mask_by_region(yearly_stats, regional_gdf)
+            print('Created regional_mask in: ', time.time() - seconds)
+        else: 
+            print('Regional mask already exists')
+        # Mask JJA
+        seconds = time.time()
+        mask_3d = np.repeat(regional_mask[np.newaxis,:, :], yearly_stats.shape[0], axis=0)
+        #print("Seconds to run =", time.time() - seconds)	
+        yearly_stats.data =  np.ma.masked_array(yearly_stats.data, np.logical_not(mask_3d))
+        yearly_stats.data =  np.ma.masked_array(yearly_stats.data, np.logical_not(mask_3d))
+    
+    # Check plotting
+    qplt.contourf(yearly_stats[0,:,:])       
+    plt.gca().coastlines()   
+    # Check plotting #.2
+    #plot_cube_within_region(yearly_stats[0,:,:], regional_gdf)
+    
+    #############################################
+    # 
+    #############################################
+
     # Copy the original cube (so as changes arent implemented in original cube as well)
     masked_regional_cube = regional_cube.copy()
     # Set cubes data with the mask
@@ -133,27 +164,7 @@ for em in ems:
     #qplt.contourf(masked_regional_cube[10,:,:])       
     #plt.gca().coastlines()   
     
-    ############################################
-    # Find the maximum value in each June-July_August period
-    #############################################
-    ## Add season and season_year variables
-    iris.coord_categorisation.add_season_year(masked_regional_cube,'time', name = "season_year")
-    iris.coord_categorisation.add_season(masked_regional_cube,'time', name = "clim_season")
-    
-    # Keep only JJA
-    jja = masked_regional_cube.extract(iris.Constraint(clim_season = 'jja'))
-    
-    # Aggregate to get just the maximum value in each seasonal yearly period
-    seconds = time.time()
-    annual_seasonal_max = jja.aggregated_by(['season_year'], iris.analysis.MAX)
-    print('Found annual seasonal max in: ', time.time() - seconds)
-    
-    # Mask JJA
-    seconds = time.time()
-    mask_3d = np.repeat(regional_mask[np.newaxis,:, :], annual_seasonal_max.shape[0], axis=0)
-    #print("Seconds to run =", time.time() - seconds)	
-    annual_seasonal_max.data =  np.ma.masked_array(annual_seasonal_max.data, np.logical_not(mask_3d))
-    
+
     ############################################
     # Check plotting
     #############################################
