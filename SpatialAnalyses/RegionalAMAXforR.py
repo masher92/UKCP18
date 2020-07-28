@@ -35,8 +35,8 @@ from Spatial_plotting_functions import *
 start_year = 1980
 end_year = 2000 
 yrs_range = "1980_2001" 
-ems = ['01,', '04','05', '06', '07', '08', '09', '10', '11']# '12', '13', '15']
-region = 'Northern'
+ems = ['04','05', '06', '07', '08', '09', '10', '11']# '12', '13', '15']
+region = 'WY'
 
 ############################################
 # Create regions
@@ -53,13 +53,14 @@ northern_gdf = northern_gdf.to_crs({'init' :'epsg:3785'})
 northern_gdf['merging_col'] = 0
 northern_gdf = northern_gdf.dissolve(by='merging_col')
 
-regional_gdf = northern_gdf
+regional_gdf = wy_gdf
 
 #############################################
 # Read in files
 #############################################
 
 for em in ems:
+    start_time = time.time()
     print ("Ensemble member {}".format(em))
     # Create list of names of cubes for between the years specified
     filenames =[]
@@ -140,8 +141,10 @@ for em in ems:
     iris.coord_categorisation.add_season(masked_regional_cube,'time', name = "clim_season")
     
     # Aggregate to get just the maximum value in each seasonal yearly period
+    print("Finding annual seasonal max")
+    seconds = time.time()
     annual_seasonal_max = masked_regional_cube.aggregated_by(['season_year', 'clim_season'], iris.analysis.MAX)
-    print(annual_seasonal_max)
+    print("Found annual seasonal max in: ", time.time() - seconds)	
     
     # Keep only JJA
     jja = annual_seasonal_max.extract(iris.Constraint(clim_season = 'jja'))
@@ -149,8 +152,8 @@ for em in ems:
     # Mask JJA
     seconds = time.time()
     mask_3d = np.repeat(regional_mask[np.newaxis,:, :], jja.shape[0], axis=0)
-    #print("Seconds to run =", time.time() - seconds)	
     jja.data =  np.ma.masked_array(jja.data, np.logical_not(mask_3d))
+    print("Masked to region in: ", time.time() - seconds)	
     
     ############################################
     # Check plotting
@@ -193,7 +196,7 @@ for em in ems:
     # containing a 1D array of AMAX values, masked to the region of interest
     my_dict = {}
     for i in range(0, jja.shape[0]):
-        print(i)
+        #print(i)
         # Get data from one timeslice
         one_ts = jja[i,:,:]
         # Extract data from one year 
@@ -217,6 +220,6 @@ for em in ems:
         os.makedirs(ddir)
     test.to_csv(ddir + "em{}.csv".format(em), index = False)
     
-    
+    print("Finished everything for EM in: ", time.time() - start_time)	
     
     
