@@ -257,13 +257,28 @@ def GridCells_within_geometry(lats, lons, geometry_gdf, data):
 
     
 def trim_to_bbox_of_region (cube, gdf):
-    """
+    '''
+    Description
+    ----------
+        Trims a cube to the bounding box of a region, supplied as a geodataframe.
+        This is much faster than looking for each point within a geometry as in
+        GridCellsWithin_geometry
 
-    
-    """
+    Parameters
+    ----------
+        cube : iris cube
+            1D array of latitudes
+        gdf: GeoDataFrame
+            GeoDataFrame containing a geometry by which to cut the cubes spatial extent
+    Returns
+    -------
+        trimmed_cube : iris cube
+            Cube with spatial extent equivalent to the bounding box of the supplied geodataframe
+
+    '''
     minmax = lambda x: (np.min(x), np.max(x))
     
-    # Convert the regional gdf to WGS84
+    # Convert the regional gdf to WGS84 (same as cube)
     gdf = gdf.to_crs({'init' :'epsg:4326'}) 
     
     # Find the bounding box of the region
