@@ -42,118 +42,6 @@ def create_leeds_outline (required_proj):
     return leeds_gdf
 
 
-def find_corner_coords (cube):
-    '''
-    Description
-    ----------
-        
-
-    Parameters
-    ----------
-
-
-    Returns
-    -------
-
-    
-    '''
-    ##############################################################################
-    ### Create a cube containing one timeslice 
-    ##############################################################################
-    # Get just one timeslice
-    hour_uk_cube = cube[1,:,:]
-    
-    ##############################################################################
-    # Get arrays of lats and longs of left corners in Web Mercator projection
-    ##############################################################################
-    coordinates_cornerpoints = find_cornerpoint_coordinates(hour_uk_cube)
-    lats_cornerpoints= coordinates_cornerpoints[0]
-    lons_cornerpoints= coordinates_cornerpoints[1]
-    
-    # Cut off edge data to match size of corner points arrays.
-    # First row and column lost in process of finding bottom left corner points.
-    trimmed_cube = cube[:,1:, 1:]
-    
-    ##############################################################################
-    #### Get arrays of lats and longs of centre points in Web Mercator projection
-    ##############################################################################
-    # Get points in WGS84
-    lats_centrepoints = trimmed_cube.coord('latitude').points
-    lons_centrepoints = trimmed_cube.coord('longitude').points
-    # Convert to WM
-    lons_centrepoints,lats_centrepoints= transform(Proj(init='epsg:4326'),Proj(init='epsg:3785'),lons_centrepoints,lats_centrepoints)
-    
-    df = pd.DataFrame({"Lat_bottomleft" :lats_cornerpoints.reshape(-1),
-                   "Lon_bottomleft" :lons_cornerpoints.reshape(-1),
-                   "Lat_centre" :lats_centrepoints.reshape(-1),
-                   "Lon_centre" :lons_centrepoints.reshape(-1)})
-    
-    return (df, trimmed_cube)
-
-
-    ############################################
-    for cube in monthly_cubes_list:
-     for attr in ['creation_date', 'tracking_id', 'history']:
-         if attr in cube.attributes:
-             del cube.attributes[attr]
- 
-     # Concatenate the cubes into one
-    concat_cube = monthly_cubes_list.concatenate_cube()
-    #
-    # Remove ensemble member dimension
-    concat_cube = concat_cube[0,:,:,:]
-    cube = concat_cube
-
-
-def trim_to_gdf (cube, gdf):
-    '''
-    Description
-    ----------
-        Masks the data in a cube so that cells outwith a provided geometry have no value
-        
-    Parameters
-    ----------
-        cube : Iris cube with 3 dimensions: Time, lat, long
-        gdf: A geodataframe corresponding to the region by which to mask the cube
-          
-    Returns
-    -------
-        cube: Iris cube with 3 dimensions with the data masked to the provided region
-    '''
-    
-    # Create a Shapely Polygon from the geodataframe
-    #geometry_poly = Polygon(gdf['geometry'].iloc[0])
-    
-    # Create 1d array of lat and lons and convert to Web Mercator
-    lons = cube.coord('longitude').points.reshape(-1)
-    lats = cube.coord('latitude').points.reshape(-1)
-    lons,lats= transform(Proj(init='epsg:4326'),Proj(init='epsg:3785'),lons,lats)
-
-    # Get one timeslice of data
-    one_ts = cube[0,:,:]
-    # Check spatial extent
-    #qplt.contourf(one_ts)       
-    #plt.gca().coastlines()    
-    
-    # Find which cells are within the geometry
-    # This returns a masked array i.e. only cells that are within the geometry
-    # have a value
-    mask_2d = GridCells_within_geometry(lats,lons, gdf, one_ts)
-
-    # Convert this into a 3D mask
-    # i.e the mask is repeated for each data timeslice
-    mask_3d = np.repeat(mask_2d[np.newaxis,:, :], cube.shape[0], axis=0)
-    
-    # Mask the cubes data across all timeslices
-    #masked_data = np.ma.masked_array(data, mask_3d)
-    masked_data = np.ma.masked_array(cube.data, np.logical_not(mask_3d))
-    
-    # Set this as the cubes data
-    #cube.data = masked_data
-           
-    return masked_data
-
-
 def find_cornerpoint_coordinates (cube):
     '''
     Description
@@ -305,7 +193,7 @@ def mask_by_region (cube, gdf):
     '''
     Description
     ----------
-        Masks the data in a cube so that cells outwith a provided geometry have no value
+        Masks the data in a cube so that cells outwith a provided geometry have NA value
         
     Parameters
     ----------
@@ -350,18 +238,20 @@ def plot_cube_within_region (cube, region_outline_gdf):
     '''
     Description
     ----------
-    In the netCDF cube the coordinates refer to the central point in the grid cell.
-    Plotting with pcolormesh assumes the coordiante is the bottom left corner of the
-    grid cell.
-    Thus, some conversion is needed.
+        Plots a cube within a geometry boundary.
+        Maps the cube data which is provided as an array in which values are for the
+        centre point of each grid cell, so that values are associated with the
+        bottom left corner, as this is how the plotting function works.
 
     Parameters
     ----------
         cube: Iris Cube
             A cube containing just lats, longs (one timeslice)
+        region_outline_gdf: GeoDataFrame
+            A geodataframe of an area of interest
     Returns
     -------
-        lats_wm_midpoints_2d : array
+        A plot
         
     '''    
     
@@ -377,10 +267,12 @@ def plot_cube_within_region (cube, region_outline_gdf):
     ##############################################################################
     # Cut off edge data to match size of corner points arrays.
     # First row and column lost in process of finding bottom left corner points.
-    if cube.ndim ==2:
-      cube = cube[1:, 1:]  
-    elif cube.ndim ==3:
-        cube = cube[0, 1:, 1:]
+    # I think can do this so it works for either like [..., 1:,1:]
+    cube = cube[..., 1:,1:]
+    #if cube.ndim ==2:
+    #  cube = cube[1:, 1:]  
+    #elif cube.ndim ==3:
+    #    cube = cube[0, 1:, 1:]
     
     # Get points in WGS84
     lats_centrepoints = cube.coord('latitude').points
@@ -407,8 +299,118 @@ def plot_cube_within_region (cube, region_outline_gdf):
     #plt.colorbar(plot,fraction=0.036, pad=0.04).ax.tick_params(labelsize='xx-large')  
     plot =ax.tick_params(labelsize='xx-large')
     plot =region_outline_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=6)
+   
     
+# def trim_to_gdf (cube, gdf):
+#     '''
+#     Description
+#     ----------
+#         Masks the data in a cube so that cells outwith a provided geometry have no value
+        
+#     Parameters
+#     ----------
+#         cube : Iris cube with 3 dimensions: Time, lat, long
+#         gdf: A geodataframe corresponding to the region by which to mask the cube
+          
+#     Returns
+#     -------
+#         cube: Iris cube with 3 dimensions with the data masked to the provided region
+#     '''
+    
+#     # Create a Shapely Polygon from the geodataframe
+#     #geometry_poly = Polygon(gdf['geometry'].iloc[0])
+    
+#     # Create 1d array of lat and lons and convert to Web Mercator
+#     lons = cube.coord('longitude').points.reshape(-1)
+#     lats = cube.coord('latitude').points.reshape(-1)
+#     lons,lats= transform(Proj(init='epsg:4326'),Proj(init='epsg:3785'),lons,lats)
 
+#     # Get one timeslice of data
+#     one_ts = cube[0,:,:]
+#     # Check spatial extent
+#     #qplt.contourf(one_ts)       
+#     #plt.gca().coastlines()    
+    
+#     # Find which cells are within the geometry
+#     # This returns a masked array i.e. only cells that are within the geometry
+#     # have a value
+#     mask_2d = GridCells_within_geometry(lats,lons, gdf, one_ts)
+
+#     # Convert this into a 3D mask
+#     # i.e the mask is repeated for each data timeslice
+#     mask_3d = np.repeat(mask_2d[np.newaxis,:, :], cube.shape[0], axis=0)
+    
+#     # Mask the cubes data across all timeslices
+#     #masked_data = np.ma.masked_array(data, mask_3d)
+#     masked_data = np.ma.masked_array(cube.data, np.logical_not(mask_3d))
+    
+#     # Set this as the cubes data
+#     #cube.data = masked_data
+           
+#     return masked_data    
+    
+    
+# def find_corner_coords (cube):
+#     '''
+#     Description
+#     ----------
+        
+
+#     Parameters
+#     ----------
+
+
+#     Returns
+#     -------
+
+    
+#     '''
+#     ##############################################################################
+#     ### Create a cube containing one timeslice 
+#     ##############################################################################
+#     # Get just one timeslice
+#     hour_uk_cube = cube[1,:,:]
+    
+#     ##############################################################################
+#     # Get arrays of lats and longs of left corners in Web Mercator projection
+#     ##############################################################################
+#     coordinates_cornerpoints = find_cornerpoint_coordinates(hour_uk_cube)
+#     lats_cornerpoints= coordinates_cornerpoints[0]
+#     lons_cornerpoints= coordinates_cornerpoints[1]
+    
+#     # Cut off edge data to match size of corner points arrays.
+#     # First row and column lost in process of finding bottom left corner points.
+#     trimmed_cube = cube[:,1:, 1:]
+    
+#     ##############################################################################
+#     #### Get arrays of lats and longs of centre points in Web Mercator projection
+#     ##############################################################################
+#     # Get points in WGS84
+#     lats_centrepoints = trimmed_cube.coord('latitude').points
+#     lons_centrepoints = trimmed_cube.coord('longitude').points
+#     # Convert to WM
+#     lons_centrepoints,lats_centrepoints= transform(Proj(init='epsg:4326'),Proj(init='epsg:3785'),lons_centrepoints,lats_centrepoints)
+    
+#     df = pd.DataFrame({"Lat_bottomleft" :lats_cornerpoints.reshape(-1),
+#                    "Lon_bottomleft" :lons_cornerpoints.reshape(-1),
+#                    "Lat_centre" :lats_centrepoints.reshape(-1),
+#                    "Lon_centre" :lons_centrepoints.reshape(-1)})
+    
+#     return (df, trimmed_cube)
+
+
+#     ############################################
+#     for cube in monthly_cubes_list:
+#      for attr in ['creation_date', 'tracking_id', 'history']:
+#          if attr in cube.attributes:
+#              del cube.attributes[attr]
+ 
+#      # Concatenate the cubes into one
+#     concat_cube = monthly_cubes_list.concatenate_cube()
+#     #
+#     # Remove ensemble member dimension
+#     concat_cube = concat_cube[0,:,:,:]
+#     cube = concat_cube
     
 # def GridCells_within_geometry(df, geometry_gdf, data):
 #     '''
