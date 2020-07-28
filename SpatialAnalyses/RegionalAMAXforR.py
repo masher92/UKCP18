@@ -110,7 +110,7 @@ for em in ems:
     #############################################
     if not 'regional_mask' in globals():
         # Create a masked array - masking out all cells not within the region 
-        regional_mask = trim_to_gdf(regional_cube, regional_gdf)
+        regional_mask = mask_by_region(regional_cube, regional_gdf)
         print('Creating regional_mask)')
     # Copy the original cube (so as changes arent implemented in original cube as well)
     masked_regional_cube = regional_cube.copy()
