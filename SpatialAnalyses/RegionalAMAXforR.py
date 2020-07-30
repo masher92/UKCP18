@@ -35,9 +35,11 @@ from Spatial_plotting_functions import *
 start_year = 1980
 end_year = 2000 
 yrs_range = "1980_2001" 
-#ems = ['04','05', '06', '07', '08', '09', '10', '11']# '12', '13', '15']
-ems = ['06']
+ems = ['01', '04','05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
+#ems = ['06']
 region = 'Northern'
+mask_to_region = True
+stats = ['Mean', 'Max', '99th Percentile']
 
 ############################################
 # Create regions
@@ -59,10 +61,18 @@ regional_gdf = northern_gdf
 #############################################
 # Read in files
 #############################################
-
 for em in ems:
     start_time = time.time()
     print ("Ensemble member {}".format(em))
+    
+    # Check if the last stat exists already, if it does then don't continue with the
+    # code
+    filepath = "Outputs/DataforR/{}/{}/em{}.csv".format(region, stats[2], em)
+    if os.path.isfile(filepath)  :
+        filepath = "Outputs/DataforR/{}/{}/em{}.csv".format(region, stats[2], em)
+        print("Already complete, moving to next ensemble member")
+        continue
+    
     # Create list of names of cubes for between the years specified
     filenames =[]
     for year in range(start_year,end_year+1):
@@ -106,6 +116,13 @@ for em in ems:
     regional_cube = trim_to_bbox_of_region(concat_cube, regional_gdf)
     print("Trimmed to extent of bbox in: ", time.time() - seconds)
     
+    #seconds = time.time()
+    #regional_cube = mask_by_region(regional_cube, regional_gdf)
+    #print('Created regional_mask in: ', time.time() - seconds)
+    #mask_3d = np.repeat(regional_mask[np.newaxis,:, :], regional_cube.shape[0], axis=0)
+    #print("Seconds to run =", time.time() - seconds)	
+    #regional_cube.data =  np.ma.masked_array(regional_cube.data, np.logical_not(mask_3d))
+    
     ############################################
     # Cut to just June-July_August period
     #############################################
@@ -119,143 +136,92 @@ for em in ems:
     #############################################
     iris.coord_categorisation.add_season_year(jja,'time', name = "season_year") 
     # For each year, calculate statistic
-    seconds = time.time()
-    #yearly_stats = jja.aggregated_by(['season_year'], iris.analysis.MAX)
-    #yearly_stats = jja.aggregated_by(['season_year'], iris.analysis.MEAN)
-    yearly_stats = jja.aggregated_by(['season_year'], iris.analysis.PERCENTILE, percent=[99])
-    print('Found yearly stat in: ', time.time() - seconds)
+    # seconds = time.time()
+    # #yearly_stats = jja.aggregated_by(['season_year'], iris.analysis.MAX)
+    # #yearly_stats = jja.aggregated_by(['season_year'], iris.analysis.MEAN)
+    # yearly_stats = jja.aggregated_by(['season_year'], iris.analysis.PERCENTILE, percent=[99])
+    # print('Found yearly stat in: ', time.time() - seconds)
     
-    #############################################
-    # 
-    #############################################
-    if mask_to_region == True:
-        print ("Masking to region")
-        if not 'regional_mask' in globals():
-            seconds = time.time()
-            regional_mask = mask_by_region(yearly_stats, regional_gdf)
-            print('Created regional_mask in: ', time.time() - seconds)
-        else: 
-            print('Regional mask already exists')
-        # Mask JJA
+    
+    for stat in stats:
+        print('Calculating ' , stat)
         seconds = time.time()
-        mask_3d = np.repeat(regional_mask[np.newaxis,:, :], yearly_stats.shape[0], axis=0)
-        #print("Seconds to run =", time.time() - seconds)	
-        yearly_stats.data =  np.ma.masked_array(yearly_stats.data, np.logical_not(mask_3d))
-        yearly_stats.data =  np.ma.masked_array(yearly_stats.data, np.logical_not(mask_3d))
-    
-    # Check plotting
-    qplt.contourf(yearly_stats[0,:,:])       
-    plt.gca().coastlines()   
-    # Check plotting #.2
-    #plot_cube_within_region(yearly_stats[0,:,:], regional_gdf)
-    
-    #############################################
-    # 
-    #############################################
-<<<<<<< HEAD
-
-=======
-    #seconds = time.time()
-    #if not 'regional_mask' in globals():
-    #    # Create a masked array - masking out all cells not within the region 
-    #    regional_mask = mask_by_region(regional_cube, regional_gdf)
-    #    print('Created regional_mask in: ', time.time() - seconds)
-    #else: 
-    #    print('Regional mask already exists')
->>>>>>> f29b98afc0f4634c229e8f5c96cbf5245abb74da
-    # Copy the original cube (so as changes arent implemented in original cube as well)
-    #masked_regional_cube = regional_cube.copy()
-    # Set cubes data with the mask
-    #print("Masking cubes")
-    #seconds = time.time()
-    #masked_regional_cube.data =  np.ma.masked_array(masked_regional_cube.data, np.logical_not(regional_mask))
-    #print ("Cube masked in: ", time.time() - seconds)
-    
-    # Check plotting
-    #qplt.contourf(masked_regional_cube[10,:,:])       
-    #plt.gca().coastlines()   
-    
-<<<<<<< HEAD
-
-=======
-    ############################################
-    # Find the maximum value in each June-July_August period
-    #############################################
-    ## Add season and season_year variables
-    iris.coord_categorisation.add_season_year(masked_regional_cube,'time', name = "season_year")
-    iris.coord_categorisation.add_season(masked_regional_cube,'time', name = "clim_season")
-    
-    # Keep only JJA
-    jja = regional_cube.extract(iris.Constraint(clim_season = 'jja'))
-    
-    # Aggregate to get just the maximum value in each seasonal yearly period
-    seconds = time.time()
-    jja_max = jja.aggregated_by(['season_year', 'clim_season'], iris.analysis.MAX)
-    print('Found annual seasonal max in: ', time.time() - seconds)
-    
-    # Mask JJA
-    #seconds = time.time()
-    #mask_3d = np.repeat(regional_mask[np.newaxis,:, :], annual_seasonal_max.shape[0], axis=0)
-    #print("Seconds to run =", time.time() - seconds)	
-    #annual_seasonal_max.data =  np.ma.masked_array(annual_seasonal_max.data, np.logical_not(mask_3d))
-    
->>>>>>> f29b98afc0f4634c229e8f5c96cbf5245abb74da
-    ############################################
-    # Check plotting
-    #############################################
-    #qplt.contourf(jja[1,:,:])       
-    #plt.gca().coastlines()  
-    #plot_cube_within_region(jja, regional_gdf)
-    
-    ############################################
-    # Reformat for use in R
-    #############################################
-    # Get the coords 1D
-    lats_1d = jja_max.coord('latitude').points
-    lons_1d = jja_max.coord('longitude').points
-    
-    # Convert to 1D
-    lats_1d = lats_1d.reshape(-1)
-    lons_1d = lons_1d.reshape(-1)
-    
-    #############################
-    print("Creating dictionary")
-    # Create a dictionary with each key corresponding to a year and the values
-    # containing a 1D array of AMAX values, masked to the region of interest
-    my_dict = {}
-    for i in range(0, jja_max.shape[0]):
-        print(i)
-        # Get data from one timeslice
-        one_ts = jja_max[i,:,:]
-        # Extract data from one year 
-        data = one_ts.data.reshape(-1)
-        year  = one_ts.coord('season_year').points[0]
-        # Store as dictionary with the year name
-        my_dict[year] = data
-    
-    # Create as a dataframe
-    test = pd.DataFrame(my_dict)
-    
-    # Join with lats and lons
-    test['lat'], test['lon'] = [lats_1d, lons_1d]
-    
-    # Remove NA rows
-    test = test.dropna()
-    
-    # Save dataframe
-    print("Saving output")
-    ddir = "Outputs/DataforR/{}/".format(region)
-    if not os.path.isdir(ddir):
-        os.makedirs(ddir)
-    test.to_csv(ddir + "em{}.csv".format(em), index = False)
-    
+        if stat == 'Mean':
+            yearly_stats = jja.aggregated_by(['season_year'], iris.analysis.MEAN)
+        elif stat == 'Max': 
+            yearly_stats = jja.aggregated_by(['season_year'], iris.analysis.MAX)
+        elif stat =='99th Percentile':
+            yearly_stats = jja.aggregated_by(['season_year'], iris.analysis.PERCENTILE, percent=[99])
+        print('Found yearly stat in: ', time.time() - seconds)
+        
+        #############################################
+        # 
+        #############################################
+        if mask_to_region == True:
+            print ("Masking to region")
+            if not 'regional_mask' in globals():
+                seconds = time.time()
+                regional_mask = mask_by_region(yearly_stats, regional_gdf)
+                print('Created regional_mask in: ', time.time() - seconds)
+            else: 
+                print('Regional mask already exists')
+            # Mask JJA
+            seconds = time.time()
+            mask_3d = np.repeat(regional_mask[np.newaxis,:, :], yearly_stats.shape[0], axis=0)
+            #print("Seconds to run =", time.time() - seconds)	
+            yearly_stats.data =  np.ma.masked_array(yearly_stats.data, np.logical_not(mask_3d))
+            #yearly_stats.data =  np.ma.masked_array(yearly_stats.data, np.logical_not(mask_3d))
+            print('Masked data in : ', time.time() - seconds)
+        
+        # Check plotting
+        #qplt.contourf(yearly_stats[5,:,:])       
+        #plt.gca().coastlines()   
+        # Check plotting #.2
+        #plot_cube_within_region(yearly_stats[0,:,:], regional_gdf)
+     
+        ############################################
+        # Reformat for use in R
+        #############################################
+        # Get the coords 1D
+        lats_1d = yearly_stats.coord('latitude').points
+        lons_1d = yearly_stats.coord('longitude').points
+        
+        # Convert to 1D
+        lats_1d = lats_1d.reshape(-1)
+        lons_1d = lons_1d.reshape(-1)
+        
+        #############################
+        print("Creating dictionary")
+        # Create a dictionary with each key corresponding to a year and the values
+        # containing a 1D array of AMAX values, masked to the region of interest
+        my_dict = {}
+        for i in range(0, yearly_stats.shape[0]):
+            #print(i)
+            # Get data from one timeslice
+            one_ts = yearly_stats[i,:,:]
+            # Extract data from one year 
+            data = one_ts.data.reshape(-1)
+            year  = one_ts.coord('season_year').points[0]
+            # Store as dictionary with the year name
+            my_dict[year] = data
+        
+        # Create as a dataframe
+        test = pd.DataFrame(my_dict)
+        
+        # Join with lats and lons
+        test['lat'], test['lon'] = [lats_1d, lons_1d]
+        
+        # Remove NA rows
+        test = test.dropna()
+        
+        # Save dataframe
+        print("Saving output")
+        ddir = "Outputs/DataforR/{}/{}/".format(region, stat)
+        if not os.path.isdir(ddir):
+            os.makedirs(ddir)
+        test.to_csv(ddir + "em{}.csv".format(em), index = False)
+        
     print("Finished everything for EM in: ", time.time() - start_time)	
     
-    
-    
-    
-qplt.contourf(jja_max[1,:,:])       
-plt.gca().coastlines()  
-plot_cube_within_region(one_ts, regional_gdf)    
-    
+
     

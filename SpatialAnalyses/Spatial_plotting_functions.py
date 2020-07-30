@@ -140,7 +140,7 @@ def GridCells_within_geometry(lats, lons, geometry_gdf, data):
     # Convert to 0s and 1s
     within_geometry = within_geometry.astype(int)
     # Mask out values of 0
-    within_geometry = np.ma.masked_array(within_geometry, within_geometry < 1)
+    #within_geometry = np.ma.masked_array(within_geometry, within_geometry < 1)
     
     return within_geometry
 
@@ -235,7 +235,8 @@ def mask_by_region (cube, gdf):
     #masked_data = np.ma.masked_array(cube.data, np.logical_not(mask_3d))
     
     # Set this as the cubes data
-    #cube.data = masked_data
+    #masked_cube = cube.copy()
+    #masked_cube.data = masked_data
            
     return mask_2d
 
