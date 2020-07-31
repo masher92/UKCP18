@@ -38,7 +38,7 @@ yrs_range = "1980_2001"
 ems = ['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
 #ems = ['06']
 region = 'Northern'
-mask_to_region = False
+mask_to_region = True
 stats = ['99th Percentile', '97th Percentile', '95th Percentile', 'Mean', 'Max']
 
 ############################################
@@ -226,15 +226,15 @@ for em in ems:
         # Join with lats and lons
         test['lat'], test['lon'] = [lats_1d, lons_1d]
         
-        if not os.path.isfile("Outputs/DataforR/{}/mask.csv".format(region)):
-            test.to_csv("Outputs/DataforR/{}/mask.csv".format(region), index = False)
+        if not os.path.isfile("Outputs/HiClimR_inputdata/{}/mask.csv".format(region)):
+            test.to_csv("Outputs/HiClimR_inputdata/{}/mask.csv".format(region), index = False)
         
         # Remove NA rows
         test = test.dropna()
         
         # Save dataframe
         print("Saving output")
-        ddir = "Outputs/DataforR/{}/{}/".format(region, stat)
+        ddir = "Outputs/HiClimR_inputdata/{}/{}/".format(region, stat)
         if not os.path.isdir(ddir):
             os.makedirs(ddir)
         test.to_csv(ddir + "em{}.csv".format(em), index = False)
