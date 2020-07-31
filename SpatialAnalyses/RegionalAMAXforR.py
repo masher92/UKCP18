@@ -35,8 +35,8 @@ from Spatial_plotting_functions import *
 start_year = 1980
 end_year = 2000 
 yrs_range = "1980_2001" 
-ems = ['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
-#ems = ['06']
+#ems = ['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
+ems = ['01']
 region = 'Northern'
 mask_to_region = True
 stats = ['99th Percentile', '97th Percentile', '95th Percentile', 'Mean', 'Max']
@@ -70,9 +70,9 @@ for em in ems:
     
     # Check if the last stat exists already, if it does then don't continue with the
     # code
-    filepath = "Outputs/DataforR/{}/{}/em{}.csv".format(region, stats[-1], em)
+    filepath = "Outputs/HiClimR_inputdata/{}/{}/em{}.csv".format(region, stats[-1], em)
     if os.path.isfile(filepath)  :
-        filepath = "Outputs/DataforR/{}/{}/em{}.csv".format(region, stats[-1], em)
+        filepath = "Outputs/HiClimR_inputdata/{}/{}/em{}.csv".format(region, stats[-1], em)
         print("Already complete, moving to next ensemble member")
         continue
     
