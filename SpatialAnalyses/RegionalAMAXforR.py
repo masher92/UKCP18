@@ -39,7 +39,7 @@ ems = ['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
 #ems = ['06']
 region = 'Northern'
 mask_to_region = False
-stats = ['97th Percentile', '95th Percentile']
+stats = ['99th Percentile', '97th Percentile', '95th Percentile', 'Mean', 'Max']
 
 ############################################
 # Create regions
@@ -147,17 +147,23 @@ for em in ems:
         print('Calculating ' , stat)
         seconds = time.time()
         if stat == 'Mean':
+            print('Mean')
             yearly_stats = jja.aggregated_by(['season_year'], iris.analysis.MEAN)
         elif stat == 'Max': 
+            print('Max')
             yearly_stats = jja.aggregated_by(['season_year'], iris.analysis.MAX)
         elif stat =='99th Percentile' or stat == '97th percentile' or stat == '95th percentile':
+            print("Percentile")
             yearly_stats_percentiles = jja.aggregated_by(['season_year'], iris.analysis.PERCENTILE, percent=[95, 97, 99])
             if stat =='95th Percentile':
-                yearly_stats = yearly_stats_percentiles[0]
+                yearly_stats = yearly_stats_percentiles[0,:,:,:]
+                print('95th percentile')
             elif stat =='97th Percentile':
-                yearly_stats = yearly_stats_percentiles[1]
+                yearly_stats = yearly_stats_percentiles[1,:,:,:]
+                print('97th percentile')
             elif stat =='99th Percentile':
-                yearly_stats = yearly_stats_percentiles[2]
+                yearly_stats = yearly_stats_percentiles[2,:,:,:]
+                print('99th percentile')
                 
         print('Found yearly stat in: ', time.time() - seconds)
         
