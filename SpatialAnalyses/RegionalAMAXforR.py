@@ -37,9 +37,9 @@ end_year = 2000
 yrs_range = "1980_2001" 
 ems = ['01', '04','05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
 #ems = ['06']
-region = 'Northern'
-mask_to_region = True
-stats = ['Mean', 'Max', '99th Percentile']
+region = 'WY_square'
+mask_to_region = False
+stats = ['Mean', 'Max', '99th Percentile', '97th Percentile', '95th Percentile']
 
 ############################################
 # Create regions
@@ -56,7 +56,7 @@ northern_gdf = northern_gdf.to_crs({'init' :'epsg:3785'})
 northern_gdf['merging_col'] = 0
 northern_gdf = northern_gdf.dissolve(by='merging_col')
 
-regional_gdf = northern_gdf
+regional_gdf = wy_gdf
 
 #############################################
 # Read in files
@@ -150,8 +150,15 @@ for em in ems:
             yearly_stats = jja.aggregated_by(['season_year'], iris.analysis.MEAN)
         elif stat == 'Max': 
             yearly_stats = jja.aggregated_by(['season_year'], iris.analysis.MAX)
-        elif stat =='99th Percentile':
-            yearly_stats = jja.aggregated_by(['season_year'], iris.analysis.PERCENTILE, percent=[99])
+        elif stat =='99th Percentile' or stat == '97th percentile' or stat == '95th percentile':
+            yearly_stats_percentiles = jja.aggregated_by(['season_year'], iris.analysis.PERCENTILE, percent=[95, 97, 99])
+            if stat =='95th Percentile':
+                yearly_stats = yearly_stats_percentiles[0]
+            elif stat =='97th Percentile':
+                yearly_stats = yearly_stats_percentiles[1]
+            elif stat =='99th Percentile':
+                yearly_stats = yearly_stats_percentiles[2]
+                
         print('Found yearly stat in: ', time.time() - seconds)
         
         #############################################
@@ -210,6 +217,9 @@ for em in ems:
         
         # Join with lats and lons
         test['lat'], test['lon'] = [lats_1d, lons_1d]
+        
+        if not os.path.isfile("Outputs/DataforR/{}/mask.csv".format(region)):
+            test.to_csv("Outputs/DataforR/{}/mask.csv".format(region), index = False)
         
         # Remove NA rows
         test = test.dropna()
