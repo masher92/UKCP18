@@ -5,7 +5,7 @@ import os
 from Spatial_plotting_functions import *
 
 stat = '95th Percentile'
-region = 'WY_square'
+region = 'Northern'
 ems = ['01', '04','05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
 num_clusters =3
 

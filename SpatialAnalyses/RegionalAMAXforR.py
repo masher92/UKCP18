@@ -56,7 +56,10 @@ northern_gdf = northern_gdf.to_crs({'init' :'epsg:3785'})
 northern_gdf['merging_col'] = 0
 northern_gdf = northern_gdf.dissolve(by='merging_col')
 
-regional_gdf = northern_gdf
+if region == 'Northern':
+    regional_gdf = northern_gdf
+else:
+    regional_gdf = wy_gdf
 
 #############################################
 # Read in files
@@ -141,7 +144,6 @@ for em in ems:
     # #yearly_stats = jja.aggregated_by(['season_year'], iris.analysis.MEAN)
     # yearly_stats = jja.aggregated_by(['season_year'], iris.analysis.PERCENTILE, percent=[99])
     # print('Found yearly stat in: ', time.time() - seconds)
-    
     
     for stat in stats:
         print('Calculating ' , stat)
