@@ -23,8 +23,8 @@ import time
 warnings.filterwarnings("ignore")
 
 # Provide root_fp as argument
-root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
-#root_fp = "/nfs/a319/gy17m2a/"
+#root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
+root_fp = "/nfs/a319/gy17m2a/"
 
 os.chdir(root_fp)
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/')
@@ -37,10 +37,9 @@ end_year = 2000
 yrs_range = "1980_2001" 
 ems = ['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
 #ems = ['06']
-region = 'WY'
+region = 'Northern'
 mask_to_region = True
 stats = ['99th Percentile', '97th Percentile', '95th Percentile', 'Mean', 'Max']
-greatest_ten = True
 
 ############################################
 # Create regions
@@ -71,11 +70,11 @@ for em in ems:
     
     # Check if the last stat exists already, if it does then don't continue with the
     # code
-    # filepath = "Outputs/HiClimR_inputdata/{}/{}/em{}.csv".format(region, stats[-1], em)
-    # if os.path.isfile(filepath)  :
-    #     filepath = "Outputs/HiClimR_inputdata/{}/{}/em{}.csv".format(region, stats[-1], em)
-    #     print("Already complete, moving to next ensemble member")
-    #     continue
+    filepath = "Outputs/DataforR/{}/{}/em{}.csv".format(region, stats[-1], em)
+    if os.path.isfile(filepath)  :
+        filepath = "Outputs/DataforR/{}/{}/em{}.csv".format(region, stats[-1], em)
+        print("Already complete, moving to next ensemble member")
+        continue
     
     # Create list of names of cubes for between the years specified
     filenames =[]
@@ -88,11 +87,11 @@ for em in ems:
             #print(filename)
             filenames.append(filename)
     
-    filenames =[]
-    filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19801201-19801230.nc')  
-    filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19810101-19810130.nc') 
-    filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19820601-19820630.nc') 
-    filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19830601-19830630.nc') 
+    # filenames =[]
+    # filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19801201-19801230.nc')  
+    # filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19810101-19810130.nc') 
+    # filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19820601-19820630.nc') 
+    # filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19830601-19830630.nc') 
     
     monthly_cubes_list = iris.load(filenames,'lwe_precipitation_rate')
     print(str(len(monthly_cubes_list)) + " cubes found for this time period.")
@@ -139,39 +138,34 @@ for em in ems:
     # Find statistic being used to regionalise rainfall
     #############################################
     iris.coord_categorisation.add_season_year(jja,'time', name = "season_year") 
+    # For each year, calculate statistic
+    # seconds = time.time()
+    # #yearly_stats = jja.aggregated_by(['season_year'], iris.analysis.MAX)
+    # #yearly_stats = jja.aggregated_by(['season_year'], iris.analysis.MEAN)
+    # yearly_stats = jja.aggregated_by(['season_year'], iris.analysis.PERCENTILE, percent=[99])
+    # print('Found yearly stat in: ', time.time() - seconds)
     
-    ###########################################
-    # Find statistic being used to regionalise rainfall
-    #############################################    
     for stat in stats:
-        print('Processing ' , stat)
+        print('Calculating ' , stat)
         seconds = time.time()
         if stat == 'Mean':
-            filepath = "Outputs/HiClimR_inputdata/{}/{}/em{}.csv".format(region, 'Mean', em)
-            if not os.path.isfile(filepath):
-                print("Mean doesn't already exist, creating...")
-                yearly_stats = jja.aggregated_by(['season_year'], iris.analysis.MEAN)
+            print('Mean')
+            yearly_stats = jja.aggregated_by(['season_year'], iris.analysis.MEAN)
         elif stat == 'Max': 
-            filepath = "Outputs/HiClimR_inputdata/{}/{}/em{}.csv".format(region, 'Max', em)
-            if not os.path.isfile(filepath):
-                print("Max doesn't already exist, creating...")
-                yearly_stats = jja.aggregated_by(['season_year'], iris.analysis.MAX)
+            print('Max')
+            yearly_stats = jja.aggregated_by(['season_year'], iris.analysis.MAX)
         elif stat =='99th Percentile' or stat == '97th percentile' or stat == '95th percentile':
-            filepath1 = "Outputs/HiClimR_inputdata/{}/{}/em{}.csv".format(region, '95th Percentile', em)
-            filepath2 = "Outputs/HiClimR_inputdata/{}/{}/em{}.csv".format(region, '97th Percentile', em)
-            filepath3 = "Outputs/HiClimR_inputdata/{}/{}/em{}.csv".format(region, '99th Percentile', em)
-            if not all([os.path.isfile(filepath1) and os.path.isfile(filepath2) and os.path.isfile(filepath3)]):
-                print("Percentiles doesn't already exist, creating...")
-                yearly_stats_percentiles = jja.aggregated_by(['season_year'], iris.analysis.PERCENTILE, percent=[95, 97, 99])
-                if stat =='95th Percentile':
-                    yearly_stats = yearly_stats_percentiles[0,:,:,:]
-                    #print('Creating 95th percentile')
-                elif stat =='97th Percentile':
-                    yearly_stats = yearly_stats_percentiles[1,:,:,:]
-                    #print('Creating 97th percentile')
-                elif stat =='99th Percentile':
-                    yearly_stats = yearly_stats_percentiles[2,:,:,:]
-                    #print('Creating 99th percentile')
+            print("Percentile")
+            yearly_stats_percentiles = jja.aggregated_by(['season_year'], iris.analysis.PERCENTILE, percent=[95, 97, 99])
+            if stat =='95th Percentile':
+                yearly_stats = yearly_stats_percentiles[0,:,:,:]
+                print('95th percentile')
+            elif stat =='97th Percentile':
+                yearly_stats = yearly_stats_percentiles[1,:,:,:]
+                print('97th percentile')
+            elif stat =='99th Percentile':
+                yearly_stats = yearly_stats_percentiles[2,:,:,:]
+                print('99th percentile')
                 
         print('Found yearly stat in: ', time.time() - seconds)
         
@@ -239,38 +233,13 @@ for em in ems:
         test = test.dropna()
         
         # Save dataframe
-        print("Saving stats output")
+        print("Saving output")
         ddir = "Outputs/HiClimR_inputdata/{}/{}/".format(region, stat)
         if not os.path.isdir(ddir):
             os.makedirs(ddir)
         test.to_csv(ddir + "em{}.csv".format(em), index = False)
-    
-
-################# Finding biggest ten for each year
-    if greatest_ten == True:
-        if not 'test' in globals():
-            print ('No mask, reading from file')
-            # Read from file, delete NAs
-            mask = pd.read_csv("Outputs/HiClimR_inputdata/WY/mask.csv")
-            mask = mask.dropna()
-        else: 
-            print ("Using mask from stats processing")
-            mask = test
-        df = n_largest_yearly_values(jja, mask, 10)
-    
         
-        ddir = "Outputs/HiClimR_inputdata/{}/{}/".format(region, 'Greatest_ten')
-        if not os.path.isdir(ddir):
-                os.makedirs(ddir)
-        df.to_csv(ddir + "em{}.csv".format(em), index = False)
-    
     print("Finished everything for EM in: ", time.time() - start_time)	
-    
-
-
-
-
-
     
 
     
