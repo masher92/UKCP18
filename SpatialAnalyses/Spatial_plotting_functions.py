@@ -306,6 +306,97 @@ def plot_cube_within_region (cube, region_outline_gdf):
     plot =ax.tick_params(labelsize='xx-large')
     plot =region_outline_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=6)
    
+def n_largest_yearly_values (seasonal_cube,  mask, number_of_annual_values = 10):
+    '''
+    # Create a dataframe containing the N largest values for each location 
+    # in each year   
+    '''
+
+    #############################################
+    # Define years over which to search for data
+    #############################################
+    season_years = seasonal_cube.coord('season_year').points
+    season_years = np.unique(season_years)    
+    season_years = season_years.tolist()
+    
+    #############################################
+    # Set-up variables required for for-loop
+    #############################################
+    # Create a counter (which is increased by one with each cycle of for loop)
+    # to check whether the correct number of locations are being processed
+    counter = 0
+    # Lists to store results
+    locations = []
+    lats = []   
+    lons = []      
+    
+    #############################################
+    # Cycle through each lat, lon combination and create a cube containing just
+    # the timeseries for that location
+    # For each:
+    #     Store the lat and lon in the appropriate list
+    #     For each year in the timeseries:
+    #       Extract all hourly accumulations in that year and find the N largest
+    #       Store the results in a dictionary, with the name of year_n (n between 1 and N)
+    #     Convert this dictionary into a dataframe and add to the list
+                
+    #############################################
+    true_counter = 0 
+    for lat_idx in range(0,seasonal_cube.shape[1]):
+        for lon_idx in range(0, seasonal_cube.shape[2]):
+            #print("Cell number: ", counter)
+            #print('Indices: ', lat_idx, ",", lon_idx)
+            counter = counter+1
+            
+            # Trim cube to contain all timeslices for that one location
+            one_cell = seasonal_cube[:,lat_idx,lon_idx]
+            mask = mask.round({'lat': 8, 'lon': 8})
+            
+            if mask['lat'].isin([round(one_cell.coord('latitude').points[0],8)]).any() == True:
+                true_counter = true_counter +1 
+                #print(mask['lat'].isin([round(one_cell.coord('latitude').points[0],8)]).any())
+                                       
+                # Store the coordinates of the point, and print them for checking
+                lats.append(one_cell.coord('latitude').points[0])
+               # print(one_cell.coord('latitude').points[0])
+                lons.append(one_cell.coord('longitude').points[0])
+                #print(one_cell.coord('longitude').points[0])
+        
+                # Create a dictionary to store the results for each of the N largest
+                # values in each year
+                n_largest_values_dict = {}
+                for year in season_years:
+                    #print(' Year: ', year)
+                    # Extract just timeslices in that year
+                    one_cell_one_year = one_cell.extract(iris.Constraint(season_year = year))
+                    # Find indices of top 10 precipitation values
+                    ind = np.argpartition(one_cell_one_year.data, number_of_annual_values)[-number_of_annual_values:]
+                    # Find values of these top ten values
+                    values = one_cell_one_year.data[ind]
+                    
+                    ## Store values in dictionary with key stating the year and a
+                    ## number between one and ten
+                    # Set up counter used to create the key
+                    n_largest_value_counter = 1
+                    for n in range(0,10):
+                        n_largest_values_dict[str(year) + '_' + str(n_largest_value_counter)] =  values[n]
+                        n_largest_value_counter = n_largest_value_counter +1 
+                        
+                # Convert the dictionary of N_largest values into a dataframe
+                n_largest_values_df = pd.DataFrame(n_largest_values_dict, index=[0])
+                        
+                # Add to the list containing n_largest_values_df's for each location
+                locations.append(n_largest_values_df)
+    
+    # Join the list of dataframes into one dataframe
+    # Each row is a location
+    total = pd.concat(locations, axis=0)
+    
+    # Join with lats and lons
+    total['lat'], total['lon'] = [lats, lons]
+    print(true_counter)    
+    return total
+
     
 # def trim_to_gdf (cube, gdf):
 #     '''
