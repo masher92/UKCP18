@@ -88,11 +88,11 @@ for em in ems:
             #print(filename)
             filenames.append(filename)
     
-    # filenames =[]
-    # filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19801201-19801230.nc')  
-    # filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19810101-19810130.nc') 
-    # filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19820601-19820630.nc') 
-    # filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19830601-19830630.nc') 
+    filenames =[]
+    filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19801201-19801230.nc')  
+    filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19810101-19810130.nc') 
+    filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19820601-19820630.nc') 
+    filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19830601-19830630.nc') 
     
     monthly_cubes_list = iris.load(filenames,'lwe_precipitation_rate')
     print(str(len(monthly_cubes_list)) + " cubes found for this time period.")
@@ -248,14 +248,15 @@ for em in ems:
 
 ################# Finding biggest ten for each year
     if greatest_ten == True:
-        if not 'test' in globals():
+        if 'test' in globals():
+            print ("Using mask from stats processing")
+            mask = test
+        else:
             print ('No mask, reading from file')
             # Read from file, delete NAs
             mask = pd.read_csv("Outputs/HiClimR_inputdata/WY/mask.csv")
             mask = mask.dropna()
-        else: 
-            print ("Using mask from stats processing")
-            mask = test
+
         df = n_largest_yearly_values(jja, mask, 10)
     
         
@@ -267,7 +268,8 @@ for em in ems:
     print("Finished everything for EM in: ", time.time() - start_time)	
     
 
-
+        if not os.path.isfile(ddir):
+                os.makedirs(ddir)
 
 
 

@@ -369,10 +369,23 @@ def n_largest_yearly_values (seasonal_cube,  mask, number_of_annual_values = 10)
                     #print(' Year: ', year)
                     # Extract just timeslices in that year
                     one_cell_one_year = one_cell.extract(iris.Constraint(season_year = year))
+                    
+                    data = one_cell_one_year.data
+                    df = pd.DataFrame(data)
+                    
+                    seconds = time.time()
                     # Find indices of top 10 precipitation values
                     ind = np.argpartition(one_cell_one_year.data, number_of_annual_values)[-number_of_annual_values:]
-                    # Find values of these top ten values
                     values = one_cell_one_year.data[ind]
+                    print("time taken to find indices: ", time.time() - seconds)
+                    
+                    seconds = time.time()
+                    ind2 = np.sort(-one_cell_one_year.data)[:10]
+                    print("time taken to find indices: ", time.time() - seconds)
+                    
+                    seconds = time.time()
+                    ind = -bottleneck.partition(-one_cell_one_year.data, 10)[:10]
+                    print("time taken to find indices: ", time.time() - seconds)
                     
                     ## Store values in dictionary with key stating the year and a
                     ## number between one and ten
