@@ -6,6 +6,7 @@ from shapely.geometry import Point, Polygon, MultiPolygon
 import matplotlib.pyplot as plt
 import tilemapbase
 import time 
+import pandas as pd
 
 root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
 
@@ -344,7 +345,7 @@ def n_largest_yearly_values (seasonal_cube,  mask, number_of_annual_values = 10)
     true_counter = 0 
     for lat_idx in range(0,seasonal_cube.shape[1]):
         for lon_idx in range(0, seasonal_cube.shape[2]):
-            #print("Cell number: ", counter)
+            print("Cell number: ", counter)
             #print('Indices: ', lat_idx, ",", lon_idx)
             counter = counter+1
             
@@ -353,6 +354,7 @@ def n_largest_yearly_values (seasonal_cube,  mask, number_of_annual_values = 10)
             mask = mask.round({'lat': 8, 'lon': 8})
             
             if mask['lat'].isin([round(one_cell.coord('latitude').points[0],8)]).any() == True:
+                print ("Cell included")
                 true_counter = true_counter +1 
                 #print(mask['lat'].isin([round(one_cell.coord('latitude').points[0],8)]).any())
                                        

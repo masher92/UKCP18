@@ -23,8 +23,8 @@ import time
 warnings.filterwarnings("ignore")
 
 # Provide root_fp as argument
-root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
-#root_fp = "/nfs/a319/gy17m2a/"
+#root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
+root_fp = "/nfs/a319/gy17m2a/"
 
 os.chdir(root_fp)
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/')
@@ -248,21 +248,26 @@ for em in ems:
 
 ################# Finding biggest ten for each year
     if greatest_ten == True:
-        if not 'test' in globals():
-            print ('No mask, reading from file')
-            # Read from file, delete NAs
-            mask = pd.read_csv("Outputs/HiClimR_inputdata/WY/mask.csv")
-            mask = mask.dropna()
-        else: 
-            print ("Using mask from stats processing")
-            mask = test
-        df = n_largest_yearly_values(jja, mask, 10)
-    
-        
         ddir = "Outputs/HiClimR_inputdata/{}/{}/".format(region, 'Greatest_ten')
-        if not os.path.isdir(ddir):
-                os.makedirs(ddir)
-        df.to_csv(ddir + "em{}.csv".format(em), index = False)
+        if not os.path.isfile(ddir + "em{}.csv".format(em)):
+                print("Greatest ten doesn't already exist, creating...")
+                seconds = time.time()
+                if not 'test' in globals():
+                    print ('No mask, reading from file')
+                    # Read from file, delete NAs
+                    mask = pd.read_csv("Outputs/HiClimR_inputdata/WY/mask.csv")
+                    mask = mask.dropna()
+                else: 
+                    print ("Using mask from stats processing")
+                    mask = test
+                df = n_largest_yearly_values(jja, mask, 10)
+            
+                
+                ddir = "Outputs/HiClimR_inputdata/{}/{}/".format(region, 'Greatest_ten')
+                if not os.path.isdir(ddir):
+                        os.makedirs(ddir)
+                df.to_csv(ddir + "em{}.csv".format(em), index = False)
+                print("Created greatest 10 in ", time.time()- seconds)
     
     print("Finished everything for EM in: ", time.time() - start_time)	
     
