@@ -19,6 +19,7 @@ import numpy as np
 from shapely.geometry import Polygon
 import iris.coord_categorisation
 import time 
+import bottleneck
 
 warnings.filterwarnings("ignore")
 
@@ -36,10 +37,10 @@ start_year = 1980
 end_year = 2000 
 yrs_range = "1980_2001" 
 ems = ['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
-#ems = ['01']
+ems = ['01']
 region = 'WY'
 mask_to_region = True
-stats = ['99th Percentile', '97th Percentile', '95th Percentile', 'Mean', 'Max']
+stats = []
 greatest_ten = True
 
 ############################################
@@ -88,11 +89,11 @@ for em in ems:
             #print(filename)
             filenames.append(filename)
     
-    filenames =[]
-    filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19801201-19801230.nc')  
-    filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19810101-19810130.nc') 
-    filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19820601-19820630.nc') 
-    filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19830601-19830630.nc') 
+    # filenames =[]
+    # filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19801201-19801230.nc')  
+    # filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19810101-19810130.nc') 
+    # filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19820601-19820630.nc') 
+    # filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19830601-19830630.nc') 
     
     monthly_cubes_list = iris.load(filenames,'lwe_precipitation_rate')
     print(str(len(monthly_cubes_list)) + " cubes found for this time period.")
@@ -248,36 +249,22 @@ for em in ems:
 
 ################# Finding biggest ten for each year
     if greatest_ten == True:
-<<<<<<< HEAD
-        if 'test' in globals():
-            print ("Using mask from stats processing")
-            mask = test
-        else:
-            print ('No mask, reading from file')
-            # Read from file, delete NAs
-            mask = pd.read_csv("Outputs/HiClimR_inputdata/WY/mask.csv")
-            mask = mask.dropna()
-
-        df = n_largest_yearly_values(jja, mask, 10)
-    
-        
-=======
->>>>>>> 60c8f8374494f659828ab61dc08519d5dacfe17c
         ddir = "Outputs/HiClimR_inputdata/{}/{}/".format(region, 'Greatest_ten')
         if not os.path.isfile(ddir + "em{}.csv".format(em)):
                 print("Greatest ten doesn't already exist, creating...")
-                seconds = time.time()
-                if not 'test' in globals():
+                if 'test' in globals():
+                    print ("Using mask from stats processing")
+                    mask = test
+                else:
                     print ('No mask, reading from file')
                     # Read from file, delete NAs
                     mask = pd.read_csv("Outputs/HiClimR_inputdata/WY/mask.csv")
                     mask = mask.dropna()
-                else: 
-                    print ("Using mask from stats processing")
-                    mask = test
+        
+                seconds = time.time()
                 df = n_largest_yearly_values(jja, mask, 10)
-            
-                
+                print("Found N largest values in: ", time.time() - seconds)
+    
                 ddir = "Outputs/HiClimR_inputdata/{}/{}/".format(region, 'Greatest_ten')
                 if not os.path.isdir(ddir):
                         os.makedirs(ddir)
@@ -286,10 +273,6 @@ for em in ems:
     
     print("Finished everything for EM in: ", time.time() - start_time)	
     
-
-        if not os.path.isfile(ddir):
-                os.makedirs(ddir)
-
 
 
     

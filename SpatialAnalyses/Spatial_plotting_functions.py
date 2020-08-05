@@ -6,6 +6,7 @@ from shapely.geometry import Point, Polygon, MultiPolygon
 import matplotlib.pyplot as plt
 import tilemapbase
 import time 
+import bottleneck
 
 root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
 
@@ -341,16 +342,27 @@ def n_largest_yearly_values (seasonal_cube,  mask, number_of_annual_values = 10)
     #     Convert this dictionary into a dataframe and add to the list
                 
     #############################################
+    
+    seconds = time.time()
+    seasonal_cube_data = seasonal_cube.data
+    print("loaded whole cube's data in ", time.time() - seconds)
+    
     true_counter = 0 
     for lat_idx in range(0,seasonal_cube.shape[1]):
         for lon_idx in range(0, seasonal_cube.shape[2]):
-            #print("Cell number: ", counter)
+            print("Cell number: ", counter)
             #print('Indices: ', lat_idx, ",", lon_idx)
             counter = counter+1
             
             # Trim cube to contain all timeslices for that one location
             one_cell = seasonal_cube[:,lat_idx,lon_idx]
+            #one_cell_data = one_cell.data
+            #one_cell_data = one_cell.core_data
             mask = mask.round({'lat': 8, 'lon': 8})
+            
+            #seconds = time.time()
+            #one_cell_data = one_cell.data
+            #print("loaded one cell's data in ", time.time() - seconds)
             
             if mask['lat'].isin([round(one_cell.coord('latitude').points[0],8)]).any() == True:
                 true_counter = true_counter +1 
@@ -366,25 +378,33 @@ def n_largest_yearly_values (seasonal_cube,  mask, number_of_annual_values = 10)
                 # values in each year
                 n_largest_values_dict = {}
                 for year in season_years:
-                    #print(' Year: ', year)
+                    print(' Year: ', year)
                     # Extract just timeslices in that year
+                    #print("Extracting one year-s data")
                     one_cell_one_year = one_cell.extract(iris.Constraint(season_year = year))
+                    #print("Extracted one year-s data")
                     
-                    data = one_cell_one_year.data
-                    df = pd.DataFrame(data)
+                    # ##############Wrong
+                    # seconds = time.time()
+                    # # Find indices of top 10 precipitation values
+                    # ind = np.argpartition(one_cell_one_year.data, number_of_annual_values)[-number_of_annual_values:]
+                    # values = one_cell_one_year.data[ind]
+                    # print("time taken to find indices - argpartition: ", time.time() - seconds)
+                    # print(values)
+                    
+                    #print("Finding indices")
+                    # seconds = time.time()
+                    # values= one_cell_one_year.data[np.argpartition(one_cell_one_year.data, -10)[-10:]]
+                    # print("time taken to find indices: ", time.time() - seconds)
+                    #print(values)
+                    
+                    # seconds = time.time()
+                    # ind2 = np.sort(one_cell_one_year.data)[-10:]
+                    # print("time taken to find indices: ", time.time() - seconds)
+                    # print(ind2)
                     
                     seconds = time.time()
-                    # Find indices of top 10 precipitation values
-                    ind = np.argpartition(one_cell_one_year.data, number_of_annual_values)[-number_of_annual_values:]
-                    values = one_cell_one_year.data[ind]
-                    print("time taken to find indices: ", time.time() - seconds)
-                    
-                    seconds = time.time()
-                    ind2 = np.sort(-one_cell_one_year.data)[:10]
-                    print("time taken to find indices: ", time.time() - seconds)
-                    
-                    seconds = time.time()
-                    ind = -bottleneck.partition(-one_cell_one_year.data, 10)[:10]
+                    values = -bottleneck.partition(-one_cell_one_year.data, 10)[:10]
                     print("time taken to find indices: ", time.time() - seconds)
                     
                     ## Store values in dictionary with key stating the year and a
