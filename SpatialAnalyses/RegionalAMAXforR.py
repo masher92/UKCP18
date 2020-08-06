@@ -24,8 +24,8 @@ import bottleneck
 warnings.filterwarnings("ignore")
 
 # Provide root_fp as argument
-#root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
-root_fp = "/nfs/a319/gy17m2a/"
+root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
+#root_fp = "/nfs/a319/gy17m2a/"
 
 os.chdir(root_fp)
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/')
@@ -89,11 +89,11 @@ for em in ems:
             #print(filename)
             filenames.append(filename)
     
-    # filenames =[]
-    # filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19801201-19801230.nc')  
-    # filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19810101-19810130.nc') 
-    # filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19820601-19820630.nc') 
-    # filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19830601-19830630.nc') 
+    filenames =[]
+    filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19801201-19801230.nc')  
+    filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19810101-19810130.nc') 
+    filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19820601-19820630.nc') 
+    filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19830601-19830630.nc') 
     
     monthly_cubes_list = iris.load(filenames,'lwe_precipitation_rate')
     print(str(len(monthly_cubes_list)) + " cubes found for this time period.")
@@ -260,21 +260,60 @@ for em in ems:
                     # Read from file, delete NAs
                     mask = pd.read_csv("Outputs/HiClimR_inputdata/WY/mask.csv")
                     mask = mask.dropna()
+                    seconds = time.time()
+                    df = n_largest_yearly_values(jja, mask, 10)
+                    print("Found N largest values in: ", time.time() - seconds)
         
-                seconds = time.time()
-                df = n_largest_yearly_values(jja, mask, 10)
-                print("Found N largest values in: ", time.time() - seconds)
-    
-                ddir = "Outputs/HiClimR_inputdata/{}/{}/".format(region, 'Greatest_ten')
-                if not os.path.isdir(ddir):
-                        os.makedirs(ddir)
-                df.to_csv(ddir + "em{}.csv".format(em), index = False)
-                print("Created greatest 10 in ", time.time()- seconds)
-    
-    print("Finished everything for EM in: ", time.time() - start_time)	
+                # Convert to 1D
+                lats_1d = lats_1d.reshape(-1)
+                lons_1d = lons_1d.reshape(-1)
+                
+               # lats_1d = yearly_stats_percentiles.coord('latitude').points
+               # lons_1d = yearly_stats_percentiles.coord('longitude').points
+                
+                yearly_stats_percentiles = jja.aggregated_by(['season_year'], iris.analysis.PERCENTILE, percent=[98.6, 98.7, 98.9, 99, 99.2, 99.3, 99.5, 99.7, 99.9, 100])
+                
+                regional_mask = mask_by_region(yearly_stats_percentiles, regional_gdf)
+                yearly_stats_percentiles.data =  np.ma.masked_array(yearly_stats_percentiles.data, np.logical_not(mask_3d))
+                
+                
+                dfs_list = []
+                for year_n in range(0, yearly_stats_percentiles.shape[1]):
+                    year  = one_year.coord('season_year').points[0]
+                    # Get data from one timeslice
+                    one_year = yearly_stats_percentiles[:,year_n,:,:]
+                    one_year_dict = {}
+                    for n_largest_value in range(0, yearly_stats_percentiles.shape[0]):
+                        print(n_largest_value)
+                        one_percentile = one_year[n_largest_value,:,:]
+                        data = one_percentile.data.reshape(-1)
+                        one_year_dict[str(year) + '_' + str(n_largest_value)] =  data
+                    # Convert the dictionary of N_largest values into a dataframe
+                    n_largest_values_df = pd.DataFrame(one_year_dict)
+                    n_largest_values_df.reset_index(drop=True, inplace=True)
+                    dfs_list.append(n_largest_values_df)    
+                    
+               result = pd.concat(dfs_list, ignore_index = False, axis = 1)
+                    
+               # Join with lats and lons
+               result['lat'], result['lon'] = [lats_1d, lons_1d]
     
 
-
     
+mport numpy as np
+a = np.array([1,2,3,4,5])
+a= np.array(range(0,638))
 
-    
+
+np.percentile(a, 98.6, interpolation = 'nearest') # return 50th percentile, e.g median.
+np.percentile(a, 98.7, interpolation = 'nearest') # return 50th percentile, e.g median.
+np.percentile(a, 98.9, interpolation = 'nearest') # return 50th percentile, e.g median.
+np.percentile(a, 99, interpolation = 'nearest') # return 50th percentile, e.g median.
+np.percentile(a, 99.2, interpolation = 'nearest') # return 50th percentile, e.g median.
+np.percentile(a, 99.3, interpolation = 'nearest') # return 50th percentile, e.g median.
+np.percentile(a, 99.5, interpolation = 'nearest') # return 50th percentile, e.g median.
+np.percentile(a, 99.7, interpolation = 'nearest') # return 50th percentile, e.g median.
+np.percentile(a, 99.9, interpolation = 'nearest') # return 50th percentile, e.g median.
+np.percentile(a, 100, interpolation = 'nearest') # return 50th percentile, e.g median.
+
+[98.6, 98.7, 98.9, 99, 99.2, 99.3, 99.5, 99.7, 99.9, 100]
