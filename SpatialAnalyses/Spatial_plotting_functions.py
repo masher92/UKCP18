@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import tilemapbase
 import time 
 import bottleneck
+import pandas as pd
 
 root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
 
@@ -212,8 +213,12 @@ def mask_by_region (cube, gdf):
     lats = cube.coord('latitude').points.reshape(-1)
     lons,lats= transform(Proj(init='epsg:4326'),Proj(init='epsg:3785'),lons,lats)
 
-    # Get one timeslice of data
-    one_ts = cube[0,:,:]
+
+    if cube.ndim == 3:
+        # Get one timeslice of data
+        one_ts = cube[0,:,:]
+    else:
+        one_ts = cube
     # Check spatial extent
     #qplt.contourf(one_ts)       
     #plt.gca().coastlines()    
@@ -364,7 +369,8 @@ def n_largest_yearly_values (seasonal_cube,  mask, number_of_annual_values = 10)
             #one_cell_data = one_cell.data
             #print("loaded one cell's data in ", time.time() - seconds)
             
-            if mask['lat'].isin([round(one_cell.coord('latitude').points[0],8)]).any() == True:
+            #if mask['lat'].isin([round(one_cell.coord('latitude').points[0],8)]).any() == True:
+            if 1> 0: 
                 true_counter = true_counter +1 
                 #print(mask['lat'].isin([round(one_cell.coord('latitude').points[0],8)]).any())
                                        

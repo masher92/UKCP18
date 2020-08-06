@@ -248,6 +248,7 @@ for em in ems:
     
 
 ################# Finding biggest ten for each year
+####### OLD METHOD - WORKS BUT IS SLOW        
     if greatest_ten == True:
         ddir = "Outputs/HiClimR_inputdata/{}/{}/".format(region, 'Greatest_ten')
         if not os.path.isfile(ddir + "em{}.csv".format(em)):
@@ -264,46 +265,121 @@ for em in ems:
                     df = n_largest_yearly_values(jja, mask, 10)
                     print("Found N largest values in: ", time.time() - seconds)
         
-                # Convert to 1D
-                lats_1d = lats_1d.reshape(-1)
-                lons_1d = lons_1d.reshape(-1)
+    #             # Convert to 1D
+    #             lats_1d = lats_1d.reshape(-1)
+    #             lons_1d = lons_1d.reshape(-1)
                 
-               # lats_1d = yearly_stats_percentiles.coord('latitude').points
-               # lons_1d = yearly_stats_percentiles.coord('longitude').points
+    #            # lats_1d = yearly_stats_percentiles.coord('latitude').points
+    #            # lons_1d = yearly_stats_percentiles.coord('longitude').points
                 
-                yearly_stats_percentiles = jja.aggregated_by(['season_year'], iris.analysis.PERCENTILE, percent=[98.6, 98.7, 98.9, 99, 99.2, 99.3, 99.5, 99.7, 99.9, 100])
+    #             yearly_stats_percentiles = jja.aggregated_by(['season_year'], iris.analysis._percentile, percent=[98.6, 98.7, 98.9, 99, 99.2, 99.3, 99.5, 99.7, 99.9, 100])
                 
-                regional_mask = mask_by_region(yearly_stats_percentiles, regional_gdf)
-                yearly_stats_percentiles.data =  np.ma.masked_array(yearly_stats_percentiles.data, np.logical_not(mask_3d))
-                
-                
-                dfs_list = []
-                for year_n in range(0, yearly_stats_percentiles.shape[1]):
-                    year  = one_year.coord('season_year').points[0]
-                    # Get data from one timeslice
-                    one_year = yearly_stats_percentiles[:,year_n,:,:]
-                    one_year_dict = {}
-                    for n_largest_value in range(0, yearly_stats_percentiles.shape[0]):
-                        print(n_largest_value)
-                        one_percentile = one_year[n_largest_value,:,:]
-                        data = one_percentile.data.reshape(-1)
-                        one_year_dict[str(year) + '_' + str(n_largest_value)] =  data
-                    # Convert the dictionary of N_largest values into a dataframe
-                    n_largest_values_df = pd.DataFrame(one_year_dict)
-                    n_largest_values_df.reset_index(drop=True, inplace=True)
-                    dfs_list.append(n_largest_values_df)    
-                    
-               result = pd.concat(dfs_list, ignore_index = False, axis = 1)
-                    
-               # Join with lats and lons
-               result['lat'], result['lon'] = [lats_1d, lons_1d]
-    
+    #             regional_mask = mask_by_region(yearly_stats_percentiles, regional_gdf)
+    #             yearly_stats_percentiles.data =  np.ma.masked_array(yearly_stats_percentiles.data, np.logical_not(mask_3d))
+         
+    #######################################  
+    # New method
+    #######################################    
+  yearly_stats_percentiles = jja.aggregated_by(['season_year'], iris.analysis.PERCENTILE, alphap = 0.5, betap = 0.5, percent=[98.6, 98.7, 98.9, 99, 99.2, 99.3, 99.5, 99.7, 99.9, 100])
+  dfs_list = []
+  for year_n in range(0, yearly_stats_percentiles.shape[1]):
+      year  = one_year.coord('season_year').points[0]
+      # Get data from one timeslice
+      one_year = yearly_stats_percentiles[:,year_n,:,:]
+      one_year_dict = {}
+      for n_largest_value in range(0, yearly_stats_percentiles.shape[0]):
+          print(n_largest_value)
+          one_percentile = one_year[n_largest_value,:,:]
+          
+          # if not 'regional_mask' in globals():
+          #     seconds = time.time()
+          #     regional_mask = mask_by_region(one_percentile, regional_gdf)
+          #     print('Created regional_mask in: ', time.time() - seconds)
+          # else: 
+          #     print('Regional mask already exists')
+          # #print("Seconds to run =", time.time() - seconds)	
+          # one_percentile.data =  np.ma.masked_array(one_percentile.data, np.logical_not(regional_mask))
+          
+          data = one_percentile.data.reshape(-1)
+          one_year_dict[str(year) + '_' + str(n_largest_value)] =  data
+      # Convert the dictionary of N_largest values into a dataframe
+      n_largest_values_df = pd.DataFrame(one_year_dict)
+      n_largest_values_df.reset_index(drop=True, inplace=True)
+      dfs_list.append(n_largest_values_df)    
+      
+  result = pd.concat(dfs_list, ignore_index = False, axis = 1)
+      
+  # Join with lats and lons
+  result['lat'], result['lon'] = [lats_1d, lons_1d]
 
-    
-mport numpy as np
-a = np.array([1,2,3,4,5])
-a= np.array(range(0,638))
+# Remove NA rows
+  result = result.dropna()    
+                
+                
+ 
+yearly_stats_percentiles = jja.aggregated_by(['season_year'], iris.analysis.PERCENTILE, percent=[98.6, 98.7, 98.9, 99, 99.2, 99.3, 99.5, 99.7, 99.9, 100])
 
+
+one_cell = jja[:,0,0]
+one_cell_one_year = one_cell.extract(iris.Constraint(season_year = 1982))
+print(one_cell_one_year)
+data= one_cell_one_year.data
+np.sort(data)
+
+
+np.percentile(data, 99.9) # return 50th percentile, e.g median.
+
+values = -bottleneck.partition(-one_cell_one_year.data, 10)[:10]
+np.sort(values)
+
+
+# Old method - cell by cell
+np.sort(df.iloc[0][0:10])
+# New method - Iris percentiles
+np.sort(result.iloc[0][0:10])
+
+
+
+########## Testing
+first_cell_1982 = yearly_stats_percentiles[:,0,0,0]
+data_test = first_cell_1982.data
+print(data_test)
+
+# for n_largest_value in range(0, yearly_stats_percentiles.shape[0]):
+#     print(n_largest_value)
+#     one_percentile = yearly_stats_percentiles[n_largest_value,:,:,:]
+#     if not 'regional_mask' in globals():
+#         seconds = time.time()
+#         regional_mask = mask_by_region(one_percentile, regional_gdf)
+#         print('Created regional_mask in: ', time.time() - seconds)
+#     else: 
+#         print('Regional mask already exists')
+#     #mask_3d = np.repeat(regional_mask[np.newaxis,:, :], one_percentile.shape[0], axis=0)
+#     #print("Seconds to run =", time.time() - seconds)	
+#     #one_percentile.data =  np.ma.masked_array(one_percentile.data, np.logical_not(mask_3d))
+#     dfs_list = []
+#     for year_n in range(0, one_percentile.shape[0]):
+#         print(year)
+#         year  = one_percentile.coord('season_year').points[0]
+#         # Get data from one timeslice
+#         one_year = one_percentile[year_n,:,:]
+#         one_year_dict = {}
+#         for n_largest_value in range(0, yearly_stats_percentiles.shape[0]):
+#             print(n_largest_value)
+#             one_percentile = one_year[n_largest_value,:,:]
+#             data = one_percentile.data.reshape(-1)
+#             one_year_dict[str(year) + '_' + str(n_largest_value)] =  data
+#         # Convert the dictionary of N_largest values into a dataframe
+#         n_largest_values_df = pd.DataFrame(one_year_dict)
+#         n_largest_values_df.reset_index(drop=True, inplace=True)
+#         dfs_list.append(n_largest_values_df)    
+    
+    
+#     result = pd.concat(dfs_list, ignore_index = False, axis = 1)
+                    
+#     # Join with lats and lons
+#     result['lat'], result['lon'] = [lats_1d, lons_1d]
+    
 
 np.percentile(a, 98.6, interpolation = 'nearest') # return 50th percentile, e.g median.
 np.percentile(a, 98.7, interpolation = 'nearest') # return 50th percentile, e.g median.
