@@ -311,7 +311,117 @@ def plot_cube_within_region (cube, region_outline_gdf):
     #plt.colorbar(plot,fraction=0.036, pad=0.04).ax.tick_params(labelsize='xx-large')  
     plot =ax.tick_params(labelsize='xx-large')
     plot =region_outline_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=6)
-   
+  
+    
+def n_largest_yearly_values_method2 (seasonal_cube,  mask, number_of_annual_values = 10):
+    '''
+    # Create a dataframe containing the N largest values for each location 
+    # in each year   
+    '''
+
+    #############################################
+    # Define years over which to search for data
+    #############################################
+    season_years = seasonal_cube.coord('season_year').points
+    season_years = np.unique(season_years)    
+    season_years = season_years.tolist()
+    
+    #############################################
+    # Set-up variables required for for-loop
+    #############################################
+    # Create a counter (which is increased by one with each cycle of for loop)
+    # to check whether the correct number of locations are being processed
+    counter = 0
+    # Lists to store results
+    locations = []
+    lats = []   
+    lons = []      
+    
+    #############################################
+    #############################################
+    #yearly_stats_percentiles = seasonal_cube.aggregated_by(['season_year'], iris.analysis.PERCENTILE, percent=[98.7])
+    
+    seconds = time.time()
+    seasonal_cube_data = seasonal_cube.data
+    print("loaded whole cube's data in ", time.time() - seconds)
+    
+    #############################################
+    #############################################
+    true_counter = 0 
+    for lat_idx in range(0,seasonal_cube.shape[1]):
+            for lon_idx in range(0, seasonal_cube.shape[2]):
+                print("Cell number: ", counter)
+                counter = counter+1
+                
+                # Trim cube to contain all timeslices for that one location
+                one_cell = seasonal_cube[:,lat_idx,lon_idx]
+                #one_cell_data = one_cell.data
+                #one_cell_data = one_cell.core_data
+                #mask = mask.round({'lat': 8, 'lon': 8})
+                
+                #seconds = time.time()
+                #one_cell_data = one_cell.data
+                #print("loaded one cell's data in ", time.time() - seconds)
+                
+                #if mask['lat'].isin([round(one_cell.coord('latitude').points[0],8)]).any() == True:
+                if 1> 0: 
+                    true_counter = true_counter +1 
+                    #print(mask['lat'].isin([round(one_cell.coord('latitude').points[0],8)]).any())
+                                           
+                    # Store the coordinates of the point, and print them for checking
+                    lats.append(one_cell.coord('latitude').points[0])
+                    #print(one_cell.coord('latitude').points[0])
+                    lons.append(one_cell.coord('longitude').points[0])
+                    #print(one_cell.coord('longitude').points[0])
+            
+                    # Create a dictionary to store the results for each of the N largest
+                    # values in each year
+                    n_largest_values_dict = {}
+                    for year in season_years:
+                        print(' Year: ', year)
+                        # Extract just timeslices in that year
+                        #print("Extracting one year-s data")
+                        one_cell_one_year = one_cell.extract(iris.Constraint(season_year = year))
+                        data = one_cell_one_year.data
+                        data = np.sort(data)
+                        
+                        #### Method 1
+                        value = np.percentile(data, 98.7, interpolation = 'linear') # return 50th percentile, e.g median.
+                        
+                        ### Method 2
+                       # yearly_stats_percentiles_one_year = yearly_stats_percentiles.extract(iris.Constraint(season_year = year))
+                        #value = yearly_stats_percentiles_one_year[lat_idx, lon_idx].data
+                        
+                        #top_ten = data>value 
+                        top_ten = data[data>value]
+                        
+                        # Print check length
+                        #print("number of values: ", len(top_ten))
+                        
+                        n_largest_value_counter = 1
+                        for n in range(0,10):
+                            #print(n)
+                            n_largest_values_dict[str(year) + '_' + str(n_largest_value_counter)] =  top_ten[n]
+                            n_largest_value_counter = n_largest_value_counter +1 
+                        
+                    # Convert the dictionary of N_largest values into a dataframe
+                    n_largest_values_df = pd.DataFrame(n_largest_values_dict, index=[0])
+                
+                    # Add to the list containing n_largest_values_df's for each location
+                    locations.append(n_largest_values_df)
+    
+    # Join the list of dataframes into one dataframe
+    # Each row is a location
+    total = pd.concat(locations, axis=0)
+    
+    # Join with lats and lons
+    total['lat'], total['lon'] = [lats, lons]
+    
+    
+    return total
+    
+    
+    
 def n_largest_yearly_values (seasonal_cube,  mask, number_of_annual_values = 10):
     '''
     # Create a dataframe containing the N largest values for each location 

@@ -144,56 +144,56 @@ for em in ems:
     ###########################################
     # Find statistic being used to regionalise rainfall
     #############################################    
-    for stat in stats:
-        print('Processing ' , stat)
-        seconds = time.time()
-        if stat == 'Mean':
-            filepath = "Outputs/HiClimR_inputdata/{}/{}/em{}.csv".format(region, 'Mean', em)
-            if not os.path.isfile(filepath):
-                print("Mean doesn't already exist, creating...")
-                yearly_stats = jja.aggregated_by(['season_year'], iris.analysis.MEAN)
-        elif stat == 'Max': 
-            filepath = "Outputs/HiClimR_inputdata/{}/{}/em{}.csv".format(region, 'Max', em)
-            if not os.path.isfile(filepath):
-                print("Max doesn't already exist, creating...")
-                yearly_stats = jja.aggregated_by(['season_year'], iris.analysis.MAX)
-        elif stat =='99th Percentile' or stat == '97th percentile' or stat == '95th percentile':
-            filepath1 = "Outputs/HiClimR_inputdata/{}/{}/em{}.csv".format(region, '95th Percentile', em)
-            filepath2 = "Outputs/HiClimR_inputdata/{}/{}/em{}.csv".format(region, '97th Percentile', em)
-            filepath3 = "Outputs/HiClimR_inputdata/{}/{}/em{}.csv".format(region, '99th Percentile', em)
-            if not all([os.path.isfile(filepath1) and os.path.isfile(filepath2) and os.path.isfile(filepath3)]):
-                print("Percentiles doesn't already exist, creating...")
-                yearly_stats_percentiles = jja.aggregated_by(['season_year'], iris.analysis.PERCENTILE, percent=[95, 97, 99])
-                if stat =='95th Percentile':
-                    yearly_stats = yearly_stats_percentiles[0,:,:,:]
-                    #print('Creating 95th percentile')
-                elif stat =='97th Percentile':
-                    yearly_stats = yearly_stats_percentiles[1,:,:,:]
-                    #print('Creating 97th percentile')
-                elif stat =='99th Percentile':
-                    yearly_stats = yearly_stats_percentiles[2,:,:,:]
-                    #print('Creating 99th percentile')
+    # for stat in stats:
+    #     print('Processing ' , stat)
+    #     seconds = time.time()
+    #     if stat == 'Mean':
+    #         filepath = "Outputs/HiClimR_inputdata/{}/{}/em{}.csv".format(region, 'Mean', em)
+    #         if not os.path.isfile(filepath):
+    #             print("Mean doesn't already exist, creating...")
+    #             yearly_stats = jja.aggregated_by(['season_year'], iris.analysis.MEAN)
+    #     elif stat == 'Max': 
+    #         filepath = "Outputs/HiClimR_inputdata/{}/{}/em{}.csv".format(region, 'Max', em)
+    #         if not os.path.isfile(filepath):
+    #             print("Max doesn't already exist, creating...")
+    #             yearly_stats = jja.aggregated_by(['season_year'], iris.analysis.MAX)
+    #     elif stat =='99th Percentile' or stat == '97th percentile' or stat == '95th percentile':
+    #         filepath1 = "Outputs/HiClimR_inputdata/{}/{}/em{}.csv".format(region, '95th Percentile', em)
+    #         filepath2 = "Outputs/HiClimR_inputdata/{}/{}/em{}.csv".format(region, '97th Percentile', em)
+    #         filepath3 = "Outputs/HiClimR_inputdata/{}/{}/em{}.csv".format(region, '99th Percentile', em)
+    #         if not all([os.path.isfile(filepath1) and os.path.isfile(filepath2) and os.path.isfile(filepath3)]):
+    #             print("Percentiles doesn't already exist, creating...")
+    #             yearly_stats_percentiles = jja.aggregated_by(['season_year'], iris.analysis.PERCENTILE, percent=[95, 97, 99])
+    #             if stat =='95th Percentile':
+    #                 yearly_stats = yearly_stats_percentiles[0,:,:,:]
+    #                 #print('Creating 95th percentile')
+    #             elif stat =='97th Percentile':
+    #                 yearly_stats = yearly_stats_percentiles[1,:,:,:]
+    #                 #print('Creating 97th percentile')
+    #             elif stat =='99th Percentile':
+    #                 yearly_stats = yearly_stats_percentiles[2,:,:,:]
+    #                 #print('Creating 99th percentile')
                 
-        print('Found yearly stat in: ', time.time() - seconds)
+    #     print('Found yearly stat in: ', time.time() - seconds)
         
         #############################################
         # 
         #############################################
-        if mask_to_region == True:
-            print ("Masking to region")
-            if not 'regional_mask' in globals():
-                seconds = time.time()
-                regional_mask = mask_by_region(yearly_stats, regional_gdf)
-                print('Created regional_mask in: ', time.time() - seconds)
-            else: 
-                print('Regional mask already exists')
-            # Mask JJA
-            seconds = time.time()
-            mask_3d = np.repeat(regional_mask[np.newaxis,:, :], yearly_stats.shape[0], axis=0)
-            #print("Seconds to run =", time.time() - seconds)	
-            yearly_stats.data =  np.ma.masked_array(yearly_stats.data, np.logical_not(mask_3d))
-            #yearly_stats.data =  np.ma.masked_array(yearly_stats.data, np.logical_not(mask_3d))
-            print('Masked data in : ', time.time() - seconds)
+        # if mask_to_region == True:
+        #     print ("Masking to region")
+        #     if not 'regional_mask' in globals():
+        #         seconds = time.time()
+        #         regional_mask = mask_by_region(yearly_stats, regional_gdf)
+        #         print('Created regional_mask in: ', time.time() - seconds)
+        #     else: 
+        #         print('Regional mask already exists')
+        #     # Mask JJA
+        #     seconds = time.time()
+        #     mask_3d = np.repeat(regional_mask[np.newaxis,:, :], yearly_stats.shape[0], axis=0)
+        #     #print("Seconds to run =", time.time() - seconds)	
+        #     yearly_stats.data =  np.ma.masked_array(yearly_stats.data, np.logical_not(mask_3d))
+        #     #yearly_stats.data =  np.ma.masked_array(yearly_stats.data, np.logical_not(mask_3d))
+        #     print('Masked data in : ', time.time() - seconds)
         
         # Check plotting
         #qplt.contourf(yearly_stats[5,:,:])       
@@ -201,86 +201,94 @@ for em in ems:
         # Check plotting #.2
         #plot_cube_within_region(yearly_stats[0,:,:], regional_gdf)
      
-        ############################################
-        # Reformat for use in R
-        #############################################
-        # Get the coords 1D
-        lats_1d = yearly_stats.coord('latitude').points
-        lons_1d = yearly_stats.coord('longitude').points
+        # ############################################
+        # # Reformat for use in R
+        # #############################################
+        # # Get the coords 1D
+        # lats_1d = yearly_stats.coord('latitude').points
+        # lons_1d = yearly_stats.coord('longitude').points
         
-        # Convert to 1D
-        lats_1d = lats_1d.reshape(-1)
-        lons_1d = lons_1d.reshape(-1)
+        # # Convert to 1D
+        # lats_1d = lats_1d.reshape(-1)
+        # lons_1d = lons_1d.reshape(-1)
         
-        #############################
-        print("Creating dictionary")
-        # Create a dictionary with each key corresponding to a year and the values
-        # containing a 1D array of AMAX values, masked to the region of interest
-        my_dict = {}
-        for i in range(0, yearly_stats.shape[0]):
-            #print(i)
-            # Get data from one timeslice
-            one_ts = yearly_stats[i,:,:]
-            # Extract data from one year 
-            data = one_ts.data.reshape(-1)
-            year  = one_ts.coord('season_year').points[0]
-            # Store as dictionary with the year name
-            my_dict[year] = data
+        # #############################
+        # print("Creating dictionary")
+        # # Create a dictionary with each key corresponding to a year and the values
+        # # containing a 1D array of AMAX values, masked to the region of interest
+        # my_dict = {}
+        # for i in range(0, yearly_stats.shape[0]):
+        #     #print(i)
+        #     # Get data from one timeslice
+        #     one_ts = yearly_stats[i,:,:]
+        #     # Extract data from one year 
+        #     data = one_ts.data.reshape(-1)
+        #     year  = one_ts.coord('season_year').points[0]
+        #     # Store as dictionary with the year name
+        #     my_dict[year] = data
         
-        # Create as a dataframe
-        test = pd.DataFrame(my_dict)
+        # # Create as a dataframe
+        # test = pd.DataFrame(my_dict)
         
-        # Join with lats and lons
-        test['lat'], test['lon'] = [lats_1d, lons_1d]
+        # # Join with lats and lons
+        # test['lat'], test['lon'] = [lats_1d, lons_1d]
         
-        if not os.path.isfile("Outputs/HiClimR_inputdata/{}/mask.csv".format(region)):
-            test.to_csv("Outputs/HiClimR_inputdata/{}/mask.csv".format(region), index = False)
+        # if not os.path.isfile("Outputs/HiClimR_inputdata/{}/mask.csv".format(region)):
+        #     test.to_csv("Outputs/HiClimR_inputdata/{}/mask.csv".format(region), index = False)
         
-        # Remove NA rows
-        test = test.dropna()
+        # # Remove NA rows
+        # test = test.dropna()
         
-        # Save dataframe
-        print("Saving stats output")
-        ddir = "Outputs/HiClimR_inputdata/{}/{}/".format(region, stat)
-        if not os.path.isdir(ddir):
-            os.makedirs(ddir)
-        test.to_csv(ddir + "em{}.csv".format(em), index = False)
+        # # Save dataframe
+        # print("Saving stats output")
+        # ddir = "Outputs/HiClimR_inputdata/{}/{}/".format(region, stat)
+        # if not os.path.isdir(ddir):
+        #     os.makedirs(ddir)
+        # test.to_csv(ddir + "em{}.csv".format(em), index = False)
     
 
 ################# Finding biggest ten for each year
-####### OLD METHOD - WORKS BUT IS SLOW        
-    if greatest_ten == True:
-        ddir = "Outputs/HiClimR_inputdata/{}/{}/".format(region, 'Greatest_ten')
-        if not os.path.isfile(ddir + "em{}.csv".format(em)):
-                print("Greatest ten doesn't already exist, creating...")
-                if 'test' in globals():
-                    print ("Using mask from stats processing")
-                    mask = test
-                else:
-                    print ('No mask, reading from file')
-                    # Read from file, delete NAs
-                    mask = pd.read_csv("Outputs/HiClimR_inputdata/WY/mask.csv")
-                    mask = mask.dropna()
-                    seconds = time.time()
-                    df = n_largest_yearly_values(jja, mask, 10)
-                    print("Found N largest values in: ", time.time() - seconds)
+####### OLD METHOD - WORKS BUT IS SLOW    
+
+jja = regional_cube.extract(iris.Constraint(clim_season = 'jja'))
+iris.coord_categorisation.add_season_year(jja,'time', name = "season_year")
+jja.has_lazy_data()
         
-    #             # Convert to 1D
-    #             lats_1d = lats_1d.reshape(-1)
-    #             lons_1d = lons_1d.reshape(-1)
+    if greatest_ten == True:
+        print('yes')
+        ddir = "Outputs/HiClimR_inputdata/{}/{}/".format(region, 'Greatest_ten')
+     #   if not os.path.isfile(ddir + "em{}.csv".format(em)):
+        print("Greatest ten doesn't already exist, creating...")
+        if 'test' in globals():
+            print ("Using mask from stats processing")
+            mask = test
+        else:
+            print ('No mask, reading from file')
+            # Read from file, delete NAs
+            mask = pd.read_csv("Outputs/HiClimR_inputdata/WY/mask.csv")
+            mask = mask.dropna()
+            
+        seconds = time.time()
+        df = n_largest_yearly_values(jja, mask, 10)
+        print("Found N largest values in: ", time.time() - seconds)
                 
-    #            # lats_1d = yearly_stats_percentiles.coord('latitude').points
-    #            # lons_1d = yearly_stats_percentiles.coord('longitude').points
-                
-    #             yearly_stats_percentiles = jja.aggregated_by(['season_year'], iris.analysis._percentile, percent=[98.6, 98.7, 98.9, 99, 99.2, 99.3, 99.5, 99.7, 99.9, 100])
-                
-    #             regional_mask = mask_by_region(yearly_stats_percentiles, regional_gdf)
-    #             yearly_stats_percentiles.data =  np.ma.masked_array(yearly_stats_percentiles.data, np.logical_not(mask_3d))
-         
-    #######################################  
-    # New method
-    #######################################    
+        
+        #seconds = time.time()
+        #df_newmethod = n_largest_yearly_values_method2(jja, mask, 10)
+        #print("Found N largest values in: ", time.time() - seconds)
+        
+        #seconds = time.time()
+        #df = n_largest_yearly_values(jja, mask, 10)
+        #print("Found N largest values in: ", time.time() - seconds)
+
+
+#######################################  
+# New method - my percentile method
+####################################### 
+# Create a cube with a percentile dimension, where each dimension contains values corresponding to the given percentiles
+# For a cube of this size have calculated that these correspond to the top 10 highest values
   yearly_stats_percentiles = jja.aggregated_by(['season_year'], iris.analysis.PERCENTILE, alphap = 0.5, betap = 0.5, percent=[98.6, 98.7, 98.9, 99, 99.2, 99.3, 99.5, 99.7, 99.9, 100])
+# Create a list to store the results in  
   dfs_list = []
   for year_n in range(0, yearly_stats_percentiles.shape[1]):
       year  = one_year.coord('season_year').points[0]
@@ -315,8 +323,11 @@ for em in ems:
 # Remove NA rows
   result = result.dropna()    
                 
-                
- 
+#######################################  
+# Testing - to show that the percentile method does not give them same results 
+# as the old method which I have tested is correct
+# (altho maybe I have only tested it is correct for the first cell - check more? )
+#######################################                   
 yearly_stats_percentiles = jja.aggregated_by(['season_year'], iris.analysis.PERCENTILE, percent=[98.6, 98.7, 98.9, 99, 99.2, 99.3, 99.5, 99.7, 99.9, 100])
 
 
@@ -326,8 +337,6 @@ print(one_cell_one_year)
 data= one_cell_one_year.data
 np.sort(data)
 
-
-np.percentile(data, 99.9) # return 50th percentile, e.g median.
 
 values = -bottleneck.partition(-one_cell_one_year.data, 10)[:10]
 np.sort(values)
@@ -339,11 +348,25 @@ np.sort(df.iloc[0][0:10])
 np.sort(result.iloc[0][0:10])
 
 
-
 ########## Testing
 first_cell_1982 = yearly_stats_percentiles[:,0,0,0]
 data_test = first_cell_1982.data
 print(data_test)
+
+
+#######################################  
+# Steef method
+#######################################                   
+yearly_stats_percentiles = jja.aggregated_by(['season_year'], iris.analysis.PERCENTILE, percent=[98.6, 98.7, 98.9, 99, 99.2, 99.3, 99.5, 99.7, 99.9, 100])
+
+
+
+
+
+
+
+
+
 
 # for n_largest_value in range(0, yearly_stats_percentiles.shape[0]):
 #     print(n_largest_value)
