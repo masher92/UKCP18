@@ -4,15 +4,27 @@ import os
 
 from Spatial_plotting_functions import *
 
-stat = '95th Percentile'
+stat = 'Mean'
 region = 'Northern'
-ems = ['01', '04','05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
-num_clusters =3
+ems = ['01']
+ems = ['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
+num_clusters =2
 
 root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
 os.chdir(root_fp)
 
 mask = pd.read_csv("Outputs/HiClimR_inputdata/{}/mask.csv".format(region))
+
+if region == 'WY':
+    lat_length = 22
+    lon_length = 29
+elif region == 'Northern':
+    lat_length = 144
+    lon_length = 114
+elif region == 'WY_square':
+    lat_length = 22
+    lon_length = 29 
+
 
 ##############################################################################
 leeds_gdf = create_leeds_outline({'init' :'epsg:3785'})
@@ -27,35 +39,38 @@ fig, ax = plt.subplots(rows, cols,
                        sharey='row',
                        figsize=(20, 20))
 
+# For each position in the subfigure grid, create a plot
 for row in range(4):
     for col in range(3):
-                
+        
+        # Select an ensemble member
         em = ems[em_i]
         print(em)
+        
+        # Load in its region codes
         general_filename = 'C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/Outputs/HiClimR_outputdata/{}/{}/{} clusters/em{}.csv'.format(region, stat, num_clusters,em)
-
         region_codes = pd.read_csv(general_filename)
         region_codes = region_codes.rename(columns={'lats': 'lat', 'lons': 'lon'})
     
-        # Make the lat, lons the same length
+        # Make the lat, lons from the mask the same length
         region_codes = region_codes.round({'lat': 8, 'lon': 8})
         mask = mask.round({'lat': 8, 'lon': 8})
     
-        # Join
+        # Join the mask with the region codes
         df_outer = mask.merge(region_codes,  on=['lat', 'lon'], how="left")
     
-        # Convert to 1D
-        df_outer['lat']
-        lats_2d = df_outer['lat'].to_numpy().reshape(22, 29)
-        lons_2d = df_outer['lon'].to_numpy().reshape(22, 29)
+        # Convert to 2D
+        lats_2d = df_outer['lat'].to_numpy().reshape(lat_length, lon_length)
+        lons_2d = df_outer['lon'].to_numpy().reshape(lat_length, lon_length)
+        region_codes_2d = df_outer['regions_values'].to_numpy().reshape(lat_length, lon_length)
         
+        # Convert the projections
         inProj = Proj(init='epsg:4326')
         outProj = Proj(init='epsg:3785')
         lons_2d, lats_2d = transform(inProj,outProj,lons_2d, lats_2d)
         
-        regional_codes = df_outer['regions_values'].to_numpy().reshape(22, 29)
-    
-        ax[row, col].pcolormesh(lons_2d, lats_2d, regional_codes,
+        # Plot
+        ax[row, col].pcolormesh(lons_2d, lats_2d, region_codes_2d,
                           linewidths=3, alpha = 1, cmap = 'tab20')
         leeds_gdf.plot(ax=ax[row, col], edgecolor='black', color='none', linewidth=2)
         ax[row, col].tick_params(axis='x', labelsize= 25)
@@ -65,12 +80,17 @@ for row in range(4):
 
 fig.tight_layout()  
 
+
+
+
 ## Save figure
 ddir = 'C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/Outputs/HiClimR_plots/{}/'.format(region) 
 if not os.path.isdir(ddir):
     os.makedirs(ddir)
 filename =  ddir + '{}_{}_clusters.jpg'.format(stat, num_clusters)    
-
+# Delte figure if it already exists, to avoid overwriting error
+if os.path.isfile(filename):
+   os.remove(filename) 
 fig.savefig(filename)
   
 
