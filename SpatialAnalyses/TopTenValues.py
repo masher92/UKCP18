@@ -24,8 +24,8 @@ import bottleneck
 warnings.filterwarnings("ignore")
 
 # Provide root_fp as argument
-root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
-#root_fp = "/nfs/a319/gy17m2a/"
+#root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
+root_fp = "/nfs/a319/gy17m2a/"
 
 os.chdir(root_fp)
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/')
@@ -37,7 +37,7 @@ start_year = 1980
 end_year = 2000 
 yrs_range = "1980_2001" 
 ems = ['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
-ems = ['01']
+ems = ['08']
 region = 'WY'
 mask_to_region = True
 greatest_ten = True
@@ -88,11 +88,11 @@ for em in ems:
             #print(filename)
             filenames.append(filename)
     
-    filenames =[]
-    filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19801201-19801230.nc')  
-    filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19810101-19810130.nc') 
-    filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19820601-19820630.nc') 
-    filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19830601-19830630.nc') 
+    # filenames =[]
+    # filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19801201-19801230.nc')  
+    # filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19810101-19810130.nc') 
+    # filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19820601-19820630.nc') 
+    # filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19830601-19830630.nc') 
     
     monthly_cubes_list = iris.load(filenames,'lwe_precipitation_rate')
     print(str(len(monthly_cubes_list)) + " cubes found for this time period.")
@@ -139,6 +139,7 @@ for em in ems:
     # Find statistic being used to regionalise rainfall
     #############################################
     iris.coord_categorisation.add_season_year(jja,'time', name = "season_year") 
+    print('Cut to June-July-August period')
 
 ################# Finding biggest ten for each year
     ddir = "Outputs/HiClimR_inputdata/{}/{}/".format(region, 'Greatest_ten')
@@ -154,21 +155,25 @@ for em in ems:
        mask = pd.read_csv("Outputs/HiClimR_inputdata/WY/mask.csv")
        mask = mask.dropna()
        
-    seconds = time.time()
-    df = n_largest_yearly_values(jja, mask, 10)
-    print("Found N largest values in: ", time.time() - seconds)
+    # seconds = time.time()
+    # df = n_largest_yearly_values(jja, mask, 10)
+    # print("Found N largest values in: ", time.time() - seconds)
            
-   
     seconds = time.time()
-    df_newmethod = n_largest_yearly_values_method2(jja, mask, 10)
+    df_newmethod = n_largest_yearly_values_method2(jja, mask, False)
     print("Found N largest values in: ", time.time() - seconds)
     
+ddir = "Outputs/HiClimR_inputdata/{}/Greatest_ten/".format(region)
+if not os.path.isdir(ddir):
+    os.makedirs(ddir)
+df_newmethod.to_csv(ddir + "em{}.csv".format(em), index = False)
+
 
 ### Testing if both methods produce same result
 # Old method - cell by cell
-np.sort(df.iloc[0][0:10])
-# New method - Iris percentiles
-np.sort(df_newmethod.iloc[0][0:10])
+# np.sort(df.iloc[0][0:10])
+# # New method - Iris percentiles
+# np.sort(df_newmethod.iloc[0][0:10])
 
 
 

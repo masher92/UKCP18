@@ -24,8 +24,8 @@ import bottleneck
 warnings.filterwarnings("ignore")
 
 # Provide root_fp as argument
-root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
-#root_fp = "/nfs/a319/gy17m2a/"
+#root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
+root_fp = "/nfs/a319/gy17m2a/"
 
 os.chdir(root_fp)
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/')
@@ -36,12 +36,11 @@ from Spatial_plotting_functions import *
 start_year = 1980
 end_year = 2000 
 yrs_range = "1980_2001" 
-ems = ['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
-ems = ['01']
+ems = ['04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
+#ems = ['01']
 region = 'Northern'
 mask_to_region = True
-stats = []
-greatest_ten = True
+stats = ['95th Percentile', '97th Percentile', '99th Percentile']
 
 ############################################
 # Create regions
@@ -89,11 +88,11 @@ for em in ems:
             #print(filename)
             filenames.append(filename)
     
-    filenames =[]
-    filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19801201-19801230.nc')  
-    filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19810101-19810130.nc') 
-    filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19820601-19820630.nc') 
-    filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19830601-19830630.nc') 
+    #filenames =[]
+    #filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19801201-19801230.nc')  
+    #filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19810101-19810130.nc') 
+    #filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19820601-19820630.nc') 
+    #filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19830601-19830630.nc') 
     
     monthly_cubes_list = iris.load(filenames,'lwe_precipitation_rate')
     print(str(len(monthly_cubes_list)) + " cubes found for this time period.")
@@ -142,7 +141,7 @@ for em in ems:
     iris.coord_categorisation.add_season_year(jja,'time', name = "season_year") 
     
     ##########################################
-    Find statistic being used to regionalise rainfall
+    #Find statistic being used to regionalise rainfall
     ############################################    
     for stat in stats:
         print('Processing ' , stat)
@@ -157,7 +156,7 @@ for em in ems:
             if not os.path.isfile(filepath):
                 print("Max doesn't already exist, creating...")
                 yearly_stats = jja.aggregated_by(['season_year'], iris.analysis.MAX)
-        elif stat =='99th Percentile' or stat == '97th percentile' or stat == '95th percentile':
+        elif stat =='99th Percentile' or stat == '97th Percentile' or stat == '95th Percentile':
             filepath1 = "Outputs/HiClimR_inputdata/{}/{}/em{}.csv".format(region, '95th Percentile', em)
             filepath2 = "Outputs/HiClimR_inputdata/{}/{}/em{}.csv".format(region, '97th Percentile', em)
             filepath3 = "Outputs/HiClimR_inputdata/{}/{}/em{}.csv".format(region, '99th Percentile', em)
@@ -168,7 +167,7 @@ for em in ems:
                     yearly_stats = yearly_stats_percentiles[0,:,:,:]
                     #print('Creating 95th percentile')
                 elif stat =='97th Percentile':
-                    yearly_stats = yearly_stats_percentiles[1,:,:,:]
+                    yearly_stast = yearly_stats_percentiles[1,:,:,:]
                     #print('Creating 97th percentile')
                 elif stat =='99th Percentile':
                     yearly_stats = yearly_stats_percentiles[2,:,:,:]
@@ -195,11 +194,11 @@ for em in ems:
             #yearly_stats.data =  np.ma.masked_array(yearly_stats.data, np.logical_not(mask_3d))
             print('Masked data in : ', time.time() - seconds)
         
-        Check plotting
-        qplt.contourf(yearly_stats[5,:,:])       
-        plt.gca().coastlines()   
-        Check plotting #.2
-        plot_cube_within_region(yearly_stats[0,:,:], regional_gdf)
+        #Check plotting
+        #qplt.contourf(yearly_stats[5,:,:])       
+        #plt.gca().coastlines()   
+        #Check plotting #.2
+        #plot_cube_within_region(yearly_stats[0,:,:], regional_gdf)
      
         ############################################
         # Reformat for use in R
