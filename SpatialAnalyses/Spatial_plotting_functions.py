@@ -400,7 +400,7 @@ def n_largest_yearly_values_method2 (seasonal_cube, mask, mask_data = True):
                             data = np.sort(data)
                             
                             #### Method 1
-                            value = np.percentile(data, 98.7, interpolation = 'linear') # return 50th percentile, e.g median.
+                            value = np.percentile(data, 99.1, interpolation = 'linear') # return 50th percentile, e.g median.
                             
                             ### Method 2
                             # yearly_stats_percentiles_one_year = yearly_stats_percentiles.extract(iris.Constraint(season_year = year))
@@ -412,7 +412,7 @@ def n_largest_yearly_values_method2 (seasonal_cube, mask, mask_data = True):
                             top_ten = data[data>value]
                             
                             # Print check length
-                            # print("number of values: ", len(top_ten))
+                            print("number of values: ", len(top_ten))
                             
                             n_largest_value_counter = 1
                             for n in range(0,10):
