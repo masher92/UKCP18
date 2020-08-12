@@ -20,8 +20,8 @@ import time
 warnings.filterwarnings("ignore")
 
 # Set working directory - 2 options for remote server and desktop
-#root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
-root_fp = "/nfs/a319/gy17m2a/"
+root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
+#root_fp = "/nfs/a319/gy17m2a/"
 os.chdir(root_fp)
 
 # Create path to files containing functions
@@ -67,14 +67,6 @@ elif region == 'Leeds-at-centre':
     polygon_geom = Polygon(zip(lats, lons))
     regional_gdf = gpd.GeoDataFrame(index=[0], crs={'init': 'epsg:4326'}, geometry=[polygon_geom])
     regional_gdf = regional_gdf.to_crs({'init' :'epsg:3785'}) 
-
-##### Check plotting
-# polygon_wm= polygon_wm.to_crs({'init' :'epsg:3785'}) 
-# fig, ax = plt.subplots(figsize=(20,20))
-# extent = tilemapbase.extent_from_frame(polygon_wm)
-# plot = plotter = tilemapbase.Plotter(extent, tilemapbase.tiles.build_OSM(), width=600)
-# plot =plotter.plot(ax)
-# plot =leeds_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='red', color='none', linewidth=6)
 
 #############################################
 # Read in files
@@ -146,16 +138,22 @@ for em in ems:
     iris.coord_categorisation.add_season_year(jja,'time', name = "season_year") 
     print('Cut to June-July-August period')
 
-################# Finding biggest ten for each year
+    #############################################
+    # Finding biggest ten for each year
+    #############################################
+    # Check if folder already exists, if it doesn't then create it  
     ddir = "Outputs/HiClimR_inputdata/{}/{}/".format(region, 'Greatest_ten')
     if not os.path.isfile(ddir + "em{}.csv".format(em)):
+        os.makedirs(ddir)
         print("Greatest ten doesn't already exist, creating...")
    
+    # Use function from Spatial_plotting_functions file to find top ten values
+    # If using mask, then import this and use in function
     if mask_to_region == True:
        # Read from file, delete NAs
        mask = pd.read_csv("Outputs/HiClimR_inputdata/{}/mask.csv".format(region))
        mask = mask.dropna()
-       #
+       
        seconds = time.time()
        df_newmethod = n_largest_yearly_values_method2(jja, mask_to_region, mask)
        print("Found N largest values in: ", time.time() - seconds)
@@ -164,9 +162,7 @@ for em in ems:
        df_newmethod = n_largest_yearly_values_method2(jja, mask_to_region)
        print("Found N largest values in: ", time.time() - seconds)  
    
-ddir = "Outputs/HiClimR_inputdata/{}/Greatest_ten/".format(region)
-if not os.path.isdir(ddir):
-    os.makedirs(ddir)
+# Save the output to file
 df_newmethod.to_csv(ddir + "em{}.csv".format(em), index = False)
 
 
@@ -176,120 +172,3 @@ df_newmethod.to_csv(ddir + "em{}.csv".format(em), index = False)
 # # New method - Iris percentiles
 # np.sort(df_newmethod.iloc[0][0:10])
 
-
-
-# #######################################  
-# # New method - my percentile method
-# ####################################### 
-# # Create a cube with a percentile dimension, where each dimension contains values corresponding to the given percentiles
-# # For a cube of this size have calculated that these correspond to the top 10 highest values
-#   yearly_stats_percentiles = jja.aggregated_by(['season_year'], iris.analysis.PERCENTILE, alphap = 0.5, betap = 0.5, percent=[98.6, 98.7, 98.9, 99, 99.2, 99.3, 99.5, 99.7, 99.9, 100])
-# # Create a list to store the results in  
-#   dfs_list = []
-#   for year_n in range(0, yearly_stats_percentiles.shape[1]):
-#       year  = one_year.coord('season_year').points[0]
-#       # Get data from one timeslice
-#       one_year = yearly_stats_percentiles[:,year_n,:,:]
-#       one_year_dict = {}
-#       for n_largest_value in range(0, yearly_stats_percentiles.shape[0]):
-#           print(n_largest_value)
-#           one_percentile = one_year[n_largest_value,:,:]
-          
-#           # if not 'regional_mask' in globals():
-#           #     seconds = time.time()
-#           #     regional_mask = mask_by_region(one_percentile, regional_gdf)
-#           #     print('Created regional_mask in: ', time.time() - seconds)
-#           # else: 
-#           #     print('Regional mask already exists')
-#           # #print("Seconds to run =", time.time() - seconds)	
-#           # one_percentile.data =  np.ma.masked_array(one_percentile.data, np.logical_not(regional_mask))
-          
-#           data = one_percentile.data.reshape(-1)
-#           one_year_dict[str(year) + '_' + str(n_largest_value)] =  data
-#       # Convert the dictionary of N_largest values into a dataframe
-#       n_largest_values_df = pd.DataFrame(one_year_dict)
-#       n_largest_values_df.reset_index(drop=True, inplace=True)
-#       dfs_list.append(n_largest_values_df)    
-      
-#   result = pd.concat(dfs_list, ignore_index = False, axis = 1)
-      
-#   # Join with lats and lons
-#   result['lat'], result['lon'] = [lats_1d, lons_1d]
-
-# # Remove NA rows
-#   result = result.dropna()    
-                
-#######################################  
-# Testing - to show that the percentile method does not give them same results 
-# as the old method which I have tested is correct
-# (altho maybe I have only tested it is correct for the first cell - check more? )
-# #######################################                   
-# yearly_stats_percentiles = jja.aggregated_by(['season_year'], iris.analysis.PERCENTILE, percent=[98.6, 98.7, 98.9, 99, 99.2, 99.3, 99.5, 99.7, 99.9, 100])
-
-
-# one_cell = jja[:,0,0]
-# one_cell_one_year = one_cell.extract(iris.Constraint(season_year = 1982))
-# print(one_cell_one_year)
-# data= one_cell_one_year.data
-# np.sort(data)
-
-
-# values = -bottleneck.partition(-one_cell_one_year.data, 10)[:10]
-# np.sort(values)
-
-
-# ########## Testing
-# first_cell_1982 = yearly_stats_percentiles[:,0,0,0]
-# data_test = first_cell_1982.data
-# print(data_test)
-
-
-# #######################################  
-# # Steef method
-# #######################################                   
-# yearly_stats_percentiles = jja.aggregated_by(['season_year'], iris.analysis.PERCENTILE, percent=[98.6, 98.7, 98.9, 99, 99.2, 99.3, 99.5, 99.7, 99.9, 100])
-
-
-
-
-
-
-
-
-
-
-# for n_largest_value in range(0, yearly_stats_percentiles.shape[0]):
-#     print(n_largest_value)
-#     one_percentile = yearly_stats_percentiles[n_largest_value,:,:,:]
-#     if not 'regional_mask' in globals():
-#         seconds = time.time()
-#         regional_mask = mask_by_region(one_percentile, regional_gdf)
-#         print('Created regional_mask in: ', time.time() - seconds)
-#     else: 
-#         print('Regional mask already exists')
-#     #mask_3d = np.repeat(regional_mask[np.newaxis,:, :], one_percentile.shape[0], axis=0)
-#     #print("Seconds to run =", time.time() - seconds)	
-#     #one_percentile.data =  np.ma.masked_array(one_percentile.data, np.logical_not(mask_3d))
-#     dfs_list = []
-#     for year_n in range(0, one_percentile.shape[0]):
-#         print(year)
-#         year  = one_percentile.coord('season_year').points[0]
-#         # Get data from one timeslice
-#         one_year = one_percentile[year_n,:,:]
-#         one_year_dict = {}
-#         for n_largest_value in range(0, yearly_stats_percentiles.shape[0]):
-#             print(n_largest_value)
-#             one_percentile = one_year[n_largest_value,:,:]
-#             data = one_percentile.data.reshape(-1)
-#             one_year_dict[str(year) + '_' + str(n_largest_value)] =  data
-#         # Convert the dictionary of N_largest values into a dataframe
-#         n_largest_values_df = pd.DataFrame(one_year_dict)
-#         n_largest_values_df.reset_index(drop=True, inplace=True)
-#         dfs_list.append(n_largest_values_df)    
-    
-    
-#     result = pd.concat(dfs_list, ignore_index = False, axis = 1)
-                    
-#     # Join with lats and lons
-#     result['lat'], result['lon'] = [lats_1d, lons_1d]
-    

@@ -315,10 +315,24 @@ def plot_cube_within_region (cube, region_outline_gdf):
     
 def n_largest_yearly_values_method2 (seasonal_cube, mask_data, mask = None):
     '''
-    # Create a dataframe containing the N largest values for each location 
-    # in each year   
-    '''
+    Description
+    ----------
+        Creates a shapely geometry of the outline of Leeds in the projection specified
 
+    Parameters
+    ----------
+        required_proj : Dict
+            Python dictionary with a key init that has a value epsg:4326. 
+            This is a very typical way how CRS is stored in GeoDataFrames 
+            e.g. {'init' :'epsg:3785'} for Web Mercator
+            or   {'init' :'epsg:4326'} for WGS84
+
+    Returns
+    -------
+        leeds_gdf : Geodataframe
+            Dataframe contaiing coordinates of outline of Leeds
+    
+    '''
     #############################################
     # Define years over which to search for data
     #############################################
@@ -348,7 +362,7 @@ def n_largest_yearly_values_method2 (seasonal_cube, mask_data, mask = None):
     
     #############################################
     # Find percentile values for each cell in the cube
-    # Testing indicates this method is slower, than using np.percentile for each 
+    #### Testing indicates this method is slower, than using np.percentile for each 
     # cell individually
     #############################################
     # yearly_stats_percentiles = seasonal_cube.aggregated_by(['season_year'], iris.analysis.PERCENTILE, percent=[98.7])
@@ -374,6 +388,9 @@ def n_largest_yearly_values_method2 (seasonal_cube, mask_data, mask = None):
                 # Trim cube to contain all timeslices for that one location
                 one_cell = seasonal_cube[:,lat_idx,lon_idx]
               
+                #############################################
+                # Block if using the mask
+                #############################################
                 if mask_data == True:
                     print("Processing only cells within mask")
                     
@@ -383,7 +400,6 @@ def n_largest_yearly_values_method2 (seasonal_cube, mask_data, mask = None):
                     # Only perform following code on cells where lat/long value 
                     # is contained in the mask
                     if mask['lat'].isin([round(one_cell.coord('latitude').points[0],8)]).any() == True:
-                        #print(mask['lat'].isin([round(one_cell.coord('latitude').points[0],8)]).any())
                         true_counter = true_counter +1                        
                         # Store the coordinates of the point, and print them for checking
                         lats.append(one_cell.coord('latitude').points[0])
@@ -401,16 +417,16 @@ def n_largest_yearly_values_method2 (seasonal_cube, mask_data, mask = None):
                             data = one_cell_one_year.data
                             data = np.sort(data)
                             
-                            #### Method 1
+                            #### Method 1 - for finding percentiles
                             value = np.percentile(data, 99.1, interpolation = 'linear') # return 50th percentile, e.g median.
                             
-                            ### Method 2
+                            ### Method 2 - for finding percentiles - slower
                             # yearly_stats_percentiles_one_year = yearly_stats_percentiles.extract(iris.Constraint(season_year = year))
                             #value = yearly_stats_percentiles_one_year[lat_idx, lon_idx].data
                             #top_ten = data>value 
                             
                             # Find top ten values, i.e. those that are greater than the
-                            # X percentile
+                            # 99.1st percentile
                             top_ten = data[data>value]
                             
                             # Print check length
@@ -426,7 +442,10 @@ def n_largest_yearly_values_method2 (seasonal_cube, mask_data, mask = None):
                     
                         # Add to the list containing n_largest_values_df's for each location
                         locations.append(n_largest_values_df)
-                        
+                
+                #############################################
+                # Block if not using the mask
+                #############################################
                 elif mask_data == False:
                     print("Processing all cells, no mask")
                     true_counter = true_counter +1 
@@ -458,7 +477,7 @@ def n_largest_yearly_values_method2 (seasonal_cube, mask_data, mask = None):
                         top_ten = data[data>value]
                         
                         # Print check length
-                        # print("number of values: ", len(top_ten))
+                        print("number of values: ", len(top_ten))
                         
                         n_largest_value_counter = 1
                         for n in range(0,10):
