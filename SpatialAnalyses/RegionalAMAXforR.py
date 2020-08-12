@@ -36,10 +36,15 @@ from Spatial_plotting_functions import *
 start_year = 1980
 end_year = 2000 
 yrs_range = "1980_2001" 
-ems = ['04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
-#ems = ['01']
+ems = ['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
+#ems = ['15']
 region = 'Northern'
-mask_to_region = True
+
+if region == 'WY_square':
+  mask_to_region = False
+else:
+  mask_to_region = True
+  
 stats = ['95th Percentile', '97th Percentile', '99th Percentile']
 
 ############################################
@@ -167,7 +172,7 @@ for em in ems:
                     yearly_stats = yearly_stats_percentiles[0,:,:,:]
                     #print('Creating 95th percentile')
                 elif stat =='97th Percentile':
-                    yearly_stast = yearly_stats_percentiles[1,:,:,:]
+                    yearly_stats = yearly_stats_percentiles[1,:,:,:]
                     #print('Creating 97th percentile')
                 elif stat =='99th Percentile':
                     yearly_stats = yearly_stats_percentiles[2,:,:,:]

@@ -37,10 +37,16 @@ start_year = 1980
 end_year = 2000 
 yrs_range = "1980_2001" 
 ems = ['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
-ems = ['08']
+ems = ['01', '04']
 region = 'WY'
-mask_to_region = True
-greatest_ten = True
+
+if region == 'WY_square':
+  mask_to_region = False
+else:
+  mask_to_region = True
+  
+print("Masking is : "  , mask_to_region)
+
 
 ############################################
 # Create regions
@@ -152,7 +158,8 @@ for em in ems:
     else:
        print ('No mask, reading from file')
        # Read from file, delete NAs
-       mask = pd.read_csv("Outputs/HiClimR_inputdata/WY/mask.csv")
+       #mask = pd.read_csv("Outputs/HiClimR_inputdata/{}/mask.csv".format(region))
+       mask = pd.read_csv("Outputs/HiClimR_inputdata/WY/mask.csv") 
        mask = mask.dropna()
        
     # seconds = time.time()
@@ -160,7 +167,7 @@ for em in ems:
     # print("Found N largest values in: ", time.time() - seconds)
            
     seconds = time.time()
-    df_newmethod = n_largest_yearly_values_method2(jja, mask, False)
+    df_newmethod = n_largest_yearly_values_method2(jja, mask, mask_to_region)
     print("Found N largest values in: ", time.time() - seconds)
     
 ddir = "Outputs/HiClimR_inputdata/{}/Greatest_ten/".format(region)
