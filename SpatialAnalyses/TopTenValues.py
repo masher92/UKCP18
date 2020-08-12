@@ -24,8 +24,8 @@ import bottleneck
 warnings.filterwarnings("ignore")
 
 # Provide root_fp as argument
-#root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
-root_fp = "/nfs/a319/gy17m2a/"
+root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
+#root_fp = "/nfs/a319/gy17m2a/"
 
 os.chdir(root_fp)
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/')
@@ -38,7 +38,7 @@ end_year = 2000
 yrs_range = "1980_2001" 
 ems = ['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
 ems = ['01', '04']
-region = 'WY'
+region = 'Northern'
 
 if region == 'WY_square':
   mask_to_region = False
@@ -46,7 +46,6 @@ else:
   mask_to_region = True
   
 print("Masking is : "  , mask_to_region)
-
 
 ############################################
 # Create regions
@@ -74,15 +73,7 @@ else:
 for em in ems:
     start_time = time.time()
     print ("Ensemble member {}".format(em))
-    
-    # Check if the last stat exists already, if it does then don't continue with the
-    # code
-    # filepath = "Outputs/HiClimR_inputdata/{}/{}/em{}.csv".format(region, stats[-1], em)
-    # if os.path.isfile(filepath)  :
-    #     filepath = "Outputs/HiClimR_inputdata/{}/{}/em{}.csv".format(region, stats[-1], em)
-    #     print("Already complete, moving to next ensemble member")
-    #     continue
-    
+       
     # Create list of names of cubes for between the years specified
     filenames =[]
     for year in range(start_year,end_year+1):
@@ -94,6 +85,7 @@ for em in ems:
             #print(filename)
             filenames.append(filename)
     
+    ####### For testing on desktop comuter #######
     # filenames =[]
     # filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19801201-19801230.nc')  
     # filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19810101-19810130.nc') 
@@ -114,7 +106,7 @@ for em in ems:
      
      # Concatenate the cubes into one
     concat_cube = monthly_cubes_list.concatenate_cube()
-    #
+
     # Remove ensemble member dimension
     concat_cube = concat_cube[0,:,:,:]
     print ("Joined cubes into one")
@@ -152,14 +144,10 @@ for em in ems:
     if not os.path.isfile(ddir + "em{}.csv".format(em)):
         print("Greatest ten doesn't already exist, creating...")
     
-    if 'test' in globals():
-        print ("Using mask from stats processing")
-        mask = test
+
     else:
-       print ('No mask, reading from file')
        # Read from file, delete NAs
-       #mask = pd.read_csv("Outputs/HiClimR_inputdata/{}/mask.csv".format(region))
-       mask = pd.read_csv("Outputs/HiClimR_inputdata/WY/mask.csv") 
+       mask = pd.read_csv("Outputs/HiClimR_inputdata/{}/mask.csv".format(region))
        mask = mask.dropna()
        
     # seconds = time.time()

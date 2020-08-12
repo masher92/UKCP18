@@ -364,6 +364,8 @@ def n_largest_yearly_values_method2 (seasonal_cube, mask, mask_data = True):
     #       Store the results in a dictionary, with the name of year_n (n between 1 and N)
     #     Convert this dictionary into a dataframe and add to the list
     #############################################
+    # True_counter counts the numbr of cells which have been processed i.e. not
+    # masked out 
     true_counter = 0 
     for lat_idx in range(0,seasonal_cube.shape[1]):
             for lon_idx in range(0, seasonal_cube.shape[2]):
@@ -379,7 +381,7 @@ def n_largest_yearly_values_method2 (seasonal_cube, mask, mask_data = True):
                     # Only perform following code on cells where lat/long value 
                     # is contained in the mask
                     if mask['lat'].isin([round(one_cell.coord('latitude').points[0],8)]).any() == True:
-                        print(mask['lat'].isin([round(one_cell.coord('latitude').points[0],8)]).any())
+                        #print(mask['lat'].isin([round(one_cell.coord('latitude').points[0],8)]).any())
                         true_counter = true_counter +1                        
                         # Store the coordinates of the point, and print them for checking
                         lats.append(one_cell.coord('latitude').points[0])
@@ -393,7 +395,6 @@ def n_largest_yearly_values_method2 (seasonal_cube, mask, mask_data = True):
                         for year in season_years:
                             print(' Year: ', year)
                             # Extract just timeslices in that year
-                            #print("Extracting one year-s data")
                             one_cell_one_year = one_cell.extract(iris.Constraint(season_year = year))
                             data = one_cell_one_year.data
                             data = np.sort(data)
@@ -406,6 +407,8 @@ def n_largest_yearly_values_method2 (seasonal_cube, mask, mask_data = True):
                             #value = yearly_stats_percentiles_one_year[lat_idx, lon_idx].data
                             #top_ten = data>value 
                             
+                            # Find top ten values, i.e. those that are greater than the
+                            # X percentile
                             top_ten = data[data>value]
                             
                             # Print check length
@@ -413,7 +416,6 @@ def n_largest_yearly_values_method2 (seasonal_cube, mask, mask_data = True):
                             
                             n_largest_value_counter = 1
                             for n in range(0,10):
-                                #print(n)
                                 n_largest_values_dict[str(year) + '_' + str(n_largest_value_counter)] =  top_ten[n]
                                 n_largest_value_counter = n_largest_value_counter +1 
                             
@@ -426,7 +428,6 @@ def n_largest_yearly_values_method2 (seasonal_cube, mask, mask_data = True):
                 elif mask_data == False:
                     print("Processing all cells, no mask")
                     true_counter = true_counter +1 
-                    #print(mask['lat'].isin([round(one_cell.coord('latitude').points[0],8)]).any())
                                            
                     # Store the coordinates of the point, and print them for checking
                     lats.append(one_cell.coord('latitude').points[0])
@@ -440,7 +441,6 @@ def n_largest_yearly_values_method2 (seasonal_cube, mask, mask_data = True):
                     for year in season_years:
                         print(' Year: ', year)
                         # Extract just timeslices in that year
-                        #print("Extracting one year-s data")
                         one_cell_one_year = one_cell.extract(iris.Constraint(season_year = year))
                         data = one_cell_one_year.data
                         data = np.sort(data)
