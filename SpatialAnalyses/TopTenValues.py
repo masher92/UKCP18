@@ -1,12 +1,11 @@
+############################################
+# Set up environment
+#############################################
 import sys
 import iris
-import cartopy.crs as ccrs
 import os
-from scipy import spatial
-import itertools
 import iris.quickplot as qplt
 import warnings
-import copy
 from timeit import default_timer as timer
 import glob
 import numpy as np
@@ -15,59 +14,59 @@ import pandas as pd
 import geopandas as gpd
 import matplotlib.pyplot as plt
 import tilemapbase
-import numpy as np
 from shapely.geometry import Polygon
 import iris.coord_categorisation
 import time 
-import bottleneck
-
 warnings.filterwarnings("ignore")
 
-# Provide root_fp as argument
-root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
-#root_fp = "/nfs/a319/gy17m2a/"
-
+# Set working directory - 2 options for remote server and desktop
+#root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
+root_fp = "/nfs/a319/gy17m2a/"
 os.chdir(root_fp)
+
+# Create path to files containing functions
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/')
 from Pr_functions import *
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/SpatialAnalyses')
 from Spatial_plotting_functions import *
 
+# Define required variables
 start_year = 1980
 end_year = 2000 
 yrs_range = "1980_2001" 
-ems = ['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
+ems = ['05'] #['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
+region = 'Leeds-at-centre' #['Northern', 'WY_square', 'WY']
 
-region = 'Northern'
-if region == 'WY_square':
+# Define whether to mask out cells not within the specific area of itnerest
+if region == 'WY_square' or region == 'Leeds-at-centre':
   mask_to_region = False
 else:
   mask_to_region = True
   
-print("Masking is : "  , mask_to_region)
+print("Region = ", region, "Masking is : "  , mask_to_region)
 
 ############################################
 # Create regions
 #############################################
 if region == 'WY' or region == 'WY_square':
-    region_gdf = gpd.read_file("datadir/SpatialData/combined-authorities-april-2015-super-generalised-clipped-boundaries-in-england.shp") 
-    region_gdf = region_gdf[region_gdf['cauth15cd'] == 'E47000003']
-    region_gdf = region_gdf.to_crs({'init' :'epsg:3785'}) 
+    regional_gdf = gpd.read_file("datadir/SpatialData/combined-authorities-april-2015-super-generalised-clipped-boundaries-in-england.shp") 
+    regional_gdf = regional_gdf[region_gdf['cauth15cd'] == 'E47000003']
+    regional_gdf = regional_gdf.to_crs({'init' :'epsg:3785'}) 
 elif region == 'Northern': 
     # Create geodataframe of West Yorks
     uk_gdf = gpd.read_file("datadir/SpatialData/Region__December_2015__Boundaries-shp/Region__December_2015__Boundaries.shp") 
-    region_gdf = uk_gdf.loc[uk_gdf['rgn15nm'].isin(['North West', 'North East', 'Yorkshire and The Humber'])]
-    region_gdf = region_gdf.to_crs({'init' :'epsg:3785'}) 
+    regional_gdf = uk_gdf.loc[uk_gdf['rgn15nm'].isin(['North West', 'North East', 'Yorkshire and The Humber'])]
+    regional_gdf = regional_gdf.to_crs({'init' :'epsg:3785'}) 
     # Merge the three regions into one
-    region_gdf['merging_col'] = 0
-    region_gdf = region_gdf.dissolve(by='merging_col')
+    regional_gdf['merging_col'] = 0
+    regional_gdf = regional_gdf.dissolve(by='merging_col')
 elif region == 'Leeds-at-centre':
     # Create region with Leeds at the centre
     lons = [54.130260, 54.130260, 53.486836, 53.486836]
     lats = [-2.138282, -0.895667, -0.895667, -2.138282]
     polygon_geom = Polygon(zip(lats, lons))
-    region_gdf = gpd.GeoDataFrame(index=[0], crs={'init': 'epsg:4326'}, geometry=[polygon_geom])
-    region_gdf = region_gdf.to_crs({'init' :'epsg:3785'}) 
+    regional_gdf = gpd.GeoDataFrame(index=[0], crs={'init': 'epsg:4326'}, geometry=[polygon_geom])
+    regional_gdf = regional_gdf.to_crs({'init' :'epsg:3785'}) 
 
 ##### Check plotting
 # polygon_wm= polygon_wm.to_crs({'init' :'epsg:3785'}) 
@@ -136,16 +135,14 @@ for em in ems:
     #regional_cube.data =  np.ma.masked_array(regional_cube.data, np.logical_not(mask_3d))
     
     ############################################
-    # Cut to just June-July_August period
+    # Generate cube containing only hourly values in June-July-August period
+    # and which contains a variable for the 'season year'
     #############################################
     ## Add season variables
     iris.coord_categorisation.add_season(regional_cube,'time', name = "clim_season")
     # Keep only JJA
     jja = regional_cube.extract(iris.Constraint(clim_season = 'jja'))
-    
-    ###########################################
-    # Find statistic being used to regionalise rainfall
-    #############################################
+    # Add season_year variable
     iris.coord_categorisation.add_season_year(jja,'time', name = "season_year") 
     print('Cut to June-July-August period')
 
@@ -153,21 +150,20 @@ for em in ems:
     ddir = "Outputs/HiClimR_inputdata/{}/{}/".format(region, 'Greatest_ten')
     if not os.path.isfile(ddir + "em{}.csv".format(em)):
         print("Greatest ten doesn't already exist, creating...")
-    
-
-    else:
+   
+    if mask_to_region == True:
        # Read from file, delete NAs
        mask = pd.read_csv("Outputs/HiClimR_inputdata/{}/mask.csv".format(region))
        mask = mask.dropna()
-       
-    # seconds = time.time()
-    # df = n_largest_yearly_values(jja, mask, 10)
-    # print("Found N largest values in: ", time.time() - seconds)
-           
-    seconds = time.time()
-    df_newmethod = n_largest_yearly_values_method2(jja, mask, mask_to_region)
-    print("Found N largest values in: ", time.time() - seconds)
-    
+       #
+       seconds = time.time()
+       df_newmethod = n_largest_yearly_values_method2(jja, mask_to_region, mask)
+       print("Found N largest values in: ", time.time() - seconds)
+    elif mask_to_region == False:
+       seconds = time.time()
+       df_newmethod = n_largest_yearly_values_method2(jja, mask_to_region)
+       print("Found N largest values in: ", time.time() - seconds)  
+   
 ddir = "Outputs/HiClimR_inputdata/{}/Greatest_ten/".format(region)
 if not os.path.isdir(ddir):
     os.makedirs(ddir)

@@ -313,7 +313,7 @@ def plot_cube_within_region (cube, region_outline_gdf):
     plot =region_outline_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=6)
   
     
-def n_largest_yearly_values_method2 (seasonal_cube, mask, mask_data = True):
+def n_largest_yearly_values_method2 (seasonal_cube, mask_data, mask = None):
     '''
     # Create a dataframe containing the N largest values for each location 
     # in each year   
@@ -371,13 +371,15 @@ def n_largest_yearly_values_method2 (seasonal_cube, mask, mask_data = True):
             for lon_idx in range(0, seasonal_cube.shape[2]):
                 print("Cell number: ", counter)
                 counter = counter+1
-                
                 # Trim cube to contain all timeslices for that one location
                 one_cell = seasonal_cube[:,lat_idx,lon_idx]
-                mask = mask.round({'lat': 8, 'lon': 8})
-                
+              
                 if mask_data == True:
                     print("Processing only cells within mask")
+                    
+                    # Round mask lat/lon to 8 decimal places so it matches the cube
+                    mask = mask.round({'lat': 8, 'lon': 8})
+                                        
                     # Only perform following code on cells where lat/long value 
                     # is contained in the mask
                     if mask['lat'].isin([round(one_cell.coord('latitude').points[0],8)]).any() == True:
