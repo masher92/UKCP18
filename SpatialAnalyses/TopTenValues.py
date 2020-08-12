@@ -37,9 +37,8 @@ start_year = 1980
 end_year = 2000 
 yrs_range = "1980_2001" 
 ems = ['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
-ems = ['01', '04']
-region = 'Northern'
 
+region = 'Northern'
 if region == 'WY_square':
   mask_to_region = False
 else:
@@ -50,22 +49,33 @@ print("Masking is : "  , mask_to_region)
 ############################################
 # Create regions
 #############################################
-wy_gdf = gpd.read_file("datadir/SpatialData/combined-authorities-april-2015-super-generalised-clipped-boundaries-in-england.shp") 
-wy_gdf = wy_gdf[wy_gdf['cauth15cd'] == 'E47000003']
-wy_gdf = wy_gdf.to_crs({'init' :'epsg:3785'}) 
- 
-# Create geodataframe of West Yorks
-uk_gdf = gpd.read_file("datadir/SpatialData/Region__December_2015__Boundaries-shp/Region__December_2015__Boundaries.shp") 
-northern_gdf = uk_gdf.loc[uk_gdf['rgn15nm'].isin(['North West', 'North East', 'Yorkshire and The Humber'])]
-northern_gdf = northern_gdf.to_crs({'init' :'epsg:3785'}) 
-# Merge the three regions into one
-northern_gdf['merging_col'] = 0
-northern_gdf = northern_gdf.dissolve(by='merging_col')
+if region == 'WY' or region == 'WY_square':
+    region_gdf = gpd.read_file("datadir/SpatialData/combined-authorities-april-2015-super-generalised-clipped-boundaries-in-england.shp") 
+    region_gdf = region_gdf[region_gdf['cauth15cd'] == 'E47000003']
+    region_gdf = region_gdf.to_crs({'init' :'epsg:3785'}) 
+elif region == 'Northern': 
+    # Create geodataframe of West Yorks
+    uk_gdf = gpd.read_file("datadir/SpatialData/Region__December_2015__Boundaries-shp/Region__December_2015__Boundaries.shp") 
+    region_gdf = uk_gdf.loc[uk_gdf['rgn15nm'].isin(['North West', 'North East', 'Yorkshire and The Humber'])]
+    region_gdf = region_gdf.to_crs({'init' :'epsg:3785'}) 
+    # Merge the three regions into one
+    region_gdf['merging_col'] = 0
+    region_gdf = region_gdf.dissolve(by='merging_col')
+elif region == 'Leeds-at-centre':
+    # Create region with Leeds at the centre
+    lons = [54.130260, 54.130260, 53.486836, 53.486836]
+    lats = [-2.138282, -0.895667, -0.895667, -2.138282]
+    polygon_geom = Polygon(zip(lats, lons))
+    region_gdf = gpd.GeoDataFrame(index=[0], crs={'init': 'epsg:4326'}, geometry=[polygon_geom])
+    region_gdf = region_gdf.to_crs({'init' :'epsg:3785'}) 
 
-if region == 'Northern':
-    regional_gdf = northern_gdf
-else:
-    regional_gdf = wy_gdf
+##### Check plotting
+# polygon_wm= polygon_wm.to_crs({'init' :'epsg:3785'}) 
+# fig, ax = plt.subplots(figsize=(20,20))
+# extent = tilemapbase.extent_from_frame(polygon_wm)
+# plot = plotter = tilemapbase.Plotter(extent, tilemapbase.tiles.build_OSM(), width=600)
+# plot =plotter.plot(ax)
+# plot =leeds_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='red', color='none', linewidth=6)
 
 #############################################
 # Read in files
