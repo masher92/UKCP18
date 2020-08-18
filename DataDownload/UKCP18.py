@@ -38,11 +38,11 @@ for member in members:
       
       # Define directory where data should be stored  
         if 1980 <= year <= 2001:
-          ddir = "/nfs/a319/gy17m2a/UKCP18/2.2km/" + member + '/1980_2001' 
+          ddir = "/nfs/a319/gy17m2a/datadir/UKCP18/2.2km/" + member + '/1980_2001' 
         elif 2020 <= year <= 2041:
-          ddir = "/nfs/a319/gy17m2a/UKCP18/2.2km/" + member + '/2020_2041' 
+          ddir = "/nfs/a319/gy17m2a/datadir/UKCP18/2.2km/" + member + '/2020_2041' 
         elif 2060 <= year <= 2081:
-          ddir = "/nfs/a319/gy17m2a/UKCP18/2.2km/" + member + '/2060_2081'    
+          ddir = "/nfs/a319/gy17m2a/datadir/UKCP18/2.2km/" + member + '/2060_2081'    
         print("Data for ensemble member " + member + " for year " + str(year) + " to be stored in: " + ddir)        
               
       # If directory doesn't exist make it
@@ -52,7 +52,8 @@ for member in members:
   
         # Change the local directory to where you want to put the data
         os.chdir(ddir)
-  
+        print(os.getcwd()) 
+        
         # Loop through months
         #for month in [3]:
         for month in [1,2,3,4,5,6,7,8,9,10,11,12]:
