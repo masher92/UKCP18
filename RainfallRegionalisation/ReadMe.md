@@ -3,18 +3,11 @@ Conducting  EVT  needs  a  lot  of  data.   Observational  records  of  model  r
 
 ## Process
 
-1. Item
-2. Item
-   * Mixed
-   * Mixed  
-3. Item
-
 1. Find statistics for all grid cells in a large region covering the North of England. Convert these into the format required by the HiClimR package; this is a dataframe in which each row is a location with a lat and long coordinate, and the columns contain the statistics for that point. Statistics calculated include:
-  * Max
-  * Mean
-  * Percentiles (95th, 97th, 99th, 99.5th) 
-  * Greatest ten/twenty values
-
+   * Max
+   * Mean
+   * Percentiles (95th, 97th, 99th, 99.5th) 
+   * Greatest ten/twenty values
 2. Trim the statistics dataframes so that they refer to smaller regions, e.g. the West Yorkshire Region, a square area centred around Leeds, the region of Northern England with the parts not over land removed.
 
 3. Use the statistics to regionalise the locations into clusters of specified sizes using the HiClimR R Package.
