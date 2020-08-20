@@ -15,3 +15,6 @@ Conducting  EVT  needs  a  lot  of  data.   Observational  records  of  model  r
 4. Plot the regions.
 
 
+## Code
+1. FindStats.py finds all statistics in one go. 
+2. 
