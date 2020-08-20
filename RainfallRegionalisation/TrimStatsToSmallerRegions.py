@@ -24,8 +24,6 @@ root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
 #root_fp = "/nfs/a319/gy17m2a/"
 os.chdir(root_fp)
 
-northern_mask = pd.read_csv("Outputs/RegionalMasks/northern_mask.csv")
-
 stats= ['Greatest_ten', 'Max','Mean', '95th Percentile', '97th Percentile', '99th Percentile', '99.5th Percentile']
 regions = ['Northern', 'leeds-at-centre', 'WY']
 ems = ['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
@@ -37,10 +35,11 @@ for region in regions:
             print(region, em, stat)
             #Read in data        
             stats_data = pd.read_csv("Outputs/HiClimR_inputdata/NorthernSquareRegion/{}/em_{}.csv".format(stat, em))
-            mask = pd.read_csv("Outputs/RegionalMasks/{}_mask.csv")
+            mask = pd.read_csv("Outputs/RegionalMasks/{}_mask.csv".format(region))
         
             # Join the mask with the stats 
-            joined = mask.merge(stats_data,  on=['lat', 'lon'], how="left")
+            joined = pd.concat([mask, stats_data], axis=1)
+            #joined = mask.merge(stats_data,  on=['lat', 'lon'], how="left")
             
             # Remove NAs - outside mask
             joined = joined.dropna()
