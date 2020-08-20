@@ -132,6 +132,7 @@ def GridCells_within_geometry(lats, lons, geometry_gdf, data):
     within_geometry = []
     for lon, lat in zip(lons, lats):
         this_point = Point(lon, lat)
+        print(this_point)
         res = this_point.within(geometry_poly)
         #res = leeds_poly.contains(this_point)
         within_geometry.append(res)
@@ -212,7 +213,6 @@ def mask_by_region (cube, gdf):
     lons = cube.coord('longitude').points.reshape(-1)
     lats = cube.coord('latitude').points.reshape(-1)
     lons,lats= transform(Proj(init='epsg:4326'),Proj(init='epsg:3785'),lons,lats)
-
 
     if cube.ndim == 3:
         # Get one timeslice of data
@@ -580,7 +580,7 @@ def n_largest_yearly_values (seasonal_cube,  mask, number_of_annual_values = 10)
                     one_cell_one_year = one_cell.extract(iris.Constraint(season_year = year))
                     #print("Extracted one year-s data")
                     
-                    # ##############Wrong
+                    # ############## Wrong
                     # seconds = time.time()
                     # # Find indices of top 10 precipitation values
                     # ind = np.argpartition(one_cell_one_year.data, number_of_annual_values)[-number_of_annual_values:]
