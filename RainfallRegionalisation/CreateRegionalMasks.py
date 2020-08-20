@@ -86,6 +86,6 @@ leeds_at_centre_mask_df['mask'].value_counts()
 northern_mask_df['mask'].value_counts()
 
 # Save to file
-wys_mask_df.to_csv("Outputs/RegionalMasks/wy_mask.csv" , index = False, float_format='%.20f')
-northern_mask_df.to_csv("Outputs/RegionalMasks/northern_mask.csv" , index = False, float_format='%.20f')
-leeds_at_centre_mask_df.to_csv("Outputs/RegionalMasks/leeds_at_centre_mask.csv" , index = False, float_format='%.20f')
+wys_mask_df.to_csv("Outputs/RegionalMasks/WY_mask.csv" , index = False, float_format='%.20f')
+northern_mask_df.to_csv("Outputs/RegionalMasks/Northern_mask.csv" , index = False, float_format='%.20f')
+leeds_at_centre_mask_df.to_csv("Outputs/RegionalMasks/leeds-at-centre_mask.csv" , index = False, float_format='%.20f')
