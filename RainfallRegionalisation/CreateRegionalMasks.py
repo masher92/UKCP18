@@ -35,7 +35,10 @@ from Spatial_plotting_functions import *
 wys_gdf = gpd.read_file("datadir/SpatialData/combined-authorities-april-2015-super-generalised-clipped-boundaries-in-england.shp") 
 wys_gdf = wys_gdf[wys_gdf['cauth15cd'] == 'E47000003']
 wys_gdf = wys_gdf.to_crs({'init' :'epsg:3785'}) 
-    
+# Create the square around it
+bounding_box = wys_gdf.envelope
+wys_gdf = gpd.GeoDataFrame(gpd.GeoSeries(bounding_box), columns=['geometry'])
+
 # Create geodataframe of West Yorks
 uk_gdf = gpd.read_file("datadir/SpatialData/Region__December_2015__Boundaries-shp/Region__December_2015__Boundaries.shp") 
 northern_gdf = uk_gdf.loc[uk_gdf['rgn15nm'].isin(['North West', 'North East', 'Yorkshire and The Humber'])]
@@ -69,6 +72,7 @@ regional_cube = trim_to_bbox_of_region(cube, northern_gdf)
 #############################################
 def create_mask_df (regional_gdf, regional_cube):
     masked_cube = mask_by_region(regional_cube, regional_gdf)
+    #masked_cube.shape
     cube_mask_df = pd.DataFrame({'mask': masked_cube.reshape(-1), 
                                        'lat': regional_cube.coord('latitude').points.reshape(-1),
                                        'lon': regional_cube.coord('longitude').points.reshape(-1)})
@@ -77,8 +81,8 @@ def create_mask_df (regional_gdf, regional_cube):
 
 # Create
 northern_mask_df = create_mask_df(northern_gdf, regional_cube)
-wys_mask_df = create_mask_df(wys_gdf, regional_cube)
 leeds_at_centre_mask_df = create_mask_df(leeds_at_centre_gdf, regional_cube)
+wys_mask_df = create_mask_df(wys_gdf, regional_cube)
 
 # Check number of values
 wys_mask_df['mask'].value_counts()
