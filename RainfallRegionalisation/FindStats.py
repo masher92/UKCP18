@@ -194,7 +194,7 @@ for em in ems:
     percentile4_df['lat'], percentile4_df['lon'] = lats, lons
     
     # Save to file
-    top_ten_df.to_csv("Outputs/HiClimR_inputdata/NorthernSquareRegion/Greatest_ten/em_{}.csv".format(em), index = False, float_format = '%.20f')
+    top_ten_df.to_csv("Outputs/HiClimR_inputdata/NorthernSquareRegion/Greatest_twenty/em_{}.csv".format(em), index = False, float_format = '%.20f')
     max_df.to_csv("Outputs/HiClimR_inputdata/NorthernSquareRegion/Max/em_{}.csv".format(em), index = False, float_format = '%.20f')
     mean_df.to_csv("Outputs/HiClimR_inputdata/NorthernSquareRegion/Mean/em_{}.csv".format(em), index = False, float_format = '%.20f')
     percentile1_df.to_csv("Outputs/HiClimR_inputdata/NorthernSquareRegion/95th Percentile/em_{}.csv".format(em), index = False, float_format = '%.20f')
