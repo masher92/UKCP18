@@ -20,12 +20,12 @@ import time
 warnings.filterwarnings("ignore")
 
 # Set working directory - 2 options for remote server and desktop
-root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
-#root_fp = "/nfs/a319/gy17m2a/"
+#root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
+root_fp = "/nfs/a319/gy17m2a/"
 os.chdir(root_fp)
 
 stats= ['Greatest_ten', 'Max','Mean', '95th Percentile', '97th Percentile', '99th Percentile', '99.5th Percentile']
-regions = ['Northern', 'leeds-at-centre', 'WY']
+regions = ['WY_square']
 ems = ['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
 
 ########    
@@ -44,9 +44,9 @@ for region in regions:
             # Remove NAs - outside mask
             joined = joined.dropna()
            
-            ddir = "Outputs/HiClimR_inputdata/{}/Greatest_ten/".format(region)
+            ddir = "Outputs/HiClimR_inputdata/{}/{}/".format(region, stat)
             if not os.path.isdir(ddir):
                 os.makedirs(ddir)
-                print("Greatest ten doesn't already exist, creating...")
-        
-
+            print(ddir + "em_{}.csv".format(em))
+            # Save to file
+            joined.to_csv(ddir + "em_{}.csv".format(em), index = False, float_format = '%.20f')

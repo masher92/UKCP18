@@ -20,8 +20,8 @@ import time
 warnings.filterwarnings("ignore")
 
 # Set working directory - 2 options for remote server and desktop
-root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
-#root_fp = "/nfs/a319/gy17m2a/"
+#root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
+root_fp = "/nfs/a319/gy17m2a/"
 
 os.chdir(root_fp)
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/')
@@ -56,8 +56,9 @@ leeds_at_centre_gdf = leeds_at_centre_gdf.to_crs({'init' :'epsg:3785'})
 
 ############################################
 # Read in one cube
-#############################################    
-filename = root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19801201-19801230.nc'
+#############################################   
+filename = 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19801201-19801230.nc' 
+#filename = root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19801201-19801230.nc'
 cube = iris.load(filename,'lwe_precipitation_rate')[0]
 cube = cube[0,:,:,:]
 print(cube)
@@ -85,11 +86,11 @@ leeds_at_centre_mask_df = create_mask_df(leeds_at_centre_gdf, regional_cube)
 wys_mask_df = create_mask_df(wys_gdf, regional_cube)
 
 # Check number of values
-wys_mask_df['mask'].value_counts()
 leeds_at_centre_mask_df['mask'].value_counts()
 northern_mask_df['mask'].value_counts()
+wys_mask_df['mask'].value_counts()
 
 # Save to file
-wys_mask_df.to_csv("Outputs/RegionalMasks/WY_mask.csv" , index = False, float_format='%.20f')
 northern_mask_df.to_csv("Outputs/RegionalMasks/Northern_mask.csv" , index = False, float_format='%.20f')
 leeds_at_centre_mask_df.to_csv("Outputs/RegionalMasks/leeds-at-centre_mask.csv" , index = False, float_format='%.20f')
+wys_mask_df.to_csv("Outputs/RegionalMasks/WY_square_mask.csv" , index = False, float_format='%.20f')
