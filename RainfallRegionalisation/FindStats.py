@@ -8,7 +8,7 @@ import iris
 import glob
 import numpy as np
 from numba import jit
-#import xarray as xr
+import xarray as xr
 import os
 import geopandas as gpd
 import time 
@@ -28,27 +28,10 @@ def values_above_percentile(rain_data,percentile_data,n_highest):
         exception=1
     # first dimension is for time
     n_highest_array=np.zeros((1,n_highest,imax,jmax))
-    # Dict to store non-stationary timeseries
-    stationary_ts =0   
     for i in range(imax):
         for j in range(jmax):
             # Get data at one cell
             local_raindata=rain_data[:,i,j]
-            
-            ####################### Check stationarity
-            df = pd.DataFrame(local_raindata)
-            adfTest = adfuller(df[0], autolag='AIC')
-            pvalue=adfTest[1]
-            # dfResults = pd.Series(adfTest[0:4], index=['ADF Test Statistic','P-Value','# Lags Used','# Observations Used'])
-            # for key,value in adfTest[4].items():
-            #     dfResults['Critical Value (%s)'%key] = value
-            # Our p-value is definitely less than 0.5 and is even less than 0.01 
-            # so we can say with pretty good confidence that we can reject the null 
-            # unit root, non-stationary data) and can assume our data is stationary. 
-            if pvalue > .05 and adfTest[0] > list(adfTest[4].items())[0][1]:
-                stationary_ts = stationary_ts +1
-                print ("Time series not stationary")
-            
             # Find the percentile cutoff value for that cell
             local_percentile=percentile_data[0,i,j]
             # extract values above cutoff percentile, sort these data over percentile in descending order
@@ -77,7 +60,7 @@ from Pr_functions import *
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/SpatialAnalyses')
 from Spatial_plotting_functions import *
 
-ems = ['01']
+ems = ['01','04', '05', '06', '07', '08', '09','10','11','12', '13','15']
 years = range(1981,2000)  
 n_highest=20
 #temp_perc_file='/nfs/a319/gy17m2a/Outputs/temp_stats_percentile.nc'
@@ -113,15 +96,7 @@ for em in ems:
         #############################################
         ## Load in the data
         #############################################
-        #filenames=glob.glob('datadir/UKCP18/2.2km/'+em+'/1980_2001/pr_rcp85_land-cpm_uk_2.2km_' +em+'_1hr_'+year+'*.nc')
-        
-        filenames =[]
-        filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19801201-19801230.nc')  
-        filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19810101-19810130.nc') 
-        filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19820601-19820630.nc') 
-        filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19830601-19830630.nc') 
-        
-        
+        filenames=glob.glob('datadir/UKCP18/2.2km/'+em+'/1980_2001/pr_rcp85_land-cpm_uk_2.2km_' +em+'_1hr_'+year+'*.nc')
         monthly_cubes_list = iris.load(filenames,'lwe_precipitation_rate')
         for cube in monthly_cubes_list:
              for attr in ['creation_date', 'tracking_id', 'history']:
