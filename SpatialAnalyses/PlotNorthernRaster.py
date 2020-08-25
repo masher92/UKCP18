@@ -83,6 +83,49 @@ DSM = rasterio.open(out_fp)
 #show(DSM.read(), transform=DSM.transform)
 
 # Plot with the GDF
+fig, ax = plt.subplots(figsize=(13, 14))
+show(DSM,  ax=ax)
+regional_gdf.plot(ax=ax, color='white', alpha=.75) ## alpha is the transparency setting
+plt.show()
+
+## Function to extract features in correct formt
+def getFeatures(gdf):
+    """Function to parse features from GeoDataFrame in such a manner that rasterio wants them"""
+    import json
+    return [json.loads(gdf.to_json())['features'][0]['geometry']]
+coords = getFeatures(regional_gdf)
+
+# Mask the raster
+masked, mask_transform = mask(dataset=DSM,shapes=coords,crop=True, all_touched = True, filled = False)
+show(masked, transform=mask_transform)
+
+### Plot
+fig, ax = plt.subplots(figsize=(13, 14))
+plot = show(masked, transform=mask_transform, ax=ax,cmap='terrain')
+regional_gdf.plot(ax=ax, facecolor='none', linewidth = 4) ## alpha is the transparency setting
+leeds_gdf.plot(ax=ax, facecolor='none', edgecolor='black', linewidth = 4) ## alpha is the transparency setting
+plt.axis('off')
+
+filename =  "Outputs/Topography/leeds-at-centre.png"
+fig.savefig(filename,bbox_inches='tight')
+
+# import rasterio as rio
+# fig, ax = plt.subplots(figsize=(15, 15))
+# plot = rio.plot.show(masked,  transform=mask_transform, ax=ax, cmap='terrain')
+# plot = regional_gdf.plot(ax=ax, facecolor='none', edgecolor='black', linewidth = 4);
+# plot = leeds_gdf.plot(ax=ax, facecolor='none', edgecolor='red', linewidth = 4);    
+# cbar = plt.colorbar(plot,fraction=0.036, pad=0.02)
+# cbar.ax.tick_params(labelsize='xx-large', size = 10, pad=0.04) 
+
+    
+###################################################
+# Clip to boundary of Leeds at centre
+###################################################
+# Reimport
+DSM = rasterio.open(out_fp)
+#show(DSM.read(), transform=DSM.transform)
+
+# Plot with the GDF
 fig, ax = plt.subplots(figsize=(12, 10))
 show(DSM,  ax=ax)
 regional_gdf.plot(ax=ax, color='white', alpha=.75) ## alpha is the transparency setting
@@ -103,14 +146,15 @@ show(masked, transform=mask_transform)
 fig, ax = plt.subplots(figsize=(12, 10))
 plot = show(masked, transform=mask_transform, ax=ax,cmap='terrain')
 regional_gdf.plot(ax=ax, facecolor='none', edgecolor='black', linewidth = 4) ## alpha is the transparency setting
-leeds.plot(ax=ax, facecolor='none', edgecolor='black', linewidth = 4) ## alpha is the transparency setting
+leeds_gdf.plot(ax=ax, facecolor='none', edgecolor='black', linewidth = 4) ## alpha is the transparency setting
 
 
 # import rasterio as rio
-# fig, ax = plt.subplots(figsize=(15, 15))
-# plot = rio.plot.show(masked,  transform=mask_transform, ax=ax, cmap='terrain')
-# plot = regional_gdf.plot(ax=ax, facecolor='none', edgecolor='black', linewidth = 4);
-# plot = leeds_gdf.plot(ax=ax, facecolor='none', edgecolor='red', linewidth = 4);    
-# cbar = plt.colorbar(plot,fraction=0.036, pad=0.02)
-# cbar.ax.tick_params(labelsize='xx-large', size = 10, pad=0.04) 
+fig, ax = plt.subplots(figsize=(15, 15))
+plot = show(masked,  transform=mask_transform, ax=ax, cmap='terrain')
+plot = regional_gdf.plot(ax=ax, facecolor='none', edgecolor='black', linewidth = 4);
+plot = leeds_gdf.plot(ax=ax, facecolor='none', edgecolor='red', linewidth = 4);    
+cbar = plt.colorbar(plot,fraction=0.036, pad=0.02)
+cbar.ax.tick_params(labelsize='xx-large', size = 10, pad=0.04) 
+
 

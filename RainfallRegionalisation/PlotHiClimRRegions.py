@@ -24,7 +24,7 @@ def find_biggest_percentage_share (dictionary):
     codes_df = codes_df[codes_df.columns[-3:]]
     
     # Read in the mask
-    mask = pd.read_csv("Outputs/HiClimR_inputdata/{}/mask.csv".format(region))
+    mask = pd.read_csv("Outputs/RegionalMasks/{}_mask.csv".format(region))
      # Make the lat, lons from the mask the same length
     codes_df = codes_df.round({'lat': 8, 'lon': 8})
     mask = mask.round({'lat': 8, 'lon': 8})
@@ -35,6 +35,20 @@ def find_biggest_percentage_share (dictionary):
     lats_2d = codes_df['lat'].to_numpy().reshape(lat_length, lon_length)
     lons_2d = codes_df['lon'].to_numpy().reshape(lat_length, lon_length)
     percent_2d = codes_df['Percent'].to_numpy().reshape(lat_length, lon_length)
+    
+    ##### TRIM
+    percent_2d[percent_2d == 0] = 'nan' 
+    mx = np.ma.masked_invalid(percent_2d)
+    
+    mask_cols = ~np.all(mx.mask, axis=0)
+    percent_2d = percent_2d[:, mask_cols]
+    lats_2d = lats_2d[:, mask_cols]
+    lons_2d = lons_2d[:, mask_cols]
+    
+    mask_rows = np.all(np.isnan(percent_2d) | np.equal(percent_2d, 0), axis=1)
+    percent_2d = percent_2d[~mask_rows]
+    lats_2d = lats_2d[~mask_rows]
+    lons_2d = lons_2d[~mask_rows]
     
     # Convert the projections
     inProj = Proj(init='epsg:4326')
@@ -57,6 +71,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import os
 import sys
+import numpy.ma as ma
 
 root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
 os.chdir(root_fp)
@@ -64,36 +79,17 @@ os.chdir(root_fp)
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/SpatialAnalyses')
 from Spatial_plotting_functions import *
 
-region = 'Leeds-at-centre' #['WY', 'Leeds-at-centre' 'Northern']
-#stats = ['95th Percentile', '99th Percentile', '99.5th Percentile', '99.9th Percentile', '99.99th Percentile'] #'Greatest_ten', '99.5th Percentile'
-stats = [ 'Greatest_ten']
+region = 'Northern' #['WY', 'Leeds-at-centre' 'Northern']
+#stats = [ 'Mean']
 #['97th Percentile','Max', 'Mean', 'Greatest_ten','95th Percentile', '99th Percentile', '99.5th Percentile', '99.9th Percentile', '99.99th Percentile']
-# ['95th Percentile', '99th Percentile', '99.5th Percentile', '99.9th Percentile', '99.99th Percentile']
+stats = ['Mean']
 ems =['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
-num_clusters_ls = [2]
+num_clusters_ls = [2,3,4,5,10]
 
-if region == 'WY':
-    lat_length = 22
-    lon_length = 29
-    masked_data = True
-elif region == 'Northern'  :
-    lat_length = 144
-    lon_length = 114
-    masked_data = True
-elif region =='NorthernSquareRegion' :
-    lat_length = 144
-    lon_length = 114
-    masked_data = False
-elif region == 'WY_square':
-    lat_length = 22
-    lon_length = 29 
-    masked_data = False
-elif region == 'Leeds-at-centre':
-    lat_length = 33
-    lon_length = 37  
-    masked_data = False
-    
-    
+### 
+lat_length = 144
+lon_length = 114
+
 ##############################################################################
 leeds_gdf = create_leeds_outline({'init' :'epsg:27700'})
 #leeds_gdf = create_leeds_outline({'init' :'epsg:4326'})
@@ -122,20 +118,19 @@ for stat in stats:
                 print(em)
                 
                 # Load in its region codes
-                general_filename = 'C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/Outputs/HiClimR_outputdata/{}/{}/{} clusters/em{}.csv'.format(region, stat, num_clusters,em)
+                general_filename = 'C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/Outputs/HiClimR_outputdata/{}/{}/{} clusters/em{}_nodetrend.csv'.format(region, stat, num_clusters,em)
                 region_codes = pd.read_csv(general_filename)
                 region_codes = region_codes.rename(columns={'lats': 'lat', 'lons': 'lon'})
                                 
                 # Make the lat, lons from the mask the same length
                 region_codes = region_codes.round({'lat': 8, 'lon': 8})
-                
-                if masked_data == True:
-                    # WHY DO WE USE THE MASK? FOR WHEN WER'RE USING DIFFERENT REGIONS PRESUMABLE
-                    mask = pd.read_csv("Outputs/HiClimR_inputdata/{}/mask.csv".format(region))
-                    mask = mask.round({'lat': 8, 'lon': 8})
-                
-                    # Join the mask with the region codes
-                    region_codes = mask.merge(region_codes,  on=['lat', 'lon'], how="left")
+                    
+                # WHY DO WE USE THE MASK? FOR WHEN WER'RE USING DIFFERENT REGIONS PRESUMABLE
+                mask = pd.read_csv("Outputs/RegionalMasks/{}_mask.csv".format(region))
+                mask = mask.round({'lat': 8, 'lon': 8})
+            
+                # Join the mask with the region codes
+                region_codes = mask.merge(region_codes,  on=['lat', 'lon'], how="left")
             
                 # Add region codes to dictionary
                 codes_dict_xclusters[em] = region_codes['regions_values'] 
@@ -144,7 +139,20 @@ for stat in stats:
                 lats_2d = region_codes['lat'].to_numpy().reshape(lat_length, lon_length)
                 lons_2d = region_codes['lon'].to_numpy().reshape(lat_length, lon_length)
                 region_codes_2d = region_codes['regions_values'].to_numpy().reshape(lat_length, lon_length)
+    
+                ##### TRIM
+                mx = np.ma.masked_invalid(region_codes_2d)
                 
+                mask_cols = ~np.all(mx.mask, axis=0)
+                region_codes_2d = region_codes_2d[:, mask_cols]
+                lats_2d = lats_2d[:, mask_cols]
+                lons_2d = lons_2d[:, mask_cols]
+                
+                mask_rows = np.all(np.isnan(region_codes_2d) | np.equal(region_codes_2d, 0), axis=1)
+                region_codes_2d = region_codes_2d[~mask_rows]
+                lats_2d = lats_2d[~mask_rows]
+                lons_2d = lons_2d[~mask_rows]
+
                 # Convert the projections
                 inProj = Proj(init='epsg:4326')
                 outProj = Proj(init='epsg:27700')
@@ -170,16 +178,15 @@ for stat in stats:
         ddir = 'C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/Outputs/HiClimR_plots/{}/{}'.format(region, stat) 
         if not os.path.isdir(ddir):
             os.makedirs(ddir)
-        filename =  ddir + '/{}_clusters.jpg'.format(num_clusters)    
+        filename =  ddir + '/{}_clusters_nodetrend.jpg'.format(num_clusters)    
         # Delte figure if it already exists, to avoid overwriting error
         if os.path.isfile(filename):
            os.remove(filename) 
         print("Figure Saved")
         fig.savefig(filename)
      
-
     i=0
-    fig=plt.figure(figsize=(40,14))
+    fig=plt.figure(figsize=(20,16))
     columns = 5
     rows = 1
     for new_i in range(1, 6):
@@ -191,7 +198,7 @@ for stat in stats:
         
         #ax.set_title("Num clusters: "+ str(num_clusters_ls[0]), fontsize = 10)
         leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=1)
-        fig.colorbar(my_plot, ax=ax, fraction=0.036, pad=0.02)
+        #fig.colorbar(my_plot, ax=ax, fraction=0.036, pad=0.02)
         
         plt.axis('off')
         #plt.title(str(num_clusters_ls[i]) + " Clusters", fontsize=10)
@@ -199,18 +206,32 @@ for stat in stats:
         
     #fig.suptitle(stat, fontsize=20)
    # fig.subplots_adjust(top=1.5, bottom = 0.4)
-    fig.tight_layout()  
+    fig.tight_layout()
+    cbar_ax = fig.add_axes([1.02, 0.37, 0.02, 0.25])
+    cb1 = fig.colorbar(my_plot, cax=cbar_ax, fraction=0.036, pad=0.0)
+    cb1.ax.tick_params(labelsize=25)
     
-    ## Save figure
+    
+        ## Save figure
     ddir = 'C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/Outputs/HiClimR_plots/{}/{}'.format(region, stat) 
     if not os.path.isdir(ddir):
         os.makedirs(ddir)
-    filename =  ddir + '/EnsembleSimilarity.jpg'
+    filename =  ddir + '/EnsembleSimilarity_nodetrend.jpg'
     # Delte figure if it already exists, to avoid overwriting error
     if os.path.isfile(filename):
        os.remove(filename) 
     print("Figure Saved")
-    fig.savefig(filename)
+    fig.savefig(filename,bbox_inches='tight')
+
+
+# # Plot
+# plt.pcolormesh(lons_2d, lats_2d, region_codes_2d,
+#                   linewidths=3, alpha = 1, cmap = 'tab20')
+# leeds_gdf.plot(ax=ax[row, col], edgecolor='black', color='none', linewidth=2)
+# ax[row, col].tick_params(axis='x', labelsize= 25)
+# ax[row, col].tick_params(axis='y', labelsize= 25)
+# #ax[row, col].set_title('The function g', fontsize=5)
+# em_i = em_i +1
 
 
 # i=0
@@ -220,9 +241,9 @@ for stat in stats:
 
 
 # fig, ax = plt.subplots(figsize=(20,20))
-# extent = tilemapbase.extent_from_frame(regional_gdf)
+# extent = tilemapbase.extent_from_frame(leeds_gdf)
 # plot = plotter = tilemapbase.Plotter(extent, tilemapbase.tiles.build_OSM(), width=600)
-# plot =plotter.plot(ax)
+# # plot =plotter.plot(ax)
 # #ax.plot(lcc_lon, lcc_lat, "bo", markersize =10)
 # plot =ax.pcolormesh(lons_2d, lats_2d, percent_2d,
 #               linewidths=3, alpha = 0.7, cmap = 'GnBu')
