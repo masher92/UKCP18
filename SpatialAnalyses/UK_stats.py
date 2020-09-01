@@ -7,12 +7,16 @@ import os
 import geopandas as gpd
 import time 
 import sys
+import iris.quickplot as qplt
+import cartopy.crs as ccrs
+import matplotlib 
+import iris.plot as iplt
 
 ############################################
 # Define variables and set up environment
 #############################################
-root_fp = "/nfs/a319/gy17m2a/"
-#root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
+#root_fp = "/nfs/a319/gy17m2a/"
+root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
 os.chdir(root_fp)
 
 # Create path to files containing functions
@@ -25,6 +29,10 @@ ems = ['01','04', '05', '06', '07', '08', '09','10','11','12', '13','15']
 start_year = 1980
 end_year = 2000 
 yrs_range = "1980_2001" 
+
+min_values= []
+max_values = []
+cubes = {}
 
 for em in ems:
     print(em)
@@ -40,6 +48,12 @@ for em in ems:
         #print(filename)
         filenames.append(filename)
     print(len(filenames))
+    
+    # filenames =[]
+    # filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19801201-19801230.nc')  
+    # filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19810101-19810130.nc') 
+    # filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19820601-19820630.nc') 
+    # filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19830601-19830630.nc') 
     
     monthly_cubes_list = iris.load(filenames,'lwe_precipitation_rate')
     for cube in monthly_cubes_list:
@@ -107,31 +121,46 @@ for em in ems:
     #percentile_4 = jja_percentiles[3,:,:,:]
     #print("Completed in: ", time.time() - seconds)
     
-    #############################################
-    # Plotting
-    #############################################
-    import iris.quickplot as qplt
-    import cartopy.crs as ccrs
-    import matplotlib 
-    import iris.plot as iplt
-    
+    # Define the cube being used
     cube = jja_max
     
-    frames = cube.shape[0]   # Number of frames
-    min_value = cube.data.min()  # Lowest value
-    max_value = cube.data.max()  # Highest value
+    # Find max and min values
+    min_value = cube.data.min()  
+    max_value = cube.data.max() 
     
-    # Create a colourmap                                   
-    tol_precip_colors = ["#90C987", "#4EB256","#7BAFDE", "#6195CF", "#F7CB45", "#EE8026", "#DC050C", "#A5170E",
-    "#72190E","#882E72","#000000"]                                      
+    # Add to list
+    min_values.append(min_value)
+    max_values.append(max_value)
+    cubes[em] = cube
     
-    precip_colormap = matplotlib.colors.ListedColormap(tol_precip_colors)
-    # Set the colour for any values which are outside the range designated in lvels
-    precip_colormap.set_under(color="white")
-    precip_colormap.set_over(color="pink")
     
+    
+    
+    
+#############################################
+# Plotting
+#############################################
+# Create a colourmap                                   
+tol_precip_colors = ["#90C987", "#4EB256","#7BAFDE", "#6195CF", "#F7CB45", "#EE8026", "#DC050C", "#A5170E",
+"#72190E","#882E72","#000000"]                                      
+
+precip_colormap = matplotlib.colors.ListedColormap(tol_precip_colors)
+# Set the colour for any values which are outside the range designated in lvels
+precip_colormap.set_under(color="white")
+precip_colormap.set_over(color="pink")
+
+# Find global values across ensemble members
+max_value = np.max(max_values)
+min_value = np.max(min_values)
+
+# Loop through each ensemble member's cube
+for em in ems:    
+    # Extract ensemble member's cube from cube list
+    cube =cubes[em]
+    # Create a 2D grid
     grid = cube[0]
-    
+
+    # Plot
     fig=plt.figure(figsize=(20,16))
     levels = np.round(np.linspace(0, max_value, 15),2)
     contour = iplt.contourf(grid,cmap=precip_colormap, levels = levels, extend="both")
