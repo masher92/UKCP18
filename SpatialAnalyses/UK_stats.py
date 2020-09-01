@@ -11,8 +11,8 @@ import sys
 ############################################
 # Define variables and set up environment
 #############################################
-#root_fp = "/nfs/a319/gy17m2a/"
-root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
+root_fp = "/nfs/a319/gy17m2a/"
+#root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
 os.chdir(root_fp)
 
 # Create path to files containing functions
@@ -21,25 +21,26 @@ from Pr_functions import *
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/SpatialAnalyses')
 from Spatial_plotting_functions import *
 
-
 ems = ['01','04', '05', '06', '07', '08', '09','10','11','12', '13','15']
 start_year = 1980
 end_year = 2000 
 yrs_range = "1980_2001" 
 
 for em in ems:
+    print(em)
     #############################################
     ## Load in the data
     #############################################
+    filenames =[]
     # Create filepath to correct folder using ensemble member and year
-    general_filename = 'datadir/UKCP18/2.2km/{}/{}/pr_rcp85_land-cpm_uk_2.2km_{}_1hr_{}*'.format(em, yrs_range, em, year)
+    general_filename = 'datadir/UKCP18/2.2km/{}/{}/pr_rcp85_land-cpm_uk_2.2km_{}_1hr_*'.format(em, yrs_range, em)
     #print(general_filename)
     # Find all files in directory which start with this string
     for filename in glob.glob(general_filename):
         #print(filename)
         filenames.append(filename)
+    print(len(filenames))
     
-    filenames=glob.glob('datadir/UKCP18/2.2km/'+em+'/1980_2001/pr_rcp85_land-cpm_uk_2.2km_' +em+'_1hr_'+year+'*.nc')
     monthly_cubes_list = iris.load(filenames,'lwe_precipitation_rate')
     for cube in monthly_cubes_list:
          for attr in ['creation_date', 'tracking_id', 'history']:
@@ -55,6 +56,7 @@ for em in ems:
     #############################################
     ## Trim to outline of UK
     #############################################
+    minmax = lambda x: (np.min(x), np.max(x))
     #bbox = np.array([-8.6500072, 49.863187 ,  1.7632199, 60.8458677])
     bbox = np.array([-10.1500, 49.8963187 ,  1.7632199, 58.8458677])
     # Find the lats and lons of the cube in WGS84
@@ -96,8 +98,8 @@ for em in ems:
     # Find Max, mean, percentiles
     #############################################
     #seconds = time.time()
-    jja_mean = jja.aggregated_by(['clim_season'], iris.analysis.MEAN)
-    #jja_max = jja.aggregated_by(['clim_season'], iris.analysis.MAX)
+    #jja_mean = jja.aggregated_by(['clim_season'], iris.analysis.MEAN)
+    jja_max = jja.aggregated_by(['clim_season'], iris.analysis.MAX)
     #jja_percentiles = jja.aggregated_by(['clim_season'], iris.analysis.PERCENTILE, percent=[95,97,99,99.5])
     #percentile_1 = jja_percentiles[0,:,:,:]
     #percentile_2 = jja_percentiles[1,:,:,:]
@@ -113,7 +115,7 @@ for em in ems:
     import matplotlib 
     import iris.plot as iplt
     
-    cube = jja_mean
+    cube = jja_max
     
     frames = cube.shape[0]   # Number of frames
     min_value = cube.data.min()  # Lowest value
@@ -141,13 +143,13 @@ for em in ems:
     cb.ax.tick_params(labelsize=25)
     
     # Save Figure
-    ddir = 'C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/Outputs/UK_plots/{}'.format(em) 
+    ddir = 'Outputs/UK_plots/JJA_max/'
     if not os.path.isdir(ddir):
         os.makedirs(ddir)
-    filename =  ddir + '/jja_mean.jpg'
+    filename =  (ddir + '/{}.jpg').format(em)
     
     fig.savefig(filename,bbox_inches='tight')
-
+    print("PLot saved")
 
 
 
