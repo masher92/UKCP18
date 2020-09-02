@@ -1,3 +1,9 @@
+'''
+This file calculates statistics (mean, max, various percentiles) for each grid 
+cell across the whole of the UK.
+It plots these and saves the results to file.
+'''
+
 import iris.coord_categorisation
 import iris
 import glob
@@ -12,6 +18,7 @@ import cartopy.crs as ccrs
 import matplotlib 
 import iris.plot as iplt
 
+# For extracting the variable name from a variable
 def namestr(obj, namespace):
     return [name for name in namespace if namespace[name] is obj]
 
@@ -33,9 +40,17 @@ start_year = 1980
 end_year = 2000 
 yrs_range = "1980_2001" 
 
-# Create
+# Create a dictionary within which the stats cubes for each ensemble member will
+# be stored
 ems_dict = {}
 
+# Cycle through ensemble members
+# For each ensemble member: 
+#       Read in all files and join into one cube
+#       Trim to the outline of the UK
+#       Cut so only hours in JJA remain
+#       Find the max, mean and percentile values for each grid square
+#       
 for em in ems:
     print(em)
     #############################################
@@ -107,15 +122,25 @@ for em in ems:
     jja_max = jja.aggregated_by(['clim_season'], iris.analysis.MAX)
     jja_percentiles = jja.aggregated_by(['clim_season'], iris.analysis.PERCENTILE, percent=[95,97,99,99.5, 99.9, 99.99])
     
-    ##########################################
+    ############################################# 
+    # Store each stats cube in a dictionary (with name of stat as key and the
+    # cube as the item)
+    # Keep a running log of the max and min value for each statistic across all
+    # ensemble members
     #############################################
+    # Create dictionary to store this ensemble members results
     em_dict = {}
+    
+    # Create a list of the stats
     stats = [jja_mean, jja_max, jja_percentiles]
+    
+    # If the first ensemble member then initialise dictionaries to store the max
+    # and min values and set them to unfeasible values
     if em == '01':
-        # Create dictionarities to store max/min values and set them to unfeasible values
         max_vals_dict = {}
         min_vals_dict = {}
         for stat in stats:
+            # Extract various percentiles
             if stat == jja_percentiles:
                 for i in range(jja_percentiles.shape[0]):
                     stat = jja_percentiles[i]
@@ -143,7 +168,9 @@ for em in ems:
             em_dict[name] = stat
             max_vals_dict[name] = stat.data.max() if stat.data.max() > max_vals_dict[name] else max_vals_dict[name]
             min_vals_dict[name] = stat.data.min() if stat.data.min() < min_vals_dict[name] else min_vals_dict[name]      
-        
+    
+    # Add the dictionary of stat names and cubes to the dictionary of ensemble
+    # member dictionaries
     ems_dict[em] = em_dict       
 
 #############################################
@@ -158,7 +185,7 @@ precip_colormap = matplotlib.colors.ListedColormap(tol_precip_colors)
 precip_colormap.set_under(color="white")
 precip_colormap.set_over(color="white")
 
-# Loop through each ensemble member's cube
+# Loop through each ensemble member's dictionary from the dictionary
 for em in ems:  
     print(em)
     em_dict = ems_dict[em]
