@@ -28,40 +28,13 @@ from Pr_functions import *
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/SpatialAnalyses')
 from Spatial_plotting_functions import *
 
-ems = ['01','04', '05', '06', '07', '08', '09','10','11','12', '13','15']
+ems = ['01', '04', '05', '06', '07', '08', '09','10','11','12', '13','15']
 start_year = 1980
 end_year = 2000 
 yrs_range = "1980_2001" 
 
-min_values= []
-max_values = []
-mean_cubes = {}
-max_cubes ={}
-P95_cubes = {}
-P97_cubes = {}
-P99_cubes = {}
-P99_5_cubes = {}
-P99_95_cubes = {}
-P99_99_cubes = {}
-
-# Create dictionarities to store max/min values and set them to unfeasible values
-max_vals_dict = {}
-min_vals_dict = {}
-test_dic = {}
-for stat in stats:
-    if stat == jja_percentiles:
-        for i in range(jja_percentiles.shape[0]):
-            stat = jja_percentiles[i]
-            name = 'P' + str(jja_percentiles[i].coord('percentile_over_clim_season').points[0])         
-            name = name.replace(".", "_")
-            max_vals_dict[name] = 0
-            min_vals_dict[name] = 10000
-    else:
-        name = namestr(stat, globals())[0]
-        max_vals_dict[name] = 0
-        min_vals_dict[name] = 10000
-
-ems_dict ={}
+# Create
+ems_dict = {}
 
 for em in ems:
     print(em)
@@ -116,17 +89,6 @@ for em in ems:
     
     concat_cube = concat_cube[..., imin:imax+1, jmin:jmax+1]
     
-    #qplt.contour(concat_cube[0])
-    #plt.gca().coastlines()
-    
-    ##########################################################################
-    # Create geodataframe of UK 
-    #uk_gdf = gpd.read_file("datadir/SpatialData/UK_shpfile/UnitedKingdom_Bound.shp") 
-    #uk_gdf = uk_gdf.to_crs({'init' :'epsg:3785'}) 
-    #uk_gdf.plot()
-    
-    #regional_cube = trim_to_bbox_of_region(concat_cube, uk_gdf)
-    
     ############################################
     # Cut to just June-July_August period
     #############################################
@@ -145,10 +107,28 @@ for em in ems:
     jja_max = jja.aggregated_by(['clim_season'], iris.analysis.MAX)
     jja_percentiles = jja.aggregated_by(['clim_season'], iris.analysis.PERCENTILE, percent=[95,97,99,99.5, 99.9, 99.99])
     
+    ##########################################
+    #############################################
     em_dict = {}
-    
-    # Store all stats values in dictionary
     stats = [jja_mean, jja_max, jja_percentiles]
+    if em == '01':
+        # Create dictionarities to store max/min values and set them to unfeasible values
+        max_vals_dict = {}
+        min_vals_dict = {}
+        for stat in stats:
+            if stat == jja_percentiles:
+                for i in range(jja_percentiles.shape[0]):
+                    stat = jja_percentiles[i]
+                    name = 'P' + str(jja_percentiles[i].coord('percentile_over_clim_season').points[0])         
+                    name = name.replace(".", "_")
+                    max_vals_dict[name] = 0
+                    min_vals_dict[name] = 10000
+            else:
+                name = namestr(stat, globals())[0]
+                max_vals_dict[name] = 0
+                min_vals_dict[name] = 10000
+        
+    # Store all stats values in dictionary
     for stat in stats:
         if stat == jja_percentiles:
             for i in range(jja_percentiles.shape[0]):
@@ -213,7 +193,7 @@ for em in ems:
         filename =  (ddir + '/{}.jpg').format(em)
         
         fig.savefig(filename,bbox_inches='tight')
-        print("PLot saved")
+        print("Plot saved")
 
 
 
