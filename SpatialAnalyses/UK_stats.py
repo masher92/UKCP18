@@ -12,6 +12,9 @@ import cartopy.crs as ccrs
 import matplotlib 
 import iris.plot as iplt
 
+def namestr(obj, namespace):
+    return [name for name in namespace if namespace[name] is obj]
+
 ############################################
 # Define variables and set up environment
 #############################################
@@ -40,6 +43,25 @@ P99_cubes = {}
 P99_5_cubes = {}
 P99_95_cubes = {}
 P99_99_cubes = {}
+
+# Create dictionarities to store max/min values and set them to unfeasible values
+max_vals_dict = {}
+min_vals_dict = {}
+test_dic = {}
+for stat in stats:
+    if stat == jja_percentiles:
+        for i in range(jja_percentiles.shape[0]):
+            stat = jja_percentiles[i]
+            name = 'P' + str(jja_percentiles[i].coord('percentile_over_clim_season').points[0])         
+            name = name.replace(".", "_")
+            max_vals_dict[name] = 0
+            min_vals_dict[name] = 10000
+    else:
+        name = namestr(stat, globals())[0]
+        max_vals_dict[name] = 0
+        min_vals_dict[name] = 10000
+
+ems_dict ={}
 
 for em in ems:
     print(em)
@@ -119,53 +141,30 @@ for em in ems:
     # Find Max, mean, percentiles
     #############################################
     #seconds = time.time()
-    #jja_mean = jja.aggregated_by(['clim_season'], iris.analysis.MEAN)
-    #jja_max = jja.aggregated_by(['clim_season'], iris.analysis.MAX)
+    jja_mean = jja.aggregated_by(['clim_season'], iris.analysis.MEAN)
+    jja_max = jja.aggregated_by(['clim_season'], iris.analysis.MAX)
     jja_percentiles = jja.aggregated_by(['clim_season'], iris.analysis.PERCENTILE, percent=[95,97,99,99.5, 99.9, 99.99])
-    percentile_1 = jja_percentiles[0,:,:,:]
-    percentile_2 = jja_percentiles[1,:,:,:]
-    percentile_3 = jja_percentiles[2,:,:,:]
-    percentile_4 = jja_percentiles[3,:,:,:]
-    percentile_5 = jja_percentiles[4,:,:,:]
-    percentile_6 = jja_percentiles[5,:,:,:]
-    #print("Completed in: ", time.time() - seconds)
     
-    percentile_1_max = 0
-    percentile_1_max = percentile_1.data.max() if percentile_1.data.max() > percentile_1_max else percentile_1_max
-    percentile_1_max = percentile_1.data.max() if percentile_1.data.max() > percentile_1_max else percentile_1_max
-    percentile_1_max = percentile_1.data.max() if percentile_1.data.max() > percentile_1_max else percentile_1_max
-    percentile_1_max = percentile_1.data.max() if percentile_1.data.max() > percentile_1_max else percentile_1_max
-    percentile_1_max = percentile_1.data.max() if percentile_1.data.max() > percentile_1_max else percentile_1_max
-    percentile_1_max = percentile_1.data.max() if percentile_1.data.max() > percentile_1_max else percentile_1_max
+    em_dict = {}
     
-    percentile_1_min = 0
-    percentile_1_min = percentile_1.data.min() if percentile_1.data.min() > percentile_1_min else percentile_1_min
-    percentile_1_min = percentile_1.data.min() if percentile_1.data.min() > percentile_1_min else percentile_1_min
-    percentile_1_min = percentile_1.data.min() if percentile_1.data.min() > percentile_1_min else percentile_1_min
-    percentile_1_min = percentile_1.data.min() if percentile_1.data.min() > percentile_1_min else percentile_1_min
-    percentile_1_min = percentile_1.data.min() if percentile_1.data.min() > percentile_1_min else percentile_1_min
-    percentile_1_min = percentile_1.data.min() if percentile_1.data.min() > percentile_1_min else percentile_1_min
-    
-    
-    # Define the cube being used
-    #cube = jja_percentiles
-    
-    # Find max and min values
-    #min_value = cube.data.min()  
-    #max_value = cube.data.max() 
-    
-    # Add to list
-    #min_values.append(min_value)
-    #max_values.append(max_value)
-    
-    P95_cubes[em] = percentile_1
-    P97_cubes[em] = percentile_2
-    P99_cubes[em] = percentile_3
-    P99_5_cubes[em] = percentile_4
-    P99_95_cubes[em] = percentile_5
-    P99_99_cubes[em] = percentile_6
-     
-stats_cubes = [P95_cubes, P97_cubes,  P99_cubes, P99_5_cubes, P99_95_cubes, P99_99_cubes]   
+    # Store all stats values in dictionary
+    stats = [jja_mean, jja_max, jja_percentiles]
+    for stat in stats:
+        if stat == jja_percentiles:
+            for i in range(jja_percentiles.shape[0]):
+                stat = jja_percentiles[i]
+                name = 'P' + str(jja_percentiles[i].coord('percentile_over_clim_season').points[0])         
+                name = name.replace(".", "_")
+                em_dict[name] = stat
+                max_vals_dict[name] = stat.data.max() if stat.data.max() > max_vals_dict[name] else max_vals_dict[name]
+                min_vals_dict[name] = stat.data.min() if stat.data.min() < min_vals_dict[name] else min_vals_dict[name]      
+        else:
+            name = namestr(stat, globals())[0]
+            em_dict[name] = stat
+            max_vals_dict[name] = stat.data.max() if stat.data.max() > max_vals_dict[name] else max_vals_dict[name]
+            min_vals_dict[name] = stat.data.min() if stat.data.min() < min_vals_dict[name] else min_vals_dict[name]      
+        
+    ems_dict[em] = em_dict       
 
 #############################################
 # Plotting
@@ -177,108 +176,44 @@ tol_precip_colors = ["#90C987", "#4EB256","#7BAFDE", "#6195CF", "#F7CB45", "#EE8
 precip_colormap = matplotlib.colors.ListedColormap(tol_precip_colors)
 # Set the colour for any values which are outside the range designated in lvels
 precip_colormap.set_under(color="white")
-precip_colormap.set_over(color="pink")
+precip_colormap.set_over(color="white")
 
-for stat_cube in stats_cubes:
-    print(stat_cube)
-    # Find max and min values
-    #min_value = cube.data.min()  
-    #max_value = cube.data.max() 
-    
-    # Add to list
-    #min_values.append(min_value)
-    #max_values.append(max_value)
-
-
-# Find global values across ensemble members
-max_value = np.max(max_values)
-min_value = np.max(min_values)
-
-
-ems = ['01', '04', '05', '06', '07', '08', '09','10','11','12', '13','15']
 # Loop through each ensemble member's cube
 for em in ems:  
-    # Extract ensemble member's cube from cube list
-    cube =cubes[em]
-    
-    for i in range(cube.shape[0]):
-        print(i)
-        cube = 
-    
-    # Create a 2D grid
-    grid = cube[0]
+    print(em)
+    em_dict = ems_dict[em]
+    # Loop through stats
+    for key, value in em_dict.items() :
+        print (key)
+        
+        # Extract the cube
+        cube = em_dict[key]
+        #Create a 2D grid
+        grid = cube[0]
+        
+        # Extract the max, min values
+        max_value = max_vals_dict[key]
+        min_value = min_vals_dict[key]
+        
+        # Plot
+        fig=plt.figure(figsize=(20,16))
+        levels = np.round(np.linspace(min_value, max_value, 15),2)
+        contour = iplt.contourf(grid,levels = levels,cmap=precip_colormap, extend="both")
+        plt.gca().coastlines(resolution='50m', color='black', linewidth=2)
+        #plt.plot(0.6628091964140957, 1.2979678925914127, 'o', color='black', markersize = 3) 
+        #plt.title("JJA mean", fontsize =40) 
+        #plt.colorbar(fraction=0.036, pad=0.02)
+        cb = plt.colorbar(fraction=0.036, pad=0.02)
+        cb.ax.tick_params(labelsize=25)
 
-    # Plot
-    fig=plt.figure(figsize=(20,16))
-    levels = np.round(np.linspace(0, max_value, 15),2)
-    contour = iplt.contourf(grid,levels = levels,cmap=precip_colormap, extend="both")
-    plt.gca().coastlines(resolution='50m', color='black', linewidth=2)
-    #plt.plot(0.6628091964140957, 1.2979678925914127, 'o', color='black', markersize = 3) 
-    #plt.title("JJA mean", fontsize =40) 
-    #plt.colorbar(fraction=0.036, pad=0.02)
-    cb = plt.colorbar(fraction=0.036, pad=0.02)
-    cb.ax.tick_params(labelsize=25)
-    
-    # Save Figure
-    ddir = 'Outputs/UK_plots/JJA_mean/'
-    if not os.path.isdir(ddir):
-        os.makedirs(ddir)
-    filename =  (ddir + '/{}.jpg').format(em)
-    
-    fig.savefig(filename,bbox_inches='tight')
-    print("PLot saved")
-
-
-
-# #####################################################################
-# # Get shapefile of UK 
-# #####################################################################
-# world = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
-# uk = world.query('name == "United Kingdom"')
-# uk = uk.to_crs({'init' :'epsg:27700'}) 
-
-# # Create geodataframe of UK 
-# uk_gdf = gpd.read_file("datadir/SpatialData/UK_shpfile/UnitedKingdom_Bound.shp") 
-# uk_gdf = uk_gdf.to_crs({'init' :'epsg:3785'}) 
-# uk_gdf.plot()
-
-# # Create geodataframe of UK 
-# # roi_gdf = gpd.read_file("datadir/SpatialData/ROI_shpfile/ie_100km.shp") 
-# # roi_gdf = roi_gdf.to_crs({'init' :'epsg:3785'}) 
-# # roi_gdf.plot()
-
-# # Create region with Leeds at the centre
-# lons = [54.130260, 54.130260, 53.486836, 53.486836]
-# lats = [-2.138282, -0.895667, -0.895667, -2.138282]
-# polygon_geom = Polygon(zip(lats, lons))
-# leeds_at_centre_gdf = gpd.GeoDataFrame(index=[0], crs={'init': 'epsg:4326'}, geometry=[polygon_geom])
-# leeds_at_centre_gdf = leeds_at_centre_gdf.to_crs({'init' :'epsg:3785'}) 
+        # Save Figure
+        ddir = 'Outputs/UK_plots/' + key + '/'
+        if not os.path.isdir(ddir):
+            os.makedirs(ddir)
+        filename =  (ddir + '/{}.jpg').format(em)
+        
+        fig.savefig(filename,bbox_inches='tight')
+        print("PLot saved")
 
 
-# # 'United Kingdom', ())
-# #  GBR: { sw: {lat: 49.674, lng: -14.015517}, ne: {lat: 61.061, lng: 2.0919117} }
- 
-# #  uk_bounds = [-7.57216793459, 49.959999905, 1.68153079591, 58.6350001085]
-# #  pts = gpd.GeoDataFrame(uk_bounds)
-# # pts.plot() 
 
-
-# bounding_box = uk_gdf.envelope
-# uk_gdf_bbox = gpd.GeoDataFrame(gpd.GeoSeries(bounding_box), columns=['geometry'])
-# uk_gdf_bbox.crs = {'init' :'epsg:4326'}
-
-    
-# fig, ax = plt.subplots(figsize=(20,20))
-# # Add edgecolor = 'grey' for lines
-# plot =ax.pcolormesh(lons_cornerpoints, lats_cornerpoints, cube.data,
-#               linewidths=3, alpha = 1)
-# #plot = region_outline_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=6)
-# cbar = plt.colorbar(plot,fraction=0.036, pad=0.02)
-# cbar.ax.tick_params(labelsize='xx-large', size = 10, pad=0.04) 
-# #cbar.set_label(label='Precipitation (mm/hr)',weight='bold', size =20)
-# #plt.colorbar(plot,fraction=0.036, pad=0.04).ax.tick_params(labelsize='xx-large')  
-# plot =ax.tick_params(labelsize='xx-large')
-# plot = uk_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=6)
-
-
-# plot_cube_within_region(grid, uk_gdf)
