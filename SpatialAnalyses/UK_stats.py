@@ -15,8 +15,8 @@ import iris.plot as iplt
 ############################################
 # Define variables and set up environment
 #############################################
-#root_fp = "/nfs/a319/gy17m2a/"
-root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
+root_fp = "/nfs/a319/gy17m2a/"
+#root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
 os.chdir(root_fp)
 
 # Create path to files containing functions
@@ -32,7 +32,14 @@ yrs_range = "1980_2001"
 
 min_values= []
 max_values = []
-cubes = {}
+mean_cubes = {}
+max_cubes ={}
+P95_cubes = {}
+P97_cubes = {}
+P99_cubes = {}
+P99_5_cubes = {}
+P99_95_cubes = {}
+P99_99_cubes = {}
 
 for em in ems:
     print(em)
@@ -113,30 +120,53 @@ for em in ems:
     #############################################
     #seconds = time.time()
     #jja_mean = jja.aggregated_by(['clim_season'], iris.analysis.MEAN)
-    jja_max = jja.aggregated_by(['clim_season'], iris.analysis.MAX)
-    #jja_percentiles = jja.aggregated_by(['clim_season'], iris.analysis.PERCENTILE, percent=[95,97,99,99.5])
-    #percentile_1 = jja_percentiles[0,:,:,:]
-    #percentile_2 = jja_percentiles[1,:,:,:]
-    #percentile_3 = jja_percentiles[2,:,:,:]
-    #percentile_4 = jja_percentiles[3,:,:,:]
+    #jja_max = jja.aggregated_by(['clim_season'], iris.analysis.MAX)
+    jja_percentiles = jja.aggregated_by(['clim_season'], iris.analysis.PERCENTILE, percent=[95,97,99,99.5, 99.9, 99.99])
+    percentile_1 = jja_percentiles[0,:,:,:]
+    percentile_2 = jja_percentiles[1,:,:,:]
+    percentile_3 = jja_percentiles[2,:,:,:]
+    percentile_4 = jja_percentiles[3,:,:,:]
+    percentile_5 = jja_percentiles[4,:,:,:]
+    percentile_6 = jja_percentiles[5,:,:,:]
     #print("Completed in: ", time.time() - seconds)
     
+    percentile_1_max = 0
+    percentile_1_max = percentile_1.data.max() if percentile_1.data.max() > percentile_1_max else percentile_1_max
+    percentile_1_max = percentile_1.data.max() if percentile_1.data.max() > percentile_1_max else percentile_1_max
+    percentile_1_max = percentile_1.data.max() if percentile_1.data.max() > percentile_1_max else percentile_1_max
+    percentile_1_max = percentile_1.data.max() if percentile_1.data.max() > percentile_1_max else percentile_1_max
+    percentile_1_max = percentile_1.data.max() if percentile_1.data.max() > percentile_1_max else percentile_1_max
+    percentile_1_max = percentile_1.data.max() if percentile_1.data.max() > percentile_1_max else percentile_1_max
+    
+    percentile_1_min = 0
+    percentile_1_min = percentile_1.data.min() if percentile_1.data.min() > percentile_1_min else percentile_1_min
+    percentile_1_min = percentile_1.data.min() if percentile_1.data.min() > percentile_1_min else percentile_1_min
+    percentile_1_min = percentile_1.data.min() if percentile_1.data.min() > percentile_1_min else percentile_1_min
+    percentile_1_min = percentile_1.data.min() if percentile_1.data.min() > percentile_1_min else percentile_1_min
+    percentile_1_min = percentile_1.data.min() if percentile_1.data.min() > percentile_1_min else percentile_1_min
+    percentile_1_min = percentile_1.data.min() if percentile_1.data.min() > percentile_1_min else percentile_1_min
+    
+    
     # Define the cube being used
-    cube = jja_max
+    #cube = jja_percentiles
     
     # Find max and min values
-    min_value = cube.data.min()  
-    max_value = cube.data.max() 
+    #min_value = cube.data.min()  
+    #max_value = cube.data.max() 
     
     # Add to list
-    min_values.append(min_value)
-    max_values.append(max_value)
-    cubes[em] = cube
+    #min_values.append(min_value)
+    #max_values.append(max_value)
     
-    
-    
-    
-    
+    P95_cubes[em] = percentile_1
+    P97_cubes[em] = percentile_2
+    P99_cubes[em] = percentile_3
+    P99_5_cubes[em] = percentile_4
+    P99_95_cubes[em] = percentile_5
+    P99_99_cubes[em] = percentile_6
+     
+stats_cubes = [P95_cubes, P97_cubes,  P99_cubes, P99_5_cubes, P99_95_cubes, P99_99_cubes]   
+
 #############################################
 # Plotting
 #############################################
@@ -149,30 +179,48 @@ precip_colormap = matplotlib.colors.ListedColormap(tol_precip_colors)
 precip_colormap.set_under(color="white")
 precip_colormap.set_over(color="pink")
 
+for stat_cube in stats_cubes:
+    print(stat_cube)
+    # Find max and min values
+    #min_value = cube.data.min()  
+    #max_value = cube.data.max() 
+    
+    # Add to list
+    #min_values.append(min_value)
+    #max_values.append(max_value)
+
+
 # Find global values across ensemble members
 max_value = np.max(max_values)
 min_value = np.max(min_values)
 
+
+ems = ['01', '04', '05', '06', '07', '08', '09','10','11','12', '13','15']
 # Loop through each ensemble member's cube
-for em in ems:    
+for em in ems:  
     # Extract ensemble member's cube from cube list
     cube =cubes[em]
+    
+    for i in range(cube.shape[0]):
+        print(i)
+        cube = 
+    
     # Create a 2D grid
     grid = cube[0]
 
     # Plot
     fig=plt.figure(figsize=(20,16))
     levels = np.round(np.linspace(0, max_value, 15),2)
-    contour = iplt.contourf(grid,cmap=precip_colormap, levels = levels, extend="both")
+    contour = iplt.contourf(grid,levels = levels,cmap=precip_colormap, extend="both")
     plt.gca().coastlines(resolution='50m', color='black', linewidth=2)
     #plt.plot(0.6628091964140957, 1.2979678925914127, 'o', color='black', markersize = 3) 
-    plt.title("JJA mean", fontsize =40) 
+    #plt.title("JJA mean", fontsize =40) 
     #plt.colorbar(fraction=0.036, pad=0.02)
     cb = plt.colorbar(fraction=0.036, pad=0.02)
     cb.ax.tick_params(labelsize=25)
     
     # Save Figure
-    ddir = 'Outputs/UK_plots/JJA_max/'
+    ddir = 'Outputs/UK_plots/JJA_mean/'
     if not os.path.isdir(ddir):
         os.makedirs(ddir)
     filename =  (ddir + '/{}.jpg').format(em)
