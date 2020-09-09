@@ -26,37 +26,37 @@ warnings.simplefilter(action='ignore', category=UserWarning)
 iris.FUTURE.netcdf_promote = True
 iris.FUTURE.netcdf_no_unlimited = True
 
-# Set locations of scripts as working directory 
-os.chdir("/nfs/a319/gy17m2a/Scripts/")
-os.getcwd()
-#from config import *
+# Provide root_fp as argument
+root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
+#root_fp = "/nfs/a319/gy17m2a/"
+
+os.chdir(root_fp)
+sys.path.insert(0, root_fp + 'Scripts/UKCP18/')
 from Obs_functions import *
 
 ############################################################
 # Read in monthly cubes and concatenate into one long timeseries cube
 ###########################################################
-# List all the files
-filenames =os.listdir("/nfs/a319/gy17m2a/CEH-GEAR")
-file_dir = "/nfs/a319/gy17m2a/CEH-GEAR/% s"
-filenames = [file_dir % i for i in filenames]
+# For some reason a backslash was showing instead of a forward slash
+filenames = [os.path.normpath(i) for i in glob.glob('datadir/CEH-GEAR/CEH-GEAR-1hr_*')]
 
 # Load in the rainfall cubes into a list, taking just the rainfall amount
-obs_pr_cubelist = iris.load(filenames, 'rainfall_amount')
+monthly_cubes_list = iris.load(filenames, 'rainfall_amount')
 
 # Concatenate the cubes
-obs_pr_cubes = obs_pr_cubelist.concatenate_cube()
+obs_pr_cubes = monthly_cubes_list.concatenate_cube()
 
 ##############################################################################
 # Extract the indices of the data point in the cube closest to a point of interest
 ##############################################################################
 # Read in the list of cubes, containing the lat and long cubes
-cube_list = iris.load(filenames[0])
+one_cube = iris.load(filenames[0])
 
 # Find the index of the point in the grid which is closest to the point of interest
 # Considering the grid both flipped and not flipped
 # For just creating a time series and not plotting, flipping is not really necesary
 # but can be used in the testing below
-closest_idx = find_idx_closestpoint(cube_list, lat, lon, flip = False)
+closest_idx = find_idx_closestpoint(one_cube, lat, lon, flip = False)
 #closest_idx_fl = find_idx_closestpoint(cube_list, lat, lon, flip = True)
 
 #############################################################################

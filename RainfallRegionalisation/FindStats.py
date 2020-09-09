@@ -28,10 +28,14 @@ def values_above_percentile(rain_data,percentile_data,n_highest):
         exception=1
     # first dimension is for time
     n_highest_array=np.zeros((1,n_highest,imax,jmax))
+    
+    local_data_dict ={}
     for i in range(imax):
         for j in range(jmax):
             # Get data at one cell
             local_raindata=rain_data[:,i,j]
+            local_data_dict[name] = local_raindata
+            name = name +1
             # Find the percentile cutoff value for that cell
             local_percentile=percentile_data[0,i,j]
             # extract values above cutoff percentile, sort these data over percentile in descending order
