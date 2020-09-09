@@ -7,6 +7,7 @@ import pandas as pd
 import geopandas as gpd
 import time 
 from statsmodels.tsa.stattools import adfuller
+import iris.coord_categorisation
 
 # Provide root_fp as argument
 #root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
@@ -18,6 +19,11 @@ sys.path.insert(0, root_fp + 'Scripts/UKCP18/')
 from Pr_functions import *
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/SpatialAnalyses')
 from Spatial_plotting_functions import *
+
+ems = ['01','04', '05', '06', '07', '08', '09','10','11','12', '13','15']
+start_year = 1980
+end_year = 2000 
+yrs_range = "1980_2001" 
 
 # Create geodataframe of West Yorks
 uk_gdf = gpd.read_file("datadir/SpatialData/Region__December_2015__Boundaries-shp/Region__December_2015__Boundaries.shp") 
@@ -83,22 +89,8 @@ for em in ems:
     # Add season coordinates and trim to JJA
     #############################################              
     iris.coord_categorisation.add_season(regional_cube,'time', name = "clim_season")
-    jja = regional_cube.extract(iris.Constraint(clim_season = 'jja'))
-    
-    
-    #############################################
-    # Plot
-    ############################################# 
-    df = pd.DataFrame(regional_mean_data)
-    df['year'] = jja.coord('year').points
-    
-    fig=plt.figure() 
-    plt.style.use('ggplot')
-    ax = df[0].plot()
-    #ax.set_xlabel("Areas",fontsize=12)
-    ax.set_xticklabels(df['year'], rotation=45)
-    fig.savefig("Outputs/Stationarity/em{}.png".format(em),bbox_inches='tight')
-    
+    jja = regional_cube.extract(iris.Constraint(clim_season = 'jja'))  
+   
     #############################################
     # Check stationarity
     ############################################# 
@@ -106,6 +98,28 @@ for em in ems:
     jja.remove_coord('latitude')
     new_cube = jja.collapsed(['grid_longitude', 'grid_latitude'], iris.analysis.MEAN)
     regional_mean_data = new_cube.data
+
+    #############################################
+    # Plot
+    ############################################# 
+    df = pd.DataFrame({'values' :regional_mean_data})
+    df['year'] = jja.coord('year').points
+    df['date'] = jja.coord('yyyymmddhh').points
+    df['date_formatted']= pd.to_datetime(df['date'], format='%Y%m%d%H')
+    
+    # fig=plt.figure() 
+    # plt.style.use('ggplot')
+    # ax = df['values'].plot()
+    # ax.set_xticklabels(df['date_formatted'], rotation=45)
+    # ax.xaxis.set_major_formatter(DateFormatter('%Y'))
+    # #ax.set_xlabel("Areas",fontsize=12)
+    
+    df = df.set_index('date_formatted')
+    
+    fig=plt.figure() 
+    plt.style.use('ggplot')
+    ax = df['values'].plot()
+    fig.savefig("Outputs/Stationarity/em{}.png".format(em),bbox_inches='tight')
 
     # ADF test
     result = adfuller(regional_mean_data)    
