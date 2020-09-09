@@ -1,3 +1,9 @@
+'''
+This file calculates statistics (mean, max, various percentiles) for each grid 
+cell across the whole of the UK.
+It plots these and saves the results to file.
+'''
+
 import iris.coord_categorisation
 import iris
 import glob
@@ -12,6 +18,7 @@ import cartopy.crs as ccrs
 import matplotlib 
 import iris.plot as iplt
 
+# For extracting the variable name from a variable
 def namestr(obj, namespace):
     return [name for name in namespace if namespace[name] is obj]
 
@@ -33,9 +40,17 @@ start_year = 1980
 end_year = 2000 
 yrs_range = "1980_2001" 
 
-# Create
+# Create a dictionary within which the stats cubes for each ensemble member will
+# be stored
 ems_dict = {}
 
+# Cycle through ensemble members
+# For each ensemble member: 
+#       Read in all files and join into one cube
+#       Trim to the outline of the UK
+#       Cut so only hours in JJA remain
+#       Find the max, mean and percentile values for each grid square
+#       
 for em in ems:
     print(em)
     #############################################
