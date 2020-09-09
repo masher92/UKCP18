@@ -106,94 +106,108 @@ for em in ems:
     jja_mean = jja.aggregated_by(['clim_season'], iris.analysis.MEAN)
     jja_max = jja.aggregated_by(['clim_season'], iris.analysis.MAX)
     jja_percentiles = jja.aggregated_by(['clim_season'], iris.analysis.PERCENTILE, percent=[95,97,99,99.5, 99.9, 99.99])
+  
+    ###########################################
+    ## Save to file
+    ###########################################
+    #jja_max.to_netcdf('/nfs/a319/gy17m2a/Outputs/mem_'+ em+ '_jja_max.nc', encoding={'rank_in_season': {'dtype': 'i4'}})
+    #jja_mean.to_netcdf('/nfs/a319/gy17m2a/Outputs/mem_'+ em+ '_jja_mean.nc', encoding={'rank_in_season': {'dtype': 'i4'}})    
+    #jja_percentiles.to_netcdf('/nfs/a319/gy17m2a/Outputs/mem_'+ em+ '_jja_percentiles.nc', encoding={'rank_in_season': {'dtype': 'i4'}}) 
     
-    ##########################################
-    #############################################
-    em_dict = {}
-    stats = [jja_mean, jja_max, jja_percentiles]
-    if em == '01':
-        # Create dictionarities to store max/min values and set them to unfeasible values
-        max_vals_dict = {}
-        min_vals_dict = {}
-        for stat in stats:
-            if stat == jja_percentiles:
-                for i in range(jja_percentiles.shape[0]):
-                    stat = jja_percentiles[i]
-                    name = 'P' + str(jja_percentiles[i].coord('percentile_over_clim_season').points[0])         
-                    name = name.replace(".", "_")
-                    max_vals_dict[name] = 0
-                    min_vals_dict[name] = 10000
-            else:
-                name = namestr(stat, globals())[0]
-                max_vals_dict[name] = 0
-                min_vals_dict[name] = 10000
-        
-    # Store all stats values in dictionary
-    for stat in stats:
-        if stat == jja_percentiles:
-            for i in range(jja_percentiles.shape[0]):
-                stat = jja_percentiles[i]
-                name = 'P' + str(jja_percentiles[i].coord('percentile_over_clim_season').points[0])         
-                name = name.replace(".", "_")
-                em_dict[name] = stat
-                max_vals_dict[name] = stat.data.max() if stat.data.max() > max_vals_dict[name] else max_vals_dict[name]
-                min_vals_dict[name] = stat.data.min() if stat.data.min() < min_vals_dict[name] else min_vals_dict[name]      
-        else:
-            name = namestr(stat, globals())[0]
-            em_dict[name] = stat
-            max_vals_dict[name] = stat.data.max() if stat.data.max() > max_vals_dict[name] else max_vals_dict[name]
-            min_vals_dict[name] = stat.data.min() if stat.data.min() < min_vals_dict[name] else min_vals_dict[name]      
-        
-    ems_dict[em] = em_dict       
-
-#############################################
-# Plotting
-#############################################
-# Create a colourmap                                   
-tol_precip_colors = ["#90C987", "#4EB256","#7BAFDE", "#6195CF", "#F7CB45", "#EE8026", "#DC050C", "#A5170E",
-"#72190E","#882E72","#000000"]                                      
-
-precip_colormap = matplotlib.colors.ListedColormap(tol_precip_colors)
-# Set the colour for any values which are outside the range designated in lvels
-precip_colormap.set_under(color="white")
-precip_colormap.set_over(color="white")
-
-# Loop through each ensemble member's cube
-for em in ems:  
-    print(em)
-    em_dict = ems_dict[em]
-    # Loop through stats
-    for key, value in em_dict.items() :
-        print (key)
-        
-        # Extract the cube
-        cube = em_dict[key]
-        #Create a 2D grid
-        grid = cube[0]
-        
-        # Extract the max, min values
-        max_value = max_vals_dict[key]
-        min_value = min_vals_dict[key]
-        
-        # Plot
-        fig=plt.figure(figsize=(20,16))
-        levels = np.round(np.linspace(min_value, max_value, 15),2)
-        contour = iplt.contourf(grid,levels = levels,cmap=precip_colormap, extend="both")
-        plt.gca().coastlines(resolution='50m', color='black', linewidth=2)
-        #plt.plot(0.6628091964140957, 1.2979678925914127, 'o', color='black', markersize = 3) 
-        #plt.title("JJA mean", fontsize =40) 
-        #plt.colorbar(fraction=0.036, pad=0.02)
-        cb = plt.colorbar(fraction=0.036, pad=0.02)
-        cb.ax.tick_params(labelsize=25)
-
-        # Save Figure
-        ddir = 'Outputs/UK_plots/' + key + '/'
-        if not os.path.isdir(ddir):
-            os.makedirs(ddir)
-        filename =  (ddir + '/{}.jpg').format(em)
-        
-        fig.savefig(filename,bbox_inches='tight')
-        print("Plot saved")
-
+    iris.save(jja_max, '/nfs/a319/gy17m2a/Outputs/mem_'+ em+ '_jja_max.nc')
+    print("JJA max saved")
+    iris.save(jja_mean, '/nfs/a319/gy17m2a/Outputs/mem_'+ em+ '_jja_mean.nc')
+    print("JJA mean saved")
+    iris.save(jja_percentiles, '/nfs/a319/gy17m2a/Outputs/mem_'+ em+ '_jja_percentiles.nc')
+    print("JJA percentiles saved")
+    
+#    ##########################################
+#    #############################################
+#    em_dict = {}
+#    stats = [jja_mean, jja_max, jja_percentiles]
+#    if em == '01':
+#        # Create dictionarities to store max/min values and set them to unfeasible values
+#        max_vals_dict = {}
+#        min_vals_dict = {}
+#        for stat in stats:
+#            if stat == jja_percentiles:
+#                for i in range(jja_percentiles.shape[0]):
+#                    stat = jja_percentiles[i]
+#                    name = 'P' + str(jja_percentiles[i].coord('percentile_over_clim_season').points[0])         
+#                    name = name.replace(".", "_")
+#                    max_vals_dict[name] = 0
+#                    min_vals_dict[name] = 10000
+#            else:
+#                name = namestr(stat, globals())[0]
+#                max_vals_dict[name] = 0
+#                min_vals_dict[name] = 10000
+#        
+#    # Store all stats values in dictionary
+#    for stat in stats:
+#        if stat == jja_percentiles:
+#            for i in range(jja_percentiles.shape[0]):
+#                stat = jja_percentiles[i]
+#                name = 'P' + str(jja_percentiles[i].coord('percentile_over_clim_season').points[0])         
+#                name = name.replace(".", "_")
+#                em_dict[name] = stat
+#                max_vals_dict[name] = stat.data.max() if stat.data.max() > max_vals_dict[name] else max_vals_dict[name]
+#                min_vals_dict[name] = stat.data.min() if stat.data.min() < min_vals_dict[name] else min_vals_dict[name]      
+#        else:
+#            name = namestr(stat, globals())[0]
+#            em_dict[name] = stat
+#            max_vals_dict[name] = stat.data.max() if stat.data.max() > max_vals_dict[name] else max_vals_dict[name]
+#            min_vals_dict[name] = stat.data.min() if stat.data.min() < min_vals_dict[name] else min_vals_dict[name]      
+#        
+#    ems_dict[em] = em_dict       
+#
+##############################################
+## Plotting
+##############################################
+## Create a colourmap                                   
+#tol_precip_colors = ["#90C987", "#4EB256","#7BAFDE", "#6195CF", "#F7CB45", "#EE8026", "#DC050C", "#A5170E",
+#"#72190E","#882E72","#000000"]                                      
+#
+#precip_colormap = matplotlib.colors.ListedColormap(tol_precip_colors)
+## Set the colour for any values which are outside the range designated in lvels
+#precip_colormap.set_under(color="white")
+#precip_colormap.set_over(color="white")
+#
+## Loop through each ensemble member's cube
+#for em in ems:  
+#    print(em)
+#    em_dict = ems_dict[em]
+#    # Loop through stats
+#    for key, value in em_dict.items() :
+#        print (key)
+#        
+#        # Extract the cube
+#        cube = em_dict[key]
+#        #Create a 2D grid
+#        grid = cube[0]
+#        
+#        # Extract the max, min values
+#        max_value = max_vals_dict[key]
+#        min_value = min_vals_dict[key]
+#        
+#        # Plot
+#        fig=plt.figure(figsize=(20,16))
+#        levels = np.round(np.linspace(min_value, max_value, 15),2)
+#        contour = iplt.contourf(grid,levels = levels,cmap=precip_colormap, extend="both")
+#        plt.gca().coastlines(resolution='50m', color='black', linewidth=2)
+#        #plt.plot(0.6628091964140957, 1.2979678925914127, 'o', color='black', markersize = 3) 
+#        #plt.title("JJA mean", fontsize =40) 
+#        #plt.colorbar(fraction=0.036, pad=0.02)
+#        cb = plt.colorbar(fraction=0.036, pad=0.02)
+#        cb.ax.tick_params(labelsize=25)
+#
+#        # Save Figure
+#        ddir = 'Outputs/UK_plots/' + key + '/'
+#        if not os.path.isdir(ddir):
+#            os.makedirs(ddir)
+#        filename =  (ddir + '/{}.jpg').format(em)
+#        
+#        fig.savefig(filename,bbox_inches='tight')
+#        print("Plot saved")
+#
 
 
