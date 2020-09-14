@@ -34,10 +34,11 @@ import iris.quickplot as qplt
 import cartopy.crs as ccrs
 import matplotlib 
 import iris.plot as iplt
+from scipy import spatial
 
-############################################
+################################################################
 # Define variables and set up environment
-#############################################
+################################################################
 root_fp = "/nfs/a319/gy17m2a/"
 #root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
 os.chdir(root_fp)
@@ -234,128 +235,168 @@ sample_point = [('grid_latitude', lat_osgb36), ('grid_longitude', lon_osgb36)]
 #############################################################################
 # Find the grid cell closest to a location of interest
 #############################################################################
-# Create a list of all the tuple pairs of latitude and longitudes
-locations = list(itertools.product(rf_cube.coord('projection_y_coordinate').points,
-                                   rf_cube.coord('projection_x_coordinate').points))
-
-# Find the index of the nearest neighbour of the sample point in the list of locations present in concat_cube
-tree = spatial.KDTree(locations)
-closest_point_idx = tree.query([(sample_point[0][1], sample_point[1][1])])[1][0]
-
-# Extract the lat and long values of this point using the index
-closest_lat = locations[closest_point_idx][0]
-closest_long = locations[closest_point_idx][1]
+def find_closest_coordinates(cube):
+    coord_names = [coord.name() for coord in cube.coords()]
+    
+    # Create variables storing lats/lons (or equivalent variables)
+    lats = cube.coord(coord_names[1]).points
+    lons = cube.coord(coord_names[2]).points
+        
+    # Create a list of all the tuple pairs of latitude and longitudes
+    locations = list(itertools.product(lats, lons))
+                                       
+    # Correct them so that 360 merges back into one
+    if 'RotatedGeog' in str(cube.coord_system()):
+        print("Rotated pole")
+        
+        corrected_locations = []
+        for location in locations:
+            if location[0] >360:
+                new_lat = location[0] -360
+            else: 
+                new_lat = location[0]
+            if location[1] >360:
+                new_long = location[1] -360     
+            else:
+                new_long = location[1]
+            new_location = new_lat, new_long 
+            corrected_locations.append(new_location)
+        locations = corrected_locations       
+    
+    # Find the index of the nearest neighbour of the sample point in the list of locations present in concat_cube
+    tree = spatial.KDTree(locations)
+    closest_point_idx = tree.query([(sample_point[0][1], sample_point[1][1])])[1][0]
+    
+    # Extract the lat and long values of this point using the index
+    closest_lat = locations[closest_point_idx][0]
+    closest_long = locations[closest_point_idx][1]
+    
+    return closest_point_idx, closest_lat, closest_long
+    
+rg_closest_coordinates = find_closest_coordinates(rg_cube)   
+rf_closest_coordinates= find_closest_coordinates(rf_cube)    
 
 #############################################################################
 # Create a cube containing just the timeseries for that location of interest
 #############################################################################
 # Use this closest lat, long pair to collapse the latitude and longitude dimensions
 # of the concatenated cube to keep just the time series for this closest point 
-time_series_cube = rf_cube.extract(iris.Constraint(projection_y_coordinate=closest_lat, projection_x_coordinate= closest_long))
+rf_time_series_cube = rf_cube.extract(iris.Constraint(projection_y_coordinate=rf_closest_coordinates[1], projection_x_coordinate= rg_closest_coordinates[2]))
+rg_time_series_cube = rf_cube.extract(iris.Constraint(grid_latitude=rg_closest_coordinates[1], grid_longitude= rf_closest_coordinates[2]))
 
-##############################################################################
-### Checking this approach
-##############################################################################
-# It is possible to conduct a check on which grid cell the data is being extracted
-# for using the index of the grid cell returned by the create_concat_cube_one_location_m3
-# function.
-        
-# Create a test dataset with all points with same value
-# Set value at the index returned above to something different
-# And then plot data spatially, and see which grid cell is highlighted.        
-test_data = np.full((rf_cube[0].shape), 7, dtype=int)
-test_data_rs = test_data.reshape(-1)
-test_data_rs[closest_point_idx] = 500
-test_data = test_data_rs.reshape(test_data.shape)
 
-## Find the lats and lons for plotting and convert to WGS84
-lats = rf_cube.coord('projection_y_coordinate').points
-lons = rf_cube.coord('projection_x_coordinate').points
-lons_2d, lats_2d = np.meshgrid(lons, lats)
+closest_point_idx =rg_closest_coordinates[0]
 
-# Convrt Leeds GDF to WGS84  
-leeds_at_centre_gdf = leeds_at_centre_gdf.to_crs({'init' :'epsg:27700'}) 
-leeds_gdf = leeds_gdf.to_crs({'init' :'epsg:27700'}) 
-
-# Plot     
-fig, ax = plt.subplots()
-# Add edgecolor = 'grey' for lines
-plot =ax.pcolormesh(lons_2d, lats_2d, test_data,
-              linewidths=3, alpha = 1, cmap = 'GnBu')
-cbar = plt.colorbar(plot,fraction=0.036, pad=0.02)
-cbar.ax.tick_params(labelsize='xx-large', size = 10, pad=0.04) 
-#cbar.set_label(label='Precipitation (mm/hr)',weight='bold', size =20)
-#plt.colorbar(plot,fraction=0.036, pad=0.04).ax.tick_params(labelsize='xx-large')  
-plot =ax.tick_params(labelsize='xx-large')
-plot=ax.plot(sample_point[1][1], sample_point[0][1], "ro", markersize =2)
-plot =leeds_at_centre_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=2)
-plot =leeds_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=2)  
-
-##############################################################################
-### In above code, however, the plotting is off as it uses the pcolormesh which 
-# assusmes coordinates refer to the bottom left of the square, when in reality
-# these coordinates refer to the middle point of the square
-# To plot correctly, need to find the cornerpoint coordinates
-##############################################################################
-
-# Find the distance between each lat/lon and the next lat/lon
-# Divide this by two to get the distance to the half way point
-lats_differences_half = np.diff(lats)/2
-lons_differences_half = np.diff(lons)/2
-
-# Create an array of lats/lons at the midpoints
-lats_midpoints_1d = lats[1:] - lats_differences_half
-lons_midpoints_1d = lons[1:] - lons_differences_half
-
-# Convert to 2D
-lons_midpoints_2d, lats_midpoints_2d = np.meshgrid(lons_midpoints_1d, lats_midpoints_1d)
-
-# Convert to web mercator
-#lons_wm_midpoints_2d, lats_wm_midpoints_2d = transform(Proj(init='epsg:27700'),Proj(init='epsg:3785'),lons_rp_midpoints_2d,lats_rp_midpoints_2d)
-
-lats_cornerpoints = lats_midpoints_2d
-lons_cornerpoints = lons_midpoints_2d
-
-# Trim the cube to contain just one timeslice and to be same dimension as the cornerpoint coordiantes
-cube = rf_cube[100, 1:, 1:]
-# Trim to match corner points
-test_data = test_data[1:,1:]
-
-# Find the centre point coordinates in WGS84
-#lats_centrepoints = cube.coord('grid_latitude').points
-#lons_centrepoints = cube.coord('grid_longitude').points
-#lons_centrepoints_2d, lats_centrepoints_2d = np.meshgrid(lons_centrepoints, lats_centrepoints)
-#cs = rg_cube.coord_system()
-#lons_centrepoints_2d, lats_centrepoints_2d = iris.analysis.cartography.unrotate_pole(lons_centrepoints_2d, lats_centrepoints_2d, cs.grid_north_pole_longitude, cs.grid_north_pole_latitude)
-
-# Convert to WM
-#lons_centrepoints,lats_centrepoints= transform(Proj(init='epsg:4326'),Proj(init='epsg:3785'),lons_centrepoints,lats_centrepoints)
+def check_location_of_closestpoint (cube, closest_point_idx, sample_point):
+    # Create a test dataset with all points with same value
+    # Set value at the index returned above to something different
+    # And then plot data spatially, and see which grid cell is highlighted.        
+    test_data = np.full((cube[0].shape), 7, dtype=int)
+    test_data_rs = test_data.reshape(-1)
+    test_data_rs[closest_point_idx] = 500
+    test_data = test_data_rs.reshape(test_data.shape)
     
-# Convrt Leeds GDF to Web Mercator
-# And the location of interest  
-leeds_at_centre_gdf = leeds_at_centre_gdf.to_crs({'init' :'epsg:3785'}) 
-leeds_gdf = leeds_gdf.to_crs({'init' :'epsg:3785'}) 
-lons_cornerpoints, lats_cornerpoints = transform({'init' :'epsg:27700'}, {'init' :'epsg:3785'}, lons_cornerpoints, lats_cornerpoints)
-lon_wm, lat_wm = transform({'init' :'epsg:27700'}, {'init' :'epsg:3785'}, lon_osgb36, lat_osgb36)
+    # Find cornerpoint coordiantes
+    lats_cornerpoints = find_cornerpoint_coordinates(cube)[0]
+    lons_cornerpoints = find_cornerpoint_coordinates(cube)[1]
+    
+    # Trim the data timeslice to be the same dimensions as the corner coordinates
+    test_data = test_data[1:,1:]
+        
+    # Convrt Leeds GDF to Web Mercator
+    # And the location of interest  
+    gdf = gdf.to_crs(target_crs)
+    #gdf = leeds_gdf.to_crs(target_crs) 
+    
+    # Convert cornerpoints to target_crs
+    lons_cornerpoints, lats_cornerpoints = transform(input_crs, target_crs, lons_cornerpoints, lats_cornerpoints)
+    lon_wm, lat_wm = transform(input_crs, target_crs, sample_point[1][1], sample_point[0][1])
+    
+    #############################################################################
+    #### # Plot - highlighting grid cells whose centre point falls within Leeds
+    # Uses the lats and lons of the corner points but with the values derived from 
+    # the associated centre point
+    ##############################################################################
+    fig, ax = plt.subplots()
+    extent = tilemapbase.extent_from_frame(leeds_gdf)
+    plot = plotter = tilemapbase.Plotter(extent, tilemapbase.tiles.build_OSM(), width=600)
+    plot =plotter.plot(ax)
+    #plot =leeds_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=6)
+    # Add edgecolor = 'grey' for lines
+    plot =ax.pcolormesh(lons_cornerpoints, lats_cornerpoints, test_data,
+                  linewidths=3, alpha = 1, cmap = 'GnBu')
+    cbar = plt.colorbar(plot,fraction=0.036, pad=0.02)
+    cbar.ax.tick_params(labelsize='xx-large', size = 10, pad=0.04) 
+    #cbar.set_label(label='Precipitation (mm/hr)',weight='bold', size =20)
+    #plt.colorbar(plot,fraction=0.036, pad=0.04).ax.tick_params(labelsize='xx-large')  
+    plot =ax.tick_params(labelsize='xx-large')
+    plot =leeds_at_centre_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=2)
+    plot =leeds_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=2)
+    plot=ax.plot(lon_wm, lat_wm, "ro", markersize =4)
+    
+    
+def find_cornerpoint_coordinates(cube):
+    coord_names = [coord.name() for coord in cube.coords()]
+    
+    # Create variables storing lats/lons (or equivalent variables)
+    lats = cube.coord(coord_names[1]).points
+    lons = cube.coord(coord_names[2]).points
 
-#############################################################################
-#### # Plot - highlighting grid cells whose centre point falls within Leeds
-# Uses the lats and lons of the corner points but with the values derived from 
-# the associated centre point
-##############################################################################
-fig, ax = plt.subplots()
-extent = tilemapbase.extent_from_frame(leeds_gdf)
-plot = plotter = tilemapbase.Plotter(extent, tilemapbase.tiles.build_OSM(), width=600)
-plot =plotter.plot(ax)
-#plot =leeds_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=6)
-# Add edgecolor = 'grey' for lines
-plot =ax.pcolormesh(lons_cornerpoints, lats_cornerpoints, test_data,
-              linewidths=3, alpha = 1, cmap = 'GnBu')
-cbar = plt.colorbar(plot,fraction=0.036, pad=0.02)
-cbar.ax.tick_params(labelsize='xx-large', size = 10, pad=0.04) 
-#cbar.set_label(label='Precipitation (mm/hr)',weight='bold', size =20)
-#plt.colorbar(plot,fraction=0.036, pad=0.04).ax.tick_params(labelsize='xx-large')  
-plot =ax.tick_params(labelsize='xx-large')
-plot =leeds_at_centre_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=2)
-plot =leeds_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=2)
-plot=ax.plot(lon_wm, lat_wm, "ro", markersize =4)
+    lons_2d, lats_2d = np.meshgrid(lons, lats)
+    
+    # Find the distance between each lat/lon and the next lat/lon
+    # Divide this by two to get the distance to the half way point
+    lats_differences_half = np.diff(lats)/2
+    lons_differences_half = np.diff(lons)/2
+    
+    # Create an array of lats/lons at the midpoints
+    lats_cornerpoints_1d = lats[1:] - lats_differences_half
+    lons_cornerpoints_1d = lons[1:] - lons_differences_half
+    
+    # Convert to 2D
+    lons_cornerpoints_2d, lats_cornerpoints_2d = np.meshgrid(lons_cornerpoints_1d, lats_cornerpoints_1d)
+    
+    return lats_cornerpoints_2d, lons_cornerpoints_2d
+
+target_crs = {'init' :'epsg:3785'}
+input_crs = {'init' :'epsg:27700'}
+
+def plot_cube_within_region(cube, one_ts_data, gdf, target_crs, input_crs):
+    
+    # Find the lats and lons of the cornerpoints
+    lats_cornerpoints = find_cornerpoint_coordinates(cube)[0]
+    lons_cornerpoints = find_cornerpoint_coordinates(cube)[1]
+    
+    # Trim the data timeslice to be the same dimensions as the corner coordinates
+    one_ts_data = one_ts_data[1:,1:]
+        
+    # Convrt Leeds GDF to Web Mercator
+    # And the location of interest  
+    gdf = gdf.to_crs(target_crs 
+    #gdf = leeds_gdf.to_crs(target_crs) 
+    
+    # Convert cornerpoints to target_crs
+    lons_cornerpoints, lats_cornerpoints = transform(input_crs, target_crs, lons_cornerpoints, lats_cornerpoints)
+    lon_wm, lat_wm = transform(input_crs, target_crs, lon_osgb36, lat_osgb36)
+    
+    #############################################################################
+    #### # Plot - highlighting grid cells whose centre point falls within Leeds
+    # Uses the lats and lons of the corner points but with the values derived from 
+    # the associated centre point
+    ##############################################################################
+    fig, ax = plt.subplots()
+    extent = tilemapbase.extent_from_frame(leeds_gdf)
+    plot = plotter = tilemapbase.Plotter(extent, tilemapbase.tiles.build_OSM(), width=600)
+    plot =plotter.plot(ax)
+    #plot =leeds_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=6)
+    # Add edgecolor = 'grey' for lines
+    plot =ax.pcolormesh(lons_cornerpoints, lats_cornerpoints, test_data,
+                  linewidths=3, alpha = 1, cmap = 'GnBu')
+    cbar = plt.colorbar(plot,fraction=0.036, pad=0.02)
+    cbar.ax.tick_params(labelsize='xx-large', size = 10, pad=0.04) 
+    #cbar.set_label(label='Precipitation (mm/hr)',weight='bold', size =20)
+    #plt.colorbar(plot,fraction=0.036, pad=0.04).ax.tick_params(labelsize='xx-large')  
+    plot =ax.tick_params(labelsize='xx-large')
+    plot =leeds_at_centre_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=2)
+    plot =leeds_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=2)
+    plot=ax.plot(lon_wm, lat_wm, "ro", markersize =4)
