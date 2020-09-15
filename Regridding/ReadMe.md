@@ -6,3 +6,10 @@ There are two main data sources being used in this analysis:
 
 In order to use the observations to validate the model data it is necessary to convert the two datasets to a common resolution.
 
+
+
+
+<p align="center">
+  <img src="Figs/rf_cube.png">
+</p>
+
