@@ -38,8 +38,7 @@ def find_closest_coordinates(cube, sample_point):
         sample_point = [('grid_latitude', target_xy[1]), ('grid_longitude', target_xy[0])]
     
     else:
-      lon_osgb36,lat_osgb36= transform(Proj(init='epsg:4326'),Proj(init='epsg:27700'), 
-                                       sample_point[1][1],sample_point[0][1] )
+      lon_osgb36,lat_osgb36= transform(Proj(init='epsg:4326'),Proj(init='epsg:27700'),sample_point[1][1],sample_point[0][1])
       #lon_osgb36, lat_osgb36 = transform({'init' :'epsg:4326'}, {'init' :'epsg:27700'}, sample_point[0][1],sample_point[1][1 )
       sample_point = [('grid_latitude', lat_osgb36), ('grid_longitude', lon_osgb36)]
     
@@ -83,7 +82,7 @@ def check_location_of_closestpoint (cube, closest_point_idx, sample_point, input
         print("Rotated pole")
         cs = cube.coord_system()
         lons_cornerpoints, lats_cornerpoints = iris.analysis.cartography.unrotate_pole(lons_cornerpoints, lats_cornerpoints, cs.grid_north_pole_longitude, cs.grid_north_pole_latitude)
-  
+      
     # Convert cornerpoints to target_crs
     lons_cornerpoints, lats_cornerpoints = transform(input_crs, target_crs, lons_cornerpoints, lats_cornerpoints)
     lon_wm, lat_wm = transform({'init' :'epsg:4326'}, target_crs, sample_point[1][1], sample_point[0][1])
@@ -134,47 +133,6 @@ def find_cornerpoint_coordinates(cube):
     
     return lats_cornerpoints_2d, lons_cornerpoints_2d
 
-def plot_cube_within_region(cube, one_ts_data, gdf, target_crs, input_crs):
-    
-    # Find the lats and lons of the cornerpoints
-    lats_cornerpoints = find_cornerpoint_coordinates(cube)[0]
-    lons_cornerpoints = find_cornerpoint_coordinates(cube)[1]
-    
-    # Trim the data timeslice to be the same dimensions as the corner coordinates
-    one_ts_data = one_ts_data[1:,1:]
-        
-    # Convrt Leeds GDF to Web Mercator
-    # And the location of interest  
-    gdf = gdf.to_crs(target_crs) 
-    #gdf = leeds_gdf.to_crs(target_crs) 
-    
-    # Convert cornerpoints to target_crs
-    lons_cornerpoints, lats_cornerpoints = transform(input_crs, target_crs, lons_cornerpoints, lats_cornerpoints)
-    lon_wm, lat_wm = transform(input_crs, target_crs, lon_osgb36, lat_osgb36)
-    
-    #############################################################################
-    #### # Plot - highlighting grid cells whose centre point falls within Leeds
-    # Uses the lats and lons of the corner points but with the values derived from 
-    # the associated centre point
-    ##############################################################################
-    fig, ax = plt.subplots()
-    extent = tilemapbase.extent_from_frame(leeds_gdf)
-    plot = plotter = tilemapbase.Plotter(extent, tilemapbase.tiles.build_OSM(), width=600)
-    plot =plotter.plot(ax)
-    #plot =leeds_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=6)
-    # Add edgecolor = 'grey' for lines
-    plot =ax.pcolormesh(lons_cornerpoints, lats_cornerpoints, test_data,
-                  linewidths=3, alpha = 1, cmap = 'GnBu')
-    cbar = plt.colorbar(plot,fraction=0.036, pad=0.02)
-    cbar.ax.tick_params(labelsize='xx-large', size = 10, pad=0.04) 
-    #cbar.set_label(label='Precipitation (mm/hr)',weight='bold', size =20)
-    #plt.colorbar(plot,fraction=0.036, pad=0.04).ax.tick_params(labelsize='xx-large')  
-    plot =ax.tick_params(labelsize='xx-large')
-    plot =leeds_at_centre_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=2)
-    plot =leeds_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=2)
-    plot=ax.plot(lon_wm, lat_wm, "ro", markersize =4)
-
-
 '''
 This file is for comparing the regridded observations against the native observations
 to discern the influence of the regridding process on the data.
@@ -206,8 +164,8 @@ os.chdir(root_fp)
 # Create path to files containing functions
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/Regridding')
 from Regridding_functions import *
-sys.path.insert(0, root_fp + 'Scripts/UKCP18/SpatialAnalyses')
-from Spatial_plotting_functions import *
+#sys.path.insert(0, root_fp + 'Scripts/UKCP18/SpatialAnalyses')
+#from Spatial_plotting_functions import *
 
 # Create region with Leeds at the centre
 lons = [54.130260, 54.130260, 53.486836, 53.486836]
@@ -234,8 +192,8 @@ rg_cube = create_trimmed_cube(leeds_at_centre_gdf, rg_string, {'init' :'epsg:432
 ################################################################
 # Plot cubes to check
 ################################################################   
-plot_cube(rg_cube,  {'init' :'epsg:4326'}, 10)
-plot_cube(rf_cube,  {'init' :'epsg:27700'}, 10)
+#plot_cube(rg_cube,  {'init' :'epsg:4326'}, 10)
+#plot_cube(rf_cube,  {'init' :'epsg:27700'}, 10)
     
 ################################################################
 # Find the coordinates of the grid cell containing the point of interest
