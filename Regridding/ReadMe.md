@@ -10,6 +10,6 @@ In order to use the observations to validate the model data it is necessary to c
 
 
 <p align="center">
-  <img src="Figs/rf_cube2.png">
+  <img src="Figs/rf_cube2.png" width="200"/>
 </p>
 
