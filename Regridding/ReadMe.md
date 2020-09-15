@@ -8,7 +8,7 @@ In order to use the observations to validate the model data it is necessary to c
 
 
 <p float="left">
-  <img src="/Figs/rf_cube2.png" width="100" />
-  <img src="/Figs/rg_cube.png" width="100" /> 
+  <img src="Figs/rf_cube2.png" width="100" />
+  <img src="Figs/rg_cube.png" width="100" /> 
 </p>
 
