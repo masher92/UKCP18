@@ -35,7 +35,7 @@ def find_closest_coordinates(cube, sample_point):
         target_xy = rot_pole.transform_point(sample_point[1][1], sample_point[0][1], original_crs) # https://scitools.org.uk/cartopy/docs/v0.14/crs/index.html
            
         # Store the sample point of interest as a tuples (with their coordinate name) in a list
-        sample_point = [('grid_latitude', target_xy[1]), ('grid_longitude', target_xy[0])]
+        sample_point = [('grid_latitude', target_xy[1]), ('grid_longitude', target_xy[0])]       
     
     else:
       lon_osgb36,lat_osgb36= transform(Proj(init='epsg:4326'),Proj(init='epsg:27700'),sample_point[1][1],sample_point[0][1])
@@ -46,6 +46,8 @@ def find_closest_coordinates(cube, sample_point):
     tree = spatial.KDTree(locations)
     closest_point_idx = tree.query([(sample_point[0][1], sample_point[1][1])])[1][0]
     
+    # Return locations to uncorrected versions
+    locations = list(itertools.product(lats, lons))
     # Extract the lat and long values of this point using the index
     closest_lat = locations[closest_point_idx][0]
     closest_long = locations[closest_point_idx][1]
@@ -61,10 +63,12 @@ def check_location_of_closestpoint (cube, closest_point_idx, sample_point, input
     # Create a test dataset with all points with same value
     # Set value at the index returned above to something different
     # And then plot data spatially, and see which grid cell is highlighted.        
-    test_data = np.full((cube[0].shape), 7, dtype=int)
+    test_data = np.full((cube[0].shape), 0, dtype=int)
     test_data_rs = test_data.reshape(-1)
-    test_data_rs[closest_point_idx] = 500
+    test_data_rs[closest_point_idx] = 1
     test_data = test_data_rs.reshape(test_data.shape)
+    
+    test_data = ma.masked_where(test_data<1,test_data)
     
     # Find cornerpoint coordiantes
     lats_cornerpoints = find_cornerpoint_coordinates(cube)[0]
@@ -92,22 +96,28 @@ def check_location_of_closestpoint (cube, closest_point_idx, sample_point, input
     # Uses the lats and lons of the corner points but with the values derived from 
     # the associated centre point
     ##############################################################################
-    fig, ax = plt.subplots()
-    #extent = tilemapbase.extent_from_frame(gdf)
-    #plot = plotter = tilemapbase.Plotter(extent, tilemapbase.tiles.build_OSM(), width=600)
-    #plot =plotter.plot(ax)
-    #plot =leeds_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=6)
+    cmap = mpl.colors.ListedColormap(['royalblue'])
+   
+    #bounds = [0,1]
+    #norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
+    
+    fig, ax = plt.subplots(figsize=(20,10))
+    extent = tilemapbase.extent_from_frame(leeds_gdf)
+    plot = plotter = tilemapbase.Plotter(extent, tilemapbase.tiles.build_OSM(), width=600)
+    plot =plotter.plot(ax)
     # Add edgecolor = 'grey' for lines
     plot =ax.pcolormesh(lons_cornerpoints, lats_cornerpoints, test_data,
-                  linewidths=3, alpha = 1, cmap = 'GnBu')
-    cbar = plt.colorbar(plot,fraction=0.036, pad=0.02)
-    cbar.ax.tick_params(labelsize='xx-large', size = 10, pad=0.04) 
+                  linewidths=3, alpha = 1, cmap = cmap)
+    #cbar = plt.colorbar(plot,fraction=0.036, pad=0.02)
+    #cbar.ax.tick_params(labelsize='xx-large', size = 10, pad=0.04) 
     #cbar.set_label(label='Precipitation (mm/hr)',weight='bold', size =20)
     #plt.colorbar(plot,fraction=0.036, pad=0.04).ax.tick_params(labelsize='xx-large')  
-    plot =ax.tick_params(labelsize='xx-large')
+    plot = ax.xaxis.set_major_formatter(plt.NullFormatter())
+    plot = ax.yaxis.set_major_formatter(plt.NullFormatter())
+    #plot =ax.tick_params(labelsize='xx-large')
     plot =leeds_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=2)
     plot =leeds_at_centre_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=2)
-    plot=ax.plot(lon_wm, lat_wm, "ro", markersize =1)
+    plot=ax.plot(lon_wm, lat_wm, color='yellow', marker='o', markersize =1)
     
 def find_cornerpoint_coordinates(cube):
     coord_names = [coord.name() for coord in cube.coords()]
@@ -137,7 +147,7 @@ def find_cornerpoint_coordinates(cube):
 This file is for comparing the regridded observations against the native observations
 to discern the influence of the regridding process on the data.
 '''
-
+import numpy.ma as ma
 import iris.coord_categorisation
 import iris
 import glob
@@ -153,6 +163,12 @@ import matplotlib
 import iris.plot as iplt
 from scipy import spatial
 import itertools
+from shapely.geometry import Point, Polygon
+from pyproj import Proj, transform
+import matplotlib.pyplot as plt
+import pandas as pd
+import tilemapbase
+import matplotlib as mpl
 
 ################################################################
 # Define variables and set up environment
@@ -164,8 +180,10 @@ os.chdir(root_fp)
 # Create path to files containing functions
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/Regridding')
 from Regridding_functions import *
-#sys.path.insert(0, root_fp + 'Scripts/UKCP18/SpatialAnalyses')
-#from Spatial_plotting_functions import *
+sys.path.insert(0, root_fp + 'Scripts/UKCP18/SpatialAnalyses')
+from Spatial_plotting_functions import create_leeds_outline
+sys.path.insert(0, root_fp + 'Scripts/UKCP18/PlotPDFs/')
+from PDF_plotting_functions import *
 
 # Create region with Leeds at the centre
 lons = [54.130260, 54.130260, 53.486836, 53.486836]
@@ -199,7 +217,7 @@ rg_cube = create_trimmed_cube(leeds_at_centre_gdf, rg_string, {'init' :'epsg:432
 # Find the coordinates of the grid cell containing the point of interest
 ################################################################   
 rg_closest_coordinates = find_closest_coordinates(rg_cube, sample_point)   
-rf_closest_coordinates= find_closest_coordinates(rf_cube, sample_point)    
+#rf_closest_coordinates= find_closest_coordinates(rf_cube, sample_point)    
 
 #############################################################################
 # Create a cube containing just the timeseries for that location of interest
@@ -207,25 +225,31 @@ rf_closest_coordinates= find_closest_coordinates(rf_cube, sample_point)
 # Use this closest lat, long pair to collapse the latitude and longitude dimensions
 # of the concatenated cube to keep just the time series for this closest point 
 rg_time_series_cube = rg_cube.extract(iris.Constraint(grid_latitude=rg_closest_coordinates[1], grid_longitude= rg_closest_coordinates[2]))
-rf_time_series_cube = rf_cube.extract(iris.Constraint(projection_y_coordinate=rf_closest_coordinates[1], projection_x_coordinate= rf_closest_coordinates[2]))
-
+#rf_time_series_cube = rf_cube.extract(iris.Constraint(projection_y_coordinate=rf_closest_coordinates[1], projection_x_coordinate= rf_closest_coordinates[2]))
 
 #############################################################################
 # Find the grid cell closest to a location of interest
 #############################################################################
-closest_point_idx =rg_closest_coordinates[0]
-
-target_crs ={'init' :'epsg:3785'}
-input_crs = {'init' :'epsg:27700'}
-
-
 check_location_of_closestpoint(rg_cube, rg_closest_coordinates[0], 
                                sample_point,{'init' :'epsg:4326'},  {'init' :'epsg:3785'} )
 
-check_location_of_closestpoint(rf_cube, rf_closest_coordinates[0], 
-                               sample_point,{'init' :'epsg:27700'},  {'init' :'epsg:3785'} )
+#check_location_of_closestpoint(rf_cube, rf_closest_coordinates[0], 
+#                              sample_point,{'init' :'epsg:27700'},  {'init' :'epsg:3785'} )
+#
 
 
+print("Creating dataframe")
+rg_df =pd.DataFrame({"time_stamp" : rg_time_series_cube.coord('time').points,
+                     "Rainfall": rg_time_series_cube.data})
+rg_df['Date_formatted']  = pd.to_datetime(rg_df['time_stamp'], unit='s')\
+               .dt.strftime('%Y-%m-%d %H:%M:%S')
+rg_df.to_csv("rg_df.csv", index = False)
 
-    
-    
+# print("Creating dataframe")
+# rf_df =pd.DataFrame({"time_stamp" : rf_time_series_cube.coord('time').points})
+#                    #  "Rainfall": rf_time_series_cube.data})
+# rf_df['Date_formatted']  = pd.to_datetime(rf_df['time_stamp'], unit='s')\
+#                .dt.strftime('%Y-%m-%d %H:%M:%S')
+# rf_df.to_csv("rf_df.csv", index = False)
+
+
