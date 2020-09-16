@@ -65,11 +65,17 @@ for filename in glob.glob("datadir/CEH-GEAR/*"):
       iris.save(cube, filename_reformat)
       
       # Regrid observaitons onto model grid
-      reg_cube=cube.regrid(cube_model,iris.analysis.Linear())        
+      reg_cube=cube.regrid(cube_model,iris.analysis.Linear())      
+      
+      reg_cube_aw =cube.regrid(cube_model,iris.analysis.AreaWeighted())   
+      
       # Save 
       iris.save(reg_cube, filename_regrid)
     
     i = i+1
+
+
+
 
     
     
