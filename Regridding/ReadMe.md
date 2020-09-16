@@ -24,6 +24,13 @@ The hourly observations are then extracted from the appropriate grid cell over t
 P(r) = n(r)/Nr
 Where n(r) is the number of precipitation rates within the bin, r is the width of the bin in mm/hr and N is the total number of measurements in the whole dataset (Holloway et al., 2012).
 
+<p align="center">
+  <img src="Figs/log_discrete_histogram_40bins.png" width="300"  title="Original 1km grid" />
+  <img src="Figs/rg_cube.png" width="300"  title="Regridded 2.2km grid" /> 
+</p>
+<p align="center"> Grid cell containing location in east Leeds for 1km grid (left) and 2.2km grid (right) <p align="center">
+
+
 Across most probabilities, the observed precipitation rate is lower then the modelled precipitation rate across all ensembles. This is increasingly true for higher intensity precipitation rates. It should be noted that the CEH-GEAR data is interpolated and so extreme values are likely to be smoothed. In Fig. 5.3b a smoother line is achieved for the projections as data is accumulated across ensemble members, but there are still too few observations at higher intensities to produce a good line.
 
 
