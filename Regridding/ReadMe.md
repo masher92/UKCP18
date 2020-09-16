@@ -9,8 +9,8 @@ Iris provides functionality to regrid the cube data from one model, using the ho
 
 
 <p float="left">
-  <img src="Figs/rf_cube_grid.png" width="500" />
-  <img src="Figs/rg_cube_grid.png" width="500" /> 
+  <img src="Figs/rf_cube_grid.png" width="300" />
+  <img src="Figs/rg_cube_grid.png" width="300" /> 
 </p>
 
 
