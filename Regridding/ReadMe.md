@@ -22,6 +22,6 @@ Comparing
 
 <p float="left">
   <img src="Figs/rf_cube.png" width="300" />
-  <img src="Figs/rg_cube.png" width="300" /> 
+  <img src="Figs/rg_cube.png" width="300" />  
 </p>
 
