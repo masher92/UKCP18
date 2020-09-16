@@ -27,7 +27,7 @@ Where n(r) is the number of precipitation rates within the bin, r is the width 
 <p align="center">
   <img src="Figs/log_discrete_histogram_20bins.png" width="300" />
   <img src="Figs/log_discrete_histogram_40bins.png" width="300" /> 
-    <img src="Figs/log_discrete_histogram_60bins.png" width="300" /> 
+    <img src="Figs/log_discrete_histogram_60bins.png" width="300" />  
 </p>
 <p align="center"> Grid cell containing location in east Leeds for 1km grid (left) and 2.2km grid (right) <p align="center">
 
