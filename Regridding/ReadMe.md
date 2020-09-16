@@ -15,6 +15,10 @@ Iris provides functionality to regrid the cube data from one model, using the ho
 </p>
 
 
+<figure>
+  <img src="Figs/rf_cube_grid.png" width="300"/>
+  <figcaption>This is my caption text.</figcaption>
+</figure>
 
 
 <ins> Example </ins>  
