@@ -31,12 +31,11 @@ Where n(r) is the number of precipitation rates within the bin, Δr is the width
 </p>
 <p align="center">  <p align="center">
 
-Hourly rainfall accumulations in the observations and across the model ensemble members for a range of percentile thresholds are shown in Fig. 5.4. The inclusion of all hours in Fig. 5.4a and Fig. 5.4c results in the 90th percentile precipitation accumulation, for both the observations and the model ensembles, being <0.1mm/hr. This is due to the high proportion of dry hours, with 0mm of rainfall falling in 9.8% of observed hours and 10.3% of modelled hours across all ensemble members. Excluding dry hours with <0.1mm/hr in Fig. 5.4b and 5.4d allows the inclusion of heavier rainfall events. However, there are some disadvantages not considering all hours, and alternatively higher percentiles could be used to capture these more extreme events.
-
+Hourly rainfall accumulations in the observations and across the model ensemble members for a range of percentile thresholds are plotted below. In the left hand plot all hours are included, whereas in the right hand plot only wet hours with rainfall >0.1mm/hr are included. 
 <p align="center">
   <img src="Figs/percentile_thresholds_allhours.png" width="300" />
   <img src="Figs/percentile_thresholds_wethours.png" width="300" /> 
 </p>
-<p align="center">  <p align="center">
+<p align="center">   <p align="center">
 
 
