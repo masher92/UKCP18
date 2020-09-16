@@ -14,15 +14,14 @@ Iris provides functionality to regrid the cube data from one model, using the ho
 </p>
 <p align="center"> 1km grid on which observations are originally supplied (left); and UKCP18 2.2km grid onto which the observations are regridded (right) <p align="center">
 
+It is important to determine the affect of regridding on the data, and particularly on extreme values which can be smoothed in the regridding process. To test this, a location is defined in Leeds at latitude: and longitude: . The grid cell which covers this point is determined for both the native 1km and regridded 2.2km observations data.
+
 <ins> Example </ins>  
-
-
-It is important to determine the affect of regridding on the data, and particularly on extreme values which can be smoothed in the  
 
 Comparing
 
 <p float="left">
-  <img src="Figs/rf_cube2.png" width="500" />
-  <img src="Figs/rg_cube.png" width="500" /> 
+  <img src="Figs/rf_cube.png" width="300" />
+  <img src="Figs/rg_cube.png" width="300" /> 
 </p>
 
