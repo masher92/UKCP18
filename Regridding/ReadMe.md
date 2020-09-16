@@ -21,8 +21,8 @@ It is important to determine the affect of regridding on the data, and particula
 <p align="center"> Grid cell containing location in east Leeds for 1km grid (left) and 2.2km grid (right) <p align="center">
 
 The hourly observations are then extracted from the appropriate grid cell over the period for which data is available (1990-2014). Using this data, PDFs of precipitation rates during wet hours (<0.1mm/hr) are plotted for both the original 1km data and the regridded 2.2km data.  The precipitation rates are aggregated into logarithmic-spaced histogram bins which are adjusted to ensure that none of the bin widths are narrower than one decimal place, as this is the degree to which the data is rounded. Additionally, bin width is rounded down to a multiple of 0.1, so bin edges are always located mid-way on the discretisation interval. The probability density in each bin with mean precipitation rate, P(r), is calculated as:
-P(r) = n(r)/Nr
-Where n(r) is the number of precipitation rates within the bin, r is the width of the bin in mm/hr and N is the total number of measurements in the whole dataset (Holloway et al., 2012).
+P(r) = n(r)/NΔr
+Where n(r) is the number of precipitation rates within the bin, Δr is the width of the bin in mm/hr and N is the total number of measurements in the whole dataset.
 
 <p align="center">
   <img src="Figs/log_discrete_histogram_20bins.png" width="300" />
