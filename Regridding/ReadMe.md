@@ -11,14 +11,7 @@ Iris provides functionality to regrid the cube data from one model, using the ho
 <p float="left">
   <img src="Figs/rf_cube_grid.png" width="300"  title="Original 1km grid" />
   <img src="Figs/rg_cube_grid.png" width="300"  title="Regridded 2.2km grid" /> 
-  <figcaption>This is my caption text.</figcaption>
 </p>
-
-
-<figure>
-  <img src="Figs/rf_cube_grid.png" width="300"/>
-  <figcaption>This is my caption text.</figcaption>
-</figure>
 
 
 <ins> Example </ins>  
