@@ -31,9 +31,7 @@ Where n(r) is the number of precipitation rates within the bin, Δr is the width
 </p>
 <p align="center">  <p align="center">
 
-
-Across most probabilities, the observed precipitation rate is lower then the modelled precipitation rate across all ensembles. This is increasingly true for higher intensity precipitation rates. It should be noted that the CEH-GEAR data is interpolated and so extreme values are likely to be smoothed. In Fig. 5.3b a smoother line is achieved for the projections as data is accumulated across ensemble members, but there are still too few observations at higher intensities to produce a good line.
-
+Hourly rainfall accumulations in the observations and across the model ensemble members for a range of percentile thresholds are shown in Fig. 5.4. The inclusion of all hours in Fig. 5.4a and Fig. 5.4c results in the 90th percentile precipitation accumulation, for both the observations and the model ensembles, being <0.1mm/hr. This is due to the high proportion of dry hours, with 0mm of rainfall falling in 9.8% of observed hours and 10.3% of modelled hours across all ensemble members. Excluding dry hours with <0.1mm/hr in Fig. 5.4b and 5.4d allows the inclusion of heavier rainfall events. However, there are some disadvantages not considering all hours, and alternatively higher percentiles could be used to capture these more extreme events.
 
 <p align="center">
   <img src="Figs/percentile_thresholds_allhours.png" width="300" />
