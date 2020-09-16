@@ -18,7 +18,7 @@ It is important to determine the affect of regridding on the data, and particula
   <img src="Figs/rf_cube.png" width="300"  title="Original 1km grid" />
   <img src="Figs/rg_cube.png" width="300"  title="Regridded 2.2km grid" /> 
 </p>
-<p align="center"> Grid cells containing defined location in east Leeds for 1km grid (left) and 2.2km grid (right) <p align="center">
+<p align="center"> Grid cell containing location in east Leeds for 1km grid (left) and 2.2km grid (right) <p align="center">
 
 
 
