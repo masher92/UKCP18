@@ -12,7 +12,7 @@ Iris provides functionality to regrid the cube data from one model, using the ho
   <img src="Figs/rf_cube_grid.png" width="300"  title="Original 1km grid" />
   <img src="Figs/rg_cube_grid.png" width="300"  title="Regridded 2.2km grid" /> 
 </p>
-<p align="center">Left, the observations original 1km grid and Right, the 2.2km grid of the UKCP18 model data <p align="center">
+<p align="center"> The 1km grid on which observations are originally supplied (left) and the 2.2km grid of the UKCP18 model data, onto which the observations are regridded (right) <p align="center">
 
 <ins> Example </ins>  
 
