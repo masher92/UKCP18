@@ -29,11 +29,16 @@ Where n(r) is the number of precipitation rates within the bin, r is the width 
   <img src="Figs/log_discrete_histogram_40bins.png" width="300" /> 
     <img src="Figs/log_discrete_histogram_60bins.png" width="300" />  
 </p>
-<p align="center"> Grid cell containing location in east Leeds for 1km grid (left) and 2.2km grid (right) <p align="center">
+<p align="center">  <p align="center">
 
 
 Across most probabilities, the observed precipitation rate is lower then the modelled precipitation rate across all ensembles. This is increasingly true for higher intensity precipitation rates. It should be noted that the CEH-GEAR data is interpolated and so extreme values are likely to be smoothed. In Fig. 5.3b a smoother line is achieved for the projections as data is accumulated across ensemble members, but there are still too few observations at higher intensities to produce a good line.
 
 
+<p align="center">
+  <img src="Figs/percentile_thresholds_allhours.png" width="300" />
+  <img src="Figs/percentile_thresholds_wethours.png" width="300" /> 
+</p>
+<p align="center">  <p align="center">
 
 
