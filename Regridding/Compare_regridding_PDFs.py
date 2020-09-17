@@ -1,5 +1,5 @@
 def find_closest_coordinates(cube, sample_point, n_closest_points):
-    # Define the names of the coordinate variables
+    # Define names of coordinate variables
     coord_names = [coord.name() for coord in cube.coords()]
     
     # Create variables storing lats/lons (or equivalent variables)
@@ -38,19 +38,18 @@ def find_closest_coordinates(cube, sample_point, n_closest_points):
         # Store the sample point of interest as a tuples (with their coordinate name) in a list
         sample_point = [('grid_latitude', target_xy[1]), ('grid_longitude', target_xy[0])]       
     
-    # If they are not in rotated pole, then they are in OSGB36
-    # in this case convert the sample point to the same coordinate system
     else:
       lon_osgb36,lat_osgb36= transform(Proj(init='epsg:4326'),Proj(init='epsg:27700'),sample_point[1][1],sample_point[0][1])
       #lon_osgb36, lat_osgb36 = transform({'init' :'epsg:4326'}, {'init' :'epsg:27700'}, sample_point[0][1],sample_point[1][1 )
       sample_point = [('grid_latitude', lat_osgb36), ('grid_longitude', lon_osgb36)]
     
     # Find the indexes of the closest points to this sample location
+    tree = spatial.KDTree(locations)
     closest_point_idxs = tree.query([(sample_point[0][1], sample_point[1][1])], k = n_closest_points)[1][0]
     
     # If there is only one closest point index, then convert this to an array (so in same format as if there were more than 1) 
     if isinstance(closest_point_idxs, np.int64) :
-        closest_point_idxs = np.array([closest_point_idxs_1])   
+        closest_point_idxs = np.array([closest_point_idxs])   
         
     # Return locations to uncorrected versions
     locations = list(itertools.product(lats, lons))    
@@ -73,7 +72,7 @@ def check_location_of_closestpoint (cube, input_crs, target_crs, sample_point, c
     # Create a test dataset with all points with same value
     # Set value at the index returned above to something different
     # And then plot data spatially, and see which grid cell is highlighted.   
-    closest_point_idx = closest_point_idx[0]
+    #closest_point_idx = closest_point_idx[0]
     test_data = np.full((cube[0].shape), 0, dtype=int)
     if closest_point_idx is not None:
       test_data_rs = test_data.reshape(-1)
@@ -114,9 +113,9 @@ def check_location_of_closestpoint (cube, input_crs, target_crs, sample_point, c
     #norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
     
     fig, ax = plt.subplots(figsize=(20,10))
-    #extent = tilemapbase.extent_from_frame(leeds_gdf)
-    #plot = plotter = tilemapbase.Plotter(extent, tilemapbase.tiles.build_OSM(), width=600)
-    #plot =plotter.plot(ax)
+    extent = tilemapbase.extent_from_frame(leeds_gdf)
+    plot = plotter = tilemapbase.Plotter(extent, tilemapbase.tiles.build_OSM(), width=600)
+    plot =plotter.plot(ax)
     # Add edgecolor = 'grey' for lines
     plot =ax.pcolormesh(lons_cornerpoints, lats_cornerpoints, test_data,
                   linewidths=1, alpha = 1, cmap = cmap, edgecolors = 'grey')
@@ -339,9 +338,8 @@ rg_cube = create_trimmed_cube(leeds_at_centre_gdf, rg_string, {'init' :'epsg:432
 ################################################################
 # Find the coordinates of the grid cell containing the point of interest
 ################################################################   
-rg_closest_coordinates = find_closest_coordinates(rg_cube, sample_point, 9) 
-rf_closest_coordinates_old= find_closest_coordinates_old(rf_cube, sample_point)    
-rf_closest_coordinates_new= find_closest_coordinates(rf_cube, sample_point,9)    
+rg_closest_coordinates = find_closest_coordinates(rg_cube, sample_point, 1) 
+rf_closest_coordinates =  find_closest_coordinates(rf_cube, sample_point,1)    
 
 ############################################################################
 # Create a cube containing just the timeseries for that location of interest
@@ -358,20 +356,20 @@ rf_time_series_cube = rf_cube.extract(iris.Constraint(projection_y_coordinate=rf
 check_location_of_closestpoint(rg_cube, {'init' :'epsg:4326'},  {'init' :'epsg:3785'}, 
                                sample_point, rg_closest_coordinates[0] )
 check_location_of_closestpoint(rf_cube, {'init' :'epsg:27700'},  {'init' :'epsg:3785'} , 
-                               sample_point, rf_closest_coordinates_new[0])
+                               sample_point, rf_closest_coordinates[0])
 
 print("Creating dataframe")
 rg_df =pd.DataFrame({"time_stamp" : rg_time_series_cube.coord('time').points,
                      "Rainfall": rg_time_series_cube.data})
 rg_df['Date_formatted']  = pd.to_datetime(rg_df['time_stamp'], unit='s')\
                .dt.strftime('%Y-%m-%d %H:%M:%S')
-rg_df.to_csv("rg_df.csv", index = False)
+rg_df.to_csv("rg_df_westleeds.csv", index = False)
 
 print("Creating dataframe")
-rf_df =pd.DataFrame({"time_stamp" : rf_time_series_cube.coord('time').points})
-                    #  "Rainfall": rf_time_series_cube.data})
+rf_df =pd.DataFrame({"time_stamp" : rf_time_series_cube.coord('time').points,
+                     "Rainfall": rf_time_series_cube.data})
 rf_df['Date_formatted']  = pd.to_datetime(rf_df['time_stamp'], unit='s')\
                 .dt.strftime('%Y-%m-%d %H:%M:%S')
-rf_df.to_csv("rf_df.csv", index = False)
+rf_df.to_csv("rf_df_westleeds.csv", index = False)
 
 
