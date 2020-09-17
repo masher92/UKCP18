@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
+from matplotlib.ticker import ScalarFormatter
 
 ########################################################
 # Pre-processing functions
@@ -41,19 +42,23 @@ def log_discrete_bins(min_value,max_value,bins_if_log_spaced,discretisation):
 ########################################################
 ### Plotting functions
 ########################################################
-navy = mpatches.Patch(color='navy', label='Observations')
-firebrick = mpatches.Patch(color='firebrick', label='Projections')
+#navy = mpatches.Patch(color='navy', label='Observations')
+#firebrick = mpatches.Patch(color='firebrick', label='Projections')
 
-def equal_spaced_histogram (dict, bin_nos, x_axis_scaling = 'linear', y_axis_scaling = 'linear'):
-    for key, df in dict.items():
+def equal_spaced_histogram (results_dict, bin_nos, x_axis_scaling = 'linear', y_axis_scaling = 'linear'):
+    keys = list(results_dict.keys())
+    navy = mpatches.Patch(color='navy', label=str(keys[0]))
+    firebrick = mpatches.Patch(color='firebrick', label=str(keys[1]))
+
+    for key, df in results_dict.items():
         # Create a histogram and save the bin edges and the values in each bin
         values, bin_edges = np.histogram(df['Precipitation (mm/hr)'], bins=bin_nos, density=True)
         # Calculate the bin central positions
         bin_centres =  0.5*(bin_edges[1:] + bin_edges[:-1])
         # Draw the plot
-        if key == 'Observations':
+        if key == keys[0]:
             plt.plot(bin_centres, values,linewidth = 1, color = 'navy')
-        else:
+        elif key == keys[1]:
             plt.plot(bin_centres, values,  linewidth = 1, color = 'firebrick')
         #plt.plot(bin_centres, values, color='black', marker='o',markersize =1, linewidth=0.5, markerfacecolor = 'red')
         #plt.hist(wethours['Precipitation (mm/hr)'], bins = bin_no, density = True, color = 'white', edgecolor = 'black', linewidth= 0.5)
@@ -64,14 +69,19 @@ def equal_spaced_histogram (dict, bin_nos, x_axis_scaling = 'linear', y_axis_sca
     plt.title(str(bin_nos) + " bins")
     plt.xscale(x_axis_scaling)
     plt.yscale(y_axis_scaling)
+   
 
 # Plot with log spaced bins (Holloway, 2012)
-def log_spaced_histogram(dict, bin_nos, x_axis_scaling = 'linear', y_axis_scaling = 'linear'):
-    # Find maximum and minimum values across all dataframes in dictionary
-    min_value = find_min_max_dict_values(dict)[0]
-    max_value = find_min_max_dict_values(dict)[1]
+def log_spaced_histogram(results_dict, bin_nos, x_axis_scaling = 'linear', y_axis_scaling = 'linear'):
+    keys = list(results_dict.keys())
+    navy = mpatches.Patch(color='navy', label=str(keys[0]))
+    firebrick = mpatches.Patch(color='firebrick', label=str(keys[1]))
     
-    for key, df in dict.items():
+    # Find maximum and minimum values across all dataframes in dictionary
+    min_value = find_min_max_dict_values(results_dict)[0]
+    max_value = find_min_max_dict_values(results_dict)[1]
+    
+    for key, df in results_dict.items():
         # Create logarithmically spaced bins
         # Need to go slightly under the number e.g. 0.2 otherwise it excluded values of exactly 0.2
         #bins = 10 ** np.linspace(np.log10(0.1), np.log10(30), 50)
@@ -81,9 +91,9 @@ def log_spaced_histogram(dict, bin_nos, x_axis_scaling = 'linear', y_axis_scalin
         density, bin_edges = np.histogram(df['Precipitation (mm/hr)'], bins= bins, density=True)
         bin_centres =  0.5*(bin_edges[1:] + bin_edges[:-1])  
         # Draw the plot
-        if key == 'Observations':
+        if key == keys[0]:
             plt.plot(bin_centres, density ,linewidth = 1, color = 'navy')
-        else:
+        elif key == keys[1]:
             plt.plot(bin_centres, density,  linewidth = 1, color = 'firebrick')
         
     plt.legend(handles=[navy, firebrick])
@@ -92,14 +102,18 @@ def log_spaced_histogram(dict, bin_nos, x_axis_scaling = 'linear', y_axis_scalin
     plt.title(str(bin_nos) + " bins")
     plt.xscale(x_axis_scaling)
     plt.yscale(y_axis_scaling)  
+        
     
+def fractional_contribution(results_dict, bin_nos, x_axis_scaling = 'linear', y_axis_scaling = 'linear'):
+    keys = list(results_dict.keys())
+    navy = mpatches.Patch(color='navy', label=str(keys[0]))
+    firebrick = mpatches.Patch(color='firebrick', label=str(keys[1]))
     
-def fractional_contribution(dict, bin_nos, x_axis_scaling = 'linear', y_axis_scaling = 'linear'):
     # Find maximum and minimum values across all dataframes in dictionary
-    min_value = find_min_max_dict_values(dict)[0]
-    max_value = find_min_max_dict_values(dict)[1]
+    min_value = find_min_max_dict_values(results_dict)[0]
+    max_value = find_min_max_dict_values(results_dict)[1]
     
-    for key, df in dict.items():
+    for key, df in results_dict.items():
         # Create log spaced bins
         bins = np.logspace(np.log10(min_value-0.01),np.log10(max_value), bin_nos)  
         # Find the numbers of precipitation measurements in each bin   
@@ -120,9 +134,9 @@ def fractional_contribution(dict, bin_nos, x_axis_scaling = 'linear', y_axis_sca
             # Add values to list
             fcs.append(fc)
         # Draw the plot
-        if key == 'Observations':
+        if key == keys[0]:
             plt.plot(bin_centres, fcs ,linewidth = 1, color = 'navy')
-        else:
+        elif key == keys[1]:
             plt.plot(bin_centres, fcs,  linewidth = 1, color = 'firebrick')
         
     plt.legend(handles=[navy, firebrick])
@@ -133,11 +147,14 @@ def fractional_contribution(dict, bin_nos, x_axis_scaling = 'linear', y_axis_sca
     plt.yscale(y_axis_scaling)
         
         
-def log_discrete_histogram(dict, bin_nos, x_axis_scaling = 'linear', y_axis_scaling = 'linear'):
+def log_discrete_histogram(results_dict, bin_nos, x_axis_scaling = 'linear', y_axis_scaling = 'linear'):
+    keys = list(results_dict.keys())
+    navy = mpatches.Patch(color='navy', label=str(keys[0]))
+    firebrick = mpatches.Patch(color='firebrick', label=str(keys[1]))
     
     # Create bin edges based on data in all of the dataframes, i.e. use the same bin edges for all dataframes
     #min_value = find_min_max_dict_values(dict)[0]
-    max_value = find_min_max_dict_values(dict)[1]
+    max_value = find_min_max_dict_values(results_dict)[1]
 
     # Maybe min value shoudl be set at 0.05 to make the spacings at the right place
     min_value = 0.05
@@ -149,7 +166,7 @@ def log_discrete_histogram(dict, bin_nos, x_axis_scaling = 'linear', y_axis_scal
     #print ("Based on " + str(bins_if_log_spaced) + " log spaced bins, " + str(len(bin_edges)) + " bins created with " + str(min_value) + str (max_value))
    
     fig, ax = plt.subplots()
-    for key, df in dict.items():
+    for key, df in results_dict.items():
         # Find the numbers of precipitation measurements in each bin   
         densities, bin_edges = np.histogram(df['Precipitation (mm/hr)'], bins= bin_edges, density=True)
         # Find the centre point of each bin for plotting
@@ -157,9 +174,9 @@ def log_discrete_histogram(dict, bin_nos, x_axis_scaling = 'linear', y_axis_scal
         # Plot
        # plt.plot(bin_centres, densities, linewidth = 1.5, label = key)
         # Draw the plot
-        if key == 'Observations':
+        if key == keys[0]:
             plt.plot(bin_centres, densities ,linewidth = 1, color = 'navy')
-        else:
+        elif key == keys[1]:
             plt.plot(bin_centres, densities,  linewidth = 1, color = 'firebrick')
 
 
