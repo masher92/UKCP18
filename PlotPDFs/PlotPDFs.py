@@ -12,14 +12,16 @@ import pandas as pd
 #from scipy import stats
 from matplotlib.ticker import ScalarFormatter
 
-#root_dir = '/nfs/a319/gy17m2a/'
-root_dir = 'C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/'
+root_dir = '/nfs/a319/gy17m2a/'
+#root_dir = 'C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/'
 
 # Define the local directory where the data is stored; set this as work dir
-os.chdir('C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/Scripts/UKCP18/PlotPDFs/')
+os.chdir(root_dir)
 
+# Create path to files containing functions
+sys.path.insert(0, root_fp + 'Scripts/PlotPDFs/')
 from PDF_plotting_functions import *
-#from config import *
+
 location ='Armley'
 
 #############################################
