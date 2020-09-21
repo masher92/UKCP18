@@ -28,6 +28,6 @@ for em in ems:
      output_ddir = 'C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/Outputs/HiClimR_inputdata/{}/Greatest_ten/'.format(region)
      if not os.path.isdir(output_ddir):
         os.makedirs(output_ddir)
-     greatest_ten.to_csv(output_ddir + "em_{}.csv".format(em))
+     greatest_ten.to_csv(output_ddir + "em_{}.csv".format(em), index = False)
      
      
