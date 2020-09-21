@@ -11,25 +11,26 @@ from Spatial_plotting_functions import *
 
 region = 'leeds-at-centre'
 stats = ['Max', 'Mean', '95th Percentile','97th Percentile', '99th Percentile','99.5th Percentile','Greatest_ten', 'Greatest_twenty']
-stats = ['Greatest_twenty']
 ems = ['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
 
 mask = pd.read_csv("Outputs/RegionalMasks/{}_mask.csv".format(region))
 
+all_stats = pd.DataFrame(columns = ['Stat', 'Min','Mean', 'Max'])
+
 ##############################################################################
 leeds_gdf = create_leeds_outline({'init' :'epsg:3785'})
 #leeds_gdf = create_leeds_outline({'init' :'epsg:4326'})
- 
 ################################
 
+###########################################################################
+# 1ST LOOP:
+# In each plot the color bar used should be the same. To achieve this we need
+# to know before plotting any ensemble member's plot what the maximum and
+# minimum values will be across all of the ensemble members
+###########################################################################
+    
 for stat in stats:
     print(stat)
-    ###########################################################################
-    # In each plot the color bar used should be the same. To achieve this we need
-    # to know before plotting any ensemble member's plot what the maximum and
-    # minimum values will be across all of the ensemble members
-    ###########################################################################
-    
     # Make a dataframe in which all the columns from all the ensemble members will be stored
     # This will be used to test....
     all_precip_vals = pd.DataFrame({})
@@ -64,15 +65,15 @@ for stat in stats:
          print("Max: " + str(round(max_actual_value, 2)))
          
          # Create column containing the mean value across all 20 years of data
-         stat_data['mean'] = stat_data.iloc[:, 3:22].mean(axis=1)
+         precip_vals['mean'] = precip_vals.mean(axis=1)
          
          # If the maximum or minimum of this mean value is bigger/smaller than
          # the max/min values across all ensemble members then set this value
          # as the global max/min
-         if stat_data['mean'].max() > max_val:
-             max_val = stat_data['mean'].max()
-         if stat_data['mean'].min() < min_val:
-             min_val = stat_data['mean'].min()
+         if precip_vals['mean'].max() > max_val:
+             max_val = precip_vals['mean'].max()
+         if precip_vals['mean'].min() < min_val:
+             min_val = precip_vals['mean'].min()
     
     # Can't remember what the point of this ?
     min_val = min_val - (min_val/100 * 2)
@@ -80,82 +81,92 @@ for stat in stats:
     
   
     ###########################################################################
+    # 2ND LOOP:
     # Loop through the 12 positions in a 3x4 subfigure plot
     # For each position read in the data for an ensemble member
-    # 
     ###########################################################################
-    i=0
     # Width, height
-    fig=plt.figure(figsize=(10,16)) # Northern
-    #fig=plt.figure(figsize=(13,14)) # Leeds-at-centre
+    #fig=plt.figure(figsize=(10,16)) # Northern
+    fig=plt.figure(figsize=(13,14)) # Leeds-at-centre
     columns = 3
     rows = 4
-    for new_i in range(1, 13):
+    for ensemble_mem_no in range(1, 13):
         # Select an ensemble member
-        em = ems[new_i -1]
+        em = ems[ensemble_mem_no -1]
         print(em)
         
         # Load in the data
         general_filename = 'C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/Outputs/HiClimR_inputdata/{}/{}/em_{}.csv'.format(region, stat, em)
         stat_data = pd.read_csv(general_filename)
-              
+   
+        # Select just the precipitation values (delete both lat/lon columns and mask column)
+        precip_vals = stat_data.drop(["lat.1", "lon.1", "mask"], axis=1)
+        
         # Create column containing the mean value across all 20 years of data
-        stat_data['mean'] = stat_data.iloc[:, 3:22].mean(axis=1)
-         
-        # Make the lat, lons from the mask the same length
-        stat_data = stat_data.round({'lat': 8, 'lon': 8})
-            
-        # WHY DO WE USE THE MASK? FOR WHEN WER'RE USING DIFFERENT REGIONS PRESUMABLE
+        len(precip_vals.iloc[:,2:].columns)
+        precip_vals['mean'] = precip_vals.iloc[:,2:].mean(axis=1)
+        
+        # In order to plot the data, we need to convert it from the way it has been
+        # stored - a 1D dataframe to a 2D array.
+        # To do this, we join the lats and lons to a dataframe containing all of 
+        # the lats and lons in the Northern region
+        
+        # Read in CSV containing all the lats and lons in the entire Northern region
         mask = pd.read_csv("Outputs/RegionalMasks/{}_mask.csv".format(region))
+        # Round to ensure the data and mask lat and lons are the same length
         mask = mask.round({'lat': 8, 'lon': 8})
-    
-        # Join the mask with the region codes
-        df_outer = mask.merge(stat_data,  on=['lat', 'lon'], how="left")
-    
-        # Convert to 2D
-        lats_2d = df_outer['lat'].to_numpy().reshape(144, 114)
-        lons_2d = df_outer['lon'].to_numpy().reshape(144, 114)
-        df_outer_2d = df_outer['mean'].to_numpy().reshape(144, 114)
+        precip_vals = precip_vals.round({'lat': 8, 'lon': 8})
+        # Join the mask to the statistics data 
+        precip_vals = mask.merge(precip_vals,  on=['lat', 'lon'], how="left")
+
+        # Use this dataset which contains lat/lons for the whole of northern region
+        # (with values only for those locations within our region of interest)
+        # and convert to 2D for use in plotting
+        # This uses dimensios of 144 by 114 which is known as the original 2d
+        # dimensions of the northern region
+        lats_2d = precip_vals['lat'].to_numpy().reshape(144, 114)
+        lons_2d = precip_vals['lon'].to_numpy().reshape(144, 114)
+        precip_vals_2d = precip_vals['mean'].to_numpy().reshape(144, 114)
         
-        ##### TRIM
-        mx = np.ma.masked_invalid(df_outer_2d)
+        # Mask out cells not within the region of interest
+        mx = np.ma.masked_invalid(precip_vals_2d)
         
+        # Remove any columns and rows which have no unmasked values in their 
+        # whole extent
         mask_cols = ~np.all(mx.mask, axis=0)
-        df_outer_2d = df_outer_2d[:, mask_cols]
+        precip_vals_2d = precip_vals_2d[:, mask_cols]
         lats_2d = lats_2d[:, mask_cols]
         lons_2d = lons_2d[:, mask_cols]
         
-        mask_rows = np.all(np.isnan(df_outer_2d) | np.equal(df_outer_2d, 0), axis=1)
-        df_outer_2d = df_outer_2d[~mask_rows]
+        mask_rows = np.all(np.isnan(precip_vals_2d) | np.equal(precip_vals_2d, 0), axis=1)
+        precip_vals_2d = precip_vals_2d[~mask_rows]
         lats_2d = lats_2d[~mask_rows]
         lons_2d = lons_2d[~mask_rows]
 
-        # Convert the projections
+        # Convert the projections to Web Mercator
         inProj = Proj(init='epsg:4326')
         outProj = Proj(init='epsg:3785')
         lons_2d, lats_2d = transform(inProj,outProj,lons_2d, lats_2d)
     
-        ax = fig.add_subplot(rows, columns, new_i)
-        #fig.add_subplot(rows, columns, new_i)
-        my_plot = ax.pcolormesh(lons_2d, lats_2d, df_outer_2d, cmap = 'terrain_r',  linewidths=3, alpha = 1, vmin = min_val, vmax = max_val)
-        
-        #ax.set_title("Num clusters: "+ str(num_clusters_ls[0]), fontsize = 10)
+        #### Plot
+        ax = fig.add_subplot(rows, columns, ensemble_mem_no)
+        my_plot = ax.pcolormesh(lons_2d, lats_2d, precip_vals_2d, cmap = 'PuBu',  linewidths=3, alpha = 1, vmin = min_val, vmax = max_val)
         leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=1)
-        #if new_i == 6 or new_i == 3 or new_i ==9 or new_i ==12:
-        #    fig.colorbar(my_plot, ax=ax, fraction=0.036, pad=0.02)
-        
         plt.axis('off')
-        #plt.title(str(num_clusters_ls[i]) + " Clusters", fontsize=10)
-        i= i +1
+        
+        # Increase the number of ensemble_mem_no, so we move to the next EM
+        ensemble_mem_no = ensemble_mem_no +1
     
-    #fig.suptitle(stat, fontsize=50)
-   # fig.subplots_adjust(top=1.5)
+    # Add one colorbar for whole plot
     cbar_ax = fig.add_axes([0.99, 0.15, 0.05, 0.7])
     cb1 = fig.colorbar(my_plot, cax=cbar_ax, fraction=0.036, pad=0.0)
+    # Set formatting
     cb1.ax.tick_params(labelsize=25)
     fig.tight_layout() 
 
-    ## Save figure
+    #############################################################
+    # Save figure
+    #############################################################
     ddir = 'C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/Outputs/HiClimR_plots/{}/Meteorology/'.format(region) 
     if not os.path.isdir(ddir):
         os.makedirs(ddir)
@@ -166,14 +177,19 @@ for stat in stats:
     print("Figure Saved")
     fig.savefig(filename,bbox_inches='tight')
   
-    
+    #############################################################
+    # Find min, max and mean across all years of data, locations and ensemble members
+    #############################################################
     # Take mean over years
-    min_actual_value = all_the_data.min().min()
+    min_actual_value = all_precip_vals.min().min()
     print("Min: " + str(round(min_actual_value, 2)))
-    max_actual_value = all_the_data.max().max()
+    max_actual_value = all_precip_vals.max().max()
     print("Max: " + str(round(max_actual_value, 2)))
-    mean_actual_value = all_the_data.mean().mean()
+    mean_actual_value = all_precip_vals.mean().mean()
     print("Mean: " + str(round(mean_actual_value, 2)))
-    
+        
+    df2 = pd.DataFrame([[stat, round(min_actual_value, 2), round(mean_actual_value, 2), round(max_actual_value, 2)]],  columns = ['Stat', 'Min','Mean', 'Max'])
+    all_stats = all_stats.append(df2)
 
-#plt.pcolormesh(lons_2d, lats_2d, df_outer_2d, cmap = 'terrain',  linewidths=3, alpha = 1, vmin = min_val, vmax = max_val)
+
+
