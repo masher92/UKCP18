@@ -48,6 +48,16 @@ rf_string = '_reformatted/rf_'
 # Coordinates of location of interest
 sample_point = [('grid_latitude', 53.796638), ('grid_longitude', -1.592600)]
 
+# Create region with Leeds at the centre
+lons = [54.130260, 54.130260, 53.486836, 53.486836]
+lats = [-2.138282, -0.895667, -0.895667, -2.138282]
+polygon_geom = Polygon(zip(lats, lons))
+leeds_at_centre_gdf = gpd.GeoDataFrame(index=[0], crs={'init': 'epsg:4326'}, geometry=[polygon_geom])
+leeds_at_centre_gdf = leeds_at_centre_gdf.to_crs({'init' :'epsg:27700'}) 
+
+# Create otuline of Leeds itself
+leeds_gdf = create_leeds_outline({'init' :'epsg:27700'})
+
 ################################################################
 # Create a cube trimmed to the oputline of the square area surrounding Leeds
 ################################################################   
