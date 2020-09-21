@@ -24,12 +24,12 @@ from PDF_plotting_functions import *
 ##############################################################################
 # Reading in data 
 ##############################################################################
-rf_df = pd.read_csv(root_fp + "Outputs/CEH-GEAR_reformatted/rf_df.csv")
+rf_df = pd.read_csv(root_fp + "Outputs/CEH-GEAR_reformatted/rf_df_westleeds.csv")
 rf_df.rename(columns={'Rainfall':'Precipitation (mm/hr)'}, inplace=True)
 rf_df = rf_df.dropna()
 #rf_wethours_df = rf_df[rf_df['Precipitation (mm/hr)'] > 0.1]
 
-rg_df = pd.read_csv(root_fp + "Outputs/CEH-GEAR_regridded_2.2km/rg_df.csv")
+rg_df = pd.read_csv(root_fp + "Outputs/CEH-GEAR_regridded_2.2km/rg_df_westleeds.csv")
 rg_df.rename(columns={'Rainfall':'Precipitation (mm/hr)'}, inplace=True)
 rg_df = rg_df.dropna()
 #rg_wethours_df = rg_df[rg_df['Precipitation (mm/hr)'] > 0.1]
@@ -38,8 +38,8 @@ rg_df = rg_df.dropna()
 # Setting up dictionary
 ##############################################################################
 my_dict = {}
-my_dict['Original 1km'] = rf_wethours_df
-my_dict['Regridded 2.2km'] = rg_wethours_df
+#my_dict['Original 1km'] = rf_wethours_df
+#my_dict['Regridded 2.2km'] = rg_wethours_df
 
 my_dict['Original 1km'] = rf_df
 my_dict['Regridded 2.2km'] = rg_df
@@ -53,7 +53,7 @@ bin_nos =40
 bins_if_log_spaced= bin_nos
 
 # Equal spaced   
-equal_spaced_histogram(my_dict, bin_nos, 'log', 'log')
+equal_spaced_histogram(my_dict, bin_nos, x_axis, y_axis)
 
 # Log spaced histogram
 log_spaced_histogram(my_dict, bin_nos,x_axis, y_axis)    
