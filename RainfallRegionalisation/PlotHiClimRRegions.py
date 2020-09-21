@@ -79,10 +79,9 @@ os.chdir(root_fp)
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/SpatialAnalyses')
 from Spatial_plotting_functions import *
 
-region = 'Northern' #['WY', 'Leeds-at-centre' 'Northern']
-#stats = [ 'Mean']
+region = 'leeds-at-centre' #['WY', 'Leeds-at-centre' 'Northern']
+stats = [ 'ValuesOverPercentile/99']
 #['97th Percentile','Max', 'Mean', 'Greatest_ten','95th Percentile', '99th Percentile', '99.5th Percentile', '99.9th Percentile', '99.99th Percentile']
-stats = ['Mean']
 ems =['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
 num_clusters_ls = [2,3,4,5,10]
 
@@ -118,7 +117,7 @@ for stat in stats:
                 print(em)
                 
                 # Load in its region codes
-                general_filename = 'C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/Outputs/HiClimR_outputdata/{}/{}/{} clusters/em{}_nodetrend.csv'.format(region, stat, num_clusters,em)
+                general_filename = 'C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/Outputs/HiClimR_outputdata/{}/{}/{} clusters/em{}.csv'.format(region, stat, num_clusters,em)
                 region_codes = pd.read_csv(general_filename)
                 region_codes = region_codes.rename(columns={'lats': 'lat', 'lons': 'lon'})
                                 
@@ -178,7 +177,7 @@ for stat in stats:
         ddir = 'C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/Outputs/HiClimR_plots/{}/{}'.format(region, stat) 
         if not os.path.isdir(ddir):
             os.makedirs(ddir)
-        filename =  ddir + '/{}_clusters_nodetrend.jpg'.format(num_clusters)    
+        filename =  ddir + '/{}_clusters.jpg'.format(num_clusters)    
         # Delte figure if it already exists, to avoid overwriting error
         if os.path.isfile(filename):
            os.remove(filename) 
@@ -212,11 +211,11 @@ for stat in stats:
     cb1.ax.tick_params(labelsize=25)
     
     
-        ## Save figure
+    ## Save figure
     ddir = 'C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/Outputs/HiClimR_plots/{}/{}'.format(region, stat) 
     if not os.path.isdir(ddir):
         os.makedirs(ddir)
-    filename =  ddir + '/EnsembleSimilarity_nodetrend.jpg'
+    filename =  ddir + '/EnsembleSimilarity.jpg'
     # Delte figure if it already exists, to avoid overwriting error
     if os.path.isfile(filename):
        os.remove(filename) 
