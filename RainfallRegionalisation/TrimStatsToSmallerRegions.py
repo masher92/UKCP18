@@ -24,11 +24,12 @@ warnings.filterwarnings("ignore")
 root_fp = "/nfs/a319/gy17m2a/"
 os.chdir(root_fp)
 
-stats= ['Greatest_ten', 'Max','Mean', '95th Percentile', '97th Percentile', '99th Percentile', '99.5th Percentile']
-regions = ['WY_square']
+#stats= ['Greatest_ten', 'Max','Mean', '95th Percentile', '97th Percentile', '99th Percentile', '99.5th Percentile']
+stats = ['ValuesOverPercentile/99', 'ValuesOverPercentile/99.5', 'ValuesOverPercentile/99.9', 'ValuesOverPercentile/99.95', 'ValuesOverPercentile/99.99']
+regions = ['leeds-at-centre']   
 ems = ['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
 
-########    
+##############################################################################    
 for region in regions:
     for em in ems:    
         for stat in stats:
