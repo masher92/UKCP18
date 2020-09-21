@@ -129,11 +129,11 @@ for em in ems:
     #jja_mean.to_netcdf('/nfs/a319/gy17m2a/Outputs/mem_'+ em+ '_jja_mean.nc', encoding={'rank_in_season': {'dtype': 'i4'}})    
     #jja_percentiles.to_netcdf('/nfs/a319/gy17m2a/Outputs/mem_'+ em+ '_jja_percentiles.nc', encoding={'rank_in_season': {'dtype': 'i4'}}) 
     
-    iris.save(jja_max, '/nfs/a319/gy17m2a/Outputs/mem_'+ em+ '_jja_max.nc')
+    iris.save(jja_max, '/nfs/a319/gy17m2a/Outputs/em_'+ em+ '_jja_max.nc')
     print("JJA max saved")
-    iris.save(jja_mean, '/nfs/a319/gy17m2a/Outputs/mem_'+ em+ '_jja_mean.nc')
+    iris.save(jja_mean, '/nfs/a319/gy17m2a/Outputs/em_'+ em+ '_jja_mean.nc')
     print("JJA mean saved")
-    iris.save(jja_percentiles, '/nfs/a319/gy17m2a/Outputs/mem_'+ em+ '_jja_percentiles.nc')
+    iris.save(jja_percentiles, '/nfs/a319/gy17m2a/Outputs/em_'+ em+ '_jja_percentiles.nc')
     print("JJA percentiles saved")
     
 #    ##########################################
