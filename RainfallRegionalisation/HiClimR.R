@@ -3,7 +3,7 @@ library(dplyr)
 
 region = 'leeds-at-centre' #'WY' 'Northern'
 
-stats = list('ValuesOverPercentile/99') # 'Greatest_ten'
+stats = list('99.9th Percentile') # 'Greatest_ten'
 #stats = ('99.5th Percentile', '99.9th Percentile', '99.99th Percentile', '97th Percentile', '99th Percentile', '95th Percentile') 
 #ems = list('04', '05')
 ems = list('01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15')
