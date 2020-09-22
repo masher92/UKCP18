@@ -38,3 +38,6 @@ None of these data sets however result in the production of coherent clusters.
 
 Checking data:
 Values for each percentile are coherent e.g. 5 values for 99.99th percentile are the top 5 values in 99th Percentile values and so on.  
+
+
+## Questions/Thoughts

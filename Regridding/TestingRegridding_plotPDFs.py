@@ -62,7 +62,7 @@ log_spaced_histogram(my_dict, bin_nos,x_axis, y_axis)
 fractional_contribution(my_dict, bin_nos,x_axis, y_axis) 
              
 # Log histogram with adaptation     
-log_discrete_histogram(my_dict, 20,x_axis, y_axis) 
+log_discrete_histogram(my_dict, 83,x_axis, y_axis) 
 
 
 ##########################################################################
