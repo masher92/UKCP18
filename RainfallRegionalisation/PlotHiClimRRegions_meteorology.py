@@ -10,13 +10,16 @@ sys.path.insert(0, root_fp + 'Scripts/UKCP18/SpatialAnalyses')
 from Spatial_plotting_functions import *
 
 region = 'leeds-at-centre'
-stats = ['Max', 'Mean', '95th Percentile','97th Percentile', '99th Percentile','99.5th Percentile','Greatest_ten', 'Greatest_twenty']
+stats = ['ValuesOver20Years/Max', 'ValuesOver20Years/Mean', 'ValuesOver20Years/95th Percentile','ValuesOver20Years/97th Percentile', 
+         'ValuesOver20Years/99th Percentile','ValuesOver20Years/99.5th Percentile', 'ValuesOver20Years/99.75th Percentile', 
+         'ValuesOver20Years/99.9th Percentile']
 ems = ['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
 
 mask = pd.read_csv("Outputs/RegionalMasks/{}_mask.csv".format(region))
 
-all_stats = pd.DataFrame(columns = ['Stat', 'Min','Mean', 'Max'])
+all_stats = pd.DataFrame(columns = ['Stat', 'Min', 'Max', 'Mean','Median', 'IQR'])
 
+all_precip_vals_dict = {}
 ##############################################################################
 leeds_gdf = create_leeds_outline({'init' :'epsg:3785'})
 #leeds_gdf = create_leeds_outline({'init' :'epsg:4326'})
@@ -180,16 +183,74 @@ for stat in stats:
     #############################################################
     # Find min, max and mean across all years of data, locations and ensemble members
     #############################################################
+    stat = stat.replace('ValuesOver20Years/','')
+    arr_all_precip_vals = all_precip_vals.to_numpy()
+    all_precip_vals_1d = arr_all_precip_vals.reshape(-1)
+    all_precip_vals_dict[stat] = all_precip_vals_1d
+    
     # Take mean over years
-    min_actual_value = all_precip_vals.min().min()
+    
+    q75, q25 = np.percentile(all_precip_vals, [75 ,25])
+    iqr =  q75 - q25
+    print("IQR: " + str(round(iqr, 2)))
+    
+    min_actual_value = np.min(arr_all_precip_vals)
     print("Min: " + str(round(min_actual_value, 2)))
-    max_actual_value = all_precip_vals.max().max()
+    
+    max_actual_value =  np.max(arr_all_precip_vals)
     print("Max: " + str(round(max_actual_value, 2)))
-    mean_actual_value = all_precip_vals.mean().mean()
+    
+    mean_actual_value = np.mean(arr_all_precip_vals)
     print("Mean: " + str(round(mean_actual_value, 2)))
+    
+    median_actual_value = np.median(arr_all_precip_vals)
+    print("Median: " + str(round(median_actual_value, 2)))
         
-    df2 = pd.DataFrame([[stat, round(min_actual_value, 2), round(mean_actual_value, 2), round(max_actual_value, 2)]],  columns = ['Stat', 'Min','Mean', 'Max'])
+        
+    df2 = pd.DataFrame([[stat, round(min_actual_value, 2), round(mean_actual_value, 2), 
+                         round(max_actual_value, 2),   round(median_actual_value, 2),
+                          round(iqr, 2)]],
+                       columns = ['Stat', 'Min','Max', 'Mean', 'Median', 'IQR'])
     all_stats = all_stats.append(df2)
 
+
+# Convert to format for pasting in Latex
+#all_stats.to_latex()
+
+
+## PLotting
+data = [all_precip_vals_dict['95th Percentile'], all_precip_vals_dict['97th Percentile']]
+red_square = dict(markerfacecolor='r', marker='s')
+plt.boxplot(all_precip_vals_dict['95th Percentile'], flierprops=red_square, vert=False, whis=0.75)
+plt.boxplot(all_precip_vals_dict['95th Percentile'], vert = False)
+plt.boxplot(data, vert = False)
+
+
+# Set color of marker edge
+flierprops = dict(marker='.', markerfacecolor='black', markersize=.1)
+# Plot
+fig, ax = plt.subplots()
+# Showfliers, set to false for no outliers
+ax.boxplot(all_precip_vals_dict.values(),  showfliers=False,flierprops=flierprops)
+ax.set_xticklabels(all_precip_vals_dict.keys(), ha='right')
+ax.tick_params(axis='x', rotation=45)
+
+
+
+######## Taking only stats with smaller values
+# small_precip_vals_dict = {}
+# i = 0
+# for key, val in all_precip_vals_dict.items():
+#     print(key)
+#     if i in [1,2,3,4,5]:
+#         print('2')
+#         small_precip_vals_dict[key] = val
+    
+#     i= i +1
+
+# fig, ax = plt.subplots()
+# ax.boxplot(small_precip_vals_dict.values())
+# ax.set_xticklabels(small_precip_vals_dict.keys())
+# ax.tick_params(axis='x', rotation=45)
 
 
