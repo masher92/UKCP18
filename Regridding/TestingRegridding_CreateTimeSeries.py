@@ -67,8 +67,8 @@ rg_cube = create_trimmed_cube(leeds_at_centre_gdf, rg_string, {'init' :'epsg:432
 ################################################################
 # Plot cubes to check the grid
 ################################################################   
-#check_location_of_closestpoint(rg_cube, {'init' :'epsg:4326'},  {'init' :'epsg:3785'}, sample_point )
-#check_location_of_closestpoint(rf_cube, {'init' :'epsg:4326'},  {'init' :'epsg:3785'}, sample_point )
+plot_grid_highlight_cells(rg_cube, {'init' :'epsg:4326'},  {'init' :'epsg:3785'}, sample_point )
+plot_grid_highlight_cells(rf_cube, {'init' :'epsg:4326'},  {'init' :'epsg:3785'}, sample_point )
 
 ################################################################
 # Find the coordinates of the grid cell containing the point of interest

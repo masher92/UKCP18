@@ -1,5 +1,5 @@
 '''
-Finds max, mean, percentiles and greatest ten values for every cell in the cube
+Finds...
 which is within the bounding box of the North of England.
 '''
 
@@ -18,8 +18,9 @@ import sys
 Numba executes loops efficiently (just in time compiling)
 Somehow, the exceptions do not work well within numba, so they are passed out as integers"""
 @jit
-def values_above_percentile(rain_data,percentile_cutoff_data):
+def values_above_percentile(rain_data, percentile_cutoff_data):
     exception=0
+    # Find shape of data for use in for loop
     imax=np.shape(rain_data)[1] 
     jmax=np.shape(rain_data)[2]
     if(np.shape(percentile_cutoff_data)[0]>1):
@@ -33,7 +34,7 @@ def values_above_percentile(rain_data,percentile_cutoff_data):
     n_over_percentile = len(data_over_percentile)   
     print(n_over_percentile)
     
-    # first dimension is for time
+    # First dimension is for time
     n_highest_array=np.zeros((1,n_over_percentile,imax,jmax))
     for i in range(imax):
         for j in range(jmax):
@@ -72,8 +73,9 @@ from Pr_functions import *
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/SpatialAnalyses')
 from Spatial_plotting_functions import *
 
-ems = ['04','05']
-years = range(1981,2000)  
+# Define ensemble members to use and percentiles to find
+ems = ['01', '04','05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
+percentiles = [95, 97] 
 
 ############################################
 # Create a GDF for Northern England
@@ -87,6 +89,8 @@ regional_gdf['merging_col'] = 0
 regional_gdf = regional_gdf.dissolve(by='merging_col')
 
 ############################################
+# For each ensemble member:
+# Create a cube containing 20 years of data, trimmed to the North of England, with just JJA values
 # 
 #############################################
 for em in ems:
@@ -123,25 +127,28 @@ for em in ems:
     #iris.coord_categorisation.add_season_year(jja,'time', name = "season") 
                
     #############################################
-    #
-    #############################################  
+    # Find the lats and lons
+    ############################################# 
+    # Get the lats and lons in 1D
     lats= jja.coord('latitude').points.reshape(-1)
     lons =  jja.coord('longitude').points.reshape(-1) 
       
-    percentiles = [99] 
-    jja_percentiles = jja.aggregated_by(['clim_season'], iris.analysis.PERCENTILE, 
-                                        percent=percentiles)
-
+    # Find percentiles  
+    jja_percentiles = jja.aggregated_by(['clim_season'], iris.analysis.PERCENTILE, percent=percentiles)
+    
+    # For each of the percentiles calculated:
     for percentile_no in range(jja_percentiles.shape[0]):
       print(percentile_no)
       print(percentiles[percentile_no])
+      
+      # Extract just the data for the percentile we are focussing on 
       percentile = jja_percentiles[percentile_no,:,:,:] 
         
       ### Set percentile cutoff values
       percentile_cutoff_data=percentile.data
       
       # Perform the main algorithm.
-      n_highest_array=values_above_percentile(jja.data,percentile_cutoff_data)
+      n_highest_array=values_above_percentile(jja.data, percentile_cutoff_data)
        
       ######## Store in format for R
       # Remove Ensemble member dimension 
