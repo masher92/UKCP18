@@ -38,21 +38,40 @@ lons = [54.130260, 54.130260, 53.486836, 53.486836]
 lats = [-2.138282, -0.895667, -0.895667, -2.138282]
 polygon_geom = Polygon(zip(lats, lons))
 leeds_at_centre_gdf = gpd.GeoDataFrame(index=[0], crs={'init': 'epsg:4326'}, geometry=[polygon_geom])
-#leeds_at_centre_gdf = leeds_at_centre_gdf.to_crs({'init' :'epsg:3785'}) 
+leeds_at_centre_gdf = leeds_at_centre_gdf.to_crs({'init' :'epsg:3785'}) 
 
 ##################################################################
+# Create dictionaries storing the maximum and minimum values found for 
+# each statistic, considering all ensemble members and all grid cells
+##################################################################
+# Create a dictionary to store results for each ensemble member (which is in itself a dictionary)
 ems_dict = {}
+
+# Loop through ensemble members
 for em in ems:
+    print(em)
+    # Create dictionary for that ensemble member to store results of differnet stats
     em_dict = {}
+    # Load in netcdf files containing the max, mean and percentiles values over the whole UK
     jja_max = iris.load('/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/em_'+ em+ '_jja_max.nc')[0]
     jja_mean = iris.load('/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/em_'+ em+ '_jja_mean.nc')[0]
     jja_percentiles = iris.load('/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/em_'+ em+ '_jja_percentiles.nc')[0]
+    # Trim to smaller area
+    jja_max = trim_to_bbox_of_region(jja_max, leeds_at_centre_gdf)
+    jja_mean = trim_to_bbox_of_region(jja_mean, leeds_at_centre_gdf)
+    jja_percentiles = trim_to_bbox_of_region(jja_percentiles, leeds_at_centre_gdf)
     
+    # List the different stats included
     stats = [jja_mean, jja_max, jja_percentiles]
+    
+    # If this is the first time through the loop e.g. the first ensemble member, 
+    # then create dictionary which will store the max and min values for each 
+    # statistic across all the ensemble members
+    # Loop through the stats and for each set the value to sometihng unfeasible
     if em == '01':
-        # Create dictionarities to store max/min values and set them to unfeasible values
         max_vals_dict = {}
         min_vals_dict = {}
+        # Loop through stats setting max = 10000 and min = 0
         for stat in stats:
             if stat == jja_percentiles:
                 for i in range(jja_percentiles.shape[0]):
@@ -65,8 +84,8 @@ for em in ems:
                 name = namestr(stat, globals())[0]
                 max_vals_dict[name] = 0
                 min_vals_dict[name] = 10000
-#        
-    # Store all stats values in dictionary
+        
+    # Now loop through all the ensemble members and store the real values
     for stat in stats:
         if stat == jja_percentiles:
             for i in range(jja_percentiles.shape[0]):
@@ -78,6 +97,8 @@ for em in ems:
                 min_vals_dict[name] = stat.data.min() if stat.data.min() < min_vals_dict[name] else min_vals_dict[name]      
         else:
             name = namestr(stat, globals())[0]
+            print(name)
+            print (stat.data.max()) 
             em_dict[name] = stat
             max_vals_dict[name] = stat.data.max() if stat.data.max() > max_vals_dict[name] else max_vals_dict[name]
             min_vals_dict[name] = stat.data.min() if stat.data.min() < min_vals_dict[name] else min_vals_dict[name]      
@@ -105,71 +126,6 @@ for stat in stats:
    # Extract the max, min values
     max_value = max_vals_dict[stat]
     min_value = min_vals_dict[stat]
-    em_i = 0
-    # rows, cols = 4, 3
-    # fig, ax = plt.subplots(rows, cols,
-    #                        sharex='col', 
-    #                        sharey='row',
-    #                        figsize=(20, 18))
-    # for row in range(4):
-    #     for col in range(3):
-    #         # Select an ensemble member
-    #         em = ems[em_i]
-    #         print(em)
-    #         em_dict = ems_dict[em]
-    #         # Extract correct stat
-    #         cube = em_dict[stat]
-    #         #Create a 2D grid
-    #         grid = cube[0]
-    #         # Trim to smaller area
-    #         grid = trim_to_bbox_of_region(grid, leeds_at_centre_gdf)
-            
-    #         lats_2d = grid.coord('latitude').points
-    #         lons_2d = grid.coord('longitude').points
-    #         data = grid.data
-            
-    #         inProj = Proj(init='epsg:4326')
-    #         outProj = Proj(init='epsg:3857')
-    #         lons_2d, lats_2d = transform(inProj,outProj,lons_2d, lats_2d)
-            
-
-    #         # Plot           
-    #         my_plot = ax[row, col].pcolormesh(lons_2d, lats_2d, data,
-    #                                linewidths=3, alpha = 1, cmap = precip_colormap)
-    #         leeds_gdf.plot(ax=ax[row, col],edgecolor='black', color='none', linewidth=2)
-    #         ax[row, col].tick_params(axis='x', labelsize= 25)
-    #         ax[row, col].tick_params(axis='y', labelsize= 25)
-    #         # Plot           
-    #         # ax[row, col].pcolormesh(lons_2d, lats_2d, region_codes_2d,
-    #         #                       linewidths=3, alpha = 1, cmap = 'tab20')
-    #         #     leeds_gdf.plot(ax=ax[row, col], edgecolor='black', color='none', linewidth=2)
-    #         #     ax[row, col].tick_params(axis='x', labelsize= 25)
-    #         #     ax[row, col].tick_params(axis='y', labelsize= 25)
-    #         #     #ax[row, col].set_title('The function g', fontsize=5)
-    #         #     em_i = em_i +1
-    #        # levels = np.round(np.linspace(min_value, max_value, 15),2)
-    #        # qplt.contourf(ax[row, col], grid,levels = levels,cmap=precip_colormap, extend="both")
-    #         #qplt.contourf(ts_grid,levels = levels,
-    #         #              cmap=precip_colormap, extend="both")
-            
-    #         # fig=plt.figure(figsize=(20,16))
-    #         #levels = np.round(np.linspace(min_value, max_value, 15),2)
-    #         #contour = iplt.contourf(grid,levels = levels,cmap=precip_colormap, extend="both")
-    #         #leeds_gdf.plot(ax=ax[row, col],edgecolor='black', color='none', linewidth=2)
-    #         #plt.gca().coastlines(resolution='50m', color='black', linewidth=2)
-    #         #plt.plot(0.6628091964140957, 1.2979678925914127, 'o', color='black', markersize = 3) 
-    #         #plt.title("JJA mean", fontsize =40) 
-    #         #plt.colorbar(fraction=0.036, pad=0.02)
-    #         #cb = plt.colorbar(fraction=0.036, pad=0.02)
-    #         #cb.ax.tick_params(labelsize=25)
-            
-    #         em_i = em_i +1
- 
-
-    # fig.tight_layout()
-    # #fig.subplots_adjust(top=1.5)
-    # cbar_ax = fig.add_axes([1.02, 0.37, 0.02, 0.25])
-    # cb1 = fig.colorbar(my_plot, cax=cbar_ax, fraction=0.046, pad=0.0)
     
     em_i=0
     i=0

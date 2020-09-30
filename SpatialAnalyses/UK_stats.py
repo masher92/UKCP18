@@ -118,9 +118,9 @@ for em in ems:
     # Find Max, mean, percentiles
     #############################################
     #seconds = time.time()
-    jja_mean = jja.aggregated_by(['clim_season'], iris.analysis.MEAN)
-    jja_max = jja.aggregated_by(['clim_season'], iris.analysis.MAX)
-    jja_percentiles = jja.aggregated_by(['clim_season'], iris.analysis.PERCENTILE, percent=[95,97,99,99.5, 99.9, 99.99])
+    jja_mean = jja.aggregated_by(['season_year'], iris.analysis.MEAN)
+    jja_max = jja.aggregated_by(['season_year'], iris.analysis.MAX)
+    jja_percentiles = jja.aggregated_by(['season_year'], iris.analysis.PERCENTILE, percent=[95,97,99,99.5, 99.9, 99.99])
   
     ###########################################
     ## Save to file
