@@ -26,7 +26,7 @@ os.chdir(root_fp)
 
 #stats= ['Greatest_ten', 'Max','Mean', '95th Percentile', '97th Percentile', '99th Percentile', '99.5th Percentile']
 #stats = ['ValuesOverPercentile/99', 'ValuesOverPercentile/99.5', 'ValuesOverPercentile/99.9', 'ValuesOverPercentile/99.95', 'ValuesOverPercentile/99.99']
-stats = ['ValuesOver20Years/Max', 'ValuesOver20Years/Mean']
+stats = ['Max']
 regions = ['leeds-at-centre']   
 ems = ['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
 
@@ -45,6 +45,10 @@ for region in regions:
             
             # Remove NAs - outside mask
             joined = joined.dropna()
+            # Remove duplicate of lat/lon columns
+            joined = joined.loc[:,~joined.columns.duplicated()]
+            # Remove within_region columns
+            joined.drop(joined.columns[2], axis =1, inplace = True)         
            
             ddir = "Outputs/HiClimR_inputdata/{}/{}/".format(region, stat)
             if not os.path.isdir(ddir):
