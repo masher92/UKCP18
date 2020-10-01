@@ -79,8 +79,8 @@ os.chdir(root_fp)
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/SpatialAnalyses')
 from Spatial_plotting_functions import *
 
-region = 'leeds-at-centre' #['WY', 'Leeds-at-centre' 'Northern']
-stats = [ 'ValuesOverPercentile/95']
+region = 'Northern' #['WY', 'Leeds-at-centre' 'Northern']
+stats = [ '99.9th Percentile']
 #['97th Percentile','Max', 'Mean', 'Greatest_ten','95th Percentile', '99th Percentile', '99.5th Percentile', '99.9th Percentile', '99.99th Percentile']
 ems =['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
 num_clusters_ls = [2,3,4,5,10]

@@ -6,21 +6,21 @@ library(HiClimR)
 library(dplyr)
 
 # Specify the region for which the analysis will be conducted
-region = 'leeds-at-centre' #'WY' 'Northern'
+region = 'Northern' #'WY' 'Northern'
 
 # Specify lists with:
 # stats: The stats to attempt regionalise with
 # ems: the ensemble members with which to attempt the regionalisation
 # num_clusters_list: the numbers of clusters to try splitting the region into
 
-stats = list('ValuesOverPercentile/99') # 'Greatest_ten'
+stats = list('ValuesOverPercentile/') # 'Greatest_ten'
 #stats = ('99.5th Percentile', '99.9th Percentile', '99.99th Percentile', '97th Percentile', '99th Percentile', '95th Percentile') 
 
 # Give the list of ensemble members
 ems = list('01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13','15')
 
 # Number of clusters
-num_clusters_list = list(2,3, 4, 5,10)
+num_clusters_list = list(2,3,4,5,10)
 
 
 #############################################
@@ -47,6 +47,10 @@ for (num_clusters in num_clusters_list){
             # Remove lat and long from the dataframe (not sure why there are 2 variables of lat/long)
             drops <- c("lat","lon", "lat.1", "lon.1", "mask")
             df = df[ , !(names(df) %in% drops)]
+            
+            # Testing whether sorting makes a difference - it does
+            #new_matrix <- t(apply(df, 1, sort))
+            
             
             #df$MeanRainfall <- rowMeans(df[2:20], na.rm=TRUE)
             #new_df <- rbind(yearlyvalues$MeanRainfall, df$Mean.Rainfall)
