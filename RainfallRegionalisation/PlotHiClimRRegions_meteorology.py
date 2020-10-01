@@ -10,9 +10,7 @@ sys.path.insert(0, root_fp + 'Scripts/UKCP18/SpatialAnalyses')
 from Spatial_plotting_functions import *
 
 region = 'leeds-at-centre'
-stats = ['ValuesOver20Years/Max', 'ValuesOver20Years/Mean', 'ValuesOver20Years/95th Percentile','ValuesOver20Years/97th Percentile', 
-         'ValuesOver20Years/99th Percentile','ValuesOver20Years/99.5th Percentile', 'ValuesOver20Years/99.75th Percentile', 
-         'ValuesOver20Years/99.9th Percentile']
+stats = ['Max']
 ems = ['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
 
 mask = pd.read_csv("Outputs/RegionalMasks/{}_mask.csv".format(region))
@@ -41,7 +39,7 @@ for stat in stats:
     # Create variables to store the maximum and minimum values across ensemble
     # members and initialise them with unfeasible values
     max_val = 0
-    min_val = 200
+    min_val = 3000
     
     # Loop through ensemble members
     # Read in the data for the stat
@@ -57,7 +55,7 @@ for stat in stats:
          stat_data = pd.read_csv(general_filename)
     
          # Select just the precipitation values (delete both lat/lon columns and mask column)
-         precip_vals = stat_data.drop(["lat", "lon", "lat.1", "lon.1", "mask"], axis=1)
+         precip_vals = stat_data.drop(["lat", "lon"], axis=1)
 
          # Add these to the dataframe containing the precipitatio values from
          # across all the ensemble members
