@@ -110,5 +110,8 @@ Northern - tested one ensemble member for values over percentile (97) and it loo
 Think I fixed all these problems in the code (but imagine they could persist elsewhere)
 
 Also requires lots of new production of results:
-FindStats - max, mean and 6 percentiles (NOT values above percentiles, seeing as values for this weren't good anyway)
-  - Trimmed to leeds-at-centre for
+FindStats - max, mean and 6 percentiles, values over 20 years (max, mean, 6Percentiles) (NOT values above percentiles, seeing as values for this weren't good anyway)
+  - Trimmed to leeds-at-centre for all of above  (and exported to desktop)
+  - Trimmed to Northern for all of above (and exported to desktop)
+
+ValuesOverPercentile & Greatest_ten = not updated, and deleted results from MobaXterm as they were rubbish
