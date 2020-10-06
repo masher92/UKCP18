@@ -8,7 +8,7 @@ The location of rain gauges in and around the Leeds area which supply sub-hourly
 
 <p align="center"> Table 1. Details of rain gauges proximal to Leeds city region <p align="center">
 <p align="center">
-  <img src="Figs/RainGauge/rain_gauge_table_transfer.png" width="400"  title="Original 1km grid" />
+  <img src="Figs/RainGauge/rain_gauge_table_transfer.PNG" width="400"  title="Original 1km grid" />
 
 
 #### City Council
