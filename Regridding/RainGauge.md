@@ -40,9 +40,9 @@ The data record at most of these gauges commenced in the early to mid-1990s, and
 "Given the relatively high rainfall gauge network density in the UK, a simple nearest neighbour interpolation without height correction was used to preserve a real storm shape for every grid square. This was considered to be beneficial as it will preserve extreme hourly rainfall intensities whereas other interpolation methods will smooth these extremes out. A limitation of this approach is that convective events can be very small and therefore nearest neighbour may sometimes represent a convective storm over too large an area. How-ever, as it is the hourly rainfall fractions that are interpolated here, the actual rainfall total is modulated by the daily rainfall dataset, which is smoothed, meaning that this effect is reduced."  
 
 <p align="center">
-  <img src="Figs/RainGauge/CEH-GEAR_locations.png" width="200"  title="Original 1km grid" />
+  <img src="Figs/RainGauge/CEH-GEAR_locations.PNG" width="200"  title="Original 1km grid" />
 <p align="center"> Figure 2. Location of hourly rain gauges used in construction of CEH-GEAR <p align="center">
 
 <p align="center">
-  <img src="Figs/RainGauge/Distance_to_gauge.png" width="500"  title="Original 1km grid" />
+  <img src="Figs/RainGauge/Distance_to_gauge.PNG" width="500"  title="Original 1km grid" />
 <p align="center"> Figure 3. Outline of Leeds city region, with location of Met Office gauges (orange) and Environment Agency gauges (red), and cells coloured by distance to the nearest rain gauge used in the CEH-GEAR1hr dataset production <p align="center">
