@@ -31,7 +31,7 @@ To acquire quality controlled, historic (more than a year old) data enquiries sh
 ## Gridded observations data (CEH-GEAR1hr)
 Gridded hourly precipitation values were produced by temporally disaggregating CEH-GEAR daily, a pre-existing validated and quality controlled gridded daily precipitation dataset. The CEH-GEAR daily dataset is produced using a natural neighbour interpolated method and using data solely from Met Office rain gauges (Lewis et al, 2018).
 
-CEH-GEAR daily was temporally disaggregated using a dataset of quality controlled data from hourly rainfall gauges. This dataset was originally compiled by Blenkinsop et al (2017), with data from some additional gauges being added by Lewis et al (2018), alongside application of some further quality control procedures. CEH-GEAR1hr uses data from 1903 quality controlled rain gauges compiled from three sources:
+CEH-GEAR daily was temporally disaggregated using a dataset of quality controlled data from hourly rainfall gauges. This dataset was originally compiled by Blenkinsop et al (2017), with data from some additional gauges being added by Lewis et al (2018), alongside application of some further quality control procedures. CEH-GEAR1hr uses data from 1903 quality controlled rain gauges compiled from three sources:  
 •	UK MIDAS - 216 gauges  
 •	UK Environment Agency - 1300 gauges  
 •	SEPA - 141 gauges  
