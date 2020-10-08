@@ -35,7 +35,7 @@ from Pr_functions import *
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/SpatialAnalyses')
 from Spatial_plotting_functions import *
 
-ems = ['01', '04', '05', '06', '07', '08', '09','10','11','12', '13','15']
+ems = ['07']
 start_year = 1980
 end_year = 2000 
 yrs_range = "1980_2001" 
@@ -84,6 +84,10 @@ for em in ems:
     # Remove ensemble member dimension
     concat_cube = concat_cube[0,:,:,:]
     
+    # Extract just dry hours?!
+    #test = iris.Constraint(rainfall_)
+    
+    
     #############################################
     ## Trim to outline of UK
     #############################################
@@ -114,13 +118,16 @@ for em in ems:
     # Add season year
     iris.coord_categorisation.add_season_year(jja,'time', name = "season_year") 
     
+    
+    
+    
     ###########################################
     # Find Max, mean, percentiles
     #############################################
     #seconds = time.time()
-    jja_mean = jja.aggregated_by(['season_year'], iris.analysis.MEAN)
-    jja_max = jja.aggregated_by(['season_year'], iris.analysis.MAX)
-    jja_percentiles = jja.aggregated_by(['season_year'], iris.analysis.PERCENTILE, percent=[95,97,99,99.5, 99.9, 99.99])
+    jja_mean = jja.aggregated_by(['clim_season'], iris.analysis.MEAN)
+    jja_max = jja.aggregated_by(['clim_season'], iris.analysis.MAX)
+    jja_percentiles = jja.aggregated_by(['clim_season'], iris.analysis.PERCENTILE, percent=[95,97,99,99.5, 99.9, 99.99])
   
     ###########################################
     ## Save to file
@@ -129,100 +136,28 @@ for em in ems:
     #jja_mean.to_netcdf('/nfs/a319/gy17m2a/Outputs/mem_'+ em+ '_jja_mean.nc', encoding={'rank_in_season': {'dtype': 'i4'}})    
     #jja_percentiles.to_netcdf('/nfs/a319/gy17m2a/Outputs/mem_'+ em+ '_jja_percentiles.nc', encoding={'rank_in_season': {'dtype': 'i4'}}) 
     
-    iris.save(jja_max, '/nfs/a319/gy17m2a/Outputs/em_'+ em+ '_jja_max.nc')
+    iris.save(jja_max, '/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/em_'+ em+ '_jja_max.nc')
     print("JJA max saved")
-    iris.save(jja_mean, '/nfs/a319/gy17m2a/Outputs/em_'+ em+ '_jja_mean.nc')
+    iris.save(jja_mean, '/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/em_'+ em+ '_jja_mean.nc')
     print("JJA mean saved")
-    iris.save(jja_percentiles, '/nfs/a319/gy17m2a/Outputs/em_'+ em+ '_jja_percentiles.nc')
+    iris.save(jja_percentiles, '/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/em_'+ em+ '_jja_percentiles.nc')
     print("JJA percentiles saved")
     
-#    ##########################################
-#    #############################################
-#    em_dict = {}
-#    stats = [jja_mean, jja_max, jja_percentiles]
-#    if em == '01':
-#        # Create dictionarities to store max/min values and set them to unfeasible values
-#        max_vals_dict = {}
-#        min_vals_dict = {}
-#        for stat in stats:
-#            if stat == jja_percentiles:
-#                for i in range(jja_percentiles.shape[0]):
-#                    stat = jja_percentiles[i]
-#                    name = 'P' + str(jja_percentiles[i].coord('percentile_over_clim_season').points[0])         
-#                    name = name.replace(".", "_")
-#                    max_vals_dict[name] = 0
-#                    min_vals_dict[name] = 10000
-#            else:
-#                name = namestr(stat, globals())[0]
-#                max_vals_dict[name] = 0
-#                min_vals_dict[name] = 10000
-#        
-#    # Store all stats values in dictionary
-#    for stat in stats:
-#        if stat == jja_percentiles:
-#            for i in range(jja_percentiles.shape[0]):
-#                stat = jja_percentiles[i]
-#                name = 'P' + str(jja_percentiles[i].coord('percentile_over_clim_season').points[0])         
-#                name = name.replace(".", "_")
-#                em_dict[name] = stat
-#                max_vals_dict[name] = stat.data.max() if stat.data.max() > max_vals_dict[name] else max_vals_dict[name]
-#                min_vals_dict[name] = stat.data.min() if stat.data.min() < min_vals_dict[name] else min_vals_dict[name]      
-#        else:
-#            name = namestr(stat, globals())[0]
-#            em_dict[name] = stat
-#            max_vals_dict[name] = stat.data.max() if stat.data.max() > max_vals_dict[name] else max_vals_dict[name]
-#            min_vals_dict[name] = stat.data.min() if stat.data.min() < min_vals_dict[name] else min_vals_dict[name]      
-#        
-#    ems_dict[em] = em_dict       
-#
-##############################################
-## Plotting
-##############################################
-## Create a colourmap                                   
-#tol_precip_colors = ["#90C987", "#4EB256","#7BAFDE", "#6195CF", "#F7CB45", "#EE8026", "#DC050C", "#A5170E",
-#"#72190E","#882E72","#000000"]                                      
-#
-#precip_colormap = matplotlib.colors.ListedColormap(tol_precip_colors)
-## Set the colour for any values which are outside the range designated in lvels
-#precip_colormap.set_under(color="white")
-#precip_colormap.set_over(color="white")
-#
-## Loop through each ensemble member's cube
-#for em in ems:  
-#    print(em)
-#    em_dict = ems_dict[em]
-#    # Loop through stats
-#    for key, value in em_dict.items() :
-#        print (key)
-#        
-#        # Extract the cube
-#        cube = em_dict[key]
-#        #Create a 2D grid
-#        grid = cube[0]
-#        
-#        # Extract the max, min values
-#        max_value = max_vals_dict[key]
-#        min_value = min_vals_dict[key]
-#        
-#        # Plot
-#        fig=plt.figure(figsize=(20,16))
-#        levels = np.round(np.linspace(min_value, max_value, 15),2)
-#        contour = iplt.contourf(grid,levels = levels,cmap=precip_colormap, extend="both")
-#        plt.gca().coastlines(resolution='50m', color='black', linewidth=2)
-#        #plt.plot(0.6628091964140957, 1.2979678925914127, 'o', color='black', markersize = 3) 
-#        #plt.title("JJA mean", fontsize =40) 
-#        #plt.colorbar(fraction=0.036, pad=0.02)
-#        cb = plt.colorbar(fraction=0.036, pad=0.02)
-#        cb.ax.tick_params(labelsize=25)
-#
-#        # Save Figure
-#        ddir = 'Outputs/UK_plots/' + key + '/'
-#        if not os.path.isdir(ddir):
-#            os.makedirs(ddir)
-#        filename =  (ddir + '/{}.jpg').format(em)
-#        
-#        fig.savefig(filename,bbox_inches='tight')
-#        print("Plot saved")
-#
 
-
+  # Save each percentile seperately
+  for em in ems:
+      em_per = iris.load('/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/em_'+ em+ '_jja_percentiles.nc'
+                             ,'lwe_precipitation_rate')[0]
+      print(em_per)
+      p95 = em_per[0,:,:,:]
+      iris.save(p95, '/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/em_'+ em+ '_jja_p95.nc')
+      p97 = em_per[1,:,:,:]
+      iris.save(p97, '/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/em_'+ em+ '_jja_p97.nc')
+      p99 = em_per[2,:,:,:]
+      iris.save(p99, '/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/em_'+ em+ '_jja_p99.nc')
+      p99_5 = em_per[3,:,:,:]
+      iris.save(p99_5, '/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/em_'+ em+ '_jja_p99.5.nc')
+      p99_75 = em_per[4,:,:,:]
+      iris.save(p99_75, '/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/em_'+ em+ '_jja_p99.75.nc')
+      p99_9 = em_per[5,:,:,:]
+      iris.save(p99_9, '/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/em_'+ em+ '_jja_p99.9.nc')
