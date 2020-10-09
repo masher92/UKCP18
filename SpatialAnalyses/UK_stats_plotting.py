@@ -99,6 +99,8 @@ for em in ems:
     jja_max = iris.load('/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/em_'+ em+ '_jja_max.nc')[0]
     jja_mean = iris.load('/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/em_'+ em+ '_jja_mean.nc')[0]
     jja_percentiles = iris.load('/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/em_'+ em+ '_jja_percentiles.nc')[0]
+    
+    
     # Trim to smaller area
     jja_max = trim_to_bbox_of_region(jja_max, wider_northern_gdf)
     jja_mean = trim_to_bbox_of_region(jja_mean, wider_northern_gdf)
@@ -116,37 +118,20 @@ for em in ems:
         min_vals_dict = {}
         # Loop through stats setting max = 10000 and min = 0
         for stat in stats:
-            if stat == jja_percentiles:
-                for i in range(jja_percentiles.shape[0]):
-                    stat = jja_percentiles[i]
-                    name = 'P' + str(jja_percentiles[i].coord('percentile_over_clim_season').points[0])         
-                    name = name.replace(".", "_")
-                    max_vals_dict[name] = 0
-                    min_vals_dict[name] = 10000
-            else:
                 name = namestr(stat, globals())[0]
                 max_vals_dict[name] = 0
                 min_vals_dict[name] = 10000
-        
+        a
     # Now loop through all the ensemble members and store the real values
     for stat in stats:
         print(namestr(stat, globals())[0])
-        if stat == jja_percentiles:
-            for i in range(jja_percentiles.shape[0]):
-                stat = jja_percentiles[i]
-                name = 'P' + str(jja_percentiles[i].coord('percentile_over_clim_season').points[0])         
-                name = name.replace(".", "_")
-                em_dict[name] = stat
-                max_vals_dict[name] = stat.data.max() if stat.data.max() > max_vals_dict[name] else max_vals_dict[name]
-                min_vals_dict[name] = stat.data.min() if stat.data.min() < min_vals_dict[name] else min_vals_dict[name]      
-        else:
-            name = namestr(stat, globals())[0]
-            print(name)
-            print (stat.data.max()) 
-            em_dict[name] = stat
-            max_vals_dict[name] = stat.data.max() if stat.data.max() > max_vals_dict[name] else max_vals_dict[name]
-            min_vals_dict[name] = stat.data.min() if stat.data.min() < min_vals_dict[name] else min_vals_dict[name]      
-        
+        name = namestr(stat, globals())[0]
+        print(name)
+        print (stat.data.max()) 
+        em_dict[name] = stat
+        max_vals_dict[name] = stat.data.max() if stat.data.max() > max_vals_dict[name] else max_vals_dict[name]
+        min_vals_dict[name] = stat.data.min() if stat.data.min() < min_vals_dict[name] else min_vals_dict[name]      
+    
     ems_dict[em] = em_dict       
 #
 #############################################
