@@ -29,14 +29,14 @@ def wet_hour_stats(rain_data):
     jmax=np.shape(rain_data)[2]
 
     # Create empty arrays to be populated by values
-    # wh_mean_array =np.zeros((imax,jmax))
-    # wh_max_array=np.zeros((imax,jmax))
-    # wh_P95_array=np.zeros((imax,jmax))
-    # wh_P97_array =np.zeros((imax,jmax))
-    # wh_P99_array =np.zeros((imax,jmax))
-    # wh_P99_5_array=np.zeros((imax,jmax))
-    # wh_P99_75_array =np.zeros((imax,jmax))
-    # wh_P99_9_array =np.zeros((imax,jmax))
+    wh_mean_array =np.zeros((imax,jmax))
+    wh_max_array=np.zeros((imax,jmax))
+    wh_P95_array=np.zeros((imax,jmax))
+    wh_P97_array =np.zeros((imax,jmax))
+    wh_P99_array =np.zeros((imax,jmax))
+    wh_P99_5_array=np.zeros((imax,jmax))
+    wh_P99_75_array =np.zeros((imax,jmax))
+    wh_P99_9_array =np.zeros((imax,jmax))
     prop_wet_array = np.zeros((imax,jmax))
     
     print("Entering loop")
@@ -52,29 +52,28 @@ def wet_hour_stats(rain_data):
             prop_wet = (len(wet_hours)/len(local_raindata)) *100
             
             # Calculate statistics on just the wet hours
-            # wh_mean  = np.mean(wet_hours)
-            # wh_max  = np.max(wet_hours)
-            # wh_P95 = np.percentile(wet_hours, 95)
-            # wh_P97 = np.percentile(wet_hours, 97)
-            # wh_P99 = np.percentile(wet_hours, 99)
-            # wh_P99_5 = np.percentile(wet_hours, 99.5)
-            # wh_P99_75 = np.percentile(wet_hours, 99.75)
-            # wh_P99_9 = np.percentile(wet_hours, 99.9)
+            wh_mean  = np.mean(wet_hours)
+            wh_max  = np.max(wet_hours)
+            wh_P95 = np.percentile(wet_hours, 95)
+            wh_P97 = np.percentile(wet_hours, 97)
+            wh_P99 = np.percentile(wet_hours, 99)
+            wh_P99_5 = np.percentile(wet_hours, 99.5)
+            wh_P99_75 = np.percentile(wet_hours, 99.75)
+            wh_P99_9 = np.percentile(wet_hours, 99.9)
             
             # Store at correct location in array
-            # wh_mean_array[i,j] = wh_mean
-            # wh_max_array[i,j] = wh_max
-            # wh_P95_array[i,j] = wh_P95
-            # wh_P97_array[i,j]= wh_P97
-            # wh_P99_array[i,j] = wh_P99
-            # wh_P99_5_array[i,j] = wh_P99_5
-            # wh_P99_75_array[i,j] = wh_P99_75
-            # wh_P99_9_array[i,j] = wh_P99_9
+            wh_mean_array[i,j] = wh_mean
+            wh_max_array[i,j] = wh_max
+            wh_P95_array[i,j] = wh_P95
+            wh_P97_array[i,j]= wh_P97
+            wh_P99_array[i,j] = wh_P99
+            wh_P99_5_array[i,j] = wh_P99_5
+            wh_P99_75_array[i,j] = wh_P99_75
+            wh_P99_9_array[i,j] = wh_P99_9
             prop_wet_array[i,j] = prop_wet
       
-    return prop_wet_array
-    # return [wh_mean_array, wh_max_array, wh_P95_array, wh_P97_array, wh_P99_array,
-    #         wh_P99_5_array, wh_P99_75_array, wh_P99_9_array]
+    return  [prop_wet_array, wh_mean_array, wh_max_array, wh_P95_array, wh_P97_array, wh_P99_array,
+             wh_P99_5_array, wh_P99_75_array, wh_P99_9_array]
 
 def save_stats(stats, em):
         np.savez('/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/Wethours/em_'+ em+ '_stats.npz',
@@ -111,7 +110,7 @@ yrs_range = "1980_2001"
 # be stored
 for em in ems:
     print(em)
-    #############################################
+    ############################################# 
     ## Load in the data
     #############################################
     filenames =[]
