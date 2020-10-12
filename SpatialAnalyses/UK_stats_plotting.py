@@ -34,7 +34,7 @@ ems = ['01', '04', '05', '06', '07', '08', '09','10','11','12', '13','15']
 shared_axis = False
 
 # PLotting region
-region = 'Northern'
+region = 'UK'
 #region = ['Northern', 'leeds-at-centre', 'UK']
 
 ##################################################################
@@ -134,6 +134,9 @@ for stat in stats:
         plt.figure(figsize=(48,30), dpi=100)
     elif region == 'leeds-at-centre':
         plt.figure(figsize=(48, 24), dpi=100)
+    elif region == 'UK':
+        plt.figure(figsize=(46,29), dpi=100)
+        #plt.gcf().subplots_adjust(hspace=0.01, wspace=0.3, top=0.59, bottom=0.39, left=0.855, right=0.925) 
         
     if shared_axis == True:# Also manually adjust the spacings which are used when creating subplots
         plt.gcf().subplots_adjust(hspace=0.1, wspace=0.05, top=0.55, bottom=0.3, left=0.825, right=0.925)
@@ -142,7 +145,7 @@ for stat in stats:
 
     # Set up counters
     i=1
-
+   
     #for new_i in range(1, 13):
     for em in ems:
         # Extract data for correct ensemble member and stat
@@ -199,6 +202,10 @@ for stat in stats:
                 leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=1)
                 cb1 = plt.colorbar(mesh, ax=ax, fraction=0.041, pad=0.03, 
                                   boundaries = contour_levels)
+           elif region == 'UK':
+                plt.gca().coastlines(linewidth =0.5)
+                cb1 = plt.colorbar(mesh, ax=ax, fraction=0.049, pad=0.03, 
+                                  boundaries = contour_levels)
            #cb1.ax.set_xticklabels(["{:.0}".format(i) for i in colorbar.get_ticks()])
            cb1.ax.tick_params(labelsize=8)
            cb1.update_ticks()
@@ -206,8 +213,6 @@ for stat in stats:
         # Move counter on to next ensemble member
         i = i+1
       
-    # Set up plottingparameters over whole subfigure
-  
     # make an axes to put the shared colorbar in
     # 1,2 are coordinates of lower left corner of plot; 3,4 are width and height of subplot
     #colorbar_axes = plt.gcf().add_axes([0.825, 0.275, 0.1, 0.019])
