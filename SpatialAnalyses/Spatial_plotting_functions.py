@@ -8,42 +8,95 @@ import tilemapbase
 import time 
 import bottleneck
 import pandas as pd
+from numba import jit
+import re
 
 root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
 
-def create_leeds_outline (required_proj):
+@jit
+def load_data(cube):
     '''
     Description
     ----------
-        Creates a shapely geometry of the outline of Leeds in the projection specified
-
+        Loads the data from a cube so it is no longer lazy.
+        Placed inside function to benefit from speed improvements of @jit.
     Parameters
     ----------
-        required_proj : Dict
-            Python dictionary with a key init that has a value epsg:4326. 
-            This is a very typical way how CRS is stored in GeoDataFrames 
-            e.g. {'init' :'epsg:3785'} for Web Mercator
-            or   {'init' :'epsg:4326'} for WGS84
-
+        rain_data: cube
+            An iris cube
     Returns
     -------
-        leeds_gdf : Geodataframe
-            Dataframe contaiing coordinates of outline of Leeds
-    
+        rain_data: array
+            A 3D array containing for each location containing values for multiple time slices 
     '''
-    # Read in outline of Leeds wards  
-    wards = gpd.read_file("datadir/SpatialData/england_cmwd_2011.shp")
-    # Create column to merge on
-    wards['City'] = 'Leeds'
-    # Merge all wards into one outline
-    leeds = wards.dissolve(by = 'City')
+    
+    # Load the data
+    rain_data = cube.data
+    return rain_data
 
-    # Convert Leeds outline geometry to WGS84
-    leeds.crs = {'init' :'epsg:27700'}
-    leeds_gdf = leeds.to_crs(required_proj)
+@jit
+def wet_hour_stats(rain_data, statistic_name):
+    '''
+    Description
+    ----------
+        Takes the data from a cube and loops through each cell in the array of data
+        and extracts just the wet hours (>0.1mm/hr). Using these wet hours it calculates
+        a single value related to the specified 'statistic_name' parameter. This value is the
+        saved at that location. A 2d array of data values is returned containing one value
+        for each cell corresponding to the input statistic_name.
+    Parameters
+    ----------
+        rain_data: array
+            3D array containing the data from an iris cube, with multiple timelices for each location
+        statistic_name: String
+            A string specifying the statistic to be calculated
+    Returns
+    -------
+        stats_array: array
+            A 2D array containing for each location the value corresponing to the statistic
+            given as an input to the function      
+    '''
+    
+    # Define length of lons
+    imax=np.shape(rain_data)[1] 
+    # Define length of lats
+    jmax=np.shape(rain_data)[2]
+    
+    # Create empty array to populate with stats value
+    stats_array =np.zeros((imax,jmax))
 
-    return leeds_gdf
+    # Loop through each of the cells, and find the value of the specified statistic
+    # in that cell. Save this value to the correct position in the array
+    print("Entering loop")
+    for i in range(imax):
+        for j in range(jmax):
+            # Get data at one cell
+            local_raindata=rain_data[:,i,j]
+            # Keep only values above 0.1 (wet hours)
+            wet_hours = local_raindata[local_raindata>0.1]         
+            
+            # Calculate statistics on just the wet hours
+            # If the statistic name is a percentile then need to first extract the 
+            # percentile number from the string 'statistic_name'
+            if statistic_name == 'jja_mean_wh':
+               statistic_value  = np.mean(wet_hours)
+            elif statistic_name == 'jja_max_wh':
+              statistic_value  = np.max(wet_hours)
+            elif statistic_name == 'wet_prop':
+               statistic_value  = (len(wet_hours)/len(local_raindata)) *100
+            else:
+              percentile_str =re.findall(r'\d+', statistic_name)
+              if len(percentile_str) == 1:
+                  percentile_no = float(percentile_str[0])
+              elif len(percentile_str) ==2:
+                 percentile_no = float(percentile_str[0] + '.' + percentile_str[1])
+              statistic_value =  np.percentile(wet_hours, percentile_no)
+            
+            # Store at correct location in array
+            stats_array[i,j] = statistic_value
 
+    return  stats_array
+    
 
 def find_cornerpoint_coordinates (cube):
     '''
