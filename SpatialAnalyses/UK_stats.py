@@ -36,14 +36,15 @@ sys.path.insert(0, root_fp + 'Scripts/UKCP18/SpatialAnalyses')
 from Spatial_plotting_functions import *
 
 ems = ['07']
-start_year = 1980
-end_year = 2000 
 yrs_range = "1980_2001" 
 
 # Create a dictionary within which the stats cubes for each ensemble member will
 # be stored
 ems_dict = {}
 
+############################################
+# Define variables and set up environment
+#############################################
 # Cycle through ensemble members
 # For each ensemble member: 
 #       Read in all files and join into one cube
@@ -65,13 +66,7 @@ for em in ems:
         #print(filename)
         filenames.append(filename)
     print(len(filenames))
-    
-    # filenames =[]
-    # filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19801201-19801230.nc')  
-    # filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19810101-19810130.nc') 
-    # filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19820601-19820630.nc') 
-    # filenames.append(root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19830601-19830630.nc') 
-    
+       
     monthly_cubes_list = iris.load(filenames,'lwe_precipitation_rate')
     for cube in monthly_cubes_list:
          for attr in ['creation_date', 'tracking_id', 'history']:
@@ -83,11 +78,7 @@ for em in ems:
     
     # Remove ensemble member dimension
     concat_cube = concat_cube[0,:,:,:]
-    
-    # Extract just dry hours?!
-    #test = iris.Constraint(rainfall_)
-    
-    
+       
     #############################################
     ## Trim to outline of UK
     #############################################
@@ -118,9 +109,6 @@ for em in ems:
     # Add season year
     iris.coord_categorisation.add_season_year(jja,'time', name = "season_year") 
     
-    
-    
-    
     ###########################################
     # Find Max, mean, percentiles
     #############################################
@@ -132,32 +120,20 @@ for em in ems:
     ###########################################
     ## Save to file
     ###########################################
-    #jja_max.to_netcdf('/nfs/a319/gy17m2a/Outputs/mem_'+ em+ '_jja_max.nc', encoding={'rank_in_season': {'dtype': 'i4'}})
-    #jja_mean.to_netcdf('/nfs/a319/gy17m2a/Outputs/mem_'+ em+ '_jja_mean.nc', encoding={'rank_in_season': {'dtype': 'i4'}})    
-    #jja_percentiles.to_netcdf('/nfs/a319/gy17m2a/Outputs/mem_'+ em+ '_jja_percentiles.nc', encoding={'rank_in_season': {'dtype': 'i4'}}) 
-    
     iris.save(jja_max, '/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/em_'+ em+ '_jja_max.nc')
     print("JJA max saved")
     iris.save(jja_mean, '/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/em_'+ em+ '_jja_mean.nc')
     print("JJA mean saved")
-    iris.save(jja_percentiles, '/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/em_'+ em+ '_jja_percentiles.nc')
-    print("JJA percentiles saved")
-    
-
-  # Save each percentile seperately
-  for em in ems:
-      em_per = iris.load('/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/em_'+ em+ '_jja_percentiles.nc'
-                             ,'lwe_precipitation_rate')[0]
-      print(em_per)
-      p95 = em_per[0,:,:,:]
-      iris.save(p95, '/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/em_'+ em+ '_jja_p95.nc')
-      p97 = em_per[1,:,:,:]
-      iris.save(p97, '/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/em_'+ em+ '_jja_p97.nc')
-      p99 = em_per[2,:,:,:]
-      iris.save(p99, '/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/em_'+ em+ '_jja_p99.nc')
-      p99_5 = em_per[3,:,:,:]
-      iris.save(p99_5, '/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/em_'+ em+ '_jja_p99.5.nc')
-      p99_75 = em_per[4,:,:,:]
-      iris.save(p99_75, '/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/em_'+ em+ '_jja_p99.75.nc')
-      p99_9 = em_per[5,:,:,:]
-      iris.save(p99_9, '/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/em_'+ em+ '_jja_p99.9.nc')
+    # Save percentiles seperately
+    p95 = jja_percentiles[0,:,:,:]
+    iris.save(p95, '/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/em_'+ em+ '_jja_p95.nc')
+    p97 = jja_percentiles[1,:,:,:]
+    iris.save(p97, '/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/em_'+ em+ '_jja_p97.nc')
+    p99 = jja_percentiles[2,:,:,:]
+    iris.save(p99, '/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/em_'+ em+ '_jja_p99.nc')
+    p99_5 = jja_percentiles[3,:,:,:]
+    iris.save(p99_5, '/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/em_'+ em+ '_jja_p99.5.nc')
+    p99_75 = jja_percentiles[4,:,:,:]
+    iris.save(p99_75, '/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/em_'+ em+ '_jja_p99.75.nc')
+    p99_9 = jja_percentiles[5,:,:,:]
+    iris.save(p99_9, '/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/em_'+ em+ '_jja_p99.9.nc')
