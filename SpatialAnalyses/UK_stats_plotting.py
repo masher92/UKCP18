@@ -12,9 +12,11 @@ import iris.plot as iplt
 from matplotlib.colors import BoundaryNorm
 warnings.simplefilter(action = 'ignore', category = FutureWarning)
 
+# Function to get name of variable as string
 def namestr(obj, namespace):
     return [name for name in namespace if namespace[name] is obj]
 
+# Set up path to root directory
 root_fp = "/nfs/a319/gy17m2a/"
 os.chdir(root_fp)
 
@@ -33,29 +35,41 @@ ems = ['01', '04', '05', '06', '07', '08', '09','10','11','12', '13','15']
 # Plotting variables
 shared_axis = False
 
-# PLotting region
+# Plotting region
 region = 'UK'
 #region = ['Northern', 'leeds-at-centre', 'UK']
+
+# Wet hours or day hours
+hours = 'wet'
 
 ##################################################################
 # Load necessary spatial data
 ##################################################################
-# Load required geodataframes
-leeds_gdf = create_leeds_outline({'init' :'epsg:3857'})
-leeds_at_centre_gdf = create_leeds_at_centre_outline({'init' :'epsg:3857'})
+# These geodataframes are square
 northern_gdf = create_northern_outline({'init' :'epsg:3857'})
 wider_northern_gdf = create_wider_northern_outline({'init' :'epsg:3857'})
+# This is the outlins of Leeds
+leeds_gdf = create_leeds_outline({'init' :'epsg:3857'})
+# This is a square area surrounding Leeds
+leeds_at_centre_gdf = create_leeds_at_centre_outline({'init' :'epsg:3857'})
+# This is the outline of the coast of the UK
+uk_gdf = create_uk_outline({'init' :'epsg:3857'})
 
 # Load mask for wider northern region
-mask = np.load('Outputs/RegionalMasks/wider_northern_region_mask.npy')
-  
+# This masks out cells outwith the wider northern region
+wider_northern_mask = np.load('Outputs/RegionalMasks/wider_northern_region_mask.npy')
+uk_mask = np.load('Outputs/RegionalMasks/uk_mask.npy')  
+
 ##################################################################
 # Create dictionaries storing the maximum and minimum values found for 
 # each statistic, considering all ensemble members and all grid cells
 ##################################################################
 # List of stats to loop through
-stats = ['jja_max', 'jja_mean', 'jja_p95', 'jja_p97', 'jja_p99', 'jja_p99.5', 'jja_p99.75', 'jja_p99.9']
-
+if hours == 'dry':
+    stats = ['jja_max', 'jja_mean', 'jja_p95', 'jja_p97', 'jja_p99', 'jja_p99.5', 'jja_p99.75', 'jja_p99.9']
+elif hours == 'wet':
+    stats = ['jja_max_wh', 'jja_mean_wh', 'jja_p95_wh', 'jja_p97_wh', 'jja_p99_wh', 'jja_p99.5_wh', 'jja_p99.75_wh', 'jja_p99.9_wh']
+    
 # Create a dictionary.
 # The keys will be ensemble member numbers and the values will be dictionarys
 # Each ensemble member's dictionary will in turn have statistic names as keys
@@ -73,13 +87,26 @@ for em in ems:
     # Loop through stats
     for stat in stats:
           # Load in netcdf files containing the stats data over the whole UK
-          stat_cube = iris.load('/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/em_'+ em+ '_' + stat + '.nc')[0] 
-          
+          if hours == 'dry':
+              stat_cube = iris.load('/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/em_'+ em+ '_' + stat + '.nc')[0] 
+          elif hours == 'wet':
+              stat_cube = iris.load('/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/Wethours/em_'+ em+ '_' + stat + '.nc')[0] 
+              
           # Trim to smaller area
           if region == 'Northern':
               stat_cube = trim_to_bbox_of_region(stat_cube, wider_northern_gdf)
           elif region == 'leeds-at-centre':
               stat_cube = trim_to_bbox_of_region(stat_cube, leeds_at_centre_gdf)
+          
+          # Mask the data so as to cover any cells not within the specified region 
+          if region == 'Northern':
+              stats_cube.data = ma.masked_where(wider_northern_mask == 0, stats_cube.data)
+              # Trim to the BBOX of Northern England
+              # This ensures the plot shows only the bbox around northern england
+              # but that all land values are plotted
+              stats_cube = trim_to_bbox_of_region(stats_cube, northern_gdf)
+          elif region == 'UK':
+              stats_cube.data = ma.masked_where(uk_mask == 0, stats_cube.data)
               
           # If this is the first time through the loop e.g. the first ensemble member, 
           # then create dictionary which will store the max and min values for each 
@@ -119,49 +146,46 @@ stats = ['jja_max', 'jja_mean', 'jja_p95', 'jja_p97', 'jja_p99', 'jja_p99.5', 'j
 
 for stat in stats:
     print(stat)
-    # Extract the max, min values
+    # Extract the max, min values across all 12 ensemble members
     # For shared axis plotting
     global_max = max_vals_dict[stat]
     global_min = min_vals_dict[stat]
+    
+    # Define the contour levels to use in plotting
+    # Make these integers if the values are large, and floats rounded to 2 d.p's if not
     if max_value >10:
         contour_levels_overall = np.linspace(global_min, global_max, 11,endpoint = True, dtype = int)
     else:
         contour_levels_overall = np.linspace(global_min, global_max, 11,endpoint = True)
         contour_levels_overall = np.round(contour_levels_overall, 2) 
         
-    # Set up plot
+    # Set up plot size (dependent upon spatial extent)
     if region == 'Northern':
         plt.figure(figsize=(48,30), dpi=100)
     elif region == 'leeds-at-centre':
         plt.figure(figsize=(48, 24), dpi=100)
     elif region == 'UK':
         plt.figure(figsize=(46,29), dpi=100)
-        #plt.gcf().subplots_adjust(hspace=0.01, wspace=0.3, top=0.59, bottom=0.39, left=0.855, right=0.925) 
-        
-    if shared_axis == True:# Also manually adjust the spacings which are used when creating subplots
+      
+    # Set up the the spacings which are used when creating subplots 
+    # Vary this depending on whether each subplot will have a colourbar
+    if shared_axis == True:
         plt.gcf().subplots_adjust(hspace=0.1, wspace=0.05, top=0.55, bottom=0.3, left=0.825, right=0.925)
     if shared_axis == False:
         plt.gcf().subplots_adjust(hspace=0.01, wspace=0.3, top=0.59, bottom=0.39, left=0.825, right=0.925)
 
-    # Set up counters
+    # Set up counter
     i=1
-   
-    #for new_i in range(1, 13):
+
+    # Loop through ensemble members   
     for em in ems:
         # Extract data for correct ensemble member and stat
-        # Remove time dimension (only had one value)
         em_dict = ems_dict[em]
-        stats_cube = em_dict[stat][0]
-           
-        # Mask the data so as to cover any cells not within
-        # The wider northern region
-        if region == 'Northern':
-            stats_cube.data = ma.masked_where(mask == 0, stats_cube.data)
-            # Trim to the BBOX of Northern England
-            # This ensures the plot shows nly the bbox around northern england
-            # but that all land values are plotted
-            stats_cube = trim_to_bbox_of_region(stats_cube, northern_gdf)
-        
+        # Remove time dimension (only had one value)
+        stats_cube = em_dict[stat][0]          
+       
+        # Define the contour levels to use in plotting where the axis is not shared
+        # Make these integers if the values are large, and floats rounded to 2 d.p's if not
         if stats_cube.data.max() > 10:
             local_min = int(stats_cube.data.min())
             local_max = int(stats_cube.data.max())
@@ -171,28 +195,35 @@ for stat in stats:
             local_max = round(stats_cube.data.max(),2)
             contour_levels = np.linspace(local_min, local_max, 5,endpoint = True)
             contour_levels = np.round(contour_levels, 2) 
-        #v = np.linspace(local_min, local_max, 5,endpoint = True)
-        print(local_max)
-        # Make 50 evenly spaced levels which span the dataset
-        #norm = BoundaryNorm(contour_levels, ncolors=precip_colormap.N, clip = True)       
-       
+         
+        ## If plots will have one color bar between them:         
         if shared_axis == True:
+           # Create projection system in Web Mercator
            proj = ccrs.Mercator.GOOGLE
+           # Create axis using this WM projection
            ax = plt.subplot(4,3,i, projection=proj)
+           # Plot
            mesh = iplt.pcolormesh(stats_cube, cmap = precip_colormap, vmin = global_min,
                                   vmax = global_max)
+           # Add regional outlines, depending on which region is being plotted
            if region == 'Northern':
                 leeds_gdf.plot(ax=ax, edgecolor='red', color='none', linewidth=1)
                 northern_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=1)
            elif region == 'leeds-at-centre':
                 leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=1)
-                
+           elif region == 'UK':
+                plt.gca().coastlines(linewidth =0.5)
+
+        ## If plots will have one color bar each:
         elif shared_axis == False:
+           # Create projection system in Web Mercator
            proj = ccrs.Mercator.GOOGLE
+           # Create axis using this WM projection
            ax = plt.subplot(4,3,i, projection=proj)
+           # Plot
            mesh = iplt.pcolormesh(stats_cube, cmap = precip_colormap, vmin = local_min, 
                                   vmax = local_max)
-           #iplt.pcolormesh(stats_cube,cmap = precip_colormap, 25)
+           # Add regional outlines, depending on which region is being plotted
            if region == 'Northern':
                 leeds_gdf.plot(ax=ax, edgecolor='red', color='none', linewidth=1)
                 northern_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=1)
@@ -215,8 +246,6 @@ for stat in stats:
       
     # make an axes to put the shared colorbar in
     # 1,2 are coordinates of lower left corner of plot; 3,4 are width and height of subplot
-    #colorbar_axes = plt.gcf().add_axes([0.825, 0.275, 0.1, 0.019])
-    #colorbar = plt.colorbar(mesh, colorbar_axes, orientation='horizontal')
     if shared_axis == True:
         colorbar_axes = plt.gcf().add_axes([0.927, 0.3, 0.005, 0.25])
         colorbar = plt.colorbar(mesh, colorbar_axes, orientation='vertical', 
