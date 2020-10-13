@@ -25,18 +25,19 @@ sys.path.insert(0, root_fp + 'Scripts/UKCP18/')
 from Pr_functions import *
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/SpatialAnalyses')
 from Spatial_plotting_functions import *
+from Spatial_geometry_functions import *
 
 ############################################
 # Define variables and set up environment
 #############################################
 # List of ensemble members
 ems = ['01', '04', '05', '06', '07', '08', '09','10','11','12', '13','15']
-
+#ems = ['12', '13','15']
 # Plotting variables
-shared_axis = False
+shared_axis = True
 
 # Plotting region
-region = 'UK'
+region = 'Northern'
 #region = ['Northern', 'leeds-at-centre', 'UK']
 
 # Wet hours or day hours
@@ -58,7 +59,7 @@ uk_gdf = create_uk_outline({'init' :'epsg:3857'})
 # Load mask for wider northern region
 # This masks out cells outwith the wider northern region
 wider_northern_mask = np.load('Outputs/RegionalMasks/wider_northern_region_mask.npy')
-uk_mask = np.load('Outputs/RegionalMasks/uk_mask.npy')  
+#uk_mask = np.load('Outputs/RegionalMasks/uk_mask.npy')  
 
 ##################################################################
 # Create dictionaries storing the maximum and minimum values found for 
@@ -100,13 +101,13 @@ for em in ems:
           
           # Mask the data so as to cover any cells not within the specified region 
           if region == 'Northern':
-              stats_cube.data = ma.masked_where(wider_northern_mask == 0, stats_cube.data)
+              stat_cube.data = ma.masked_where(wider_northern_mask == 0, stat_cube.data)
               # Trim to the BBOX of Northern England
               # This ensures the plot shows only the bbox around northern england
               # but that all land values are plotted
-              stats_cube = trim_to_bbox_of_region(stats_cube, northern_gdf)
+              stat_cube = trim_to_bbox_of_region(stat_cube, northern_gdf)
           elif region == 'UK':
-              stats_cube.data = ma.masked_where(uk_mask == 0, stats_cube.data)
+              stat_cube.data = ma.masked_where(uk_mask == 0, stat_cube.data)
               
           # If this is the first time through the loop e.g. the first ensemble member, 
           # then create dictionary which will store the max and min values for each 
@@ -139,11 +140,6 @@ precip_colormap = matplotlib.colors.ListedColormap(tol_precip_colors)
 precip_colormap.set_under(color="white")
 precip_colormap.set_over(color="white")
 
-# stats = []
-# for key, value in em_dict.items() :
-#     stats.append(key)
-stats = ['jja_max', 'jja_mean', 'jja_p95', 'jja_p97', 'jja_p99', 'jja_p99.5', 'jja_p99.75', 'jja_p99.9']
-
 for stat in stats:
     print(stat)
     # Extract the max, min values across all 12 ensemble members
@@ -153,7 +149,7 @@ for stat in stats:
     
     # Define the contour levels to use in plotting
     # Make these integers if the values are large, and floats rounded to 2 d.p's if not
-    if max_value >10:
+    if global_max >10:
         contour_levels_overall = np.linspace(global_min, global_max, 11,endpoint = True, dtype = int)
     else:
         contour_levels_overall = np.linspace(global_min, global_max, 11,endpoint = True)
@@ -161,7 +157,7 @@ for stat in stats:
         
     # Set up plot size (dependent upon spatial extent)
     if region == 'Northern':
-        plt.figure(figsize=(48,30), dpi=100)
+        plt.figure(figsize=(48,30), dpi=200)
     elif region == 'leeds-at-centre':
         plt.figure(figsize=(48, 24), dpi=100)
     elif region == 'UK':
@@ -181,8 +177,10 @@ for stat in stats:
     for em in ems:
         # Extract data for correct ensemble member and stat
         em_dict = ems_dict[em]
+        stats_cube = em_dict[stat]
         # Remove time dimension (only had one value)
-        stats_cube = em_dict[stat][0]          
+        if hours == 'dry':
+            stats_cube = stats_cube[0]          
        
         # Define the contour levels to use in plotting where the axis is not shared
         # Make these integers if the values are large, and floats rounded to 2 d.p's if not
@@ -207,8 +205,8 @@ for stat in stats:
                                   vmax = global_max)
            # Add regional outlines, depending on which region is being plotted
            if region == 'Northern':
-                leeds_gdf.plot(ax=ax, edgecolor='red', color='none', linewidth=1)
-                northern_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=1)
+                leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=0.5)
+                northern_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=0.4)
            elif region == 'leeds-at-centre':
                 leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=1)
            elif region == 'UK':
@@ -225,8 +223,8 @@ for stat in stats:
                                   vmax = local_max)
            # Add regional outlines, depending on which region is being plotted
            if region == 'Northern':
-                leeds_gdf.plot(ax=ax, edgecolor='red', color='none', linewidth=1)
-                northern_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=1)
+                leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=0.5)
+                northern_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=0.4)
                 cb1 = plt.colorbar(mesh, ax=ax, fraction=0.051, pad=0.03, 
                                   boundaries = contour_levels)
            elif region == 'leeds-at-centre':
@@ -253,7 +251,14 @@ for stat in stats:
         colorbar.set_label('%s' % stats_cube.units, size = 15)
         colorbar.ax.tick_params(labelsize=15)
         colorbar.ax.set_xticklabels(["{:.2}".format(i) for i in colorbar.get_ticks()]) # set ticks of your format     
-        filename = "Outputs/Stats_Spatial_plots/{}/{}.png".format(region, stat)
+        if hours == 'dry':
+            filename = "Outputs/Stats_Spatial_plots/{}/{}.png".format(region, stat)
+        elif hours == 'wet':
+            filename = "Outputs/Stats_Spatial_plots/{}/Wethours/{}.png".format(region, stat)
+  
     elif shared_axis == False:
-        filename = "Outputs/Stats_Spatial_plots/{}/{}_diffscales.png".format(region, stat)
+        if hours == 'dry':
+            filename = "Outputs/Stats_Spatial_plots/{}/{}_diffscales.png".format(region, stat)
+        elif hours == 'wet':
+            filename = "Outputs/Stats_Spatial_plots/{}/Wethours/{}_diffscales.png".format(region, stat)
     plt.savefig(filename, bbox_inches = 'tight')
