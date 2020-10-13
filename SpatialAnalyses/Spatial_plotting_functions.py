@@ -96,7 +96,10 @@ def wet_hour_stats(rain_data, statistic_name):
             stats_array[i,j] = statistic_value
 
     return  stats_array
-    
+  
+
+
+  
 
 def find_cornerpoint_coordinates (cube):
     '''
@@ -150,7 +153,7 @@ def find_cornerpoint_coordinates (cube):
     #data_midpoints = data[1:,1:]
     
     return (lats_wm_midpoints_2d, lons_wm_midpoints_2d)
-    
+ 
 def GridCells_within_geometry(lats, lons, geometry_gdf, data):
     '''
     Description
@@ -181,26 +184,31 @@ def GridCells_within_geometry(lats, lons, geometry_gdf, data):
         geometry_poly = MultiPolygon(geometry_gdf['geometry'].iloc[0])
     elif geometry_gdf.geom_type[0] == 'Polygon':
         geometry_poly = Polygon(geometry_gdf['geometry'].iloc[0])
-        
+
+    i= 0 
     within_geometry = []
     for lon, lat in zip(lons, lats):
         this_point = Point(lon, lat)
-        print(this_point)
         res = this_point.within(geometry_poly)
-        #res = leeds_poly.contains(this_point)
+        #print(i)
         within_geometry.append(res)
-    # Convert to array
-    within_geometry = np.array(within_geometry)
-    # Convert from a long array into one of the shape of the data
-    within_geometry = np.array(within_geometry).reshape(data[:,:].shape)
-    # Convert to 0s and 1s
-    within_geometry = within_geometry.astype(int)
-    # Mask out values of 0
-    #within_geometry = np.ma.masked_array(within_geometry, within_geometry < 1)
+        i = i+1
+        
+    # # Convert to array
+    # within_geometry = np.array(within_geometry)
+    # # Convert from a long array into one of the shape of the data
+    # within_geometry = np.array(within_geometry).reshape(data[:,:].shape)
+    # # Convert to 0s and 1s
+    # within_geometry = within_geometry.astype(int)
+    # # Mask out values of 0
+    # #within_geometry = np.ma.masked_array(within_geometry, within_geometry < 1)
     
     return within_geometry
 
-    
+ 
+
+
+   
 def trim_to_bbox_of_region (cube, gdf):
     '''
     Description
