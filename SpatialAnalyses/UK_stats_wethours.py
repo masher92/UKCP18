@@ -15,6 +15,7 @@ import cartopy.crs as ccrs
 import matplotlib 
 import re
 import iris.plot as iplt
+import multiprocessing as mp
 
 ############################################
 # Define variables and set up environment
@@ -29,20 +30,19 @@ from Pr_functions import *
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/SpatialAnalyses')
 from Spatial_plotting_functions import *
 
-ems = ['09','10']
-ems = ['01', '04', '05', '06', '07', '08','09', '10', '11','12','13','15']
+#ems = ['01', '04', '05', '06', '07', '08','09', '10', '11','12','13','15']
+ems= ['09', '13','08']
+stats = ['jja_mean_wh', 'jja_max_wh', 'wet_prop', 'jja_p95_wh', 'jja_p97_wh', 'jja_p99_wh',  'jja_p99.5_wh', 'jja_p99.75_wh', 'jja_p99.9_wh']
 yrs_range = "1980_2001" 
 
-# Create a dictionary within which the stats cubes for each ensemble member will
-# be stored
-for em in ems:
+def create_stats_cube2 (em):
     print(em)
     #############################################
     ## Load in the data
     #############################################
     filenames =[]
     # Create filepath to correct folder using ensemble member and year
-    general_filename = 'datadir/UKCP18/2.2km/{}/{}/pr_rcp85_land-cpm_uk_2.2km_{}_1hr_*'.format(em, yrs_range, em)
+    general_filename = 'datadir/UKCP18/2.2km/{}/1980_2001/pr_rcp85_land-cpm_uk_2.2km_{}_1hr_*'.format(em,  em)
     #print(general_filename)
     # Find all files in directory which start with this string
     for filename in glob.glob(general_filename):
@@ -97,8 +97,12 @@ for em in ems:
     # Find wet hour stats
     #############################################
     # Load the data for the jja cube so it is no longer lazy
-    seconds = time.time()
-    rain_data = load_data(jja)
+    # seconds = time.time()
+    # rain_data = load_data(jja)
+    # print("Loaded data in ", time.time() - seconds)
+
+    seconds = time.time()    
+    rain_data = jja.data
     print("Loaded data in ", time.time() - seconds)
     
     # Get one timeslice of the JJA cube
@@ -125,7 +129,7 @@ for em in ems:
       # Test plotting
       qplt.pcolormesh(one_ts, cmap = precip_colormap)
       plt.gca().coastlines()
-    
+      
       # Save
       iris.save(one_ts, 
                 '/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/Wethours/em_'+ em+ '_' +stat + '.nc')
@@ -134,3 +138,10 @@ for em in ems:
       # new_cube = new_cube[0]
       # iplt.pcolormesh(new_cube, cmap = precip_colormap)
       # plt.gca().coastlines()
+      
+      
+pool = mp.Pool(processes=4)
+results = [pool.apply_async(create_stats_cube2, args=(x,)) for x in ems]
+output = [p.get() for p in results]
+print(output)      
+   
