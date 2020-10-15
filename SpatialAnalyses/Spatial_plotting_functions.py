@@ -190,7 +190,7 @@ def GridCells_within_geometry(lats, lons, geometry_gdf, data):
     for lon, lat in zip(lons, lats):
         this_point = Point(lon, lat)
         res = this_point.within(geometry_poly)
-        #print(i)
+        print(i)
         within_geometry.append(res)
         i = i+1
         
@@ -276,6 +276,8 @@ def mask_by_region (cube, gdf):
     lons = cube.coord('longitude').points.reshape(-1)
     lats = cube.coord('latitude').points.reshape(-1)
     lons,lats= transform(Proj(init='epsg:4326'),Proj(init='epsg:3785'),lons,lats)
+
+    #np.where(lons == 117524.7356318977)
 
     if cube.ndim == 3:
         # Get one timeslice of data
