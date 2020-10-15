@@ -37,7 +37,7 @@ region = 'Northern'
 #region = ['Northern', 'leeds-at-centre', 'UK']
 
 # Wet hours or day hours
-hours = 'dry'
+hours = 'all'
 
 ##################################################################
 # Load necessary spatial data
@@ -62,7 +62,7 @@ wider_northern_mask = np.load('Outputs/RegionalMasks/wider_northern_region_mask.
 # each statistic, considering all ensemble members and all grid cells
 ##################################################################
 # List of stats to loop through
-if hours == 'dry':
+if hours == 'all':
     stats = ['jja_max', 'jja_mean', 'jja_p95', 'jja_p97', 'jja_p99', 'jja_p99.5', 'jja_p99.75', 'jja_p99.9']
 elif hours == 'wet':
     stats = ['jja_max_wh', 'jja_mean_wh', 'jja_p95_wh', 'jja_p97_wh', 'jja_p99_wh', 'jja_p99.5_wh', 'jja_p99.75_wh', 'jja_p99.9_wh']
@@ -84,7 +84,7 @@ for em in ems:
     # Loop through stats
     for stat in stats:
           # Load in netcdf files containing the stats data over the whole UK
-          if hours == 'dry':
+          if hours == 'all':
               stat_cube = iris.load('/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/em_'+ em+ '_' + stat + '.nc')[0] 
               stat_cube = stat_cube[0]    
           elif hours == 'wet':
@@ -238,14 +238,14 @@ for stat in stats:
         colorbar.set_label('%s' % stats_cube.units, size = 15)
         colorbar.ax.tick_params(labelsize=15)
         colorbar.ax.set_yticklabels(["{:.{}f}".format(i, n_decimal_places) for i in colorbar.get_ticks()])    
-        if hours == 'dry':
-            filename = "Outputs/Stats_Spatial_plots/{}/Dryhours/{}.png".format(region, stat)
+        if hours == 'all':
+            filename = "Outputs/Stats_Spatial_plots/{}/Allhours/{}.png".format(region, stat)
         elif hours == 'wet':
             filename = "Outputs/Stats_Spatial_plots/{}/Wethours/{}.png".format(region, stat)
   
     elif shared_axis == False:
-        if hours == 'dry':
-            filename = "Outputs/Stats_Spatial_plots/{}/Dryhours/{}_diffscales.png".format(region, stat)
+        if hours == 'all':
+            filename = "Outputs/Stats_Spatial_plots/{}/Allhours/{}_diffscales.png".format(region, stat)
         elif hours == 'wet':
             filename = "Outputs/Stats_Spatial_plots/{}/Wethours/{}_diffscales.png".format(region, stat)
     plt.savefig(filename, bbox_inches = 'tight')
