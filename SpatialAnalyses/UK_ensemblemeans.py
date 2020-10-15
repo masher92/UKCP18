@@ -13,9 +13,6 @@ import matplotlib
 import iris.plot as iplt
 import numpy.ma as ma
 
-def namestr(obj, namespace):
-    return [name for name in namespace if namespace[name] is obj]
-
 ############################################
 # Define variables and set up environment
 #############################################
@@ -28,60 +25,34 @@ sys.path.insert(0, root_fp + 'Scripts/UKCP18/')
 from Pr_functions import *
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/SpatialAnalyses')
 from Spatial_plotting_functions import *
+from Spatial_geometry_functions import *
 
 # Set up variables
 ems = ['01', '04', '05', '06', '07', '08', '09','10','11','12', '13','15']
-start_year = 1980
-end_year = 2000 
 yrs_range = "1980_2001" 
 
-# Load mask    
-mask = np.load('Outputs/RegionalMasks/wider_northern_region_mask.npy')
+#Plotting region
+#region = ['Northern', 'leeds-at-centre', 'UK']
+region = 'leeds-at-centre'
+hours = 'dry'
 
-############################################
-# Import and create requried spatial files
-#############################################
+##################################################################
+# Load necessary spatial data
+##################################################################
+# These geodataframes are square
+northern_gdf = create_northern_outline({'init' :'epsg:3857'})
+wider_northern_gdf = create_wider_northern_outline({'init' :'epsg:3857'})
+# This is the outlins of Leeds
 leeds_gdf = create_leeds_outline({'init' :'epsg:3857'})
-lons = [54.130260, 54.130260, 53.486836, 53.486836]
-lats = [-2.138282, -0.895667, -0.895667, -2.138282]
-polygon_geom = Polygon(zip(lats, lons))
-leeds_at_centre_gdf = gpd.GeoDataFrame(index=[0], crs={'init': 'epsg:4326'}, geometry=[polygon_geom])
-leeds_at_centre_gdf = leeds_at_centre_gdf.to_crs({'init' :'epsg:3785'}) 
+# This is a square area surrounding Leeds
+leeds_at_centre_gdf = create_leeds_at_centre_outline({'init' :'epsg:3857'})
+# This is the outline of the coast of the UK
+uk_gdf = create_uk_outline({'init' :'epsg:3857'})
 
-uk_regions = gpd.read_file("datadir/SpatialData/Region__December_2015__Boundaries-shp/Region__December_2015__Boundaries.shp") 
-northern_regions = uk_regions.loc[uk_regions['rgn15nm'].isin(['North West', 'North East', 'Yorkshire and The Humber'])]
-#uk_regions = gpd.read_file(root_fp + "datadir/SpatialData/NUTS_Level_1__January_2018__Boundaries-shp/NUTS_Level_1__January_2018__Boundaries.shp") 
-#northern_regions = uk_regions.loc[uk_regions['nuts118nm'].isin(['North East (England)', 'North West (England)', 'Yorkshire and The Humber'])]
-# Merge the three regions into one
-northern_regions['merging_col'] = 0
-northern_gdf = northern_regions.dissolve(by='merging_col')
-northern_gdf = northern_gdf.to_crs({'init' :'epsg:3785'}) 
-
-### Create larger northern region
-# England part
-wider_northern_gdf = uk_regions.loc[uk_regions['rgn15nm'].isin(['North West', 'North East', 'Yorkshire and The Humber', 'East Midlands', 'West Midlands'])]
-wider_northern_gdf['merging_col'] = 0
-wider_northern_gdf = wider_northern_gdf.dissolve(by='merging_col')
-wider_northern_gdf = wider_northern_gdf[['geometry']]
-
-# Scotland part
-dg = gpd.read_file("datadir/SpatialData/2011_Census_Dumfries_and_Galloway_(shp)/DC_2011_EoR_Dumfries___Galloway.shp")
-dg['merging_col'] = 0
-dg = dg.dissolve(by='merging_col')
-borders = gpd.read_file('datadir/SpatialData/Scottish_Borders_shp/IZ_2001_EoR_Scottish_Borders.shp')
-borders['merging_col'] = 0
-borders = borders.dissolve(by='merging_col')
-
-southern_scotland = pd.concat([dg, borders])
-southern_scotland['new_merging_col'] = 0
-southern_scotland = southern_scotland.dissolve(by='new_merging_col')
-southern_scotland = southern_scotland[['geometry']]
-
-# Join the two
-wider_northern_gdf = pd.concat([southern_scotland, wider_northern_gdf])
-wider_northern_gdf['merging_col'] = 0
-wider_northern_gdf = wider_northern_gdf.dissolve(by='merging_col')
-wider_northern_gdf = wider_northern_gdf.to_crs({'init' :'epsg:3785'}) 
+# Load mask for wider northern region
+# This masks out cells outwith the wider northern region
+wider_northern_mask = np.load('Outputs/RegionalMasks/wider_northern_region_mask.npy')
+#uk_mask = np.load('Outputs/RegionalMasks/uk_mask.npy')  
 
 ##################################################################
 # Set up plotting colours
@@ -93,36 +64,55 @@ precip_colormap = matplotlib.colors.ListedColormap(tol_precip_colors)
 precip_colormap.set_under(color="white")
 precip_colormap.set_over(color="white")
 
-
 ##################################################################
 # Create dictionaries storing the maximum and minimum values found for 
 # each statistic, considering all ensemble members and all grid cells
 ##################################################################
-stats = ['jja_max', 'jja_mean', 'jja_percentiles']
+
+##################################################################
+# List of stats to loop through
+if hours == 'dry':
+    stats = ['jja_max', 'jja_mean', 'jja_p95', 'jja_p97', 'jja_p99', 'jja_p99.5', 'jja_p99.75', 'jja_p99.9']
+elif hours == 'wet':
+    stats = ['jja_max_wh', 'jja_mean_wh', 'jja_p95_wh', 'jja_p97_wh', 'jja_p99_wh', 'jja_p99.5_wh', 'jja_p99.75_wh', 'jja_p99.9_wh']
+    
+#  Loop through stats   
 for stat in stats:
+
+  # Load in files
   filenames = []
-  #
   for em in ems:
-      filename= '/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/em_'+ em+ '_' + stat + '.nc'
+      if hours == 'dry':
+          filename= '/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/em_'+ em+ '_' + stat + '.nc'
+      elif hours == 'wet':
+          filename= '/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/Wethours/em_'+ em+ '_' + stat + '.nc'          
       filenames.append(filename)
 
   # Load 12 ensemble member files into a cube list
   cubes_list = iris.load(filenames,'lwe_precipitation_rate')
   # Concatenate the cubes into one
   cubes = cubes_list.concatenate_cube()
-  # Remove time dimension
-  cubes = cubes[:,0,:,:]
+      
+  # Remove time dimension (only had one value)
+  if hours == 'dry':
+      cubes = cubes[:,0,:,:]
 
-  # Collapse them to contain one mean value across 12 ensemble members
-  EMmean = cubes.collapsed(['ensemble_member'], iris.analysis.MEAN)
-  EMspread = cubes.collapsed(['ensemble_member'], iris.analysis.STD_DEV)
-  
-  stats_cubes = [EMmean, EMspread]
-  
-  for stats_cube in stats_cubes:
-      # Save the name of the stats cube as a variable
-      name = namestr(stats_cube, globals())[0]
-      print(name)
+#############################################################################
+# Calculate and plot:
+    # The ensemble mean
+    # The ensemble spread (standard deviation)
+#############################################################################
+# Define the two different metrics
+  em_cube_stats = ["EM_mean", "EM_spread"]
+  # For each of the two different metrics
+  for em_cube_stat in em_cube_stats:
+      print(em_cube_stat)
+     # Collapse them to contain one mean value across 12 ensemble members
+      if em_cube_stat == "EM_mean":
+          stats_cube = cubes.collapsed(['ensemble_member'], iris.analysis.MEAN)
+      elif em_cube_stat == "EM_spread":
+          stats_cube = cubes.collapsed(['ensemble_member'], iris.analysis.STD_DEV)
+        
       # Trim to bbox of wider northern region
       stats_cube = trim_to_bbox_of_region(stats_cube, wider_northern_gdf)            
       # Mask out data outwith this region (including the sea)
@@ -134,26 +124,59 @@ for stat in stats:
       # This zooms in on only the northern_gdf region
       stats_cube = trim_to_bbox_of_region(stats_cube, northern_gdf)
 
-      # Get the lats and lons
-      lats_2d = stats_cube.coord('latitude').points
-      lons_2d = stats_cube.coord('longitude').points
-      inProj = Proj(init='epsg:4326')
-      outProj = Proj(init='epsg:3857')
-      lons_2d, lats_2d = transform(inProj,outProj,lons_2d, lats_2d)
-   
-      # PLot
-      fig, ax = plt.subplots(figsize=(30,25))
-      ax.set_axis_off()
-      my_plot = ax.pcolormesh(lons_2d, lats_2d, stats_cube.data, linewidths=3, 
-                            alpha = 1, cmap = precip_colormap)
-      northern_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=4)
-      leeds_gdf.plot(ax=ax, edgecolor='red', color='none', linewidth=4)
-      cb1 = fig.colorbar(my_plot, ax=ax, fraction=0.036, pad=0.02)
-      cb1.ax.tick_params(labelsize=40)
-      filename = "Outputs/Stats_Spatial_plots/Northern/{}_{}.png".format(stat, name)
+    ############## BIG Difference between two options
+      local_min = stats_cube.data.min()
+      local_max = stats_cube.data.max()
+      contour_levels = np.linspace(local_min, local_max, 11,endpoint = True)
+
+      # if stats_cube.data.max() > 10:
+      #       local_min = int(stats_cube.data.min())
+      #       local_max = int(stats_cube.data.max())
+      #       contour_levels = np.linspace(local_min, local_max, 10,endpoint = True, dtype = int)
+      # else:
+      #       local_min = round(stats_cube.data.min(),2)
+      #       local_max = round(stats_cube.data.max(),2)
+      #       contour_levels = np.linspace(local_min, local_max, 10,endpoint = True)
+      #       contour_levels = np.round(contour_levels, 2) 
+
+    ############################################
+      proj = ccrs.Mercator.GOOGLE
+      fig = plt.figure(figsize=(20,20), dpi=200)
+      ax = fig.add_subplot(122, projection = proj)
+     
+      if stats_cube.data.max() >10:
+          n_decimal_places = 0
+      elif stats_cube.data.max() < 0.1:
+          n_decimal_places  =3
+      else:
+          n_decimal_places =2
+     
+     # ax = plt.subplot(122, projection = proj)
+      mesh = iplt.pcolormesh(stats_cube, cmap = precip_colormap, vmin = local_min, vmax = local_max)
+           
+      # Add regional outlines, depending on which region is being plotted
+      if region == 'Northern':
+             leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=3)
+             northern_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=3)
+             cb1 = plt.colorbar(mesh, ax=ax, fraction=0.053, pad=0.03, boundaries = contour_levels)
+             cb1.ax.tick_params(labelsize=15)
+             #cb1.num_format = ':.1f'
+             cb1.ax.set_yticklabels(["{:.{}f}".format(i, n_decimal_places) for i in cb1.get_ticks()])   
+      elif region == 'leeds-at-centre':
+             leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=1)
+             cb1 = plt.colorbar(mesh, ax=ax, fraction=0.041, pad=0.03, 
+                               boundaries = contour_levels)
+      elif region == 'UK':
+             plt.gca().coastlines(linewidth =0.5)
+             cb1 = plt.colorbar(mesh, ax=ax, fraction=0.049, pad=0.03, 
+                               boundaries = contour_levels)
+      
+      # Save files
+      if hours == 'dry':
+          filename = "Outputs/Stats_Spatial_plots/Northern/DryHours_EM_Difference/{}_{}.png".format(stat, em_cube_stat)
+      elif hours == 'wet':
+           filename = "Outputs/Stats_Spatial_plots/Northern/WetHours_EM_Difference/{}_{}.png".format(stat, em_cube_stat)         
       fig.savefig(filename, bbox_inches = 'tight')
     
-
-
-
+      
 
