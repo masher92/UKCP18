@@ -34,32 +34,20 @@ sys.path.insert(0, root_fp + 'Scripts/UKCP18/')
 from Pr_functions import *
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/SpatialAnalyses')
 from Spatial_plotting_functions import *
+from Spatial_geometry_functions import *
 
-############################################
+#############################################
 # Create regions
 #############################################
-wys_gdf = gpd.read_file("datadir/SpatialData/combined-authorities-april-2015-super-generalised-clipped-boundaries-in-england.shp") 
-wys_gdf = wys_gdf[wys_gdf['cauth15cd'] == 'E47000003']
-# Create the square around it
-bounding_box = wys_gdf.envelope
-wys_gdf = gpd.GeoDataFrame(gpd.GeoSeries(bounding_box), columns=['geometry'])
-wys_gdf.crs = "epsg:4326"
-wys_gdf = wys_gdf.to_crs({'init' :'epsg:3785'}) 
-
-# Create geodataframe of West Yorks
-uk_gdf = gpd.read_file("datadir/SpatialData/Region__December_2015__Boundaries-shp/Region__December_2015__Boundaries.shp") 
-northern_gdf = uk_gdf.loc[uk_gdf['rgn15nm'].isin(['North West', 'North East', 'Yorkshire and The Humber'])]
-northern_gdf = northern_gdf.to_crs({'init' :'epsg:3785'}) 
-# Merge the three regions into one
-northern_gdf['merging_col'] = 0
-northern_gdf = northern_gdf.dissolve(by='merging_col')
-
-# Create region with Leeds at the centre
-lons = [54.130260, 54.130260, 53.486836, 53.486836]
-lats = [-2.138282, -0.895667, -0.895667, -2.138282]
-polygon_geom = Polygon(zip(lats, lons))
-leeds_at_centre_gdf = gpd.GeoDataFrame(index=[0], crs={'init': 'epsg:4326'}, geometry=[polygon_geom])
-leeds_at_centre_gdf = leeds_at_centre_gdf.to_crs({'init' :'epsg:3785'}) 
+# These geodataframes are square
+northern_gdf = create_northern_outline({'init' :'epsg:3857'})
+wider_northern_gdf = create_wider_northern_outline({'init' :'epsg:3857'})
+# This is the outlins of Leeds
+leeds_gdf = create_leeds_outline({'init' :'epsg:3857'})
+# This is a square area surrounding Leeds
+leeds_at_centre_gdf = create_leeds_at_centre_outline({'init' :'epsg:3857'})
+# This is the outline of the coast of the UK
+uk_gdf = create_uk_outline({'init' :'epsg:3857'})
 
 ############################################
 # Read in one cube
@@ -80,7 +68,6 @@ square_northern_cube_df = pd.DataFrame({'lat': square_northern_cube.coord('latit
 
 
 for location in ["WY_square", "Northern", "leeds-at-centre"]:
- 
     if location == 'WY_square':
         location_gdf = wys_gdf
     elif location =='Northern':
