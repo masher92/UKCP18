@@ -187,6 +187,7 @@ def GridCells_within_geometry(lats, lons, geometry_gdf, data):
 
     i= 0 
     within_geometry = []
+    
     for lon, lat in zip(lons, lats):
         this_point = Point(lon, lat)
         res = this_point.within(geometry_poly)
