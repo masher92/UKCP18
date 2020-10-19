@@ -198,7 +198,7 @@ def create_uk_outline (required_proj):
     # Join the two
     uk_gdf = pd.concat([uk_regions, roi_regions])
     uk_gdf['merging_col'] = 0
-    #uk_gdf = uk_gdf.dissolve(by='merging_col')
+    uk_gdf = uk_gdf.dissolve(by='merging_col')
     
     # Convert to required projection
     uk_gdf = uk_gdf.to_crs(required_proj) 
