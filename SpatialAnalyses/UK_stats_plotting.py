@@ -33,7 +33,7 @@ ems = ['01', '04', '05', '06', '07', '08', '09','10','11','12', '13','15']
 shared_axis = True
 
 # Plotting region
-region = 'Northern'
+region = 'UK'
 #region = ['Northern', 'leeds-at-centre', 'UK']
 
 # Wet hours or day hours
@@ -55,7 +55,7 @@ uk_gdf = create_uk_outline({'init' :'epsg:3857'})
 # Load mask for wider northern region
 # This masks out cells outwith the wider northern region
 wider_northern_mask = np.load('Outputs/RegionalMasks/wider_northern_region_mask.npy')
-#uk_mask = np.load('Outputs/RegionalMasks/uk_mask.npy')  
+uk_mask = np.load('Outputs/RegionalMasks/uk_mask.npy')  
 
 ##################################################################
 # Create dictionaries storing the maximum and minimum values found for 
@@ -85,7 +85,7 @@ for em in ems:
     for stat in stats:
           # Load in netcdf files containing the stats data over the whole UK
           if hours == 'all':
-              stat_cube = iris.load('/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/em_'+ em+ '_' + stat + '.nc')[0] 
+              stat_cube = iris.load('/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/Allhours/em_'+ em+ '_' + stat + '.nc')[0] 
               stat_cube = stat_cube[0]    
           elif hours == 'wet':
               stat_cube = iris.load('/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/Wethours/em_'+ em+ '_' + stat + '.nc')[0] 
@@ -104,7 +104,9 @@ for em in ems:
               # but that all land values are plotted
               stat_cube = trim_to_bbox_of_region(stat_cube, northern_gdf)
           elif region == 'UK':
-              stat_cube.data = ma.masked_where(uk_mask == 0, stat_cube.data)
+              stat_cube = stat_cube
+              #uk_mask = uk_mask.reshape(458,383)
+              #stat_cube.data = ma.masked_where(uk_mask == 0, stat_cube.data)
               
           # If this is the first time through the loop e.g. the first ensemble member, 
           # then create dictionary which will store the max and min values for each 
@@ -187,7 +189,7 @@ for stat in stats:
            # Create projection system in Web Mercator
            proj = ccrs.Mercator.GOOGLE
            # Create axis using this WM projection
-           ax = plt.subplot(4,3,i, projection=proj)
+           ax = plt.subplot(122, projection=proj)
            # Plot
            mesh = iplt.pcolormesh(stats_cube, cmap = precip_colormap, vmin = global_min,
                                   vmax = global_max)

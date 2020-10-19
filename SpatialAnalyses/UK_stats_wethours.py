@@ -35,7 +35,7 @@ ems= ['09', '13','08']
 stats = ['jja_mean_wh', 'jja_max_wh', 'wet_prop', 'jja_p95_wh', 'jja_p97_wh', 'jja_p99_wh',  'jja_p99.5_wh', 'jja_p99.75_wh', 'jja_p99.9_wh']
 yrs_range = "1980_2001" 
 
-def create_stats_cube2 (em):
+def create_stats_cube (em):
     print(em)
     #############################################
     ## Load in the data
@@ -141,7 +141,7 @@ def create_stats_cube2 (em):
       
       
 pool = mp.Pool(processes=4)
-results = [pool.apply_async(create_stats_cube2, args=(x,)) for x in ems]
+results = [pool.apply_async(create_stats_cube, args=(x,)) for x in ems]
 output = [p.get() for p in results]
 print(output)      
    

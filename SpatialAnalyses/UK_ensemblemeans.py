@@ -34,7 +34,7 @@ yrs_range = "1980_2001"
 #Plotting region
 #region = ['Northern', 'leeds-at-centre', 'UK']
 region = 'leeds-at-centre'
-hours = 'dry'
+hours = 'wet'
 
 ##################################################################
 # Load necessary spatial data
@@ -71,7 +71,7 @@ precip_colormap.set_over(color="white")
 
 ##################################################################
 # List of stats to loop through
-if hours == 'dry':
+if hours == 'all':
     stats = ['jja_max', 'jja_mean', 'jja_p95', 'jja_p97', 'jja_p99', 'jja_p99.5', 'jja_p99.75', 'jja_p99.9']
 elif hours == 'wet':
     stats = ['jja_max_wh', 'jja_mean_wh', 'jja_p95_wh', 'jja_p97_wh', 'jja_p99_wh', 'jja_p99.5_wh', 'jja_p99.75_wh', 'jja_p99.9_wh']
@@ -82,8 +82,8 @@ for stat in stats:
   # Load in files
   filenames = []
   for em in ems:
-      if hours == 'dry':
-          filename= '/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/em_'+ em+ '_' + stat + '.nc'
+      if hours == 'all':
+          filename= '/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/Allhours/em_'+ em+ '_' + stat + '.nc'
       elif hours == 'wet':
           filename= '/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/Wethours/em_'+ em+ '_' + stat + '.nc'          
       filenames.append(filename)
@@ -94,7 +94,7 @@ for stat in stats:
   cubes = cubes_list.concatenate_cube()
       
   # Remove time dimension (only had one value)
-  if hours == 'dry':
+  if hours == 'all':
       cubes = cubes[:,0,:,:]
 
 #############################################################################
@@ -113,37 +113,46 @@ for stat in stats:
       elif em_cube_stat == "EM_spread":
           stats_cube = cubes.collapsed(['ensemble_member'], iris.analysis.STD_DEV)
         
-      # Trim to bbox of wider northern region
-      stats_cube = trim_to_bbox_of_region(stats_cube, wider_northern_gdf)            
-      # Mask out data outwith this region (including the sea)
-      masked_data = ma.masked_where(mask == 0, stats_cube.data)
-      # Set this masked data as the cube's data
-      stats_cube.data = masked_data
+      # Trim to smaller area
+      if region == 'Northern':
+              stats_cube = trim_to_bbox_of_region(stats_cube, wider_northern_gdf)
+      elif region == 'leeds-at-centre':
+              stats_cube = trim_to_bbox_of_region(stats_cube, leeds_at_centre_gdf)
+          
+      # Mask the data so as to cover any cells not within the specified region 
+      if region == 'Northern':
+              stats_cube.data = ma.masked_where(wider_northern_mask == 0, stats_cube.data)
+              # Trim to the BBOX of Northern England
+              # This ensures the plot shows only the bbox around northern england
+              # but that all land values are plotted
+              stats_cube = trim_to_bbox_of_region(stats_cube, northern_gdf)
+      elif region == 'UK':
+              stats_cube.data = ma.masked_where(uk_mask == 0, stats_cube.data)  
+        
+        
+      # # Trim to bbox of wider northern region
+      # stats_cube = trim_to_bbox_of_region(stats_cube, wider_northern_gdf)            
+      # # Mask out data outwith this region (including the sea)
+      # masked_data = ma.masked_where(mask == 0, stats_cube.data)
+      # # Set this masked data as the cube's data
+      # stats_cube.data = masked_data
       
-      # Trim the data to the bbox of northern GDF 
-      # This zooms in on only the northern_gdf region
-      stats_cube = trim_to_bbox_of_region(stats_cube, northern_gdf)
+      # # Trim the data to the bbox of northern GDF 
+      # # This zooms in on only the northern_gdf region
+      # stats_cube = trim_to_bbox_of_region(stats_cube, northern_gdf)
 
-    ############## BIG Difference between two options
+      # Find the minimum and maximum values to define the spread of the pot
       local_min = stats_cube.data.min()
       local_max = stats_cube.data.max()
       contour_levels = np.linspace(local_min, local_max, 11,endpoint = True)
 
-      # if stats_cube.data.max() > 10:
-      #       local_min = int(stats_cube.data.min())
-      #       local_max = int(stats_cube.data.max())
-      #       contour_levels = np.linspace(local_min, local_max, 10,endpoint = True, dtype = int)
-      # else:
-      #       local_min = round(stats_cube.data.min(),2)
-      #       local_max = round(stats_cube.data.max(),2)
-      #       contour_levels = np.linspace(local_min, local_max, 10,endpoint = True)
-      #       contour_levels = np.round(contour_levels, 2) 
-
-    ############################################
+      # Set up a plotting figurge with Web Mercator projection
       proj = ccrs.Mercator.GOOGLE
       fig = plt.figure(figsize=(20,20), dpi=200)
       ax = fig.add_subplot(122, projection = proj)
      
+      # Define number of decimal places to use in the rounding of the colour bar
+      # This ensures smaller numbers have decimal places, but not bigger ones.  
       if stats_cube.data.max() >10:
           n_decimal_places = 0
       elif stats_cube.data.max() < 0.1:
@@ -151,31 +160,30 @@ for stat in stats:
       else:
           n_decimal_places =2
      
-     # ax = plt.subplot(122, projection = proj)
+      # Plot
       mesh = iplt.pcolormesh(stats_cube, cmap = precip_colormap, vmin = local_min, vmax = local_max)
            
       # Add regional outlines, depending on which region is being plotted
       if region == 'Northern':
-             leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=3)
-             northern_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=3)
+             leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=2)
+             northern_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=2)
              cb1 = plt.colorbar(mesh, ax=ax, fraction=0.053, pad=0.03, boundaries = contour_levels)
-             cb1.ax.tick_params(labelsize=15)
-             #cb1.num_format = ':.1f'
-             cb1.ax.set_yticklabels(["{:.{}f}".format(i, n_decimal_places) for i in cb1.get_ticks()])   
       elif region == 'leeds-at-centre':
-             leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=1)
+             leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=2.3)
              cb1 = plt.colorbar(mesh, ax=ax, fraction=0.041, pad=0.03, 
                                boundaries = contour_levels)
       elif region == 'UK':
              plt.gca().coastlines(linewidth =0.5)
              cb1 = plt.colorbar(mesh, ax=ax, fraction=0.049, pad=0.03, 
                                boundaries = contour_levels)
-      
+      cb1.ax.tick_params(labelsize=15)
+      cb1.ax.set_yticklabels(["{:.{}f}".format(i, n_decimal_places) for i in cb1.get_ticks()])   
+        
       # Save files
-      if hours == 'dry':
-          filename = "Outputs/Stats_Spatial_plots/Northern/DryHours_EM_Difference/{}_{}.png".format(stat, em_cube_stat)
+      if hours == 'all':
+          filename = "Outputs/Stats_Spatial_plots/{}/AllHours_EM_Difference/{}_{}.png".format(region, stat, em_cube_stat)
       elif hours == 'wet':
-           filename = "Outputs/Stats_Spatial_plots/Northern/WetHours_EM_Difference/{}_{}.png".format(stat, em_cube_stat)         
+           filename = "Outputs/Stats_Spatial_plots/{}/WetHours_EM_Difference/{}_{}.png".format(region, stat, em_cube_stat)         
       fig.savefig(filename, bbox_inches = 'tight')
     
       
