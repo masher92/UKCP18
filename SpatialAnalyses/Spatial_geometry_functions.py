@@ -6,7 +6,6 @@ from shapely.geometry import Point, Polygon, MultiPolygon
 import matplotlib.pyplot as plt
 import tilemapbase
 import time 
-import bottleneck
 import pandas as pd
 
 root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
