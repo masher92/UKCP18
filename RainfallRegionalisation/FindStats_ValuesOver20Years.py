@@ -28,7 +28,7 @@ sys.path.insert(0, root_fp + 'Scripts/UKCP18/SpatialAnalyses')
 from Spatial_plotting_functions import *
 
 # Define ensemble members to use and percentiles to find
-ems = ['06']
+ems = ['15']
 percentiles = [95, 97, 99, 99.5, 99.75, 99.9]
 
 ############################################

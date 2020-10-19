@@ -64,7 +64,7 @@ from Pr_functions import *
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/SpatialAnalyses')
 from Spatial_plotting_functions import *
 
-ems = ['13', '15']
+ems = ['12']
 years = range(1981,2001)  
 n_highest=20
 #temp_perc_file='/nfs/a319/gy17m2a/Outputs/temp_stats_percentile.nc'
