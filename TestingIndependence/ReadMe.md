@@ -31,7 +31,7 @@ It is also useful to observe the magnitude of the values in the cells surroundin
 
 #### Northern region
 <p align="center">
-<img src="Figs/Northern/em07.png" width="230" />
-<img src="Figs/Northern/em07_sharedaxis.gif" width="230" title="Original 1km grid" />
-<img src="Figs/Northern/em07.gif" width="230" title="Original 1km grid" />
+<img src="Figs/Northern/em07.png" width="320" />
+<img src="Figs/Northern/em07_sharedaxis.gif" width="320" title="Original 1km grid" />
+<img src="Figs/Northern/em07.gif" width="320" title="Original 1km grid" />
 </p>
