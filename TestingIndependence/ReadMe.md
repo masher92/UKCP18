@@ -17,8 +17,8 @@ It is also useful to observe the magnitude of the values in the cells surroundin
 #### Northern region
 <p align="center">
 <img src="Figs/Northern/em04.png" width="230" />
-<img src="Figs/Northern/em04_sharedaxis.gif" width="250" title="Original 1km grid" />
-<img src="Figs/Northern/em04.gif" width="250" title="Original 1km grid" />
+<img src="Figs/Northern/em04_sharedaxis.gif" width="260" title="Original 1km grid" />
+<img src="Figs/Northern/em04.gif" width="260" title="Original 1km grid" />
 </p>
 
 ### Ensemble Member 7
