@@ -28,8 +28,7 @@ sys.path.insert(0, root_fp + 'Scripts/UKCP18/SpatialAnalyses')
 from Spatial_plotting_functions import *
 from Spatial_geometry_functions import *
 
-region = 'leeds-at-centre'
-em = '04'
+em = '07'
 yrs_range = "1980_2001" 
 shared_axis = True
 
@@ -64,7 +63,7 @@ concat_cube = concat_cube[0,:,:,:]
 iris.coord_categorisation.add_season(concat_cube,'time', name = "clim_season")
 # Keep only JJA
 jja = concat_cube.extract(iris.Constraint(clim_season = 'jja'))
-iris.coord_categorisation.add_season_year(concat_cube,'time', name = "season_year") 
+#iris.coord_categorisation.add_season_year(concat_cube,'time', name = "season_year") 
 
 ##################################################################
 # Load necessary spatial data
@@ -93,8 +92,12 @@ cube_max = jja.aggregated_by(['clim_season'], iris.analysis.MAX)
 #############################################
 ## Trim to smaller region
 #############################################
-regions = ['leeds-at-centre', 'Northern']
-for region in regions:
+
+def make_animation(region, cube_max, jja):
+  global northern_gdf
+  global wider_northern_gdf
+  global leeds_at_centre_gdf
+  global leeds_gdf
   
   if region == 'Northern':
       cube_max = trim_to_bbox_of_region(cube_max, wider_northern_gdf)
@@ -199,7 +202,8 @@ for region in regions:
   cb1 = plt.colorbar(mesh, ax=ax, fraction=0.04, pad=0.03, boundaries = contour_levels)
   cb1.ax.tick_params(labelsize=28)
   cb1.ax.set_yticklabels(["{:.{}f}".format(i, n_decimal_places) for i in cb1.get_ticks()])  
-  
+  filename = 'Outputs/CellIndependence/{}/em{}.png'.format(region, em)
+  plt.savefig(filename, bbox_inches = 'tight')
   ########################################################################
   # Animate
   ########################################################################
@@ -304,3 +308,6 @@ for region in regions:
   filename = 'Outputs/CellIndependence/{}/em{}.mp4'.format(region, em)
   ani.save(filename, writer=animation.FFMpegWriter(fps=1))
 
+# Make the animations
+make_animation("Northern", cube_max, jja)
+make_animation("leeds-at-centre", cube_max, jja)
