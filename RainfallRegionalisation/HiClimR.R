@@ -13,12 +13,12 @@ region = 'Northern' #'WY' 'Northern'
 # ems: the ensemble members with which to attempt the regionalisation
 # num_clusters_list: the numbers of clusters to try splitting the region into
 
-stats = list('ValuesOverPercentile/') # 'Greatest_ten'
+stats = list('Wethours/jja_p99_wh') # 'Greatest_ten'
 #stats = ('99.5th Percentile', '99.9th Percentile', '99.99th Percentile', '97th Percentile', '99th Percentile', '95th Percentile') 
 
 # Give the list of ensemble members
-ems = list('01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13','15')
-
+#ems = list('01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13','15')
+ems = list('09')
 # Number of clusters
 num_clusters_list = list(2,3,4,5,10)
 
@@ -32,7 +32,7 @@ for (num_clusters in num_clusters_list){
     for (em in ems){
             print (em)
             # Create the filepath
-            filepath = sprintf("C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/Outputs/HiClimR_inputdata/%s/%s/em_%s.csv", region, stat, em)
+            filepath = sprintf("C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/Outputs/Regionalisation/HiClimR_inputdata/%s/%s/em_%s.csv", region, stat, em)
             
             # Read in data
             df <- read.csv(file = filepath)
@@ -79,14 +79,14 @@ for (num_clusters in num_clusters_list){
             regions_df <- data.frame(regions_values, lats, lons)
             
             # Save to file
-            if (!(file.exists(sprintf("C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/Outputs/HiClimR_outputdata/%s/%s/%s clusters", region, stat, num_clusters)))) 
+            if (!(file.exists(sprintf("C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/Outputs/Regionalisation/HiClimR_outputdata/%s/%s/%s clusters", region, stat, num_clusters)))) 
             {  print ("Directory does not exist")
-              dir.create(sprintf("C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/Outputs/HiClimR_outputdata/%s/%s/%s clusters", region, stat, num_clusters), recursive = TRUE)
+              dir.create(sprintf("C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/Outputs/Regionalisation/HiClimR_outputdata/%s/%s/%s clusters", region, stat, num_clusters), recursive = TRUE)
               print("Directory created")
             }
             
             print("Here")
-            output_filepath = sprintf("C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/Outputs/HiClimR_outputdata/%s/%s/%s clusters/em%s.csv", region, stat,  num_clusters, em)
+            output_filepath = sprintf("C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/Outputs/Regionalisation/HiClimR_outputdata/%s/%s/%s clusters/em%s.csv", region, stat,  num_clusters, em)
             print("Here")
             unlink(output_filepath)
             write.csv(regions_df, output_filepath, row.names = FALSE)
