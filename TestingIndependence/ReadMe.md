@@ -4,7 +4,7 @@ In regional frequency analysis, or other approaches to spatially pooling data fo
 
 By finding the cell with the maximum value over the 1980-2001 time period over a specified area, and observing the values in the cells surrounding it, it is possible to assess the extent to which this assumption holds true.
 
-It is also useful to observe the magnitude of the values in the cells surrounding the cell with the maximum value in the hours before and after the maximum event occurs. 5 hurs before and 5 hours after
+It is also useful to observe the magnitude of the values in the cells surrounding the cell with the maximum value in the hours before and after the maximum event occurs. The animations below show the 5 hours before and 5 hours after the maximum event.
 
 ### Ensemble Member 4
 #### Leeds region
