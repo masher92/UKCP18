@@ -87,7 +87,8 @@ uk_mask = np.load('Outputs/RegionalMasks/uk_mask.npy')
 ## Find maximum value for each cell
 ################################################
 # Create cube containing the maximum JJA value for each cell
-cube_max = jja.aggregated_by(['clim_season'], iris.analysis.MAX)
+#cube_max = jja.aggregated_by(['clim_season'], iris.analysis.MAX)
+cube_max = jja.aggregated_by(['clim_season'], iris.analysis.PERCENTILE, percent = [95])
 
 #############################################
 ## Trim to smaller region
@@ -188,10 +189,14 @@ def make_animation(region, cube_max, jja):
   ## Plot in BNG Projection
   leeds_gdf = leeds_gdf.to_crs({'init' :'epsg:27700'}) 
   northern_gdf = northern_gdf.to_crs({'init' :'epsg:27700'}) 
-  plt.figure(figsize=(48, 24), dpi=200)
+  
+  if region == 'Northern':
+      fig,ax = plt.subplots(figsize=(30, 34)) #width, height
+  elif region == 'leeds-at-centre':
+      fig,ax = plt.subplots(figsize=(34, 34))
   proj = ccrs.OSGB()
   # Create axis using this WM projection
-  ax = plt.subplot(122, projection=proj)
+  ax = plt.subplot(111, projection=proj)
   # Plot
   mesh = iplt.pcolormesh(timeslice_with_max, cmap = precip_colormap, vmin = vmin, vmax= vmax)
   if region == 'leeds-at-centre':
@@ -200,16 +205,20 @@ def make_animation(region, cube_max, jja):
      northern_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=3)   
      leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=3)
   cb1 = plt.colorbar(mesh, ax=ax, fraction=0.04, pad=0.03, boundaries = contour_levels)
-  cb1.ax.tick_params(labelsize=28)
+  cb1.ax.tick_params(labelsize=48)
   cb1.ax.set_yticklabels(["{:.{}f}".format(i, n_decimal_places) for i in cb1.get_ticks()])  
-  filename = 'Outputs/CellIndependence/{}/em{}.png'.format(region, em)
+  # Create datetime in human readable format
+  datetime = timeslice_with_max.coord('time').units.num2date(timeslice_with_max.coord('time').points[0]) 
+  title = u"%s — %s" % (timeslice_with_max.long_name, str(datetime))          
+  plt.title(title, fontsize = 55)
+  filename = 'Outputs/CellIndependence/{}/em{}_.png'.format(region, em, stat)
   plt.savefig(filename, bbox_inches = 'tight')
   ########################################################################
   # Animate
   ########################################################################
   # Define the frames to plot
   # This will take some timeslices before and after the timeslice with the maximum
-  frames = range((index_of_max-5), (index_of_max+5))
+  frames = range((index_of_max-5), (index_of_max+6))
   
   # Define the maximum and minimum value found across all the time slices being animated
   global_min = 1000
@@ -220,9 +229,11 @@ def make_animation(region, cube_max, jja):
       global_min= timeslice_with_max.data.min() if timeslice_with_max.data.min() < global_min else global_min      
   
   # Create a figure
-  #fig,ax = plt.subplots(figsize=(38, 34))
-  fig,ax = plt.subplots(figsize=(30, 34)) #width, height
-  
+  if region == 'Northern':
+      fig,ax = plt.subplots(figsize=(30, 34)) #width, height
+  elif region == 'leeds-at-centre':
+      fig,ax = plt.subplots(figsize=(34, 34))
+      
   def draw(frame):
       # Clear the previous figure
       plt.clf()
@@ -275,13 +286,16 @@ def make_animation(region, cube_max, jja):
         northern_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=3)
         leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=3)
       cb1 = plt.colorbar(mesh, ax=ax, fraction=0.04, pad=0.03, boundaries = contour_levels)
-      cb1.ax.tick_params(labelsize=38)
+      cb1.ax.tick_params(labelsize=48)
       cb1.ax.set_yticklabels(["{:.{}f}".format(i, n_decimal_places) for i in cb1.get_ticks()])  
   
       # Create datetime in human readable format
       datetime = timeslice_with_max.coord('time').units.num2date(timeslice_with_max.coord('time').points[0]) 
-      title = u"%s — %s" % (timeslice_with_max.long_name, str(datetime))
-      plt.title(title, fontsize = 45)
+      if frame == index_of_max:
+          title = u"%s — %s - %s" % (timeslice_with_max.long_name, str(datetime), 'Max Value')
+      else:
+          title = u"%s — %s" % (timeslice_with_max.long_name, str(datetime))          
+      plt.title(title, fontsize = 55)
       return mesh
       
   def init():
@@ -298,14 +312,14 @@ def make_animation(region, cube_max, jja):
   shared_axis =True
   ani = animation.FuncAnimation(fig, animate, frames,
                                 interval=5, save_count=50, blit=False, init_func=init,repeat=False)
-  filename  ='Outputs/CellIndependence/{}/em{}_sharedaxis.mp4'.format(region, em)
+  filename  ='Outputs/CellIndependence/{}/em{}_sharedaxis_{}.mp4'.format(region, em, stat)
   ani.save(filename, writer=animation.FFMpegWriter(fps=1))
   
   
   shared_axis =False
   ani = animation.FuncAnimation(fig, animate, frames,
                                 interval=5, save_count=50, blit=False, init_func=init,repeat=False)
-  filename = 'Outputs/CellIndependence/{}/em{}.mp4'.format(region, em)
+  filename = 'Outputs/CellIndependence/{}/em{}_{}.mp4'.format(region, em, stat)
   ani.save(filename, writer=animation.FFMpegWriter(fps=1))
 
 # Make the animations
