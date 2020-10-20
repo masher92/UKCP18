@@ -24,14 +24,14 @@ It is also useful to observe the magnitude of the values in the cells surroundin
 ### Ensemble Member 7
 #### Leeds region
 <p align="center">
-<img src="Figs/leeds-at-centre/em07.png" width="300" />
-<img src="Figs/leeds-at-centre/em07_sharedaxis.gif" width="300" title="Original 1km grid" />
-<img src="Figs/leeds-at-centre/em07.gif" width="270" title="Original 1km grid" />
+<img src="Figs/leeds-at-centre/em07.png" width="320" />
+<img src="Figs/leeds-at-centre/em07_sharedaxis.gif" width="320" title="Original 1km grid" />
+<img src="Figs/leeds-at-centre/em07.gif" width="320" title="Original 1km grid" />
 </p>
 
 #### Northern region
 <p align="center">
 <img src="Figs/Northern/em07.png" width="230" />
-<img src="Figs/Northern/em07_sharedaxis.gif" width="223" title="Original 1km grid" />
-<img src="Figs/Northern/em07.gif" width="223" title="Original 1km grid" />
+<img src="Figs/Northern/em07_sharedaxis.gif" width="230" title="Original 1km grid" />
+<img src="Figs/Northern/em07.gif" width="230" title="Original 1km grid" />
 </p>
