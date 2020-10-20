@@ -9,9 +9,9 @@ It is also useful to observe the magnitude of the values in the cells surroundin
 ### Ensemble Member 4
 #### Leeds region
 <p align="center">
-<img src="Figs/leeds-at-centre/em04.png" width="330" />
-<img src="Figs/leeds-at-centre/em04_sharedaxis.gif" width="350" title="Original 1km grid" />
-<img src="Figs/leeds-at-centre/em04.gif" width="350" title="Original 1km grid" />
+<img src="Figs/leeds-at-centre/em04.png" width="320" />
+<img src="Figs/leeds-at-centre/em04_sharedaxis.gif" width="330" title="Original 1km grid" />
+<img src="Figs/leeds-at-centre/em04.gif" width="330" title="Original 1km grid" />
 </p>
 
 #### Northern region
