@@ -10,15 +10,15 @@ It is also useful to observe the magnitude of the values in the cells surroundin
 #### Leeds region
 <p align="center">
 <img src="Figs/leeds-at-centre/em04.png" width="320" />
-<img src="Figs/leeds-at-centre/em04_sharedaxis.gif" width="330" title="Original 1km grid" />
-<img src="Figs/leeds-at-centre/em04.gif" width="330" title="Original 1km grid" />
+<img src="Figs/leeds-at-centre/em04_sharedaxis.gif" width="320" title="Original 1km grid" />
+<img src="Figs/leeds-at-centre/em04.gif" width="320" title="Original 1km grid" />
 </p>
 
 #### Northern region
 <p align="center">
-<img src="Figs/Northern/em04.png" width="400" />
-<img src="Figs/Northern/em04_sharedaxis.gif" width="400" title="Original 1km grid" />
-<img src="Figs/Northern/em04.gif" width="400" title="Original 1km grid" />
+<img src="Figs/Northern/em04.png" width="320" />
+<img src="Figs/Northern/em04_sharedaxis.gif" width="320" title="Original 1km grid" />
+<img src="Figs/Northern/em04.gif" width="320" title="Original 1km grid" />
 </p>
 
 ### Ensemble Member 7
