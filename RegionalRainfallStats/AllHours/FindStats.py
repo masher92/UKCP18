@@ -1,6 +1,5 @@
 '''
-Finds max, mean, percentiles and greatest ten values for every cell in the cube
-which is within the bounding box of the North of England.
+Finds max, mean, percentiles and greatest ten values for every cell within various areas
 '''
 
 import iris.coord_categorisation
