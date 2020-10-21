@@ -11,13 +11,14 @@ In both cases the following statistics are calculated:
 * JJA Percentiles (95, 97, 99, 99.5, 99.75, 99.9)
 
 <ins> Plotting statistics </ins>  
-The "RegionalStats_plotting.py" script contains code to create a plot for each of the JJA statistics of the values at each grid cell. Each plot includes 12 subplots for the 12 ensemble members.
-The "RegionalEnsembleSummary_plotting" script contains code for plotting two plots for each JJA statistic. These summarise for each grid cell, for each statistic, 1. the mean value across all 12 ensemble members and 2. the ensemble spread (the standard deviation).
+Plots of the JJA statistic values at each grid cell are plotted within two scripts:
+* The "RegionalStats_plotting.py" -- for each statistic each plot includes 12 subplots for the 12 ensemble members showing the value of the statistic at each grid cell
+* The "RegionalEnsembleSummary_plotting" -- for each statistic two plots are created: 1. A plot of the mean value across all 12 ensemble members at each grid cell and 2. A plot of the ensemble spread (the standard deviation) at each grid cell.  
 
 In both cases plots can be generated for any of three defined regions:
 * The UK (trimmed to the coastlines)
 * The Northern region (North East, North West, Yorkshire and the Humber)
-* A square region centred on Leeds
+* A square region centred on Leeds  
 
 The code can also be adapted to allow plotting of either wet/all hours statistics and, for the plots with subplots, to use either a shared colobar and scale across the 12 ensemble members of to give each subplot its own colorbar and scale.
 
