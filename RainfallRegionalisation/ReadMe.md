@@ -1,7 +1,6 @@
 # Rainfall Regionalisation
 Rainfall regionaliation is the process of dividing a study region into smaller regions which are homogenous in respect to a particular precipitation characteristic. It is typically achieved using some form of cluster analysis.
 
-
 The regions bear some relationship to topography
 Region 1 includes mainly the southern areas of the Zaire basin and the northern slopes of the central African plateau. Region 2, the easternmost region, lies over the western highlands of the Rift Valley. Region 3 includes mainly the highlands of the Central African Republic. Region 4 includes mainly the northern portion of the Zaire basin. Region 5, the westernmost region, includes the Atlantic coast and the highlands of Cameroon.
 
@@ -27,7 +26,6 @@ to its own cluster and then the algorithm proceeds iteratively, at each stage jo
 similar clusters, continuing until there is just a single cluster. At each stage distances between
 clusters are recomputed by a dissimilarity update formula according to the particular clustering
 method being used.
-
 
 https://cmci.colorado.edu/classes/INFO-1301/files/borgatti.htm
 Purpose of measures of similarity is to compare two lists of numbers (i.e. vectors) and compute a single number which evaluates their similarity. Most measures were developed in context of comparing pairs of variables across cases (e.g. respondents in a survey).
@@ -112,6 +110,8 @@ Think I fixed all these problems in the code (but imagine they could persist els
 Also requires lots of new production of results:
 FindStats - max, mean and 6 percentiles, values over 20 years (max, mean, 6Percentiles) (NOT values above percentiles, seeing as values for this weren't good anyway)
   - Trimmed to leeds-at-centre for all of above  (and exported to desktop)
+      - (max, mean, 6Percentiles) - HiClimROutputs and Plots produced
   - Trimmed to Northern for all of above (and exported to desktop)
-
+    - (max, mean, 6Percentiles) - HiClimROutputs and Plots produced
+    
 ValuesOverPercentile & Greatest_ten = not updated, and deleted results from MobaXterm as they were rubbish
