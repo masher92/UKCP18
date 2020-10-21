@@ -1,3 +1,17 @@
+'''
+This file was used for plotting the mean value of each statistic across the 12
+ensemble members (e.g. for each cell the mean of the max values predicted in the
+# 12 ensemble members.
+
+Don't think this is actually useful though; plotting carried out in RegionalRainfallStats 
+serves a similar function but shows something which is more clear to interpret.
+
+This script does contain code, however, for plotting boxplots of values.
+It would be useful to extract this code into a different file, so this one can be deleted.
+
+'''
+
+
 import pandas as pd
 import matplotlib.pyplot as plt
 import os
@@ -9,6 +23,10 @@ os.chdir(root_fp)
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/SpatialAnalyses')
 from Spatial_plotting_functions import *
 
+
+############################################
+# Define variables and set up environment
+#############################################
 region = 'leeds-at-centre'
 stats = ['Max']
 ems = ['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
