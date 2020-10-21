@@ -95,9 +95,10 @@ sys.path.insert(0, root_fp + 'Scripts/UKCP18/SpatialAnalyses')
 from Spatial_plotting_functions import *
 from Spatial_geometry_functions import *
 
-ems = ['01', '04', '05', '06', '07', '08', '10', '11','12','13','15']
-#ems= ['09']
-stats = ['jja_mean_wh', 'jja_max_wh', 'wet_prop', 'jja_p95_wh', 'jja_p97_wh', 'jja_p99_wh',  'jja_p99.5_wh', 'jja_p99.75_wh', 'jja_p99.9_wh']
+#ems = ['01', '04', '05', '06', '07', '08', '10', '11','12','13','15']
+ems= ['09']
+stats = ['jja_p99_wh']
+#stats = ['jja_mean_wh', 'jja_max_wh', 'wet_prop', 'jja_p95_wh', 'jja_p97_wh', 'jja_p99_wh',  'jja_p99.5_wh', 'jja_p99.75_wh', 'jja_p99.9_wh']
 yrs_range = "1980_2001" 
 
 ##################################################################
