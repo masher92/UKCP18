@@ -50,9 +50,7 @@ wider_northern_mask = np.load('Outputs/RegionalMasks/wider_northern_region_mask.
 #uk_mask = np.load('Outputs/RegionalMasks/uk_mask.npy')  
 
 ##################################################################
-# Create dictionaries storing the maximum and minimum values found for 
-# each statistic, considering all ensemble members and all grid cells
-# These are to be used
+# Loop through stats:
 ##################################################################
 # List of stats to loop through
 if hours == 'all':
@@ -60,7 +58,10 @@ if hours == 'all':
 elif hours == 'wet':
     stats = ['jja_max_wh', 'jja_mean_wh', 'jja_p95_wh', 'jja_p97_wh', 'jja_p99_wh', 'jja_p99.5_wh', 'jja_p99.75_wh', 'jja_p99.9_wh']
     
-#  Loop through stats   
+#############################################################################  
+# For each stat, load in cubes containing this data for each of the ensemble members
+# And concatenate all the ensemble member statistic cubes into one. 
+#############################################################################
 for stat in stats:
   # Load in files
   filenames = []
@@ -79,16 +80,13 @@ for stat in stats:
   # Remove time dimension (only had one value)
   if hours == 'all':
       cubes = cubes[:,0,:,:]
-
-#############################################################################
-# Calculate and plot:
-    # The ensemble mean
-    # The ensemble spread (standard deviation)
-#############################################################################
-# Set up plotting colours
-precip_colormap = create_precip_cmap()      
       
-# Define the two different metrics
+  #############################################################################
+  # Calculate:
+  # The ensemble mean
+  # The ensemble spread (standard deviation)
+  #############################################################################
+  # Define the two different metrics
   em_cube_stats = ["EM_mean", "EM_spread"]
   # For each of the two different metrics
   for em_cube_stat in em_cube_stats:
@@ -114,24 +112,17 @@ precip_colormap = create_precip_cmap()
               stats_cube = trim_to_bbox_of_region(stats_cube, northern_gdf)
       elif region == 'UK':
               stats_cube.data = ma.masked_where(uk_mask == 0, stats_cube.data)  
-        
-        
-      # # Trim to bbox of wider northern region
-      # stats_cube = trim_to_bbox_of_region(stats_cube, wider_northern_gdf)            
-      # # Mask out data outwith this region (including the sea)
-      # masked_data = ma.masked_where(mask == 0, stats_cube.data)
-      # # Set this masked data as the cube's data
-      # stats_cube.data = masked_data
-      
-      # # Trim the data to the bbox of northern GDF 
-      # # This zooms in on only the northern_gdf region
-      # stats_cube = trim_to_bbox_of_region(stats_cube, northern_gdf)
 
       # Find the minimum and maximum values to define the spread of the pot
       local_min = stats_cube.data.min()
       local_max = stats_cube.data.max()
       contour_levels = np.linspace(local_min, local_max, 11,endpoint = True)
 
+      #############################################################################
+      # Plot
+      #############################################################################
+      # Set up plotting colours
+      precip_colormap = create_precip_cmap()   
       # Set up a plotting figurge with Web Mercator projection
       proj = ccrs.Mercator.GOOGLE
       fig = plt.figure(figsize=(20,20), dpi=200)
