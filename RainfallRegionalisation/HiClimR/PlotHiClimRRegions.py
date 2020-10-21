@@ -56,7 +56,7 @@ for stat in stats:
     codes_dict = {}
     print(stat)
     for num_clusters in num_clusters_ls:
-        print(num_clusters)      
+        print("Num clusters: ", num_clusters)      
         
         # Define counter (for defining ensemble member and subplot position)
         em_i = 0
@@ -92,7 +92,9 @@ for stat in stats:
                 ##############################################################################
                 # Mask out locations not within specified region
                 ##############################################################################
-                # Join to mask dataframe (this defines whether each lat/long in the ? region
+                # Join to mask dataframe (this defines whether each lat/long in an area
+                # defined by the bounding box of the northern region (north East, north West and Yorkshire
+                # and the Humber region
                 # is within the region in the name of the mask - those that are have a 1 value)
                 mask = pd.read_csv("Outputs/RegionalMasks/{}_mask.csv".format(region))
                 # Make the lat, lons from the region cluster codes dataframe the same length as the mask (for joining)

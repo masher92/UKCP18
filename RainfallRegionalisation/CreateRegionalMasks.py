@@ -1,3 +1,13 @@
+'''
+This file creates 'mask' dataframes.
+These masks contain the lat and long of all locations in the cube within the 
+bounding box of the northern England region, alongside a flag which defines 
+whether that location is within several specifed regions:
+    - A square region with Leeds at the centre
+    - The Northern England region (North East, North West, Yorkshire and the Humber)
+    - A square region around West Yorkshire
+'''
+
 ############################################
 # Set up environment
 #############################################
@@ -19,25 +29,19 @@ import iris.coord_categorisation
 import time 
 warnings.filterwarnings("ignore")
 
-def variablename(var):
-     import itertools
-     return [tpl[0] for tpl in 
-     filter(lambda x: var is x[1], globals().items())]
- 
- 
 # Set working directory - 2 options for remote server and desktop
 #root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
 root_fp = "/nfs/a319/gy17m2a/"
-
 os.chdir(root_fp)
-sys.path.insert(0, root_fp + 'Scripts/UKCP18/')
-from Pr_functions import *
+
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/SpatialAnalyses')
-from Spatial_plotting_functions import *
+from Spatial_plotting_functions import trim_to_bbox_of_region
 from Spatial_geometry_functions import *
 
+locations = ["WY_square", "Northern", "leeds-at-centre"]
+
 #############################################
-# Create regions
+# Create regional geodataframes
 #############################################
 # These geodataframes are square
 northern_gdf = create_northern_outline({'init' :'epsg:3857'})
@@ -51,12 +55,11 @@ uk_gdf = create_uk_outline({'init' :'epsg:3857'})
 
 ############################################
 # Read in one cube
+# This is used to 
 #############################################   
 filename = 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19801201-19801230.nc' 
-#filename = root_fp + 'datadir/UKCP18/2.2km/01/1980_2001/pr_rcp85_land-cpm_uk_2.2km_01_1hr_19801201-19801230.nc'
 cube = iris.load(filename,'lwe_precipitation_rate')[0]
 cube = cube[0,:,:,:]
-print(cube)
 
 #############################################
 # Create a dataframe with the latitude and longitude of all locations in the
@@ -66,8 +69,13 @@ square_northern_cube = trim_to_bbox_of_region(cube, northern_gdf)
 square_northern_cube_df = pd.DataFrame({'lat': square_northern_cube.coord('latitude').points.reshape(-1),
                              'lon': square_northern_cube.coord('longitude').points.reshape(-1)})
 
-
-for location in ["WY_square", "Northern", "leeds-at-centre"]:
+#############################################
+# For each of the defined locations:
+# Create a 'mask' dataframe which contains the lat and long of all these locations 
+# in the bounding box of the northern England region, alongside a flag which 
+# defines whether that location is within the specified region.
+#############################################
+for location in locations:
     if location == 'WY_square':
         location_gdf = wys_gdf
     elif location =='Northern':
