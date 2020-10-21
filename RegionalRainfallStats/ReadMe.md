@@ -1,6 +1,5 @@
-
 # Regional rainfall statistics
-<ins> Calculating statistics </ins>
+<ins> Calculating statistics </ins>  
 This directory contains code for calculating the values of various statistics of June-July-August (JJA) precipitation for each grid cell within the region covered by the bounding box of the coastline of the UK.
 
 Statistics are calculated for this area in two seperate scripts:  
@@ -12,7 +11,7 @@ In both cases the following statistics are calculated:
 * JJA Max
 * JJA Percentiles (95, 97, 99, 99.5, 99.75, 99.9)
 
-<ins> Plotting statistics </ins>
+<ins> Plotting statistics </ins>  
 The "RegionalStats_plotting.py" script contains code to create a plot for each of the JJA statistics of the values at each grid cell. Each plot includes 12 subplots for the 12 ensemble members.
 The "RegionalEnsembleSummary_plotting" script contains code for plotting two plots for each JJA statistic. These summarise for each grid cell, for each statistic, 1. the mean value across all 12 ensemble members and 2. the ensemble spread (the standard deviation).
 
