@@ -1,71 +1,6 @@
-def find_biggest_percentage_share (dictionary):
-    # Create a dataframe containing the region codes for each ensemble member in the columns        
-    codes_df = pd.DataFrame(dictionary)    
-    
-    # Create a dictionary to store for each cluster the % of ensemble members wher
-    # the location is in that cluster
-    percents_dict = {}
-    # For each cluster in the number of clusters
-    for n in range(num_clusters): 
-        # Find the percentage of ensemble members in that cluster and add to the dictionary
-        percent_n = (codes_df.apply(lambda s: (s == (n+1)).sum(), axis=1))/12 * 100
-        percents_dict['Percent_' + str(n+1)] = percent_n
-    
-    # Create this as a dataframe
-    percents_df = pd.DataFrame(percents_dict)        
-    # Add to dataframe containing codes
-    codes_df = codes_df.assign(**percents_df)
-    # Find the maximum percentage in any one cluster
-    codes_df['Percent'] = codes_df.iloc[:,12:len(codes_df.columns)].max(axis=1)           
-     # Add lats and lons and remove unneeded columns                                           
-    codes_df['lat'], codes_df['lon'] = region_codes['lat'], region_codes['lon']
-    
-    # Kep only last 3 cols
-    codes_df = codes_df[codes_df.columns[-3:]]
-    
-    # Read in the mask
-    mask = pd.read_csv("Outputs/RegionalMasks/{}_mask.csv".format(region))
-     # Make the lat, lons from the mask the same length
-    codes_df = codes_df.round({'lat': 8, 'lon': 8})
-    mask = mask.round({'lat': 8, 'lon': 8})
-    # Join the mask with the region codes
-    codes_df = mask.merge(codes_df,  on=['lat', 'lon'], how="left")   
-    
-     # Convert to 2D
-    lats_2d = codes_df['lat'].to_numpy().reshape(lat_length, lon_length)
-    lons_2d = codes_df['lon'].to_numpy().reshape(lat_length, lon_length)
-    percent_2d = codes_df['Percent'].to_numpy().reshape(lat_length, lon_length)
-    
-    ##### TRIM
-    percent_2d[percent_2d == 0] = 'nan' 
-    mx = np.ma.masked_invalid(percent_2d)
-    
-    mask_cols = ~np.all(mx.mask, axis=0)
-    percent_2d = percent_2d[:, mask_cols]
-    lats_2d = lats_2d[:, mask_cols]
-    lons_2d = lons_2d[:, mask_cols]
-    
-    mask_rows = np.all(np.isnan(percent_2d) | np.equal(percent_2d, 0), axis=1)
-    percent_2d = percent_2d[~mask_rows]
-    lats_2d = lats_2d[~mask_rows]
-    lons_2d = lons_2d[~mask_rows]
-    
-    # Convert the projections
-    inProj = Proj(init='epsg:4326')
-    outProj = Proj(init='epsg:27700')
-    lons_2d, lats_2d = transform(inProj,outProj,lons_2d, lats_2d)
-    
-    return lats_2d, lons_2d, percent_2d
-
-    ### Plot
-    # fig, ax = plt.subplots(figsize=(20,20))
-    # my_plot = ax.pcolormesh(lons_2d, lats_2d, percent_2d,
-    #                   linewidths=3, alpha = 1)
-    # leeds_gdf.plot(ax= ax, edgecolor='black', color='none', linewidth=5)
-    # #fig.colorbar(mypltp, ax=ax, fraction=0.036, pad=0.02)
-    # cbar = plt.colorbar(my_plot,fraction=0.036, pad=0.02)
-    # cbar.ax.tick_params(labelsize='xx-large', size = 10, pad=0.04) 
-    # plt.title(('% of cells in same cluster: '+ stat + '_' + str(num_clusters) + ' clusters'), fontsize=50)
+'''
+Uses region cluster codes produced in HiClimR.R
+'''
 
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -80,7 +15,10 @@ sys.path.insert(0, root_fp + 'Scripts/UKCP18/SpatialAnalyses')
 from Spatial_plotting_functions import *
 from Spatial_geometry_functions import *
 
-region = 'Northern' #['WY', 'Leeds-at-centre' 'Northern']
+############################################
+# Define variables and set up environment
+#############################################
+region = 'Northern' # ['WY', 'Leeds-at-centre' 'Northern']
 stats = [ 'Wethours/jja_p99_wh']
 #['97th Percentile','Max', 'Mean', 'Greatest_ten','95th Percentile', '99th Percentile', '99.5th Percentile', '99.9th Percentile', '99.99th Percentile']
 ems =['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
@@ -91,24 +29,36 @@ lat_length = 144
 lon_length = 114
 
 ##############################################################################
+# Import necessary spatial files
+##############################################################################
 leeds_gdf = create_leeds_outline({'init' :'epsg:27700'})
-#leeds_gdf = create_leeds_outline({'init' :'epsg:4326'})
-################################
 
+
+##############################################################################
+# For each statistic:
+#    For each number of clusters:
+
+##############################################################################
 for stat in stats:
     codes_dict = {}
     for num_clusters in num_clusters_ls:
         print(stat)
-    
+        
+        # Define counter
         em_i = 0
         
+        # Set up plotting parameters for a plot with 12 subplots in
+        # a 4 rows by 3 columns grid
         rows, cols = 4, 3
         fig, ax = plt.subplots(rows, cols,
                                sharex='col', 
                                sharey='row',
                                figsize=(20, 20))
         
+        
+        # Create a dictionary to store results for Xth cluster number
         codes_dict_xclusters = {}
+        
         # For each position in the subfigure grid, create a plot
         for row in range(4):
             for col in range(3):
@@ -117,8 +67,8 @@ for stat in stats:
                 em = ems[em_i]
                 print(em)
                 
-                # Load in its region codes
-                general_filename = 'C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/Outputs/Regionalisation/HiClimR_outputdata/{}/{}/{} clusters/em{}.csv'.format(region, stat, num_clusters,em)
+                # Load in its region cluster codes
+                general_filename = 'Outputs/Regionalisation/HiClimR_outputdata/{}/{}/{} clusters/em{}.csv'.format(region, stat, num_clusters,em)
                 region_codes = pd.read_csv(general_filename)
                 region_codes = region_codes.rename(columns={'lats': 'lat', 'lons': 'lon'})
                                 
@@ -222,55 +172,4 @@ for stat in stats:
        os.remove(filename) 
     print("Figure Saved")
     fig.savefig(filename,bbox_inches='tight')
-
-
-# # Plot
-# plt.pcolormesh(lons_2d, lats_2d, region_codes_2d,
-#                   linewidths=3, alpha = 1, cmap = 'tab20')
-# leeds_gdf.plot(ax=ax[row, col], edgecolor='black', color='none', linewidth=2)
-# ax[row, col].tick_params(axis='x', labelsize= 25)
-# ax[row, col].tick_params(axis='y', labelsize= 25)
-# #ax[row, col].set_title('The function g', fontsize=5)
-# em_i = em_i +1
-
-
-# i=0
-# lats_2d, lons_2d, percent_2d = find_biggest_percentage_share (codes_dict[num_clusters_ls[i]])
-# my_plot = plt.pcolormesh(lons_2d, lats_2d, percent_2d, linewidths=3, alpha = 1, cmap = "BuPu", vmin=0, vmax=100)
-# leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=1)
-
-
-# fig, ax = plt.subplots(figsize=(20,20))
-# extent = tilemapbase.extent_from_frame(leeds_gdf)
-# plot = plotter = tilemapbase.Plotter(extent, tilemapbase.tiles.build_OSM(), width=600)
-# # plot =plotter.plot(ax)
-# #ax.plot(lcc_lon, lcc_lat, "bo", markersize =10)
-# plot =ax.pcolormesh(lons_2d, lats_2d, percent_2d,
-#               linewidths=3, alpha = 0.7, cmap = 'GnBu')
-# cbar = plt.colorbar(plot,fraction=0.036, pad=0.02)
-# cbar.ax.tick_params(labelsize='xx-large', size = 10, pad=0.04) 
-# plot =wy_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=4)
-# plot =polygon_wm.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=6)
-# plot =leeds_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='red', color='none', linewidth=4)
-# plot =ax.tick_params(labelsize='xx-large')
-# #plt.title("99th percentile",fontsize=50)
-
-
-# # Create geodataframe of West Yorks
-# uk_gdf = gpd.read_file("datadir/SpatialData/Region__December_2015__Boundaries-shp/Region__December_2015__Boundaries.shp") 
-# regional_gdf = uk_gdf.loc[uk_gdf['rgn15nm'].isin(['North West', 'North East', 'Yorkshire and The Humber'])]
-# regional_gdf = regional_gdf.to_crs({'init' :'epsg:27700'}) 
-# # Merge the three regions into one
-# regional_gdf['merging_col'] = 0
-# regional_gdf = regional_gdf.dissolve(by='merging_col')
-
-
-
-
-
-# ####### Plotting with the topography included
-# fig, ax = plt.subplots(figsize=(20,20))
-# #plot = ax.pcolormesh(lons_2d, lats_2d, region_codes_2d, linewidths=3, alpha = 0.9, cmap = 'tab20')
-# plot = show(masked, transform=mask_transform, ax=ax,cmap='terrain')
-# regional_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=2)
 
