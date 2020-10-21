@@ -1,3 +1,21 @@
+'''
+This file plots ensemble summary plots using stats cubes created in UK_stats.py
+and UK_stats_wethours.py. 
+
+Plotting for each statistic produces two plots:
+- The ensemble mean, calculated across all 12 ensemble members
+- The ensemble spread, or standard deviation, calculated across all 12 ensemble members
+
+It can plot using either Wet Hour stats or All Hour stats, depending on how 
+the 'hours' parameter is set.
+
+It is set up to plot within three regions, depending on how 'region' parameter is set:
+- The UK (trimmed to the coastlines)
+- The Northern region (North East, North West, Yorkshire and the Humber)
+- A square region centred on Leeds
+
+'''
+
 import iris.coord_categorisation
 import iris
 import glob
@@ -29,7 +47,7 @@ from Spatial_geometry_functions import *
 ems = ['01', '04', '05', '06', '07', '08', '09','10','11','12', '13','15']
 yrs_range = "1980_2001" 
 region = 'leeds-at-centre' #['Northern', 'leeds-at-centre', 'UK']
-hours = 'wet'
+hours = 'wet' #['wet', 'all']
 
 ##################################################################
 # Load necessary spatial data
@@ -119,7 +137,7 @@ for stat in stats:
       contour_levels = np.linspace(local_min, local_max, 11,endpoint = True)
 
       #############################################################################
-      # Plot
+      # Set up environment for plotting
       #############################################################################
       # Set up plotting colours
       precip_colormap = create_precip_cmap()   
@@ -136,8 +154,10 @@ for stat in stats:
           n_decimal_places  =3
       else:
           n_decimal_places =2
-     
+          
+      #############################################################################
       # Plot
+      #############################################################################
       mesh = iplt.pcolormesh(stats_cube, cmap = precip_colormap, vmin = local_min, vmax = local_max)
            
       # Add regional outlines, depending on which region is being plotted
