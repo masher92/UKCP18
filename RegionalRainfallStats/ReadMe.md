@@ -1,9 +1,7 @@
 # Regional rainfall statistics
 ## Code and workflow summary
 <ins> Calculating statistics </ins>  
-This directory contains code for calculating the values of various statistics of June-July-August (JJA) precipitation for each grid cell within the region covered by the bounding box of the coastline of the UK.
-
-Statistics are calculated for this area in two seperate scripts:  
+The values of various statistics of June-July-August (JJA) precipitation for each grid cell within the region covered by the bounding box of the coastline of the UK, are calculated within two seperate scripts:  
 * Calculating_UK_stats.py -- calculates the statistics over all hours of JJA data
 * Calculating_UK_stats_wethours.py -- calculates the statistics over only wet JJA hours (>0.1mm/hr precipitation)
 
