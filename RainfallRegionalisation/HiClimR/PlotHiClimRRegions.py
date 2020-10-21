@@ -39,7 +39,7 @@ ems =['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
 num_clusters_ls = [2,3,4,5,10]
 
 ##############################################################################
-# Import necessary spatial files
+# Create necessary spatial geodataframes
 ##############################################################################
 leeds_gdf = create_leeds_outline({'init' :'epsg:27700'})
 northern_gdf = create_northern_outline({'init' :'epsg:27700'})
