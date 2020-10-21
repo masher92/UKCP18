@@ -1,4 +1,5 @@
 # Regional rainfall statistics
+## Code and workflow summary
 <ins> Calculating statistics </ins>  
 This directory contains code for calculating the values of various statistics of June-July-August (JJA) precipitation for each grid cell within the region covered by the bounding box of the coastline of the UK.
 
