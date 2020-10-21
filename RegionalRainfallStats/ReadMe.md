@@ -3,7 +3,13 @@
 This directory contains code for calculating the values of various statistics for each grid cell within three defined regions:
 * The UK (trimmed to the coastlines)
 * The Northern region (North East, North West, Yorkshire and the Humber)
-* A square region centreed on Leeds
+* A square region centred on Leeds
+
+Statistics are calculated for both:
+* Allhours
+* Wethours (only hours with 0.1mm/hr precipitation) 
+
+For all hours, statistics were calculated 
 
 ## Results
 For both the Leeds region and the wider Northern region, plots are displayed for the max, mean and various percentiles (95th, 97th, 99th, 99.5th, 99.75th and 99.9th) June-July-August (JJA) precipitation for the period of 1980-2001.  
