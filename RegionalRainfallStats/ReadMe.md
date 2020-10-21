@@ -1,12 +1,16 @@
 
 # Regional rainfall statistics
+This directoru
+
+
+## Results
 For both the Leeds region and the wider Northern region, plots are displayed for the max, mean and various percentiles (95th, 97th, 99th, 99.5th, 99.75th and 99.9th) June-July-August (JJA) precipitation for the period of 1980-2001.  
 In section 1, each plot displays the mean value across twelve ensemble members for the statistic indicated in the figure caption.    
 In section 2, each plot displays the value for each of the twelve ensemble members.   
 In each case the statistics plotted in the left hand plot are calculated across all hours of the data, whilst those plotted in the right hand plot are calculated using only the wet hours (>0.1mm/hr precipitation).
 
-## 1. Ensemble means
-### Leeds region
+### 1. Ensemble means
+#### Leeds region
 <p align="left">
             <img src="Figs/leeds-at-centre/AllHours_EM_Difference/jja_mean_EM_mean.png" width="200"  title="Original 1km grid" />
             <img src="Figs/leeds-at-centre/WetHours_EM_Difference/jja_mean_wh_EM_mean.png" width="200"  title="Regridded 2.2km grid" />   </p>
