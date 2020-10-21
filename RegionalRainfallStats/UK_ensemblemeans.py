@@ -21,8 +21,6 @@ root_fp = "/nfs/a319/gy17m2a/"
 os.chdir(root_fp)
 
 # Create path to files containing functions
-sys.path.insert(0, root_fp + 'Scripts/UKCP18/')
-from Pr_functions import *
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/SpatialAnalyses')
 from Spatial_plotting_functions import *
 from Spatial_geometry_functions import *
@@ -30,10 +28,7 @@ from Spatial_geometry_functions import *
 # Set up variables
 ems = ['01', '04', '05', '06', '07', '08', '09','10','11','12', '13','15']
 yrs_range = "1980_2001" 
-
-#Plotting region
-#region = ['Northern', 'leeds-at-centre', 'UK']
-region = 'leeds-at-centre'
+region = 'leeds-at-centre' #['Northern', 'leeds-at-centre', 'UK']
 hours = 'wet'
 
 ##################################################################
@@ -55,20 +50,9 @@ wider_northern_mask = np.load('Outputs/RegionalMasks/wider_northern_region_mask.
 #uk_mask = np.load('Outputs/RegionalMasks/uk_mask.npy')  
 
 ##################################################################
-# Set up plotting colours
-##################################################################
-tol_precip_colors = ["#90C987", "#4EB256","#7BAFDE", "#6195CF", "#F7CB45", "#EE8026", "#DC050C", "#A5170E",
-"#72190E","#882E72","#000000"]                                      
-precip_colormap = matplotlib.colors.ListedColormap(tol_precip_colors)
-# Set the colour for any values which are outside the range designated in lvels
-precip_colormap.set_under(color="white")
-precip_colormap.set_over(color="white")
-
-##################################################################
 # Create dictionaries storing the maximum and minimum values found for 
 # each statistic, considering all ensemble members and all grid cells
-##################################################################
-
+# These are to be used
 ##################################################################
 # List of stats to loop through
 if hours == 'all':
@@ -78,7 +62,6 @@ elif hours == 'wet':
     
 #  Loop through stats   
 for stat in stats:
-
   # Load in files
   filenames = []
   for em in ems:
@@ -102,6 +85,9 @@ for stat in stats:
     # The ensemble mean
     # The ensemble spread (standard deviation)
 #############################################################################
+# Set up plotting colours
+precip_colormap = create_precip_cmap()      
+      
 # Define the two different metrics
   em_cube_stats = ["EM_mean", "EM_spread"]
   # For each of the two different metrics

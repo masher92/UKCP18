@@ -1,3 +1,26 @@
+'''
+This file creates 2D cubes, in which the values for each grid cell are associated 
+with various statistics including the mean, max and various percentiles.
+
+These statistics are calculated ONLY over the WET hours. 
+This is not possible with inbuilt Iris functions, so a method is developed for 
+conducting this analysis. This involves extracting the data from the cube
+into a 3D array. A for loop then loops around each position in this array (grid
+cell) and extracts all the precip data. It then discards any dry hours, before
+calculating the statistic value. The resulting 2D array is reattached to a cube
+format and saved to file.
+
+The code to perform this is put within a function as this allows the process
+to be parallelised. E.g. multiple cores can process each ensemble member
+simultaneously.
+
+The cubes cover the area within the bounding box of the UK.
+
+These cubes are saved to file.
+They are subsequently used as inputs to plotting functions in which the cubes
+are trimmed to smaller areas.
+'''
+
 #############################################
 # Import necessary packages
 #############################################
@@ -25,13 +48,10 @@ root_fp = "/nfs/a319/gy17m2a/"
 os.chdir(root_fp)
 
 # Create path to files containing functions
-sys.path.insert(0, root_fp + 'Scripts/UKCP18/')
-from Pr_functions import *
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/SpatialAnalyses')
 from Spatial_plotting_functions import *
 
-#ems = ['01', '04', '05', '06', '07', '08','09', '10', '11','12','13','15']
-ems= ['09', '13','08']
+ems = ['01', '04', '05', '06', '07', '08','09', '10', '11','12','13','15']
 stats = ['jja_mean_wh', 'jja_max_wh', 'wet_prop', 'jja_p95_wh', 'jja_p97_wh', 'jja_p99_wh',  'jja_p99.5_wh', 'jja_p99.75_wh', 'jja_p99.9_wh']
 yrs_range = "1980_2001" 
 
@@ -43,10 +63,8 @@ def create_stats_cube (em):
     filenames =[]
     # Create filepath to correct folder using ensemble member and year
     general_filename = 'datadir/UKCP18/2.2km/{}/1980_2001/pr_rcp85_land-cpm_uk_2.2km_{}_1hr_*'.format(em,  em)
-    #print(general_filename)
     # Find all files in directory which start with this string
     for filename in glob.glob(general_filename):
-        #print(filename)
         filenames.append(filename)
     print(len(filenames))
 
@@ -109,13 +127,6 @@ def create_stats_cube (em):
     # This is used as a template to save the data to later
     one_ts = jja[0,:,:]
     
-    # Create a colourmap: to use in test plotting                               
-    tol_precip_colors = ["#90C987", "#4EB256","#7BAFDE", "#6195CF", "#F7CB45", "#EE8026", "#DC050C", "#A5170E","#72190E","#882E72","#000000"]                                      
-    precip_colormap = matplotlib.colors.ListedColormap(tol_precip_colors)
-    # Set the colour for any values which are outside the range designated in lvels
-    precip_colormap.set_under(color="white")
-    precip_colormap.set_over(color="white")
-    
     # Loop through the stats
     # Create an array of data values corresponding to that statistic
     # Save it as the data on the template 'one_ts' cube
@@ -126,21 +137,19 @@ def create_stats_cube (em):
       stats_array = wet_hour_stats(rain_data, stat)
       one_ts.data = stats_array
           
-      # Test plotting
-      qplt.pcolormesh(one_ts, cmap = precip_colormap)
-      plt.gca().coastlines()
+      # # Test plotting
+      # precip_colormap = create_precip_cmap()    
+      # qplt.pcolormesh(one_ts, cmap = precip_colormap)
+      # plt.gca().coastlines()
       
-      # Save
+      # Save to file
       iris.save(one_ts, 
                 '/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/Wethours/em_'+ em+ '_' +stat + '.nc')
 
-      # new_cube = iris.load('/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/Wethours/em_'+ em+ '_' +stat + '.nc')
-      # new_cube = new_cube[0]
-      # iplt.pcolormesh(new_cube, cmap = precip_colormap)
-      # plt.gca().coastlines()
-      
-      
-pool = mp.Pool(processes=4)
+     
+# Parallelise the process  
+no_of_cores = mp.cpu_count()
+pool = mp.Pool(processes=no_of_cores)
 results = [pool.apply_async(create_stats_cube, args=(x,)) for x in ems]
 output = [p.get() for p in results]
 print(output)      

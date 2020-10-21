@@ -1,3 +1,25 @@
+'''
+This file plots regional statistics, using stats cubes created in UK_stats.py
+and UK_stats_wethours.py. 
+
+Each plot created contains 12 subplots for each of the 12 ensemble members.
+
+It can plot using either Wet Hour stats or All Hour stats, depending on how 
+the 'hours' parameter is set.
+
+It is set up to plot within three regions, depending on how 'region' parameter is set:
+- The UK (trimmed to the coastlines)
+- The Northern region (North East, North West, Yorkshire and the Humber)
+- A square region centred on Leeds
+
+It can plot with either one shared color scale and bar for all 12 subplots (with the range
+covering the full range of data values found within all 12 ensemble members) or
+it can plot each subplot with its own seperate scale and colorbar (set to the
+range of values found within just that ensemble member). This depends on how
+the 'shared_axis' parameter is set.
+
+'''
+
 import iris.coord_categorisation
 import iris
 import numpy as np
@@ -9,7 +31,6 @@ import numpy.ma as ma
 import warnings
 import iris.quickplot as qplt
 import iris.plot as iplt
-from matplotlib.colors import BoundaryNorm
 warnings.simplefilter(action = 'ignore', category = FutureWarning)
 
 # Set up path to root directory
@@ -17,8 +38,6 @@ root_fp = "/nfs/a319/gy17m2a/"
 os.chdir(root_fp)
 
 # Create path to files containing functions
-sys.path.insert(0, root_fp + 'Scripts/UKCP18/')
-from Pr_functions import *
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/SpatialAnalyses')
 from Spatial_plotting_functions import *
 from Spatial_geometry_functions import *
@@ -28,15 +47,11 @@ from Spatial_geometry_functions import *
 #############################################
 # List of ensemble members
 ems = ['01', '04', '05', '06', '07', '08', '09','10','11','12', '13','15']
-#ems = ['12', '13','15']
-# Plotting variables
+# Whether to plot all subplots with axis with same range, or to plot an axis each
 shared_axis = True
-
-# Plotting region
-region = 'UK'
-#region = ['Northern', 'leeds-at-centre', 'UK']
-
-# Wet hours or day hours
+# Region over which to plot
+region = 'UK' #['Northern', 'leeds-at-centre', 'UK']
+# Whether to include All hours or just Wet hours 
 hours = 'all'
 
 ##################################################################
@@ -131,12 +146,7 @@ for em in ems:
 # Plotting
 #############################################
 # Create a colourmap                                   
-tol_precip_colors = ["#90C987", "#4EB256","#7BAFDE", "#6195CF", "#F7CB45", "#EE8026", "#DC050C", "#A5170E",
-"#72190E","#882E72","#000000"]                                      
-precip_colormap = matplotlib.colors.ListedColormap(tol_precip_colors)
-# Set the colour for any values which are outside the range designated in lvels
-precip_colormap.set_under(color="white")
-precip_colormap.set_over(color="white")
+precip_colormap = create_precip_cmap()
 
 for stat in stats:
     print(stat)
@@ -232,9 +242,10 @@ for stat in stats:
         # Move counter on to next ensemble member
         i = i+1
       
-    # make an axes to put the shared colorbar in
-    # 1,2 are coordinates of lower left corner of plot; 3,4 are width and height of subplot
+    # Create a shared color bar
+    # Determine filename for saving file
     if shared_axis == True:
+        # make an axes to put the shared colorbar in. [1,2 are coordinates of lower left corner of plot; 3,4 are width and height of subplot]
         colorbar_axes = plt.gcf().add_axes([0.927, 0.3, 0.005, 0.25])
         colorbar = plt.colorbar(mesh, colorbar_axes, orientation='vertical',  boundaries = contour_levels_overall)  
         colorbar.set_label('%s' % stats_cube.units, size = 15)
@@ -245,9 +256,12 @@ for stat in stats:
         elif hours == 'wet':
             filename = "Outputs/Stats_Spatial_plots/{}/Wethours/{}.png".format(region, stat)
   
+    # Determine filename for saving file
     elif shared_axis == False:
         if hours == 'all':
             filename = "Outputs/Stats_Spatial_plots/{}/Allhours/{}_diffscales.png".format(region, stat)
         elif hours == 'wet':
             filename = "Outputs/Stats_Spatial_plots/{}/Wethours/{}_diffscales.png".format(region, stat)
+            
+    # Save plot        
     plt.savefig(filename, bbox_inches = 'tight')

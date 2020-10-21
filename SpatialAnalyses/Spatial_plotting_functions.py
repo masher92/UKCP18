@@ -6,12 +6,24 @@ from shapely.geometry import Point, Polygon, MultiPolygon
 import matplotlib.pyplot as plt
 import tilemapbase
 import time 
-import bottleneck
+#import bottleneck
 import pandas as pd
 from numba import jit
 import re
+import matplotlib
 
 root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
+
+
+def create_precip_cmap():
+    tol_precip_colors = ["#90C987", "#4EB256","#7BAFDE", "#6195CF", "#F7CB45", "#EE8026", "#DC050C", "#A5170E",
+    "#72190E","#882E72","#000000"]                                      
+    precip_colormap = matplotlib.colors.ListedColormap(tol_precip_colors)
+    # Set the colour for any values which are outside the range designated in lvels
+    precip_colormap.set_under(color="white")
+    precip_colormap.set_over(color="white")
+    return tol_precip_colors
+
 
 @jit
 def load_data(cube):

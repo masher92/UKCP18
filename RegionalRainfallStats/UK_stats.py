@@ -1,7 +1,12 @@
 '''
-This file calculates statistics (mean, max, various percentiles) for each grid 
-cell across the whole of the UK.
-It plots these and saves the results to file.
+This file creates 2D cubes, in which the values for each grid cell are associated 
+with various statistics including the mean, max and various percentiles. 
+
+The cubes cover the area within the bounding box of the UK.
+
+These cubes are saved to file.
+They are subsequently used as inputs to plotting functions in which the cubes
+are trimmed to smaller areas.
 '''
 
 import iris.coord_categorisation
@@ -18,10 +23,6 @@ import cartopy.crs as ccrs
 import matplotlib 
 import iris.plot as iplt
 
-# For extracting the variable name from a variable
-def namestr(obj, namespace):
-    return [name for name in namespace if namespace[name] is obj]
-
 ############################################
 # Define variables and set up environment
 #############################################
@@ -30,12 +31,10 @@ root_fp = "/nfs/a319/gy17m2a/"
 os.chdir(root_fp)
 
 # Create path to files containing functions
-sys.path.insert(0, root_fp + 'Scripts/UKCP18/')
-from Pr_functions import *
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/SpatialAnalyses')
 from Spatial_plotting_functions import *
 
-ems = ['07']
+ems = ['01', '04', '05', '06', '07', '08','09', '10', '11','12','13','15']
 yrs_range = "1980_2001" 
 
 # Create a dictionary within which the stats cubes for each ensemble member will
