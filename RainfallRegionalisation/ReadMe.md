@@ -28,66 +28,66 @@ NB: Previously, other statistics were calculated including: the greatest ten/twe
 ### Leeds-at-centre
 #### All hours
 <p align="left">
-<img src="Figs/leeds-at-centre/AllHours/Mean/2_clusters.jpg" width="200"  title="Original 1km grid" />
-<img src="Figs/leeds-at-centre/AllHours/Mean/3_clusters.jpg" width="200"  title="Original 1km grid" />
-<img src="Figs/leeds-at-centre/AllHours/Mean/5_clusters.jpg" width="200"  title="Original 1km grid" />
-<img src="Figs/leeds-at-centre/AllHours/Mean/10_clusters.jpg" width="200"  title="Original 1km grid" />
+<img src="Figs/leeds-at-centre/Allhours/Mean/2_clusters.jpg" width="200"  title="Original 1km grid" />
+<img src="Figs/leeds-at-centre/Allhours/Mean/3_clusters.jpg" width="200"  title="Original 1km grid" />
+<img src="Figs/leeds-at-centre/Allhours/Mean/5_clusters.jpg" width="200"  title="Original 1km grid" />
+<img src="Figs/leeds-at-centre/Allhours/Mean/10_clusters.jpg" width="200"  title="Original 1km grid" />
 </p>
 <p align="center">Figure 7. JJA Mean for all hours <p align="center">
 
 <p align="left">
-<img src="Figs/leeds-at-centre/AllHours/95th Percentile/2_clusters.jpg" width="200"  title="Original 1km grid" />
-<img src="Figs/leeds-at-centre/AllHours/95th Percentile/3_clusters.jpg" width="200"  title="Original 1km grid" />
-<img src="Figs/leeds-at-centre/AllHours/95th Percentile/5_clusters.jpg" width="200"  title="Original 1km grid" />
-<img src="Figs/leeds-at-centre/AllHours/95th Percentile/10_clusters.jpg" width="200"  title="Original 1km grid" />
+<img src="Figs/leeds-at-centre/Allhours/95th Percentile/2_clusters.jpg" width="200"  title="Original 1km grid" />
+<img src="Figs/leeds-at-centre/Allhours/95th Percentile/3_clusters.jpg" width="200"  title="Original 1km grid" />
+<img src="Figs/leeds-at-centre/Allhours/95th Percentile/5_clusters.jpg" width="200"  title="Original 1km grid" />
+<img src="Figs/leeds-at-centre/Allhours/95th Percentile/10_clusters.jpg" width="200"  title="Original 1km grid" />
 </p>
 <p align="center">Figure 1. JJA 95th Percentile for all hours <p align="center">
 
 <p align="left">
-<img src="Figs/leeds-at-centre/AllHours/97th Percentile/2_clusters.jpg" width="200"  title="Original 1km grid" />
-<img src="Figs/leeds-at-centre/AllHours/97th Percentile/3_clusters.jpg" width="200"  title="Original 1km grid" />
-<img src="Figs/leeds-at-centre/AllHours/97th Percentile/5_clusters.jpg" width="200"  title="Original 1km grid" />
-<img src="Figs/leeds-at-centre/AllHours/97th Percentile/10_clusters.jpg" width="200"  title="Original 1km grid" />
+<img src="Figs/leeds-at-centre/Allhours/97th Percentile/2_clusters.jpg" width="200"  title="Original 1km grid" />
+<img src="Figs/leeds-at-centre/Allhours/97th Percentile/3_clusters.jpg" width="200"  title="Original 1km grid" />
+<img src="Figs/leeds-at-centre/Allhours/97th Percentile/5_clusters.jpg" width="200"  title="Original 1km grid" />
+<img src="Figs/leeds-at-centre/Allhours/97th Percentile/10_clusters.jpg" width="200"  title="Original 1km grid" />
 </p>
 <p align="center">Figure 2. JJA 97th Percentile for all hours <p align="center">
 
 <p align="left">
-<img src="Figs/leeds-at-centre/AllHours/99th Percentile/2_clusters.jpg" width="200"  title="Original 1km grid" />
-<img src="Figs/leeds-at-centre/AllHours/99th Percentile/3_clusters.jpg" width="200"  title="Original 1km grid" />
-<img src="Figs/leeds-at-centre/AllHours/99th Percentile/5_clusters.jpg" width="200"  title="Original 1km grid" />
-<img src="Figs/leeds-at-centre/AllHours/99th Percentile/10_clusters.jpg" width="200"  title="Original 1km grid" />
+<img src="Figs/leeds-at-centre/Allhours/99th Percentile/2_clusters.jpg" width="200"  title="Original 1km grid" />
+<img src="Figs/leeds-at-centre/Allhours/99th Percentile/3_clusters.jpg" width="200"  title="Original 1km grid" />
+<img src="Figs/leeds-at-centre/Allhours/99th Percentile/5_clusters.jpg" width="200"  title="Original 1km grid" />
+<img src="Figs/leeds-at-centre/Allhours/99th Percentile/10_clusters.jpg" width="200"  title="Original 1km grid" />
 </p>
 <p align="center">Figure 3. JJA 99th Percentile for all hours <p align="center">
 
 <p align="left">
-<img src="Figs/leeds-at-centre/AllHours/99.5th Percentile/2_clusters.jpg" width="200"  title="Original 1km grid" />
-<img src="Figs/leeds-at-centre/AllHours/99.5th Percentile/3_clusters.jpg" width="200"  title="Original 1km grid" />
-<img src="Figs/leeds-at-centre/AllHours/99.5th Percentile/5_clusters.jpg" width="200"  title="Original 1km grid" />
-<img src="Figs/leeds-at-centre/AllHours/99.5th Percentile/10_clusters.jpg" width="200"  title="Original 1km grid" />
+<img src="Figs/leeds-at-centre/Allhours/99.5th Percentile/2_clusters.jpg" width="200"  title="Original 1km grid" />
+<img src="Figs/leeds-at-centre/Allhours/99.5th Percentile/3_clusters.jpg" width="200"  title="Original 1km grid" />
+<img src="Figs/leeds-at-centre/Allhours/99.5th Percentile/5_clusters.jpg" width="200"  title="Original 1km grid" />
+<img src="Figs/leeds-at-centre/Allhours/99.5th Percentile/10_clusters.jpg" width="200"  title="Original 1km grid" />
 </p>
 <p align="center">Figure 4. JJA 99.5th Percentile for all hours <p align="center">
 
 <p align="left">
-<img src="Figs/leeds-at-centre/AllHours/99.75th Percentile/2_clusters.jpg" width="200"  title="Original 1km grid" />
-<img src="Figs/leeds-at-centre/AllHours/99.75th Percentile/3_clusters.jpg" width="200"  title="Original 1km grid" />
-<img src="Figs/leeds-at-centre/AllHours/99.75th Percentile/5_clusters.jpg" width="200"  title="Original 1km grid" />
-<img src="Figs/leeds-at-centre/AllHours/99.75th Percentile/10_clusters.jpg" width="200"  title="Original 1km grid" />
+<img src="Figs/leeds-at-centre/Allhours/99.75th Percentile/2_clusters.jpg" width="200"  title="Original 1km grid" />
+<img src="Figs/leeds-at-centre/Allhours/99.75th Percentile/3_clusters.jpg" width="200"  title="Original 1km grid" />
+<img src="Figs/leeds-at-centre/Allhours/99.75th Percentile/5_clusters.jpg" width="200"  title="Original 1km grid" />
+<img src="Figs/leeds-at-centre/Allhours/99.75th Percentile/10_clusters.jpg" width="200"  title="Original 1km grid" />
 </p>
 <p align="center">Figure 5. JJA 99.75th Percentile for all hours <p align="center">
 
 <p align="left">
-<img src="Figs/leeds-at-centre/AllHours/99.9th Percentile/2_clusters.jpg" width="200"  title="Original 1km grid" />
-<img src="Figs/leeds-at-centre/AllHours/99.9th Percentile/3_clusters.jpg" width="200"  title="Original 1km grid" />
-<img src="Figs/leeds-at-centre/AllHours/99.9th Percentile/5_clusters.jpg" width="200"  title="Original 1km grid" />
-<img src="Figs/leeds-at-centre/AllHours/99.9th Percentile/10_clusters.jpg" width="200"  title="Original 1km grid" />
+<img src="Figs/leeds-at-centre/Allhours/99.9th Percentile/2_clusters.jpg" width="200"  title="Original 1km grid" />
+<img src="Figs/leeds-at-centre/Allhours/99.9th Percentile/3_clusters.jpg" width="200"  title="Original 1km grid" />
+<img src="Figs/leeds-at-centre/Allhours/99.9th Percentile/5_clusters.jpg" width="200"  title="Original 1km grid" />
+<img src="Figs/leeds-at-centre/Allhours/99.9th Percentile/10_clusters.jpg" width="200"  title="Original 1km grid" />
 </p>
 <p align="center">Figure 6. JJA 99.9th Percentile for all hours <p align="center">
 
 <p align="left">
-<img src="Figs/leeds-at-centre/AllHours/Max/2_clusters.jpg" width="200"  title="Original 1km grid" />
-<img src="Figs/leeds-at-centre/AllHours/Max/3_clusters.jpg" width="200"  title="Original 1km grid" />
-<img src="Figs/leeds-at-centre/AllHours/Max/5_clusters.jpg" width="200"  title="Original 1km grid" />
-<img src="Figs/leeds-at-centre/AllHours/Max/10_clusters.jpg" width="200"  title="Original 1km grid" />
+<img src="Figs/leeds-at-centre/Allhours/Max/2_clusters.jpg" width="200"  title="Original 1km grid" />
+<img src="Figs/leeds-at-centre/Allhours/Max/3_clusters.jpg" width="200"  title="Original 1km grid" />
+<img src="Figs/leeds-at-centre/Allhours/Max/5_clusters.jpg" width="200"  title="Original 1km grid" />
+<img src="Figs/leeds-at-centre/Allhours/Max/10_clusters.jpg" width="200"  title="Original 1km grid" />
 </p>
 <p align="center">Figure 7. JJA Max for all hours <p align="center">
 
@@ -160,10 +160,10 @@ NB: Previously, other statistics were calculated including: the greatest ten/twe
 ### All hours/ Wet Hours side by side
 #### Mean
 <p align="left">
-<img src="Figs/leeds-at-centre/AllHours/Mean/2_clusters.jpg" width="200"  title="Original 1km grid" />
-<img src="Figs/leeds-at-centre/AllHours/Mean/3_clusters.jpg" width="200"  title="Original 1km grid" />
-<img src="Figs/leeds-at-centre/AllHours/Mean/5_clusters.jpg" width="200"  title="Original 1km grid" />
-<img src="Figs/leeds-at-centre/AllHours/Mean/10_clusters.jpg" width="200"  title="Original 1km grid" />
+<img src="Figs/leeds-at-centre/Allhours/Mean/2_clusters.jpg" width="200"  title="Original 1km grid" />
+<img src="Figs/leeds-at-centre/Allhours/Mean/3_clusters.jpg" width="200"  title="Original 1km grid" />
+<img src="Figs/leeds-at-centre/Allhours/Mean/5_clusters.jpg" width="200"  title="Original 1km grid" />
+<img src="Figs/leeds-at-centre/Allhours/Mean/10_clusters.jpg" width="200"  title="Original 1km grid" />
 </p>
 <p align="center">Figure 7. JJA Mean for all hours <p align="center">
 
@@ -177,10 +177,10 @@ NB: Previously, other statistics were calculated including: the greatest ten/twe
 
 #### 97th Percentile
 <p align="left">
-<img src="Figs/leeds-at-centre/AllHours/97th Percentile/2_clusters.jpg" width="200"  title="Original 1km grid" />
-<img src="Figs/leeds-at-centre/AllHours/97th Percentile/3_clusters.jpg" width="200"  title="Original 1km grid" />
-<img src="Figs/leeds-at-centre/AllHours/97th Percentile/5_clusters.jpg" width="200"  title="Original 1km grid" />
-<img src="Figs/leeds-at-centre/AllHours/97th Percentile/10_clusters.jpg" width="200"  title="Original 1km grid" />
+<img src="Figs/leeds-at-centre/Allhours/97th Percentile/2_clusters.jpg" width="200"  title="Original 1km grid" />
+<img src="Figs/leeds-at-centre/Allhours/97th Percentile/3_clusters.jpg" width="200"  title="Original 1km grid" />
+<img src="Figs/leeds-at-centre/Allhours/97th Percentile/5_clusters.jpg" width="200"  title="Original 1km grid" />
+<img src="Figs/leeds-at-centre/Allhours/97th Percentile/10_clusters.jpg" width="200"  title="Original 1km grid" />
 </p>
 <p align="center">Figure 2. JJA 97th Percentile for all hours <p align="center">
 
