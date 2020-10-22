@@ -1,18 +1,21 @@
-'''
-Finds...
-which is within the bounding box of the North of England.
-'''
-
+#############################################
+# Import necessary packages
+#############################################
 import iris.coord_categorisation
 import iris
 import glob
 import numpy as np
 from numba import jit
-import xarray as xr
 import os
 import geopandas as gpd
-import time
+import time 
 import sys
+import iris.quickplot as qplt
+import cartopy.crs as ccrs
+import matplotlib 
+import re
+import iris.plot as iplt
+import multiprocessing as mp
 
 ############################################
 # Define variables and set up environment
@@ -22,121 +25,118 @@ root_fp = "/nfs/a319/gy17m2a/"
 os.chdir(root_fp)
 
 # Create path to files containing functions
-sys.path.insert(0, root_fp + 'Scripts/UKCP18/')
-from Pr_functions import *
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/SpatialAnalyses')
 from Spatial_plotting_functions import *
+from Spatial_geometry_functions import *
 
-# Define ensemble members to use and percentiles to find
-ems = ['01', '04','05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
-percentiles = [95, 97, 99, 99.5, 99.75, 99.9]
+ems = ['01', '04', '05', '06', '07', '08', '10', '11','12','13','15']
+stats = ['Max', 'Mean', '95th Percentile', '97th Percentile', '99th Percentile', '99.5th Percentile', '99.75th Percentile', '99.9th Percentile']
+yrs_range = "1980_2001" 
 
-############################################
-# Create a GDF for Northern England
-#############################################
-# Create geodataframe of Northrn England
+##################################################################
+# Load necessary spatial data
+##################################################################
 northern_gdf = create_northern_outline({'init' :'epsg:3857'})
 
-############################################
-# For each ensemble member:
-# Create a cube containing 20 years of data, trimmed to the North of England, with just JJA values
-#
-#############################################
-for em in ems:
+##################################################################
+# 
+##################################################################
+def create_stats_df(em):
+#for em in ems:
     print(em)
-
     #############################################
     ## Load in the data
     #############################################
-    filenames=glob.glob('datadir/UKCP18/2.2km/'+em+'/1980_2001/pr_rcp85_land-cpm_uk_2.2km_*.nc')
+    filenames =[]
+    # Create filepath to correct folder using ensemble member and year
+    general_filename = 'datadir/UKCP18/2.2km/{}/1980_2001/pr_rcp85_land-cpm_uk_2.2km_{}_1hr_*'.format(em,  em)
+    #print(general_filename)
+    # Find all files in directory which start with this string
+    for filename in glob.glob(general_filename):
+        #print(filename)
+        filenames.append(filename)
+    print(len(filenames))
+
     monthly_cubes_list = iris.load(filenames,'lwe_precipitation_rate')
     for cube in monthly_cubes_list:
          for attr in ['creation_date', 'tracking_id', 'history']:
              if attr in cube.attributes:
                  del cube.attributes[attr]
-
+    
     # Concatenate the cubes into one
     concat_cube = monthly_cubes_list.concatenate_cube()
-
+    
     # Remove ensemble member dimension
     concat_cube = concat_cube[0,:,:,:]
-
+    
     #############################################
-    # Trim the cube to the BBOX of the North of England
+    # Trim the cube to the BBOX of the North of England 
     #############################################
     seconds = time.time()
-    regional_cube = trim_to_bbox_of_region(concat_cube, regional_gdf)
+    concat_cube = trim_to_bbox_of_region(concat_cube, northern_gdf)
     print("Trimmed to extent of bbox in: ", time.time() - seconds)
-
-    #############################################
-    # Add season coordinates and trim to JJA
-    #############################################
-    iris.coord_categorisation.add_season(regional_cube,'time', name = "clim_season")
-    jja = regional_cube.extract(iris.Constraint(clim_season = 'jja'))
-    iris.coord_categorisation.add_season_year(jja,'time', name = "season")
-
-    #############################################
-    # Find statistics - one value across all JJA
-    #############################################
-    jja_percentiles = jja.aggregated_by(['clim_season'], iris.analysis.PERCENTILE, percent=percentiles)
-    print("Converted Percentiles")
-    jja_mean = jja.aggregated_by(['clim_season'], iris.analysis.MEAN)
-    jja_max = jja.aggregated_by(['clim_season'], iris.analysis.MAX)
-    print("Converted max and min")
     
-    # Split off all percentiles
-    percentile_1 = jja_percentiles[0,:,:,:]
-    percentile_2 = jja_percentiles[1,:,:,:]
-    percentile_3 = jja_percentiles[2,:,:,:]
-    percentile_4 = jja_percentiles[3,:,:,:]
-    percentile_5 = jja_percentiles[4,:,:,:]
-    percentile_6 = jja_percentiles[5,:,:,:]
-    
+    ############################################
+    # Cut to just June-July_August period
     #############################################
-    # Convert to dataframes
-    #############################################
-    percentile1_df = pd.DataFrame({"Nth Percentile Rainfall" :percentile_1.data.reshape(-1)})
-    percentile2_df = pd.DataFrame({"Nth Percentile Rainfall" :percentile_2.data.reshape(-1)})
-    percentile3_df = pd.DataFrame({"Nth Percentile Rainfall" :percentile_3.data.reshape(-1)})
-    percentile4_df = pd.DataFrame({"Nth Percentile Rainfall" :percentile_4.data.reshape(-1)})
-    percentile5_df = pd.DataFrame({"Nth Percentile Rainfall" :percentile_5.data.reshape(-1)})
-    percentile6_df = pd.DataFrame({"Nth Percentile Rainfall" :percentile_6.data.reshape(-1)})
-    mean_df = pd.DataFrame({"Mean Rainfall" :jja_mean.data.reshape(-1)})
-    max_df = pd.DataFrame({"Max Rainfall" :jja_max.data.reshape(-1)})
-    print("Converted to dataframe")
+    ## Add season variables
+    iris.coord_categorisation.add_season(concat_cube,'time', name = "clim_season")
+    # Keep only JJA
+    jja = concat_cube.extract(iris.Constraint(clim_season = 'jja'))
+    # Add season year
+    iris.coord_categorisation.add_season_year(jja,'time', name = "season_year") 
 
-    # Create lat and lon columns
-    lats= jja.coord('latitude').points.reshape(-1)
-    lons =  jja.coord('longitude').points.reshape(-1)
-    
-    # Add lats and lons
-    mean_df['lat'], mean_df['lon'] = lats, lons
-    max_df['lat'], max_df['lon'] = lats, lons
-    percentile1_df['lat'], percentile1_df['lon'] = lats, lons
-    percentile2_df['lat'], percentile2_df['lon'] = lats, lons
-    percentile3_df['lat'], percentile3_df['lon'] = lats, lons
-    percentile4_df['lat'], percentile4_df['lon'] = lats, lons
-    percentile5_df['lat'], percentile5_df['lon'] = lats, lons
-    percentile6_df['lat'], percentile6_df['lon'] = lats, lons
-
+    ############################################
+    # Create dictionary containing the cube for each statistic
     #############################################
-    # Save to file
-    #############################################
-    mean_df.to_csv("Outputs/HiClimR_inputdata/NorthernSquareRegion/ValuesOver20Years/Mean/em_{}.csv".format(em), index = False, float_format = '%.20f')
-    max_df.to_csv("Outputs/HiClimR_inputdata/NorthernSquareRegion/ValuesOver20Years/Max/em_{}.csv".format(em), index = False, float_format = '%.20f')
-    percentile1_df.to_csv("Outputs/HiClimR_inputdata/NorthernSquareRegion/ValuesOver20Years/95th Percentile/em_{}.csv".format(em), index = False, float_format = '%.20f')
-    percentile2_df.to_csv("Outputs/HiClimR_inputdata/NorthernSquareRegion/ValuesOver20Years/97th Percentile/em_{}.csv".format(em), index = False, float_format = '%.20f')
-    percentile3_df.to_csv("Outputs/HiClimR_inputdata/NorthernSquareRegion/ValuesOver20Years/99th Percentile/em_{}.csv".format(em), index = False, float_format = '%.20f')
-    percentile4_df.to_csv("Outputs/HiClimR_inputdata/NorthernSquareRegion/ValuesOver20Years/99.5th Percentile/em_{}.csv".format(em), index = False, float_format = '%.20f')
-    percentile5_df.to_csv("Outputs/HiClimR_inputdata/NorthernSquareRegion/ValuesOver20Years/99.75th Percentile/em_{}.csv".format(em), index = False, float_format = '%.20f')
-    percentile6_df.to_csv("Outputs/HiClimR_inputdata/NorthernSquareRegion/ValuesOver20Years/99.9th Percentile/em_{}.csv".format(em), index = False, float_format = '%.20f')
-    print("Saved to file")
+    stats_dict  ={}
+    stats_dict['Max'] = jja.aggregated_by(['clim_season'], iris.analysis.MAX)
+    stats_dict['Mean'] = jja.aggregated_by(['clim_season'], iris.analysis.MEAN)
+    # Add the percentiles
+    jja_percentiles = jja.aggregated_by(['clim_season'], iris.analysis.PERCENTILE, percent=[95,97,99,99.5, 99.75, 99.9])
+    Percentiles = ['95th Percentile', '97th Percentile', '99th Percentile', '99.5th Percentile', '99.75th Percentile', '99.9th Percentile']
+    i = 0
+    for Percentile in Percentiles:
+        stats_dict[Percentile] = jja_percentiles[i,:,:,:]
+        i = i+1
      
-    # Create ddirs
-    # for percentile in percentiles:
-    #   percentile_name = str(percentile) + "th Percentile"
-    #   ddir = "Outputs/HiClimR_inputdata/NorthernSquareRegion/ValuesOver20Years/{}/".format(percentile_name)
-    #   if not os.path.isdir(ddir):
-    #     os.makedirs(ddir)
+    ############################################
+    # Create a dataframe where each row is a lat/lons position within the bounding
+    # box of the northern region, and each column contains the value for that year 
+    # for the specified stat
+    #############################################     
+    # Loop through stats
+    for stat, stat_cube in stats_dict.items():
+      print(stat)
+      print(stat_cube)
+      
+      # Create dataframe with lat and long values (this can be used for all stats)
+      df = pd.DataFrame({'lats': jja.coord('latitude').points.reshape(-1),
+                       'lons': jja.coord('longitude').points.reshape(-1)})
+      
+      # For each year find the value at each location for the defined statistic
+      # and save these to a dataframe
+      # Cut cube to just that year
+      # Extract data
+      stats_array = stat_cube[0,:,:,:].data
+      # Convert to 1D
+      stats_array_1d = stats_array.reshape(-1)
+      # Append to dataframe
+      df = df.join(pd.DataFrame({stat : stats_array_1d}))
+
+      # Save to file
+      ddir = "Outputs/HiClimR_inputdata/NorthernSquareRegion/Allhours/{}/".format(stat)
+      if not os.path.isdir(ddir):
+           os.makedirs(ddir)
+      df.to_csv(ddir + "em_{}.csv".format(em), index = False, float_format = '%.20f')
+      print("Saved to Dataframe")
+
+        
+pool = mp.Pool(mp.cpu_count())
+results = [pool.apply_async(create_stats_df, args=(x,)) for x in ems]
+output = [p.get() for p in results]
+print(output)              
+        
+    
 
 
