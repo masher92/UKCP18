@@ -22,7 +22,7 @@ def create_precip_cmap():
     # Set the colour for any values which are outside the range designated in lvels
     precip_colormap.set_under(color="white")
     precip_colormap.set_over(color="white")
-    return tol_precip_colors
+    return precip_colormap
 
 
 @jit
