@@ -17,7 +17,6 @@ import re
 import iris.plot as iplt
 import multiprocessing as mp
 
-
 ############################################
 # Define variables and set up environment
 #############################################
@@ -33,7 +32,7 @@ from Spatial_plotting_functions import *
 from Spatial_geometry_functions import *
 
 ems = ['01', '04', '05', '06', '07', '08', '10', '11','12','13','15']
-#stats = ['jja_mean_wh', 'jja_max_wh', 'wet_prop', 'jja_p95_wh', 'jja_p97_wh', 'jja_p99_wh',  'jja_p99.5_wh', 'jja_p99.75_wh', 'jja_p99.9_wh']
+stats = ['jja_mean_wh', 'jja_max_wh', 'wet_prop', 'jja_p95_wh', 'jja_p97_wh', 'jja_p99_wh',  'jja_p99.5_wh', 'jja_p99.75_wh', 'jja_p99.9_wh']
 yrs_range = "1980_2001" 
 
 ##################################################################
@@ -42,7 +41,17 @@ yrs_range = "1980_2001"
 northern_gdf = create_northern_outline({'init' :'epsg:3857'})
 
 ##################################################################
-# 
+# Function which for each ensemble member:
+# Loads in all of the files for 1980-2001 period and joins them.
+# Cuts to JJA
+# And then for each of the defined statistics:
+# It calculates the value of that statistic in each year of the data at each cell for just the wet hours
+# To do this it must load the data into an array and process outside Iris functions
+# For each statistic, a dataframe is creation, where the rows are locations
+# within the bounding box of the northern region, and the columns contain the value
+# of the statistic in each year
+
+# This function can then be parallelised
 ##################################################################
 def create_stats_df(em):
 #for em in ems:
@@ -123,7 +132,8 @@ def create_stats_df(em):
       df.to_csv(ddir + "em_{}.csv".format(em), index = False, float_format = '%.20f')
       print("Saved to Dataframe")
 
-        
+# Send each ensemble member to the function
+# making use of parallelisation        
 pool = mp.Pool(mp.cpu_count())
 results = [pool.apply_async(create_stats_df, args=(x,)) for x in ems]
 output = [p.get() for p in results]
