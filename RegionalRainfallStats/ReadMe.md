@@ -18,7 +18,7 @@ Plots of the JJA statistic values at each grid cell are plotted within two scrip
 In both cases plots can be generated for any of three defined regions:
 * The UK (trimmed to the coastlines)
 * The Northern region (North East, North West, Yorkshire and the Humber)
-* A square region centred on Leeds 
+* A square region centred on Leeds   
 The process for this involves using masks generated in the CreatingMasks.py script.
 
 The code can also be adapted to allow plotting of either wet/all hours statistics and, for the plots with subplots, to use either a shared colobar and scale across the 12 ensemble members of to give each subplot its own colorbar and scale.
