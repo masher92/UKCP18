@@ -1,3 +1,95 @@
+from numba import jit
+import pandas as pd
+import numpy as np
+from pyproj import Proj, transform
+
+
+# From FindSTats_VlaluesOverpercentile
+"""Using numba to extract values above a percentile.
+Numba executes loops efficiently (just in time compiling)
+Somehow, the exceptions do not work well within numba, so they are passed out as integers"""
+@jit
+def values_above_percentile(rain_data, percentile_cutoff_data):
+    exception=0
+    # Find shape of data for use in for loop
+    imax=np.shape(rain_data)[1] 
+    jmax=np.shape(rain_data)[2]
+    if(np.shape(percentile_cutoff_data)[0]>1):
+        exception=1
+    
+    # Define how many numbers over percentile there are for one dimensions
+    # This should be the value throughout - which is checked later
+    local_raindata=rain_data[:,0,0]
+    local_percentile=percentile_cutoff_data[0,0,0]
+    data_over_percentile=np.sort(local_raindata[local_raindata>=local_percentile])#[::-1]
+    n_over_percentile = len(data_over_percentile)   
+    print(n_over_percentile)
+    
+    # First dimension is for time
+    n_highest_array=np.zeros((1,n_over_percentile,imax,jmax))
+    for i in range(imax):
+        for j in range(jmax):
+            #print(i,j)
+            # Find the rainfall values at this location
+            local_raindata=rain_data[:,i,j]
+            # Find the value of the percentile at this location
+            local_percentile=percentile_cutoff_data[0,i,j]
+            # Extract values above cutoff percentile, sort these data over percentile 
+            # in descending order
+            data_over_percentile=np.sort(local_raindata[local_raindata>=local_percentile])#[::-1]
+            local_n_over_percentile=len(data_over_percentile)
+            print(local_n_over_percentile)
+            # ensure we have extracted enough values
+            if not local_n_over_percentile == n_over_percentile:
+                print("Error: incorrect number of values over percentile")
+                # Sort in descening order, and remove the smallest value
+                data_over_percentile = data_over_percentile[::-1][:n_over_percentile]
+                print(len(data_over_percentile))
+            # only use the n highest values
+            n_highest_array[0,:,i,j]=data_over_percentile
+            #print("g")
+    return n_highest_array
+
+
+# From FindStats - work out what difference is
+@jit
+def values_above_percentile(rain_data,percentile_data,n_highest):
+"""Using numba to extract values above a percentile.
+Numba executes loops efficiently (just in time compiling)
+Somehow, the exceptions do not work well within numba, so they are passed out as integers"""    
+    
+    exception=0
+    # length of lons
+    imax=np.shape(rain_data)[1] 
+    # length of lats
+    jmax=np.shape(rain_data)[2]
+    if(np.shape(percentile_data)[0]>1):
+        exception=1
+    # first dimension is for time
+    n_highest_array=np.zeros((1,n_highest,imax,jmax))
+    
+    local_data_dict ={}
+    for i in range(imax):
+        for j in range(jmax):
+            # Get data at one cell
+            local_raindata=rain_data[:,i,j]
+            local_data_dict[name] = local_raindata
+            name = name +1
+            # Find the percentile cutoff value for that cell
+            local_percentile=percentile_data[0,i,j]
+            # extract values above cutoff percentile, sort these data over percentile in descending order
+            # this is the most important line in this piece of code
+            data_over_percentile=np.sort(local_raindata[local_raindata>=local_percentile])[::-1]
+            local_n_over_percentile=len(data_over_percentile)
+            # ensure we have extracted enough values
+            if(local_n_over_percentile>=n_highest):
+                # only use the n highest values
+                n_highest_array[0,:,i,j]=data_over_percentile[:n_highest]
+            else:
+                exception=2
+    return n_highest_array,exception
+
+
 def find_biggest_percentage_share (dictionary):
     '''
     Description
@@ -97,3 +189,66 @@ def find_biggest_percentage_share (dictionary):
     
     return lats_2d, lons_2d, percent_2d
 
+@jit
+def wet_hour_stats(rain_data, statistic_name):
+    '''
+    Description
+    ----------
+        Takes the data from a cube and loops through each cell in the array of data
+        and extracts just the wet hours (>0.1mm/hr). Using these wet hours it calculates
+        a single value related to the specified 'statistic_name' parameter. This value is the
+        saved at that location. A 2d array of data values is returned containing one value
+        for each cell corresponding to the input statistic_name.
+    Parameters
+    ----------
+        rain_data: array
+            3D array containing the data from an iris cube, with multiple timelices for each location
+        statistic_name: String
+            A string specifying the statistic to be calculated
+    Returns
+    -------
+        stats_array: array
+            A 2D array containing for each location the value corresponing to the statistic
+            given as an input to the function      
+    '''
+    
+    # Define length of lons
+    imax=np.shape(rain_data)[1] 
+    # Define length of lats
+    jmax=np.shape(rain_data)[2]
+    
+    # Create empty array to populate with stats value
+    stats_array =np.zeros((imax,jmax))
+
+    # Loop through each of the cells, and find the value of the specified statistic
+    # in that cell. Save this value to the correct position in the array
+    print("Entering loop")
+    for i in range(imax):
+        for j in range(jmax):
+            # Get data at one cell
+            local_raindata=rain_data[:,i,j]
+            # Keep only values above 0.1 (wet hours)
+            wet_hours = local_raindata[local_raindata>0.1]         
+            
+            # Calculate statistics on just the wet hours
+            # If the statistic name is a percentile then need to first extract the 
+            # percentile number from the string 'statistic_name'
+            if statistic_name == 'jja_mean_wh':
+               statistic_value  = np.mean(wet_hours)
+            elif statistic_name == 'jja_max_wh':
+              statistic_value  = np.max(wet_hours)
+            elif statistic_name == 'wet_prop':
+               statistic_value  = (len(wet_hours)/len(local_raindata)) *100
+            else:
+              percentile_str =re.findall(r'\d+', statistic_name)
+              if len(percentile_str) == 1:
+                  percentile_no = float(percentile_str[0])
+              elif len(percentile_str) ==2:
+                 percentile_no = float(percentile_str[0] + '.' + percentile_str[1])
+              statistic_value =  np.percentile(wet_hours, percentile_no)
+            
+            # Store at correct location in array
+            stats_array[i,j] = statistic_value
+
+    return  stats_array
+    
