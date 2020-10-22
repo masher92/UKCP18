@@ -1,3 +1,11 @@
+'''
+For each ensemble member:
+    Calculates the value of certain statistics, (max, mean and various percentiles), in each 
+    year of data for just the wet hours. The results are saved to a dataframe in which the rows
+    are locations within the bounding box of the northern region, and the columns contain the value
+    of the statistic in each year
+'''
+
 #############################################
 # Import necessary packages
 #############################################

@@ -1,6 +1,10 @@
 '''
-Finds...
-which is within the bounding box of the North of England.
+For each ensemble member:
+    Calculates the value of certain percentiles.
+    Then finds all values which are greater than this percentile.
+    Saves these to a dataframe in which the rows are locations within the bounding 
+    box of the northern region, and the columns contain sll values greater than the
+    percentile.
 '''
 
 import iris.coord_categorisation
@@ -14,7 +18,6 @@ import geopandas as gpd
 import time 
 import sys
 
-
 ############################################
 # Define variables and set up environment
 #############################################
@@ -23,8 +26,6 @@ root_fp = "/nfs/a319/gy17m2a/"
 os.chdir(root_fp)
 
 # Create path to files containing functions
-sys.path.insert(0, root_fp + 'Scripts/UKCP18/')
-from Pr_functions import *
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/SpatialAnalyses')
 from Spatial_plotting_functions import *
 
@@ -41,7 +42,6 @@ northern_gdf = create_northern_outline({'init' :'epsg:3857'})
 ############################################
 # For each ensemble member:
 # Create a cube containing 20 years of data, trimmed to the North of England, with just JJA values
-# 
 #############################################
 for em in ems:
     print(em)

@@ -1,3 +1,14 @@
+'''
+For each ensemble member:
+    Calculates the value of certain statistics, (max, mean and various percentiles), over all
+    years of data. The results are saved to a dataframe in which the rows are locations within
+    the bounding box of the northern region, and the columns contain the value of the statistic 
+    over all the years.
+    
+    This is not actually useful as input to the HiClimR function must have at least 2 variables
+    and the output of this has only one variable
+'''
+
 #############################################
 # Import necessary packages
 #############################################
@@ -39,7 +50,15 @@ yrs_range = "1980_2001"
 northern_gdf = create_northern_outline({'init' :'epsg:3857'})
 
 ##################################################################
-# 
+# Function which for each ensemble member:
+# Loads in all of the files for 1980-2001 period and joins them.
+# Cuts to JJA
+# And then for each of the defined statistics:
+# It calculates the value of that statistic across all years of the data at each cell.
+# For each statistic, a dataframe is creation, where the rows are locations
+# within the bounding box of the northern region, and the column contains the value
+
+# This function can then be parallelised
 ##################################################################
 def create_stats_df(em):
 #for em in ems:
@@ -113,10 +132,6 @@ def create_stats_df(em):
       # Create dataframe with lat and long values (this can be used for all stats)
       df = pd.DataFrame({'lats': jja.coord('latitude').points.reshape(-1),
                        'lons': jja.coord('longitude').points.reshape(-1)})
-      
-      # For each year find the value at each location for the defined statistic
-      # and save these to a dataframe
-      # Cut cube to just that year
       # Extract data
       stats_array = stat_cube[0,:,:,:].data
       # Convert to 1D
@@ -131,7 +146,9 @@ def create_stats_df(em):
       df.to_csv(ddir + "em_{}.csv".format(em), index = False, float_format = '%.20f')
       print("Saved to Dataframe")
 
-        
+
+# Send each ensemble member to the function
+# making use of parallelisation                
 pool = mp.Pool(mp.cpu_count())
 results = [pool.apply_async(create_stats_df, args=(x,)) for x in ems]
 output = [p.get() for p in results]

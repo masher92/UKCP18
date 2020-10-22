@@ -1,3 +1,17 @@
+'''
+For each ensemble member:
+    Calculates the value of certain statistics, (max, mean and various percentiles), in each 
+    year of data. The results are saved to a dataframe in which the rows are locations
+    within the bounding box of the northern region, and the columns contain the value
+    of the statistic in each year
+    
+NB: this script previously contained functionality to find te greatest 10 and 20
+values in each year.
+This did not produce good results with HiClimR.
+Script has been updated. Code is included at the bottom but no longer works with
+the structure of this script
+'''
+
 #############################################
 # Import necessary packages
 #############################################
@@ -152,5 +166,38 @@ output = [p.get() for p in results]
 print(output)              
         
     
+#############################################
+# See: UKCP18/RainfallRegionalisation/FindStats.py ~ 9th September
+# Find greatest N values
+#############################################   
+# rain_data=jja.data
 
+# # Make a conservative estimate (it is a bit annoying to deal with the rounding issues)
+# cutoff_percentile=100.*(1.0-(n_highest+1.0)/(np.shape(rain_data)[0]-1.0))
+# yearly_stats_percentile = jja.aggregated_by(['season'], iris.analysis.PERCENTILE, percent=cutoff_percentile)
+
+# ### Find top ten values
+# percentile_data=yearly_stats_percentile.data
+# # Perform the main algorithm.
+# n_highest_array,exception=values_above_percentile(rain_data,percentile_data,n_highest)
+# if(exception==1):
+#     raise Exception('The percent_data array has unexpected dimensions')
+# if(exception==2):
+#     raise Exception('Cutoff percentile generates too few data points')
+ 
+# ######## Store in format for R, and add to dictionary
+# # Remove Ensemble member dimension 
+# data = n_highest_array [0,:,:,:]           
+
+# # Loops through each of the top ten values and store in a dictionary
+# # with the year name
+# for i in range(0, data.shape[0]):
+#     #print(i)
+#     # Get data from one timeslice
+#     one_ts = data[i,:,:]
+#     # Extract data from one year 
+#     one_ts = one_ts.reshape(-1)
+#     # Store as dictionary with the year name
+#     name = year + '_' + str(i)
+#     top_ten_dict[name] = one_ts
 

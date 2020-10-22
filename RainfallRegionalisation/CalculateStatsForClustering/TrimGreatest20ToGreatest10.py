@@ -1,3 +1,8 @@
+'''
+Trims dataframe containing the greatest twenty values in each year of data
+to contain only the greatest ten values
+'''
+
 import pandas as pd
 import matplotlib.pyplot as plt
 import os
@@ -11,7 +16,6 @@ from Spatial_plotting_functions import *
 
 region = 'Northern'
 ems = ['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
-
 
 # Loop through ensemble members
 # Read in greatest twenty file

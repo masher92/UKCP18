@@ -1,3 +1,10 @@
+'''
+For all defined regions, statistics and ensemble members this file processes the
+outputs of the FindStats*.py scripts. These outputs all refer to the region of the
+bounding box of the North of England. This script uses masks created in CreateRegionalMasks.py
+to trim these
+'''
+
 ############################################
 # Set up environment
 #############################################
@@ -19,7 +26,9 @@ import iris.coord_categorisation
 import time 
 warnings.filterwarnings("ignore")
 
-# Set working directory - 2 options for remote server and desktop
+##############################################################################
+# Define variables and set up environment
+##############################################################################
 #root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
 root_fp = "/nfs/a319/gy17m2a/"
 os.chdir(root_fp)
@@ -27,13 +36,20 @@ os.chdir(root_fp)
 stats = ['Wethours/jja_mean_wh', 'Wethours/jja_max_wh', 'Wethours/wet_prop', 'Wethours/jja_p95_wh', 'Wethours/jja_p97_wh', 'Wethours/jja_p99_wh', 'Wethours/jja_p99_wh', 'Wethours/jja_p99.5_wh', 'Wethours/jja_p99.75_wh', 'Wethours/jja_p99.9_wh']
 #stats= ['Max','Mean', '95th Percentile', '97th Percentile', '99th Percentile', '99.5th Percentile',
 #        '99.75th Percentile', '99.9th Percentile']
-#stats = ['ValuesOverPercentile/99', 'ValuesOverPercentile/99.5', 'ValuesOverPercentile/99.9', 'ValuesOverPercentile/99.95', 'ValuesOverPercentile/99.99']
-#stats = ['ValuesOver20Years/Max', 'ValuesOver20Years/Mean', 'ValuesOver20Years/95th Percentile',  'ValuesOver20Years/97th Percentile',  'ValuesOver20Years/99th Percentile',
-#         'ValuesOver20Years/99.5th Percentile',  'ValuesOver20Years/99.75th Percentile',  'ValuesOver20Years/99.9th Percentile']
 regions = ['Northern']   
 ems = ['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
-#ems = ['06']
-##############################################################################    
+
+############################################################################## 
+# Loop through all the define regions:
+#   Loop through the ensemble members:
+#       Loop through the statistics:
+#               In each case, read in the data and the mask
+#               This mask has each location within the bounding box of the northern
+#               region and a flag to determine whether that location is within the
+#               the region to which the mask refers.
+#               This mask is used to keep only the statistic values for the locations
+#               within this specified region.
+##############################################################################
 for region in regions:
     for em in ems:    
         for stat in stats:
@@ -44,8 +60,7 @@ for region in regions:
         
             # Join the mask with the stats 
             joined = pd.concat([mask, stats_data], axis=1)
-            #joined = mask.merge(stats_data,  on=['lat', 'lon'], how="left")
-            
+
             # Remove NAs - outside mask
             joined = joined.dropna()
             # Remove duplicate of lat/lon columns
