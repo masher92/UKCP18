@@ -25,8 +25,6 @@ root_fp = "/nfs/a319/gy17m2a/"
 os.chdir(root_fp)
 
 # Create path to files containing functions
-sys.path.insert(0, root_fp + 'Scripts/UKCP18/')
-from Pr_functions import *
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/SpatialAnalyses')
 from Spatial_plotting_functions import *
 from Spatial_geometry_functions import *
@@ -86,12 +84,11 @@ def create_stats_df(em):
     # Keep only JJA
     jja = concat_cube.extract(iris.Constraint(clim_season = 'jja'))
     # Add season year
-    iris.coord_categorisation.add_season_year(jja,'time', name = "season_year") 
+    iris.coord_categorisation.add_season_year(jja,'time', name = "season") 
 
     ############################################
-    # Find all hour stats
+    # Create dictionary containing the cube for each statistic
     #############################################
-    # Create diuctionary containing the cube for each statistic
     stats_dict  ={}
     stats_dict['Max'] = jja.aggregated_by(['season'], iris.analysis.MAX)
     stats_dict['Mean'] = jja.aggregated_by(['season'], iris.analysis.MEAN)
@@ -100,35 +97,39 @@ def create_stats_df(em):
     Percentiles = ['95th Percentile', '97th Percentile', '99th Percentile', '99.5th Percentile', '99.75th Percentile', '99.9th Percentile']
     i = 0
     for Percentile in Percentiles:
-        stats_dict[Percentiles] = jja_percentiles[i,:,:,:]
+        stats_dict[Percentile] = jja_percentiles[i,:,:,:]
         i = i+1
-       
+     
+    ############################################
+    # Create a dataframe where each row is a lat/lons position within the bounding
+    # box of the northern region, and each column contains the value for that year 
+    # for the specified stat
+    #############################################     
     # Loop through stats
-    for key, item in stats_dict.items():
-      print(item)
-    
-      # Create dataframe with lat and long values
+    for stat, stat_cube in stats_dict.items():
+      print(stat)
+      print(stat_cube)
+      
+      # Create dataframe with lat and long values (this can be used for all stats)
       df = pd.DataFrame({'lats': jja.coord('latitude').points.reshape(-1),
                        'lons': jja.coord('longitude').points.reshape(-1)})
-    
+      
       # For each year find the value at each location for the defined statistic
       # and save these to a dataframe
       years = range(1981,2001)
       for year in years:
         print(year)
         # Cut cube to just that year
-        one_year_jja = jja.extract(iris.Constraint(year = year))
+        one_year_stat_cube = stat_cube.extract(iris.Constraint(year = year))
         # Extract data
-        rain_data = one_year_jja.data
-        # Find value corresponding to name stat
-        stats_array = wet_hour_stats(rain_data, stat)
+        stats_array = one_year_stat_cube.data
         # Convert to 1D
         stats_array_1d = stats_array.reshape(-1)
         # Append to dataframe
         df = df.join(pd.DataFrame({str(year) : stats_array_1d}))
 
       # Save to file
-      ddir = "Outputs/HiClimR_inputdata/NorthernSquareRegion/Wethours/{}/".format(stat)
+      ddir = "Outputs/HiClimR_inputdata/NorthernSquareRegion/Allhours/{}/".format(stat)
       if not os.path.isdir(ddir):
            os.makedirs(ddir)
       df.to_csv(ddir + "em_{}.csv".format(em), index = False, float_format = '%.20f')
