@@ -31,6 +31,7 @@ import numpy.ma as ma
 import warnings
 import iris.quickplot as qplt
 import iris.plot as iplt
+import cartopy.crs as ccrs
 warnings.simplefilter(action = 'ignore', category = FutureWarning)
 
 # Set up path to root directory
@@ -103,7 +104,7 @@ for em in ems:
               stat_cube = iris.load('/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/Allhours/em_'+ em+ '_' + stat + '.nc')[0] 
               stat_cube = stat_cube[0]    
           elif hours == 'wet':
-              stat_cube = iris.load('/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/Wethours/em_'+ em+ '_' + stat + '.nc')[0] 
+              stat_cube = iris.load('/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/Wethours/em_'+ em+ '_' + stat + '_wh.nc')[0] 
               
           # Trim to smaller area
           if region == 'Northern':
@@ -265,3 +266,54 @@ for stat in stats:
             
     # Save plot        
     plt.savefig(filename, bbox_inches = 'tight')
+
+
+
+##########################################
+# Code to check whether grid lines are due to changing projection
+##########################################
+# Extract data for correct ensemble member and stat
+em_dict = ems_dict[em]
+stats_cube = em_dict[stat]
+   
+# Define the contour levels to use in plotting where the axis is not shared
+local_min = stats_cube.data.min()
+local_max = stats_cube.data.max()       
+contour_levels = np.linspace(local_min, local_max, 11,endpoint = True)
+ 
+# Define number of decimal places to use in the rounding of the colour bar
+# This ensures smaller numbers have decimal places, but not bigger ones.
+if local_max >10:
+  n_decimal_places = 0
+else:
+  n_decimal_places = 2
+ 
+# Plot in Web Mercator
+proj = ccrs.Mercator.GOOGLE
+# Create axis using this WM projection
+ax = plt.subplot(122, projection=proj)
+# Plot
+mesh = iplt.pcolormesh(stats_cube, cmap = precip_colormap, vmin = local_min,
+                       vmax = local_max)
+# Add regional outlines, depending on which region is being plotted
+# if region == 'Northern':
+#      leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=0.5)
+#      northern_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=0.4)
+# elif region == 'leeds-at-centre':
+#      leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=1)
+# elif region == 'UK':
+#      plt.gca().coastlines(linewidth =0.5)
+
+# Plot without specifying projection
+ax = plt.subplot(122)
+# Plot
+mesh = iplt.pcolormesh(stats_cube, cmap = precip_colormap, vmin = local_min,
+                       vmax = local_max)
+# Add regional outlines, depending on which region is being plotted
+if region == 'Northern':
+     leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=0.5)
+     northern_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=0.4)
+elif region == 'leeds-at-centre':
+     leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=1)
+elif region == 'UK':
+     plt.gca().coastlines(linewidth =0.5)
