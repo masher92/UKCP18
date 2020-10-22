@@ -22,8 +22,6 @@ root_fp = "/nfs/a319/gy17m2a/"
 os.chdir(root_fp)
 
 # Create path to files containing functions
-sys.path.insert(0, root_fp + 'Scripts/UKCP18/')
-from Pr_functions import *
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/SpatialAnalyses')
 from Spatial_plotting_functions import *
 from Spatial_geometry_functions import *
@@ -63,7 +61,6 @@ concat_cube = concat_cube[0,:,:,:]
 iris.coord_categorisation.add_season(concat_cube,'time', name = "clim_season")
 # Keep only JJA
 jja = concat_cube.extract(iris.Constraint(clim_season = 'jja'))
-#iris.coord_categorisation.add_season_year(concat_cube,'time', name = "season_year") 
 
 ##################################################################
 # Load necessary spatial data
@@ -81,14 +78,14 @@ leeds_at_centre_gdf = create_leeds_at_centre_outline({'init' :'epsg:3857'})
 # Load mask for wider northern region
 # This masks out cells outwith the wider northern region
 wider_northern_mask = np.load('Outputs/RegionalMasks/wider_northern_region_mask.npy')
-uk_mask = np.load('Outputs/RegionalMasks/uk_mask.npy')  
+#uk_mask = np.load('Outputs/RegionalMasks/uk_mask.npy')  
     
 ################################################
 ## Find maximum value for each cell
 ################################################
 # Create cube containing the maximum JJA value for each cell
-#cube_max = jja.aggregated_by(['clim_season'], iris.analysis.MAX)
-cube_max = jja.aggregated_by(['clim_season'], iris.analysis.PERCENTILE, percent = [95])
+cube_max = jja.aggregated_by(['clim_season'], iris.analysis.MAX)
+#cube_max = jja.aggregated_by(['clim_season'], iris.analysis.PERCENTILE, percent = [95])
 
 #############################################
 ## Trim to smaller region
@@ -213,6 +210,7 @@ def make_animation(region, cube_max, jja):
   plt.title(title, fontsize = 55)
   filename = 'Outputs/CellIndependence/{}/em{}_.png'.format(region, em, stat)
   plt.savefig(filename, bbox_inches = 'tight')
+  
   ########################################################################
   # Animate
   ########################################################################
@@ -322,6 +320,10 @@ def make_animation(region, cube_max, jja):
   filename = 'Outputs/CellIndependence/{}/em{}_{}.mp4'.format(region, em, stat)
   ani.save(filename, writer=animation.FFMpegWriter(fps=1))
 
+  return None
+
+############################################################################
 # Make the animations
+############################################################################
 make_animation("Northern", cube_max, jja)
 make_animation("leeds-at-centre", cube_max, jja)
