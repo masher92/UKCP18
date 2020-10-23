@@ -32,9 +32,9 @@ In each case the statistics plotted in the left hand plot are calculated across 
 
 ### 1. Ensemble means
 #### Leeds region
-<p align="center">
+<p align="left">
             <img src="Figs/leeds-at-centre/WetHours_EM_Difference/wet_prop_EM_mean.png" width="200"  title="Regridded 2.2km grid" />  
-<p align="center"> JJA proportion of hours that are wet (>0.1mm/hr precipitation) <p align="center">
+<p align="left"> JJA proportion of hours that are wet (>0.1mm/hr precipitation) <p align="center">
 
 <p align="left">
             <img src="Figs/leeds-at-centre/AllHours_EM_Difference/jja_mean_EM_mean.png" width="200"  title="Original 1km grid" />
@@ -84,9 +84,9 @@ In each case the statistics plotted in the left hand plot are calculated across 
 <p align="left"> Figure 8. JJA max for all hours (left) and wet hours with >0.1mm/hr precipitation (right) <p align="center">  
 
 ### Northern region     
-<p align="center">
+<p align="left">
             <img src="Figs/Northern/WetHours_EM_Difference/wet_prop_EM_mean.png" width="200"  title="Regridded 2.2km grid" />  
-<p align="center"> JJA proportion of hours that are wet (>0.1mm/hr precipitation) <p align="center">
+<p align="left"> JJA proportion of hours that are wet (>0.1mm/hr precipitation) <p align="center">
 
 <p align="left">
           <img src="Figs/Northern/AllHours_EM_Difference/jja_mean_EM_mean.png" width="200"  title="Original 1km grid" />
