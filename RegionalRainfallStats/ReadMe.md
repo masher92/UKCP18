@@ -1,7 +1,7 @@
 # Regional rainfall statistics
 ## Code and workflow summary
 <ins> Calculating statistics </ins>  
-The values of various statistics of June-July-August (JJA) precipitation for each grid cell within the region covered by the bounding box of the coastline of the UK, are calculated within two seperate scripts:  
+The values of various statistics of June-July-August (JJA) precipitation for each grid cell within the region covered by the bounding box of the coastline of the UK, are calculated within two separate scripts:  
 * Calculating_UK_stats.py -- calculates the statistics over all hours of JJA data
 * Calculating_UK_stats_wethours.py -- calculates the statistics over only wet JJA hours (>0.1mm/hr precipitation)
 
@@ -32,6 +32,10 @@ In each case the statistics plotted in the left hand plot are calculated across 
 
 ### 1. Ensemble means
 #### Leeds region
+<p align="center">
+            <img src="Figs/leeds-at-centre/WetHours_EM_Difference/wet_prop_EM_mean.png" width="200"  title="Regridded 2.2km grid" />  
+<p align="center"> JJA proportion of hours that are wet (>0.1mm/hr precipitation) <p align="center">
+
 <p align="left">
             <img src="Figs/leeds-at-centre/AllHours_EM_Difference/jja_mean_EM_mean.png" width="200"  title="Original 1km grid" />
             <img src="Figs/leeds-at-centre/WetHours_EM_Difference/jja_mean_wh_EM_mean.png" width="200"  title="Regridded 2.2km grid" />   </p>
@@ -80,6 +84,10 @@ In each case the statistics plotted in the left hand plot are calculated across 
 <p align="left"> Figure 8. JJA max for all hours (left) and wet hours with >0.1mm/hr precipitation (right) <p align="center">  
 
 ### Northern region     
+<p align="center">
+            <img src="Figs/Northern/WetHours_EM_Difference/wet_prop_EM_mean.png" width="200"  title="Regridded 2.2km grid" />  
+<p align="center"> JJA proportion of hours that are wet (>0.1mm/hr precipitation) <p align="center">
+
 <p align="left">
           <img src="Figs/Northern/AllHours_EM_Difference/jja_mean_EM_mean.png" width="200"  title="Original 1km grid" />
           <img src="Figs/Northern/WetHours_EM_Difference/jja_mean_wh_EM_mean.png" width="200"  title="Regridded 2.2km grid" />
