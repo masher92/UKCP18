@@ -53,7 +53,7 @@ shared_axis = True
 # Region over which to plot
 region = 'UK' #['Northern', 'leeds-at-centre', 'UK']
 # Whether to include All hours or just Wet hours 
-hours = 'all'
+hours = 'wet'
 
 ##################################################################
 # Load necessary spatial data
@@ -71,7 +71,7 @@ uk_gdf = create_uk_outline({'init' :'epsg:3857'})
 # Load mask for wider northern region
 # This masks out cells outwith the wider northern region
 wider_northern_mask = np.load('Outputs/RegionalMasks/wider_northern_region_mask.npy')
-uk_mask = np.load('Outputs/RegionalMasks/uk_mask.npy')  
+uk_mask = np.load('Outputs/RegionalMasks/uk_mask_new.npy')  
 
 ##################################################################
 # Create dictionaries storing the maximum and minimum values found for 
@@ -104,7 +104,7 @@ for em in ems:
               stat_cube = iris.load('/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/Allhours/em_'+ em+ '_' + stat + '.nc')[0] 
               stat_cube = stat_cube[0]    
           elif hours == 'wet':
-              stat_cube = iris.load('/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/Wethours/em_'+ em+ '_' + stat + '_wh.nc')[0] 
+              stat_cube = iris.load('/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/Wethours/em_'+ em+ '_' + stat + '.nc')[0] 
               
           # Trim to smaller area
           if region == 'Northern':
@@ -120,9 +120,9 @@ for em in ems:
               # but that all land values are plotted
               stat_cube = trim_to_bbox_of_region(stat_cube, northern_gdf)
           elif region == 'UK':
-              stat_cube = stat_cube
-              #uk_mask = uk_mask.reshape(458,383)
-              #stat_cube.data = ma.masked_where(uk_mask == 0, stat_cube.data)
+              #stat_cube = stat_cube
+              uk_mask = uk_mask.reshape(458,383)
+              stat_cube.data = ma.masked_where(uk_mask == 0, stat_cube.data)
               
           # If this is the first time through the loop e.g. the first ensemble member, 
           # then create dictionary which will store the max and min values for each 
@@ -179,6 +179,7 @@ for stat in stats:
 
     # Loop through ensemble members   
     for em in ems:
+        print(em)
         # Extract data for correct ensemble member and stat
         em_dict = ems_dict[em]
         stats_cube = em_dict[stat]
@@ -200,7 +201,7 @@ for stat in stats:
            # Create projection system in Web Mercator
            proj = ccrs.Mercator.GOOGLE
            # Create axis using this WM projection
-           ax = plt.subplot(122, projection=proj)
+           ax = plt.subplot(4,3,i, projection=proj)
            # Plot
            mesh = iplt.pcolormesh(stats_cube, cmap = precip_colormap, vmin = global_min,
                                   vmax = global_max)
@@ -234,7 +235,7 @@ for stat in stats:
                 #cb1.ax.set_yticklabels(["{:.{}f}".format(i, n_decimal_places) for i in cb1.get_ticks()]) 
            elif region == 'UK':
                 plt.gca().coastlines(linewidth =0.5)
-                cb1 = plt.colorbar(mesh, ax=ax, fraction=0.049, pad=0.03, boundaries = contour_levels)
+                cb1 = plt.colorbar(mesh, ax=ax, fraction=0.049, pad=0.01, boundaries = contour_levels)
                 #cb1.ax.set_yticklabels(["{:.{}f}".format(i, n_decimal_places) for i in cb1.get_ticks()])  
            cb1.ax.tick_params(labelsize=8)
            cb1.ax.set_yticklabels(["{:.{}f}".format(i, n_decimal_places) for i in cb1.get_ticks()])  
@@ -249,7 +250,10 @@ for stat in stats:
         # make an axes to put the shared colorbar in. [1,2 are coordinates of lower left corner of plot; 3,4 are width and height of subplot]
         colorbar_axes = plt.gcf().add_axes([0.927, 0.3, 0.005, 0.25])
         colorbar = plt.colorbar(mesh, colorbar_axes, orientation='vertical',  boundaries = contour_levels_overall)  
-        colorbar.set_label('%s' % stats_cube.units, size = 15)
+        if stat == 'wet_prop':
+            colorbar.set_label('Wet hour percentage', size = 15)
+        else:
+            colorbar.set_label('%s' % stats_cube.units, size = 15)
         colorbar.ax.tick_params(labelsize=15)
         colorbar.ax.set_yticklabels(["{:.{}f}".format(i, n_decimal_places) for i in colorbar.get_ticks()])    
         if hours == 'all':
@@ -269,33 +273,47 @@ for stat in stats:
 
 
 
-##########################################
-# Code to check whether grid lines are due to changing projection
-##########################################
-# Extract data for correct ensemble member and stat
-em_dict = ems_dict[em]
-stats_cube = em_dict[stat]
+# ##########################################
+# # Code to check whether grid lines are due to changing projection
+# ##########################################
+# # Extract data for correct ensemble member and stat
+# em_dict = ems_dict[em]
+# stats_cube = em_dict[stat]
    
-# Define the contour levels to use in plotting where the axis is not shared
-local_min = stats_cube.data.min()
-local_max = stats_cube.data.max()       
-contour_levels = np.linspace(local_min, local_max, 11,endpoint = True)
+# # Define the contour levels to use in plotting where the axis is not shared
+# local_min = stats_cube.data.min()
+# local_max = stats_cube.data.max()       
+# contour_levels = np.linspace(local_min, local_max, 11,endpoint = True)
  
-# Define number of decimal places to use in the rounding of the colour bar
-# This ensures smaller numbers have decimal places, but not bigger ones.
-if local_max >10:
-  n_decimal_places = 0
-else:
-  n_decimal_places = 2
+# # Define number of decimal places to use in the rounding of the colour bar
+# # This ensures smaller numbers have decimal places, but not bigger ones.
+# if local_max >10:
+#   n_decimal_places = 0
+# else:
+#   n_decimal_places = 2
  
-# Plot in Web Mercator
-proj = ccrs.Mercator.GOOGLE
-# Create axis using this WM projection
-ax = plt.subplot(122, projection=proj)
-# Plot
-mesh = iplt.pcolormesh(stats_cube, cmap = precip_colormap, vmin = local_min,
-                       vmax = local_max)
-# Add regional outlines, depending on which region is being plotted
+# # Plot in Web Mercator
+# proj = ccrs.Mercator.GOOGLE
+# # Create axis using this WM projection
+# ax = plt.subplot(122, projection=proj)
+# # Plot
+# mesh = iplt.pcolormesh(stats_cube, cmap = precip_colormap, vmin = local_min,
+#                        vmax = local_max)
+# # Add regional outlines, depending on which region is being plotted
+# # if region == 'Northern':
+# #      leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=0.5)
+# #      northern_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=0.4)
+# # elif region == 'leeds-at-centre':
+# #      leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=1)
+# # elif region == 'UK':
+# #      plt.gca().coastlines(linewidth =0.5)
+
+# # Plot without specifying projection
+# ax = plt.subplot(122)
+# # Plot
+# mesh = iplt.pcolormesh(stats_cube, cmap = precip_colormap, vmin = local_min,
+#                        vmax = local_max)
+# # Add regional outlines, depending on which region is being plotted
 # if region == 'Northern':
 #      leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=0.5)
 #      northern_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=0.4)
@@ -303,17 +321,3 @@ mesh = iplt.pcolormesh(stats_cube, cmap = precip_colormap, vmin = local_min,
 #      leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=1)
 # elif region == 'UK':
 #      plt.gca().coastlines(linewidth =0.5)
-
-# Plot without specifying projection
-ax = plt.subplot(122)
-# Plot
-mesh = iplt.pcolormesh(stats_cube, cmap = precip_colormap, vmin = local_min,
-                       vmax = local_max)
-# Add regional outlines, depending on which region is being plotted
-if region == 'Northern':
-     leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=0.5)
-     northern_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=0.4)
-elif region == 'leeds-at-centre':
-     leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=1)
-elif region == 'UK':
-     plt.gca().coastlines(linewidth =0.5)

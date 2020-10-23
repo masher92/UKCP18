@@ -74,8 +74,8 @@ wider_northern_mask = np.load('Outputs/RegionalMasks/wider_northern_region_mask.
 if hours == 'all':
     stats = ['jja_max', 'jja_mean', 'jja_p95', 'jja_p97', 'jja_p99', 'jja_p99.5', 'jja_p99.75', 'jja_p99.9']
 elif hours == 'wet':
-    stats = ['jja_max_wh', 'jja_mean_wh', 'jja_p95_wh', 'jja_p97_wh', 'jja_p99_wh', 'jja_p99.5_wh', 'jja_p99.75_wh', 'jja_p99.9_wh']
-    
+    #stats = ['wet_prop', 'jja_max_wh', 'jja_mean_wh', 'jja_p95_wh', 'jja_p97_wh', 'jja_p99_wh', 'jja_p99.5_wh', 'jja_p99.75_wh', 'jja_p99.9_wh']
+    stats = ['wet_prop']
 #############################################################################  
 # For each stat, load in cubes containing this data for each of the ensemble members
 # And concatenate all the ensemble member statistic cubes into one. 
