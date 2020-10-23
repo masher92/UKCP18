@@ -250,7 +250,10 @@ for stat in stats:
         # make an axes to put the shared colorbar in. [1,2 are coordinates of lower left corner of plot; 3,4 are width and height of subplot]
         colorbar_axes = plt.gcf().add_axes([0.927, 0.3, 0.005, 0.25])
         colorbar = plt.colorbar(mesh, colorbar_axes, orientation='vertical',  boundaries = contour_levels_overall)  
-        colorbar.set_label('%s' % stats_cube.units, size = 15)
+        if stat == 'wet_prop':
+            colorbar.set_label('Wet hour percentage', size = 15)
+        else:
+            colorbar.set_label('%s' % stats_cube.units, size = 15)
         colorbar.ax.tick_params(labelsize=15)
         colorbar.ax.set_yticklabels(["{:.{}f}".format(i, n_decimal_places) for i in colorbar.get_ticks()])    
         if hours == 'all':
