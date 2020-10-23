@@ -27,7 +27,7 @@ for (num_clusters in num_clusters_list){
     for (em in ems){
             print (em)
             # Create the filepath
-            filepath = sprintf("C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/Outputs/Regionalisation/HiClimR_inputdata/%s/%s/em_%s.csv", region, stat, em)
+            filepath = sprintf("C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/Outputs/RainfallRegionalisation/HiClimR_inputdata/%s/%s/em_%s.csv", region, stat, em)
             
             # Read in data
             df <- read.csv(file = filepath)
