@@ -18,21 +18,26 @@ import pandas as pd
 root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
 os.chdir(root_fp)
 
-sys.path.insert(0, root_fp + 'Scripts/UKCP18/PlotPDFs')
+sys.path.insert(0, root_fp + 'Scripts/UKCP18/PointLocationStats/PlotPDFs')
 from PDF_plotting_functions import *
 
 ##############################################################################
 # Reading in data 
 ##############################################################################
-rf_df = pd.read_csv(root_fp + "Outputs/CEH-GEAR_reformatted/rf_df_westleeds.csv")
+rf_df = pd.read_csv(root_fp + "Outputs/Regridding/CEH-GEAR_reformatted/rf_df_westleeds.csv")
 rf_df.rename(columns={'Rainfall':'Precipitation (mm/hr)'}, inplace=True)
 rf_df = rf_df.dropna()
 #rf_wethours_df = rf_df[rf_df['Precipitation (mm/hr)'] > 0.1]
 
-rg_df = pd.read_csv(root_fp + "Outputs/CEH-GEAR_regridded_2.2km/rg_df_westleeds.csv")
+rg_df = pd.read_csv(root_fp + "Outputs/Regridding/CEH-GEAR_regridded_2.2km/rg_df_westleeds.csv")
 rg_df.rename(columns={'Rainfall':'Precipitation (mm/hr)'}, inplace=True)
 rg_df = rg_df.dropna()
 #rg_wethours_df = rg_df[rg_df['Precipitation (mm/hr)'] > 0.1]
+
+
+test = pd.concat([rf_df['Precipitation (mm/hr)']] * 1221, axis=0)
+np.save("Outputs/test.npy", test)
+
 
 ##############################################################################
 # Setting up dictionary
@@ -45,7 +50,22 @@ my_dict['Original 1km'] = rf_df
 my_dict['Regridded 2.2km'] = rg_df
 
 ##############################################################################
-# Plotting
+# Plotting - simple histograms
+##############################################################################
+plt.hist(rf_df['Precipitation (mm/hr)'], bins = 200)
+
+bin_density, bin_edges = np.histogram(rf_df['Precipitation (mm/hr)'], bins= 20, density=True)
+print (bin_edges)
+
+import matplotlib.pyplot as plt
+plt.bar(bin_edges[:-1], bin_density, width = 1)
+plt.xlim(min(bin_edges), max(bin_edges))
+plt.show()  
+
+
+
+##############################################################################
+# Plotting - complex PDFs
 ##############################################################################
 x_axis = 'linear'
 y_axis = 'log'
