@@ -8,10 +8,7 @@ The layout of these grids over the Leeds region can be seen in Figure 1. In orde
 
 It is important to determine the affect of regridding on the data, and particularly on extreme values which can be smoothed in the regridding process. To test this, a location with specific coordinates is defined and the grid cell which covers this point is determined for both the native 1km and regridded 2.2km observations data. The hourly observations are then extracted from the appropriate grid cell over the period for which data is available (1990-2014).   
 
-Using this data, PDFs of precipitation rates are plotted for both the original 1km data and the regridded 2.2km data.  The precipitation rates are aggregated into logarithmic-spaced histogram bins which are adjusted to ensure that none of the bin widths are narrower than one decimal place, as this is the degree to which the data is rounded. Additionally, bin width is rounded down to a multiple of 0.1, so bin edges are always located mid-way on the discretisation interval. The probability density in each bin with mean precipitation rate, P(r), is calculated as:  
-<p align="center">P(r) = n(r)/NΔr <p align="center">
-
-Where n(r) is the number of precipitation rates within the bin, Δr is the width of the bin in mm/hr and N is the total number of measurements in the whole dataset.
+Using this data, PDFs of precipitation rates are plotted for both the original 1km data and the regridded 2.2km data, using the method specified at the bottom. 
 
 Hourly rainfall accumulations for a range of percentile thresholds are also plotted for both the regridded 2.2km data and the original 1km data.
 
@@ -74,3 +71,10 @@ Hourly rainfall accumulations for a range of percentile thresholds are also plot
 * Check_reformat.py: Checks the reformatting process above works. Checks similarity between max/mean values between original and reformatted data and checks plotting.
 * TestingRegridding_CreateTimeSeries.py: Finds the grid cell covering a point of interest for both the original and reformatted observations data. Creates a csv containing a 20 year time series of data at this location.    
 * TestingRegridding_plotPDFs.py: Uses the timeseries from above to plot PDFs and percentile threshold plots.
+
+
+#### PDF plotting method
+The precipitation rates are aggregated into logarithmic-spaced histogram bins which are adjusted to ensure that none of the bin widths are narrower than one decimal place, as this is the degree to which the data is rounded. Additionally, bin width is rounded down to a multiple of 0.1, so bin edges are always located mid-way on the discretisation interval. The probability density in each bin with mean precipitation rate, P(r), is calculated as:  
+<p align="center">P(r) = n(r)/NΔr <p align="center">
+
+Where n(r) is the number of precipitation rates within the bin, Δr is the width of the bin in mm/hr and N is the total number of measurements in the whole dataset.
