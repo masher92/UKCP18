@@ -6,7 +6,7 @@ Each month has 30 days: this creates a problem when converting the date to a tim
 
 ### Projection
 The UKCP18 data is provided in a Rotated Pole coordinate system.  
-It is possible to get this Rotated Pole in the format of a cartopy projection: grid.coord('grid_latitude').coordinate_system
+It is possible to get this Rotated Pole in the format of a cartopy projection: grid.coord('grid_latitude').coordinate_system  
 This can then be used to convert the projection of other shapefiles, for instance the outline of Leeds for plotting.  
 However, it still does not work plotting the geodataframe of the outline of Leeds with the UKCP18 data cube in its native projection system.  
 The 'grid_longitude' coordinate contains values that are >360, whereas these are supposed to (?) wrap around 360 to 0.  
