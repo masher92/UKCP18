@@ -14,7 +14,8 @@ The layout of these grids over the Leeds region can be seen in Figure 1. In orde
 * Check_reformat.py: 
   * Checks the reformatting process above works. Checks similarity between max/mean values between original and reformatted data and checks plotting.
 * TestingRegridding_CreateTimeSeries.py: 
-  * Finds the grid cell covering a point of interest for both the original and reformatted observations data. Creates a csv containing a 20 year time series of data at this location.    
+  * Finds the grid cell covering a point of interest for both the original and reformatted observations data.  
+  * Creates a csv containing a 20 year time series of data at this location.    
 * TestingRegridding_plotPDFs.py: 
   * Uses the timeseries from above to plot PDFs and percentile threshold plots.
 
