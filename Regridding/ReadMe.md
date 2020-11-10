@@ -6,13 +6,22 @@ There are two main data sources being used in this analysis:
 
 The layout of these grids over the Leeds region can be seen in Figure 1. In order to use the observations to validate the model data it is necessary to convert the two datasets to a common resolution. Iris provides functionality to regrid cube data using the horizontal grid of another cube. For instance, in this case regridding the 1km observations cube using the 2.2km horizontal grid from the model cube. A linear regridding scheme is used which calculates the value at a point by extending the gradient of the closest two points.
 
+## Code work flow
+* CEH-GEAR_reformat.py: Reformats the observations data so it can be used in Iris regridding functionality and performs regridding to the same format as the 2.2km UKCP18 cube. Saves a netCDF copy of both the reformatted observations and regridded observations.
+* Check_reformat.py: Checks the reformatting process above works. Checks similarity between max/mean values between original and reformatted data and checks plotting.
+* TestingRegridding_CreateTimeSeries.py: Finds the grid cell covering a point of interest for both the original and reformatted observations data. Creates a csv containing a 20 year time series of data at this location.    
+* TestingRegridding_plotPDFs.py: Uses the timeseries from above to plot PDFs and percentile threshold plots.
+
+
+## Testing the impact of regridding on data values (including extremes)
+
 It is important to determine the affect of regridding on the data, and particularly on extreme values which can be smoothed in the regridding process. To test this, a location with specific coordinates is defined and the grid cell which covers this point is determined for both the native 1km and regridded 2.2km observations data. The hourly observations are then extracted from the appropriate grid cell over the period for which data is available (1990-2014).   
 
 Using this data, PDFs of precipitation rates are plotted for both the original 1km data and the regridded 2.2km data, using the method specified at the bottom. 
 
 Hourly rainfall accumulations for a range of percentile thresholds are also plotted for both the regridded 2.2km data and the original 1km data.
 
-###### <ins> Example 1: Latitude: 53.79282 and longitude: -1.37818 </ins>
+### <ins> Example 1: Latitude: 53.79282 and longitude: -1.37818 </ins>
 
 <p align="center">
   <img src="Figs/rf_cube.png" width="200"  title="Original 1km grid" />
@@ -33,7 +42,7 @@ Hourly rainfall accumulations for a range of percentile thresholds are also plot
 </p>
 <p align="center"> Figure 3. Hourly rainfall accumulations for percentile thresholds including all hours (left) and wet-hours with rainfall >0.1mm/hr (right) <p align="center">
 
-###### <ins> Example 2: Latitude: 53.796638 and longitude: -1.592600 </ins>
+### <ins> Example 2: Latitude: 53.796638 and longitude: -1.592600 </ins>
 <p align="center">
   <img src="Figs/rf_cube_westleeds.png" width="200"  title="Original 1km grid" />
   <img src="Figs/rg_cube_westleeds.png" width="200"  title="Regridded 2.2km grid" />
@@ -66,11 +75,6 @@ Hourly rainfall accumulations for a range of percentile thresholds are also plot
 * Once satisfied with the regridded observations, plot the observations over the UK for various stats as have done with the model data. Then create difference plots (difference between each EM and the observations).
 
 
-## Code work flow
-* CEH-GEAR_reformat.py: Reformats the observations data so it can be used in Iris regridding functionality and performs regridding to the same format as the 2.2km UKCP18 cube. Saves a netCDF copy of both the reformatted observations and regridded observations.
-* Check_reformat.py: Checks the reformatting process above works. Checks similarity between max/mean values between original and reformatted data and checks plotting.
-* TestingRegridding_CreateTimeSeries.py: Finds the grid cell covering a point of interest for both the original and reformatted observations data. Creates a csv containing a 20 year time series of data at this location.    
-* TestingRegridding_plotPDFs.py: Uses the timeseries from above to plot PDFs and percentile threshold plots.
 
 
 #### PDF plotting method
