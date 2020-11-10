@@ -11,10 +11,12 @@ The layout of these grids over the Leeds region can be seen in Figure 1. In orde
   * Reformats the observations data so it can be used in Iris regridding functionality; and
   * Performs regridding to the same format as the 2.2km UKCP18 cube.  
   * Saves a netCDF copy of both the reformatted observations and regridded observations.
-* Check_reformat.py: Checks the reformatting process above works. Checks similarity between max/mean values between original and reformatted data and checks plotting.
-* TestingRegridding_CreateTimeSeries.py: Finds the grid cell covering a point of interest for both the original and reformatted observations data. Creates a csv containing a 20 year time series of data at this location.    
-* TestingRegridding_plotPDFs.py: Uses the timeseries from above to plot PDFs and percentile threshold plots.
-
+* Check_reformat.py: 
+  * Checks the reformatting process above works. Checks similarity between max/mean values between original and reformatted data and checks plotting.
+* TestingRegridding_CreateTimeSeries.py: 
+  * Finds the grid cell covering a point of interest for both the original and reformatted observations data. Creates a csv containing a 20 year time series of data at this location.    
+* TestingRegridding_plotPDFs.py: 
+  * Uses the timeseries from above to plot PDFs and percentile threshold plots.
 
 ## Testing the impact of regridding on data values (including extremes)
 
