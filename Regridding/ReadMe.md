@@ -7,7 +7,10 @@ There are two main data sources being used in this analysis:
 The layout of these grids over the Leeds region can be seen in Figure 1. In order to use the observations to validate the model data it is necessary to convert the two datasets to a common resolution. Iris provides functionality to regrid cube data using the horizontal grid of another cube. For instance, in this case regridding the 1km observations cube using the 2.2km horizontal grid from the model cube. A linear regridding scheme is used which calculates the value at a point by extending the gradient of the closest two points.
 
 ## Code work flow
-* CEH-GEAR_reformat.py: Reformats the observations data so it can be used in Iris regridding functionality and performs regridding to the same format as the 2.2km UKCP18 cube. Saves a netCDF copy of both the reformatted observations and regridded observations.
+* CEH-GEAR_reformat_and_regrid.py:   
+  * Reformats the observations data so it can be used in Iris regridding functionality; and
+  * Performs regridding to the same format as the 2.2km UKCP18 cube.  
+  * Saves a netCDF copy of both the reformatted observations and regridded observations.
 * Check_reformat.py: Checks the reformatting process above works. Checks similarity between max/mean values between original and reformatted data and checks plotting.
 * TestingRegridding_CreateTimeSeries.py: Finds the grid cell covering a point of interest for both the original and reformatted observations data. Creates a csv containing a 20 year time series of data at this location.    
 * TestingRegridding_plotPDFs.py: Uses the timeseries from above to plot PDFs and percentile threshold plots.
