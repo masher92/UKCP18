@@ -44,6 +44,9 @@ from Spatial_geometry_functions import *
 string = '_regridded_2.2km/NearestNeighbour/rg_'
 # '_reformatted/rf_' , '_regridded_2.2km/LinearRegridding/rg_'
 
+# Use string to define a filepath to be built on in the code
+basic_filepath = 'Outputs/CEH-GEAR' + string [:-3]
+
 # Define target_crs, dependent on whether using reformatted or regridded data
 if string == '_reformatted/rf_':
     target_crs = {'init' :'epsg:27700'}
@@ -67,7 +70,7 @@ cube = create_trimmed_cube(leeds_at_centre_gdf, string, target_crs)
 ################################################################
 # Trim even more for testing
 ################################################################
-#cube= cube[:,1:2, 1:2]
+#cube= cube[:,1, 1:2]
 # test plotting
 #iplt.pcolormesh(cube[18,:,:])
 
@@ -99,9 +102,9 @@ for i in range(0,lat_length):
         print(i,j)
         # Define the filename
         # If a file of this name already exists saved, then read in this file
-        filename = basic_filepath  + "interim/{}_{}.npy".format(i,j)
+        filename = basic_filepath  + "leeds-at-centre_data/{}_{}.npy".format(i,j)
         if os.path.isfile(filename):
-            data_slice = np.load(basic_filepath + "interim/{}_{}.npy".format(i,j))
+            data_slice = np.load(basic_filepath + "leeds-at-centre_data/{}_{}.npy".format(i,j))
             total = total + data_slice.shape[0]
             print("File exists")
         # If a file of this name does not already exist, then:
@@ -112,7 +115,7 @@ for i in range(0,lat_length):
             # Remove mask
             data_slice = data_slice.data
             # Save to file
-            np.save(basic_filepath + "interim/{}_{}.npy".format(i,j), data_slice) 
+            np.save(basic_filepath + "leeds-at-centre_data/{}_{}.npy".format(i,j), data_slice) 
             total = total + data_slice.shape[0]
             print("File does not exist")
         # Add the slice to the array containing all the data from all the locations
@@ -127,7 +130,7 @@ all_the_data = all_the_data[~np.isnan(all_the_data)]
 
 ### Save as numpy array
 print("saving data")
-np.save(basic_filepath + "leeds-at-centre.npy", all_the_data)   
+np.save(basic_filepath + "leeds-at-centre_data/leeds-at-centre.npy", all_the_data)   
 print("saved data")
 
 #----------------------------------------------------------------------
