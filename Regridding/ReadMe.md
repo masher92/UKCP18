@@ -6,6 +6,14 @@ There are two main data sources being used in this analysis:
 
 The layout of these grids over the Leeds region can be seen in Figure 1. 
 
+<p align="center">
+  <img src="Figs/1km_grid.png" width="200"  title="Original 1km grid" />
+  <img src="Figs/2.2km_grid.png" width="200"  title="Regridded 2.2km grid" />
+</p>
+<p align="center"> Figure 1. Grid cell containing location in east Leeds for 1km grid (left) and 2.2km grid (right) <p align="center">
+
+
+
 In order to use the observations to validate the model data it is necessary to convert the two datasets to a common resolution.  
 Iris provides functionality to regrid cube data using the horizontal grid of another cube. For instance, in this case regridding the 1km observations cube using the 2.2km horizontal grid from the model cube.  
 
