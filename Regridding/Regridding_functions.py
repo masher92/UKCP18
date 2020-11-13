@@ -19,23 +19,47 @@ import numpy.ma as ma
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import tilemapbase
+from iris.coord_systems import TransverseMercator,GeogCS
+from iris.coords import DimCoord
+from cf_units import Unit
+import cf_units
+from iris.cube import Cube
 
 root_fp = "/nfs/a319/gy17m2a/"
-#root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
 os.chdir(root_fp)
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/SpatialAnalyses')
-from Spatial_plotting_functions import create_leeds_outline
-
-# Create region with Leeds at the centre
-lons = [54.130260, 54.130260, 53.486836, 53.486836]
-lats = [-2.138282, -0.895667, -0.895667, -2.138282]
-polygon_geom = Polygon(zip(lats, lons))
-leeds_at_centre_gdf = gpd.GeoDataFrame(index=[0], crs={'init': 'epsg:4326'}, geometry=[polygon_geom])
-leeds_at_centre_gdf = leeds_at_centre_gdf.to_crs({'init' :'epsg:27700'}) 
+from Spatial_geometry_functions import create_leeds_outline, create_leeds_at_centre_outline
 
 # Create otuline of Leeds itself
 leeds_gdf = create_leeds_outline({'init' :'epsg:27700'})
+# Create square area around leeds
+leeds_at_centre_gdf = create_leeds_at_centre_outline({'init' :'epsg:3857'})
 
+# Function to reformat the cube
+def make_bng_cube(xr_ds,variable):
+    # Store the northings values
+    raw_northings=xr_ds['y'].values
+    # Store the eastings values
+    raw_eastings=xr_ds['x'].values
+    # Find the length of northings and eastings 
+    lrn=len(raw_northings)
+    lre=len(raw_eastings)
+    # Set up a OS_GB (BNG) coordinate system
+    os_gb=TransverseMercator(latitude_of_projection_origin=49.0, longitude_of_central_meridian=-2.0, false_easting=400000.0, false_northing=-100000.0, scale_factor_at_central_meridian=0.9996012717, ellipsoid=GeogCS(semi_major_axis=6377563.396, semi_minor_axis=6356256.909))
+    # Create northings and eastings dimension coordinates
+    northings = DimCoord(raw_northings, standard_name=u'projection_y_coordinate', 
+                         units=Unit('m'), var_name='projection_y_coordinate', coord_system=os_gb)
+    eastings = DimCoord(raw_eastings, standard_name=u'projection_x_coordinate', 
+                        units=Unit('m'), var_name='projection_x_coordinate', coord_system=os_gb)
+    # Create a time dimension coordinate
+    iris_time=(xr_ds['time'].values-np.datetime64("1970-01-01T00:00")) / np.timedelta64(1, "s")
+    iris_time=DimCoord(iris_time, standard_name='time',units=cf_units.Unit('seconds since 1970-01-01', calendar='gregorian'))
+    # Store the data array
+    da=xr_ds[variable]
+    # Recreate the cube with the data and the dimension coordinates
+    cube = Cube(np.float32(da.values), standard_name=da.standard_name,
+                units=da.units, dim_coords_and_dims=[(iris_time, 0), (northings, 1),(eastings, 2)])
+    return cube
 
 def find_closest_coordinates(cube, sample_point, n_closest_points):
     '''
@@ -59,7 +83,7 @@ def find_closest_coordinates(cube, sample_point, n_closest_points):
         closest_lats: List
         
         closest_lons : List
-            Dataframe contaiing coordinates of outline of Leeds
+            Dataframe containing coordinates of outline of Leeds
     
     '''
     
@@ -307,8 +331,6 @@ def create_trimmed_cube(leeds_at_centre_gdf, string, target_crs):
             sds
     
     '''
-    
-    
     ################################################################
     # 
     ################################################################  
@@ -345,7 +367,7 @@ def create_trimmed_cube(leeds_at_centre_gdf, string, target_crs):
     lons_2d, lats_2d = np.meshgrid(lons, lats)   
               
     # For regridded cube
-    if string == '_regridded_2.2km/rg_':
+    if '_regridded_2.2km/' in string:
       cs = concat_cube.coord_system()
       lons_2d, lats_2d = iris.analysis.cartography.unrotate_pole(lons_2d, lats_2d, cs.grid_north_pole_longitude, cs.grid_north_pole_latitude)
     
