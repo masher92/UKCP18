@@ -61,46 +61,51 @@ leeds_at_centre_gdf = create_leeds_at_centre_outline({'init' :'epsg:27700'})
 # Create otuline of Leeds itself
 leeds_gdf = create_leeds_outline({'init' :'epsg:27700'})
 
-#----------------------------------------------------------------------
+################################################################
 # Load data, and convert to dataframe
-#----------------------------------------------------------------------
+################################################################
 # Load data
-# leeds_rg = np.load("Outputs/CEH-GEAR_regridded_2.2km/leeds-at-centre.npy")
-# leeds_rf = np.load("Outputs/CEH-GEAR_reformatted/leeds-at-centre.npy")
+leeds_rg_nn = np.load("Outputs/CEH-GEAR_regridded_2.2km/NearestNeighbour/leeds-at-centre_data/leeds-at-centre.npy")
+leeds_rg_lin = np.load("Outputs/CEH-GEAR_regridded_2.2km/LinearRegridding/leeds-at-centre_data/leeds-at-centre.npy")
+leeds_rf = np.load("Outputs/CEH-GEAR_reformatted/leeds-at-centre_data/leeds-at-centre.npy")
 
-# # Convert to dataframe
-# leeds_rg = pd.DataFrame({"Precipitation (mm/hr)" : leeds_rg})
-# leeds_rf = pd.DataFrame({"Precipitation (mm/hr)" : leeds_rf})
+# Convert to dataframe
+leeds_rg_nn = pd.DataFrame({"Precipitation (mm/hr)" : leeds_rg_nn})
+leeds_rg_lin = pd.DataFrame({"Precipitation (mm/hr)" : leeds_rg_lin})
+leeds_rf = pd.DataFrame({"Precipitation (mm/hr)" : leeds_rf})
 
 # ##############################################################################
 # # Setting up dictionary
 # ##############################################################################
-# my_dict = {}
-# my_dict['Original 1km'] = leeds_rf
-# my_dict['Regridded 2.2km'] = leeds_rg
+my_dict = {}
+my_dict['Original 1km'] = leeds_rf
+my_dict['Regridded 2.2km - nearest neighbour'] = leeds_rg_nn
+my_dict['Regridded 2.2km - linear'] = leeds_rg_lin
 
-# ##############################################################################
-# # Plotting
-# ##############################################################################
-# x_axis = 'linear'
-# y_axis = 'log'
-# bin_nos =40
-# bins_if_log_spaced= bin_nos
+##############################################################################
+# Plotting
+##############################################################################
+cols_dict = {'Original 1km': "navy",
+             'Regridded 2.2km - nearest neighbour': 'firebrick',
+             'Regridded 2.2km - linear': 'olive'}
 
-# # Equal spaced   
-# equal_spaced_histogram(my_dict, bin_nos, x_axis, y_axis)
+x_axis = 'linear'
+y_axis = 'log'
+bin_nos =50
+bins_if_log_spaced= bin_nos
+cols = [navy, firebrick, green]
 
-# # Log spaced histogram
-# log_spaced_histogram(my_dict, bin_nos,x_axis, y_axis)    
+# Equal spaced   
+equal_spaced_histogram(my_dict, cols_dict, bin_nos, x_axis, y_axis)
+
+# Log spaced histogram
+log_spaced_histogram(my_dict, cols_dict, bin_nos,x_axis, y_axis)    
  
-# # Fractional contribution
-# fractional_contribution(my_dict, bin_nos,x_axis, y_axis) 
+# Fractional contribution
+fractional_contribution(my_dict, cols_dict, bin_nos,x_axis, y_axis) 
              
-# # Log histogram with adaptation     
-# log_discrete_histogram(my_dict, 100,x_axis, y_axis) 
-
-# np.histogram(df['Precipitation (mm/hr)'], bins=bin_nos, density=True)
-# plt.hist(df['Precipitation (mm/hr)'], bins =40)
+# Log histogram with adaptation     
+log_discrete_histogram(my_dict, cols_dict, bin_nos, x_axis, y_axis) 
 
 # # ##########################################################################
 # # # Percentile plots

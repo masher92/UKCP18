@@ -14,8 +14,7 @@ import iris.plot as iplt
 from matplotlib.ticker import ScalarFormatter
 import pandas as pd
 
-#root_fp = "/nfs/a319/gy17m2a/"
-root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
+root_fp = "/nfs/a319/gy17m2a/"
 os.chdir(root_fp)
 
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/PointLocationStats/PlotPDFs')
@@ -24,30 +23,48 @@ from PDF_plotting_functions import *
 ##############################################################################
 # Reading in data 
 ##############################################################################
-rf_df = pd.read_csv(root_fp + "Outputs/Regridding/CEH-GEAR_reformatted/rf_df_westleeds.csv")
+rf_df = pd.read_csv("Outputs/CEH-GEAR_reformatted/IndividualCells_data/rf_df_westleeds.csv")
 rf_df.rename(columns={'Rainfall':'Precipitation (mm/hr)'}, inplace=True)
 rf_df = rf_df.dropna()
 #rf_wethours_df = rf_df[rf_df['Precipitation (mm/hr)'] > 0.1]
 
-rg_df = pd.read_csv(root_fp + "Outputs/Regridding/CEH-GEAR_regridded_2.2km/rg_df_westleeds.csv")
-rg_df.rename(columns={'Rainfall':'Precipitation (mm/hr)'}, inplace=True)
-rg_df = rg_df.dropna()
+rg_df_lin = pd.read_csv("Outputs/CEH-GEAR_regridded_2.2km/LinearRegridding/IndividualCells_data/rg_df_westleeds.csv")
+rg_df_lin.rename(columns={'Rainfall':'Precipitation (mm/hr)'}, inplace=True)
+rg_df_lin = rg_df_lin.dropna()
 #rg_wethours_df = rg_df[rg_df['Precipitation (mm/hr)'] > 0.1]
-
-
-test = pd.concat([rf_df['Precipitation (mm/hr)']] * 1221, axis=0)
-np.save("Outputs/test.npy", test)
-
 
 ##############################################################################
 # Setting up dictionary
 ##############################################################################
 my_dict = {}
-#my_dict['Original 1km'] = rf_wethours_df
-#my_dict['Regridded 2.2km'] = rg_wethours_df
-
 my_dict['Original 1km'] = rf_df
-my_dict['Regridded 2.2km'] = rg_df
+my_dict['Regridded 2.2km - nearest neighbour'] = rg_df_lin
+
+# Set up colours dictionary to use in plotting
+cols_dict = {'Original 1km':"navy",
+             'Regridded 2.2km - nearest neighbour': 'firebrick',
+             'Regridded 2.2km - linear': 'olive'}
+
+##############################################################################
+# Plotting - complex PDFs
+##############################################################################
+x_axis = 'linear'
+y_axis = 'log'
+bin_nos =40
+bins_if_log_spaced= bin_nos
+
+# Equal spaced   
+equal_spaced_histogram(my_dict, cols_dict, bin_nos, x_axis, y_axis)
+
+# Log spaced histogram
+log_spaced_histogram(my_dict, bin_nos,x_axis, y_axis)    
+ 
+# Fractional contribution
+fractional_contribution(my_dict, bin_nos,x_axis, y_axis) 
+             
+# Log histogram with adaptation     
+log_discrete_histogram(my_dict, 83,x_axis, y_axis) 
+
 
 ##############################################################################
 # Plotting - simple histograms
@@ -61,28 +78,6 @@ import matplotlib.pyplot as plt
 plt.bar(bin_edges[:-1], bin_density, width = 1)
 plt.xlim(min(bin_edges), max(bin_edges))
 plt.show()  
-
-
-
-##############################################################################
-# Plotting - complex PDFs
-##############################################################################
-x_axis = 'linear'
-y_axis = 'log'
-bin_nos =40
-bins_if_log_spaced= bin_nos
-
-# Equal spaced   
-equal_spaced_histogram(my_dict, bin_nos, x_axis, y_axis)
-
-# Log spaced histogram
-log_spaced_histogram(my_dict, bin_nos,x_axis, y_axis)    
- 
-# Fractional contribution
-fractional_contribution(my_dict, bin_nos,x_axis, y_axis) 
-             
-# Log histogram with adaptation     
-log_discrete_histogram(my_dict, 83,x_axis, y_axis) 
 
 
 ##########################################################################
