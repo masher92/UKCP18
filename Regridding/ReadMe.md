@@ -7,8 +7,8 @@ There are two main data sources being used in this analysis:
 The layout of these grids over the Leeds region can be seen in Figure 1. 
 
 <p align="center">
-  <img src="Figs/1km_grid.png" width="200"  title="Original 1km grid" />
-  <img src="Figs/2.2km_grid.png" width="200"  title="Regridded 2.2km grid" />
+  <img src="Figs/1km_grid.png" width="300"  title="Original 1km grid" />
+  <img src="Figs/2.2km_grid.png" width="300"  title="Regridded 2.2km grid" />
 </p>
 <p align="center"> Figure 1. Grid cell containing location in east Leeds for 1km grid (left) and 2.2km grid (right) <p align="center">
 
