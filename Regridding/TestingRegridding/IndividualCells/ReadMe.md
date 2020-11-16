@@ -9,7 +9,7 @@ Hourly rainfall accumulations for a range of percentile thresholds are also plot
 ### <ins> Example 1: Latitude: 53.79282 and longitude: -1.37818 </ins>
 
 <p align="center">
-  <img src="UKCP18/Regridding/TestingRegridding/Figs/rf_cube.png" width="200"  title="Original 1km grid" />
+  <img src="UKCP18/Regridding/Figs/rf_cube.png" width="200"  title="Original 1km grid" />
   <img src="Figs/rg_cube.png" width="200"  title="Regridded 2.2km grid" />
 </p>
 <p align="center"> Figure 1. Grid cell containing location in east Leeds for 1km grid (left) and 2.2km grid (right) <p align="center">
