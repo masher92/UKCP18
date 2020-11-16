@@ -68,8 +68,3 @@ The PDFs of precipitation projections from two ensemble members of UKPC18 and ob
 <p align="center"> Figure 4.b <p align="center">
 <p align="center"> Figure 4. PDFs for 1990-1992 for observations and two ensemble members of UKCP18 2.2km projections.  <p align="center">
 
-
-## Code
-Uses CSV files created in CreateTimeSeries.py to plot PDFs.  
-Currently this includes plotting of individual PDFs, and a single plot with multiple PDFs included (e.g. observations, projections from different ensemble members).  
-It also has the option to convert one/both axes to a log scale. 
