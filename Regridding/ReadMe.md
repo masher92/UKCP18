@@ -12,17 +12,12 @@ The layout of these grids over the Leeds region can be seen in Figure 1.
 </p>
 <p align="center"> Figure 1. Layout of 1km observations grid (model) and 2.2km model grid (right) <p align="center">
 
-In order to use the observations to validate the model data it is necessary to convert the two datasets to a common resolution.  
-Iris provides functionality to regrid cube data using the horizontal grid of another cube. For instance, in this case regridding the 1km observations cube using the 2.2km horizontal grid from the model cube.  
+In order to use the observations to validate the model data it is necessary to convert the two datasets to a common resolution.  In this case, the objective is to regrid the 1km observations cube using the 2.2km horizontal grid from the model cube. Regridding involves converting the grid on which data is provided and aims to ensure that the quality of the data being regridded is maintained on the new grid.
 
-Regridding involves changing the grid on which data values are provided, whilst ensuring that the qualities of the data are preserved. This is done using the horizontal grid of another cube.
-
-Iris offers a number of methods by which to perform this regridding:
-* Linear regridding: extrapolation point will be calculated by extending the gradient of the closest two points.
-
-Linear interpolation is a simple technique used to estimate unknown values that lie between known values. The concept of linear interpolation relies on the assumption that the rate of change between the known values is constant and can be calculated from these values using a simple slope formula. Then, an unknown value between the two known points can be calculated using one of the points and the rate of change. Linear interpolation is a relatively straightforward method, but is often not sophisticated enough to effectively interpolate station data to an even grid.
-
-* Nearest neighbour regridding: extrapolation points take their value from the nearest source point 
+There are a number of regridding algorithms which use different methods to transfer information from one grid to the other. Iris provides several different methods to regrid one cube using the horizontal cube of another:
+* Linear regridding: The concept of linear regridding is based upon an assumption that the rate of change in value between two known points is constant and can be derived from a simple slope formula. Consequently, the value at an unknown point can be derived from using this gradient (/rate of change) between its closest two points.  
+* Nearest Neighbour regridding: In nearest neighbour regridding points take their value from the nearest source point 
+* Area weighted regridding:
 
 ## Code work flow
 * CEH-GEAR_reformat_and_regrid.py:   
@@ -37,11 +32,9 @@ Linear interpolation is a simple technique used to estimate unknown values that 
 * TestingRegridding_plotPDFs.py: 
   * Uses the timeseries from above to plot PDFs and percentile threshold plots.
 
-
 ## Questions
 * Comparing PDF for the grid containing a point location; however, one of these grid cells is over double the size of the other so is this a fair comparison?
 * Comparing PDF over a wider area: but if e.g. select 9 grid cells closest to the point of interest this will result in quite significantly areal coverage between the original 1km and regridded 2.2km data. Should they cover same area to be comparable? If just looked at all grid cells covering an area e.g. Leeds this would be very slow (loading 20 years of data for just one grid cell is slow).
-
 
 ## Next steps
 * Look at observations from rain gauge data and cross-check the CEH-GEAR data with these as well
