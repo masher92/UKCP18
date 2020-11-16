@@ -8,19 +8,10 @@ Histograms with density plotted on the y-axis are the simplest non-parametric (i
 
 Kernel Density Estimation (KDE) is the most commonly applied non-parametric density estimator and produces a smooth PDF estimate which can be used to evaluate any point in the parameter space. For each data point in the sample, the KDE constructs a density function centred on that point and then averages these functions across all the points, ensuring the area under curve is equal to one, to produce a density function for the entire dataset (see Figure \ref{fig:kde}). This has advantages compared to using a histogram as the dependence on the end-point of the bins is removed. The KDE parameters include the kernel which specifies the shape of the distribution used at each data point (a gaussian distribution is used most commonly) and the bandwidth which specifies the size of the kernel used at each point, with larger bandwidths resulting in more smoothing of the distribution. Whilst parametric distributions are used in KDE, it is a non-parametric approach which makes no assumptions about the shape of the underlying distribution.  
 
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width=.44\textwidth]{kde.png} 
-    \caption{Kernel Density Estimation process using a gaussian kernel. Data points marked with black lines, gaussian kernels around each data point are marked in purple and the resulting distribution curve is in red.}
-    \label{fig:kde}%
-\end{figure}
-
-
 <p align="center">
   <img src="Figs/kde.png" width="300"  title="Original 1km grid" />
 </p>
 <p align="center"> Figure 1. Kernel Density Estimation process using a gaussian kernel. Data points marked with black lines, gaussian kernels around each data point are marked in purple and the resulting distribution curve is in red. <p align="center">
-
 
 KDE fits a distribution at each data point and consequently the generated distribution can extend beyond the bounds of the sample dataset used to fit it. The density at these points is likely to be comparatively low, implying that although possible these values are not probable. This behaviour often leads to biases at the edge of the distribution. Using a KDE can be problematic where the data has natural range restrictions, e.g. non-negativity, as it gives positive densities to impossible values. Where the data is considerably skewed, KDE is not a good method for estimating the PDF. However, there are some approaches to getting around this, for instance transforming the data before applying KDE.
 
@@ -40,6 +31,15 @@ Figure \ref{fig:PDF_1990_1992} compares the two methods of probability density e
     \caption{PDFs for 1990-1992 for observations and two ensemble members of UKCP18 2.2km projections. The KDE is calculated using a gaussian kernel and the frequency polygon uses the method of connecting the midpoint of the histogram bins. NB: using the log scale the fitted line no longer matches up to the mid-point of the bin (should this be calculated in a different order so that it does?) }
     \label{fig:PDF_1990_1992}%
 \end{figure}
+
+
+<p align="center">
+  <img src="Figs/Comparison_1980_1997_EM04.png" width="300" />
+  <img src="Figs/Comparison_1980_1997_EM04_log.png" width="300" />
+   <img src="Figs/Comparison_1980_1997_EM04_trim.png" width="300" />
+   <img src="Figs/Comparison_1980_1997_EM04_trim_log.png" width="300" />
+</p>
+<p align="center"> Figure 2. PDFs for 1990-1992 for observations and two ensemble members of UKCP18 2.2km projections. The KDE is calculated using a gaussian kernel and the frequency polygon uses the method of connecting the midpoint of the histogram bins. NB: using the log scale the fitted line no longer matches up to the mid-point of the bin (should this be calculated in a different order so that it does?) <p align="center">
 
 
 \section{Comparing projections and observations - KDE}
