@@ -19,6 +19,8 @@ There are a number of regridding algorithms which use different methods to trans
 * Nearest Neighbour regridding: In nearest neighbour regridding points take their value from the nearest source point 
 * Area weighted regridding: Both linear and nearest neighbour regridding are point based, and sometimes this is not an appropriate approach. According to Iris: "With the AreaWeighted regridding scheme, each target grid-box’s data is computed as a weighted mean of all grid-boxes from the source grid. The weighting for any given target grid-box is the area of the intersection with each of the source grid-boxes. This scheme performs well when regridding from a high resolution source grid to a lower resolution target grid, since all source data points will be accounted for in the target grid...One of the key limitations of the AreaWeighted regridding scheme is that the two input grids must be defined in the same coordinate system as each other. Both input grids must also contain monotonic, bounded, 1D spatial coordinates."
 
+Area weighted regridding is therefore not possible as the 1km observations and 2.2km model data are in different coordinate systems.
+
 ## Code work flow
 * CEH-GEAR_reformat_and_regrid.py:   
   * Reformats the observations data so it can be used in Iris regridding functionality; and
