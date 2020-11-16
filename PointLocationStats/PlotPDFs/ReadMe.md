@@ -21,7 +21,7 @@ Using a KDE can be problematic where the data has natural range restrictions, e.
 
 ### Comparing KDE and Histogram for UKCP18 data
 
-Figure 2 compares the two methods of probability density estimation for precipitation projections of ensemble member 4 of the UKCP18 2.2km model simulation. Figures \ref{fig:PDF_1990_1992_a} and \ref{fig:PDF_1990_1992_b} are for 1980-1997 and figures \ref{fig:PDF_1990_1992_c} and \ref{fig:PDF_1990_1992_d} for 1990-1992. This shows that for this distribution which should have a lower bound at 0.1, the KDE produces a distribution which extends below this. However, the distribution fitted with the histogram method could be considered to be overfitting the data.
+Figure 2 compares the two methods of probability density estimation for precipitation projections of ensemble member 4 of the UKCP18 2.2km model simulation. The figures in 2a  are for 1980-1997 and the figures in 2b are for 1990-1992. This shows that for this distribution which should have a lower bound at 0.1, the KDE produces a distribution which extends below this. However, the distribution fitted with the histogram method could be considered to be overfitting the data.
 
 <p align="center">
   <img src="Figs/Comparison_1980_1997_EM04.png" width="300" />
@@ -34,30 +34,38 @@ Figure 2 compares the two methods of probability density estimation for precipit
    <img src="Figs/Comparison_1980_1997_EM04_trim_log.png" width="300" />
 </p>
 <p align="center"> Figure 2.b <p align="center">
-<p align="center"> Figure 2. PDFs for 1990-1992 for observations and two ensemble members of UKCP18 2.2km projections. The KDE is calculated using a gaussian kernel and the frequency polygon uses the method of connecting the midpoint of the histogram bins. NB: using the log scale the fitted line no longer matches up to the mid-point of the bin (should this be calculated in a different order so that it does?) <p align="center">
-
-
+<p align="center"> Figure 2. PDFs for observations and two ensemble members of UKCP18 2.2km projections. The KDE is calculated using a gaussian kernel and the frequency polygon uses the method of connecting the midpoint of the histogram bins. NB: using the log scale the fitted line no longer matches up to the mid-point of the bin (should this be calculated in a different order so that it does?) <p align="center">
 
 ### Comparing projections and observations - KDE
-The PDFs of precipitation projections from two ensemble members of UKPC18 and observations from CEH-GEAR are estimated using KDE and plotted in Figure \ref{fig:KDE_plots}. 
+The PDFs of precipitation projections from two ensemble members of UKPC18 and observations from CEH-GEAR are estimated using KDE and plotted in Figure 3. 
 
 <p align="center">
   <img src="Figs/KDE_1990_1992.png" width="300" />
   <img src="Figs/KDE_1990_1992_log.png" width="300" />
+</p>
+<p align="center"> Figure 3.a  <p align="center">
+
+<p align="center">
    <img src="Figs/KDE_difftimeperiods.png" width="300" />
    <img src="Figs/KDE_difftimeperiods_log.png" width="300" />
 </p>
+<p align="center"> Figure 3.b  <p align="center">
 <p align="center"> Figure 3. PDFs for 1990-1992 for observations and two ensemble members of UKCP18 2.2km projections.  <p align="center">
 
 ### Comparing projections and observations - Frequency Polygon method
-The PDFs of precipitation projections from two ensemble members of UKPC18 and observations from CEH-GEAR are estimated using the frequency polygon method (i.e. connecting the midpoint of histogram bins) based on 200 histogram bins and plotted in Figure \ref{fig:FP_plots}. 
+The PDFs of precipitation projections from two ensemble members of UKPC18 and observations from CEH-GEAR are estimated using the frequency polygon method (i.e. connecting the midpoint of histogram bins) based on 200 histogram bins and plotted in Figure 4. 
 
 <p align="center">
   <img src="Figs/FP_1990-1992.png" width="300" />
   <img src="Figs/FP_1990-1992_log.png" width="300" />
+</p>
+<p align="center"> Figure 4.a  <p align="center">
+
+<p align="center">
    <img src="Figs/FP_difftimeperiods.png" width="300" />
    <img src="Figs/FP_difftimeperiods_log.png" width="300" />
 </p>
+<p align="center"> Figure 4.b <p align="center">
 <p align="center"> Figure 4. PDFs for 1990-1992 for observations and two ensemble members of UKCP18 2.2km projections.  <p align="center">
 
 
