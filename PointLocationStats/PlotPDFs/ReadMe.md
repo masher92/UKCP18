@@ -15,6 +15,13 @@ Kernel Density Estimation (KDE) is the most commonly applied non-parametric dens
     \label{fig:kde}%
 \end{figure}
 
+
+<p align="center">
+  <img src="Figs/kde.png" width="300"  title="Original 1km grid" />
+</p>
+<p align="center"> Figure 1. Kernel Density Estimation process using a gaussian kernel. Data points marked with black lines, gaussian kernels around each data point are marked in purple and the resulting distribution curve is in red. <p align="center">
+
+
 KDE fits a distribution at each data point and consequently the generated distribution can extend beyond the bounds of the sample dataset used to fit it. The density at these points is likely to be comparatively low, implying that although possible these values are not probable. This behaviour often leads to biases at the edge of the distribution. Using a KDE can be problematic where the data has natural range restrictions, e.g. non-negativity, as it gives positive densities to impossible values. Where the data is considerably skewed, KDE is not a good method for estimating the PDF. However, there are some approaches to getting around this, for instance transforming the data before applying KDE.
 
 \section{Comparing KDE and Histogram for UKCP18 data}
