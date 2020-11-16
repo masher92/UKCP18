@@ -1,6 +1,9 @@
-## Testing the impact of regridding on data values (including extremes)
+## Testing the impact of regridding on data values 
 
-It is important to determine the affect of regridding on the data, and particularly on extreme values which can be smoothed in the regridding process. To test this, a location with specific coordinates is defined and the grid cell which covers this point is determined for both the native 1km and regridded 2.2km observations data. The hourly observations are then extracted from the appropriate grid cell over the period for which data is available (1990-2014).   
+It is important to determine the affect of regridding on the data, and particularly on extreme values which can be smoothed in the regridding process.  
+To test this, a location with specific coordinates is defined and the grid cell which covers this point is determined for both the native 1km and regridded 2.2km observations data. 
+
+The hourly observations are then extracted from the appropriate grid cell over the period for which data is available (1990-2014).   
 
 Using this data, PDFs of precipitation rates are plotted for both the original 1km data and the regridded 2.2km data, using the method specified at the bottom. 
 
@@ -9,7 +12,7 @@ Hourly rainfall accumulations for a range of percentile thresholds are also plot
 ### <ins> Example 1: Latitude: 53.79282 and longitude: -1.37818 </ins>
 
 <p align="center">
-  <img src="UKCP18/Regridding/Figs/rf_cube.png" width="200"  title="Original 1km grid" />
+  <img src="Figs/rf_cube.png" width="200"  title="Original 1km grid" />
   <img src="Figs/rg_cube.png" width="200"  title="Regridded 2.2km grid" />
 </p>
 <p align="center"> Figure 1. Grid cell containing location in east Leeds for 1km grid (left) and 2.2km grid (right) <p align="center">
@@ -47,5 +50,9 @@ Hourly rainfall accumulations for a range of percentile thresholds are also plot
 </p>
 <p align="center"> Figure 6. Hourly rainfall accumulations for percentile thresholds including all hours (left) and wet-hours with rainfall >0.1mm/hr (right) <p align="center">
 
+#### PDF plotting method
+The precipitation rates are aggregated into logarithmic-spaced histogram bins which are adjusted to ensure that none of the bin widths are narrower than one decimal place, as this is the degree to which the data is rounded. Additionally, bin width is rounded down to a multiple of 0.1, so bin edges are always located mid-way on the discretisation interval. The probability density in each bin with mean precipitation rate, P(r), is calculated as:  
+<p align="center">P(r) = n(r)/NΔr <p align="center">
 
+Where n(r) is the number of precipitation rates within the bin, Δr is the width of the bin in mm/hr and N is the total number of measurements in the whole dataset.
 
