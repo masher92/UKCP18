@@ -26,10 +26,17 @@ Figure 2 compares the two methods of probability density estimation for precipit
 <p align="center">
   <img src="Figs/Comparison_1980_1997_EM04.png" width="300" />
   <img src="Figs/Comparison_1980_1997_EM04_log.png" width="300" />
-   <img src="Figs/Comparison_1980_1997_EM04_trim.png" width="180" />
-   <img src="Figs/Comparison_1980_1997_EM04_trim_log.png" width="180" />
 </p>
+<p align="center"> Figure 2.a <p align="center">
+
+<p align="center">
+   <img src="Figs/Comparison_1980_1997_EM04_trim.png" width="300" />
+   <img src="Figs/Comparison_1980_1997_EM04_trim_log.png" width="300" />
+</p>
+<p align="center"> Figure 2.b <p align="center">
 <p align="center"> Figure 2. PDFs for 1990-1992 for observations and two ensemble members of UKCP18 2.2km projections. The KDE is calculated using a gaussian kernel and the frequency polygon uses the method of connecting the midpoint of the histogram bins. NB: using the log scale the fitted line no longer matches up to the mid-point of the bin (should this be calculated in a different order so that it does?) <p align="center">
+
+
 
 ### Comparing projections and observations - KDE
 The PDFs of precipitation projections from two ensemble members of UKPC18 and observations from CEH-GEAR are estimated using KDE and plotted in Figure \ref{fig:KDE_plots}. 
