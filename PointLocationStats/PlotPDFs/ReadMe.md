@@ -14,7 +14,7 @@ Kernel Density Estimation (KDE) is the most commonly applied non-parametric dens
 
 KDE fits a distribution at each data point and consequently the generated distribution can extend beyond the bounds of the sample dataset used to fit it. The density at these points is likely to be comparatively low, implying that although possible these values are not probable. This behaviour often leads to biases at the edge of the distribution. Using a KDE can be problematic where the data has natural range restrictions, e.g. non-negativity, as it gives positive densities to impossible values. Where the data is considerably skewed, KDE is not a good method for estimating the PDF. However, there are some approaches to getting around this, for instance transforming the data before applying KDE.
 
-\section{Comparing KDE and Histogram for UKCP18 data}
+### Comparing KDE and Histogram for UKCP18 data
 
 Figure \ref{fig:PDF_1990_1992} compares the two methods of probability density estimation for precipitation projections of ensemble member 4 of the UKCP18 2.2km model simulation. Figures \ref{fig:PDF_1990_1992_a} and \ref{fig:PDF_1990_1992_b} are for 1980-1997 and figures \ref{fig:PDF_1990_1992_c} and \ref{fig:PDF_1990_1992_d} for 1990-1992. This shows that for this distribution which should have a lower bound at 0.1, the KDE produces a distribution which extends below this. However, the distribution fitted with the histogram method could be considered to be overfitting the data.
 
@@ -37,7 +37,7 @@ The PDFs of precipitation projections from two ensemble members of UKPC18 and ob
 </p>
 <p align="center"> Figure 3. PDFs for 1990-1992 for observations and two ensemble members of UKCP18 2.2km projections.  <p align="center">
 
-\section{Comparing projections and observations - Frequency Polygon method}
+### Comparing projections and observations - Frequency Polygon method
 The PDFs of precipitation projections from two ensemble members of UKPC18 and observations from CEH-GEAR are estimated using the frequency polygon method (i.e. connecting the midpoint of histogram bins) based on 200 histogram bins and plotted in Figure \ref{fig:FP_plots}. 
 
 <p align="center">
