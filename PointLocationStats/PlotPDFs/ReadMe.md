@@ -19,20 +19,6 @@ KDE fits a distribution at each data point and consequently the generated distri
 
 Figure \ref{fig:PDF_1990_1992} compares the two methods of probability density estimation for precipitation projections of ensemble member 4 of the UKCP18 2.2km model simulation. Figures \ref{fig:PDF_1990_1992_a} and \ref{fig:PDF_1990_1992_b} are for 1980-1997 and figures \ref{fig:PDF_1990_1992_c} and \ref{fig:PDF_1990_1992_d} for 1990-1992. This shows that for this distribution which should have a lower bound at 0.1, the KDE produces a distribution which extends below this. However, the distribution fitted with the histogram method could be considered to be overfitting the data.
 
-\begin{figure}[h]
-    \centering
-    \subfloat[1980-1997, linear scale\label{fig:PDF_1990_1992_a}]{{\includegraphics[width=.32\textwidth]{Comparison_1980_1997_EM04.png} }}%
-    \qquad
-    \subfloat[1980-1997, log scale\label{fig:PDF_1990_1992_b}]{{\includegraphics[width=.32\textwidth]{Comparison_1980_1997_EM04_log.png} }}%
-    \qquad
-    \subfloat[1990-1992, linear scale\label{fig:PDF_1990_1992_c}]{{\includegraphics[width=.32\textwidth]{Comparison_1980_1997_EM04_trim.png} }}%
-        \qquad
-    \subfloat[1990-1992, log scale\label{fig:PDF_1990_1992_d}]{{\includegraphics[width=.32\textwidth]{Comparison_1980_1997_EM04_trim_log.png} }}%
-    \caption{PDFs for 1990-1992 for observations and two ensemble members of UKCP18 2.2km projections. The KDE is calculated using a gaussian kernel and the frequency polygon uses the method of connecting the midpoint of the histogram bins. NB: using the log scale the fitted line no longer matches up to the mid-point of the bin (should this be calculated in a different order so that it does?) }
-    \label{fig:PDF_1990_1992}%
-\end{figure}
-
-
 <p align="center">
   <img src="Figs/Comparison_1980_1997_EM04.png" width="300" />
   <img src="Figs/Comparison_1980_1997_EM04_log.png" width="300" />
@@ -41,43 +27,27 @@ Figure \ref{fig:PDF_1990_1992} compares the two methods of probability density e
 </p>
 <p align="center"> Figure 2. PDFs for 1990-1992 for observations and two ensemble members of UKCP18 2.2km projections. The KDE is calculated using a gaussian kernel and the frequency polygon uses the method of connecting the midpoint of the histogram bins. NB: using the log scale the fitted line no longer matches up to the mid-point of the bin (should this be calculated in a different order so that it does?) <p align="center">
 
-
 \section{Comparing projections and observations - KDE}
 The PDFs of precipitation projections from two ensemble members of UKPC18 and observations from CEH-GEAR are estimated using KDE and plotted in Figure \ref{fig:KDE_plots}. 
 
-\begin{figure}[h!]
-    \centering
-    \subfloat[1990-1992\label{fig:KDE_plots_a}]{{\includegraphics[width=.32\textwidth]{KDE_1990_1992.png} }}%
-    \qquad
-    \subfloat[1990-1992\label{fig:KDE_plots_b}]{{\includegraphics[width=.32\textwidth]{KDE_1990_1992_log.png} }}%
-    \qquad
-    \subfloat[Full available time period\label{fig:KDE_plots_c}]{{\includegraphics[width=.32\textwidth]{KDE_difftimeperiods.png} }}%
-        \qquad
-    \subfloat[Full available time period\label{fig:KDE_plots_d}]{{\includegraphics[width=.32\textwidth]{KDE_difftimeperiods_log.png} }}%
-    \caption{PDFs for 1990-1992 for observations and two ensemble members of UKCP18 2.2km projections. }
-    \label{fig:KDE_plots}%
-\end{figure}
+<p align="center">
+  <img src="Figs/KDE_1990_1992.png" width="300" />
+  <img src="Figs/KDE_1990_1992_log.png" width="300" />
+   <img src="Figs/KDE_difftimeperiods.png" width="300" />
+   <img src="Figs/KDE_difftimeperiods_log.png" width="300" />
+</p>
+<p align="center"> Figure 3. PDFs for 1990-1992 for observations and two ensemble members of UKCP18 2.2km projections.  <p align="center">
 
 \section{Comparing projections and observations - Frequency Polygon method}
 The PDFs of precipitation projections from two ensemble members of UKPC18 and observations from CEH-GEAR are estimated using the frequency polygon method (i.e. connecting the midpoint of histogram bins) based on 200 histogram bins and plotted in Figure \ref{fig:FP_plots}. 
 
-\begin{figure}[h!]
-    \centering
-    \subfloat[1990-1992\label{fig:FP_plots2_a}]{{\includegraphics[width=.32\textwidth]{FP_1990-1992.png} }}%
-    \qquad
-    \subfloat[1990-1992\label{fig:FP_plots_b}]{{\includegraphics[width=.32\textwidth]{FP_1990-1992_log.png} }}%
-    \qquad
-    \subfloat[Full available time period\label{fig:FP_plots_c}]{{\includegraphics[width=.32\textwidth]{FP_difftimeperiods.png} }}%
-        \qquad
-    \subfloat[Full available time period\label{fig:FP_plots_d}]{{\includegraphics[width=.32\textwidth]{FP_difftimeperiods_log.png} }}%
-    \caption{PDFs for 1990-1992 for observations and two ensemble members of UKCP18 2.2km projections. }
-    \label{fig:FP_plots}%
-\end{figure}
-
-
-
-
-
+<p align="center">
+  <img src="Figs/FP_1990-1992.png" width="300" />
+  <img src="Figs/FP_1990-1992_log.png" width="300" />
+   <img src="Figs/FP_difftimeperiods.png" width="300" />
+   <img src="Figs/FP_difftimeperiods_log.png" width="300" />
+</p>
+<p align="center"> Figure 4. PDFs for 1990-1992 for observations and two ensemble members of UKCP18 2.2km projections.  <p align="center">
 
 
 ## Code
