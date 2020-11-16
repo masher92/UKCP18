@@ -26,7 +26,7 @@ Figure \ref{fig:PDF_1990_1992} compares the two methods of probability density e
 </p>
 <p align="center"> Figure 2. PDFs for 1990-1992 for observations and two ensemble members of UKCP18 2.2km projections. The KDE is calculated using a gaussian kernel and the frequency polygon uses the method of connecting the midpoint of the histogram bins. NB: using the log scale the fitted line no longer matches up to the mid-point of the bin (should this be calculated in a different order so that it does?) <p align="center">
 
-\section{Comparing projections and observations - KDE}
+### Comparing projections and observations - KDE
 The PDFs of precipitation projections from two ensemble members of UKPC18 and observations from CEH-GEAR are estimated using KDE and plotted in Figure \ref{fig:KDE_plots}. 
 
 <p align="center">
