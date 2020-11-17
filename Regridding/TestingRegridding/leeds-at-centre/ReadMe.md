@@ -1,7 +1,14 @@
 ## Testing the impact of regridding on data values 
 
 It is important to determine the affect of regridding on the data, and particularly on extreme values which can be smoothed in the regridding process.  
-To test this, a location with specific coordinates is defined and the grid cell which covers this point is determined for both the native 1km and regridded 2.2km observations data. 
+
+<p align="center">
+  <img src="Figs/log_discrete_histogram_43bins.png" width="200" />
+  <img src="Figs/log_discrete_histogram_65bins.png" width="200" />
+    <img src="Figs/log_discrete_histogram_77bins.png" width="200" />  
+</p>
+<p align="center"> Figure 1. PDF of precipitation rates with log-spaced histogram bins  <p align="center">
+
 
 The hourly observations are then extracted from the appropriate grid cell over the period for which data is available (1990-2014).   
 
