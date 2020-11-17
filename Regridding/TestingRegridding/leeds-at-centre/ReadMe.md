@@ -1,6 +1,6 @@
 ## Testing the impact of regridding on data values 
 
-PDF of precipitation rates across all cells 
+PDF of precipitation rates across all cells across region over Leeds
 <p align="center">
   <img src="Figs/log_discrete_histogram_43bins.png" width="320" />
   <img src="Figs/log_discrete_histogram_65bins.png" width="320" />
