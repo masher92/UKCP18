@@ -29,9 +29,8 @@ For Cell 2, the bottom 50% of hours are all removed, and the percentiles are cal
 <img src="Figs/WetvAllHourPercentiles2.PNG" width="800"  title="Original 1km grid" /> </p>
 <p align="center">Figure 1. <p align="center">
 
-
 ### Link between wet-hour proportion and percentile precipitation values
-The spatial pattern in plots of the mean and lower percentiles (95th, 97th, 99th) over the Leeds region match the spatial pattern found when the wet hour proportion is plotted. However, there is no causation between wet hour proportion and these statistics calculated on all hours of the data (there would be if it was wet hour percentiles).
+The spatial pattern in plots of the mean and lower percentiles (95th, 97th, 99th) over the Leeds region match the spatial pattern found when the wet hour proportion is plotted. However, there is no causation between wet hour proportion and these statistics calculated on all hours of the data (there would be if it was wet hour percentiles). (The mean is influenced by lower intensity events, however, perhaps these are too small to make much difference). 
 
 <p align="center">
 <img src="CalculateStatsForClustering/Figs/wet_prop_EM_mean.png" width="242  title="Original 1km grid" />
