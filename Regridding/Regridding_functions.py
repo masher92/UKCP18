@@ -243,7 +243,7 @@ def plot_grid_highlight_cells (cube, input_crs, target_crs, sample_point, closes
     cmap = mpl.colors.ListedColormap(['royalblue'])
 
     fig, ax = plt.subplots(figsize=(20,10))
-    extent = tilemapbase.extent_from_frame(leeds_gdf)
+    extent = tilemapbase.extent_from_frame(leeds_at_centre_gdf)
     plot = plotter = tilemapbase.Plotter(extent, tilemapbase.tiles.build_OSM(), width=600)
     plot =plotter.plot(ax)
     # Add edgecolor = 'grey' for lines
