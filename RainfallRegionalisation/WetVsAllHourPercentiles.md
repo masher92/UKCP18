@@ -30,6 +30,8 @@ For Cell 2, the bottom 50% of hours are all removed, and the percentiles are cal
 <p align="center">Figure 1. <p align="center">
 
 
+### Link between wet-hour proportion and percentile precipitation values
+
 
 Pattern in mean and lower percentiles (95th, 97th, 99th) matches the pattern in the wet hour proportion.
 But this isn't because the wet hour proportion influences these statistics...
