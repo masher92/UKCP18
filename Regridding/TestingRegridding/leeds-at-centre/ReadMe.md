@@ -1,6 +1,6 @@
 ## Testing the impact of regridding on data values 
 
-The impact of regridding on data values is tested here by comparing precipitation values from across all grid cells covering the 'leeds-at-centre' region for both the native 1km and regridded 2.2km observations data, shown in Figure 1. 
+The impact of regridding on data values is tested here by comparing precipitation values from across all grid cells covering the 'leeds-at-centre' region for both the native 1km and regridded 2.2km observations data, shown in Figure 1. For the 1km grid, this includes 6059 grid cells (73 x 83), and for the 2.2km grid it includes 1221 cells (33 x 37).
 
 <p align="center">
   <img src="Figs/1km_grid.png" width="320" />
