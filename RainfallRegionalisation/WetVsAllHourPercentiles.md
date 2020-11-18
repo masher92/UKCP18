@@ -31,16 +31,15 @@ For Cell 2, the bottom 50% of hours are all removed, and the percentiles are cal
 
 
 ### Link between wet-hour proportion and percentile precipitation values
-
-
-Pattern in mean and lower percentiles (95th, 97th, 99th) matches the pattern in the wet hour proportion.
-But this isn't because the wet hour proportion influences these statistics...
+The spatial pattern in plots of the mean and lower percentiles (95th, 97th, 99th) over the Leeds region match the spatial pattern found when the wet hour proportion is plotted. However, there is no causation between wet hour proportion and these statistics calculated on all hours of the data (there would be if it was wet hour percentiles).
 
 <p align="center">
 <img src="CalculateStatsForClustering/Figs/wet_prop_EM_mean.png" width="242  title="Original 1km grid" />
 <img src="CalculateStatsForClustering/Figs/jja_mean_EM_mean.png" width="250"  title="Original 1km grid" />
 <img src="CalculateStatsForClustering/Figs/jja_p97_EM_mean.png" width="250"  title="Original 1km grid" />
 <p align="center"> Figure 2. Proportion of hours which are wet (left), mean JJA precipitation (middle), 97th Percentile JJA precipitation (right)  <p align="center">
+
+To investigate this further, in Figure 3 the wet hour proportion is plotted against the values of various statistics (max, mean, percentiles) using data from cells across the Leeds region. In these, it can be seen that there is a strong positive relationship between the proportion of days which are wet, and the intensity of the more intense events. That is, in locations where it rains more, it also rains harder. This relationship breaks down somewhat when moving to higher percentiles. This may be due to these more extreme events becoming more localised. 
 
 <p align="center">
 <img src="CalculateStatsForClustering/Figs/em01_MeanVsWetHourProp.png" width="200"  title="Original 1km grid" />
@@ -51,8 +50,7 @@ But this isn't because the wet hour proportion influences these statistics...
 <img src="CalculateStatsForClustering/Figs/em01_99.75th PercentileVsWetHourProp.png" width="200"  title="Original 1km grid" />
 <img src="CalculateStatsForClustering/Figs/em01_99.9th PercentileVsWetHourProp.png" width="200"  title="Original 1km grid" />
 <img src="CalculateStatsForClustering/Figs/em01_MaxVsWetHourProp.png" width="200"  title="Original 1km grid" /> </p>
-<p align="center"> Figure 3. Statistic Values plotted against wet hour proportion for EM01  <p align="center">
-
+<p align="center"> Figure 3. Statistic values (max, mean, percentiles) plotted against wet hour proportion using data from ensemble member 1  <p align="center">
 
 ### References
 * Alexander, L.V., Fowler, H.J., Bador, M., Behrangi, A., Donat, M.G., Dunn, R., Funk, C., Goldie, J., Lewis, E., Rogé, M. and Seneviratne, S.I., 2019. On the use of indices to study extreme precipitation on sub-daily and daily timescales. Environmental Research Letters, 14(12), p.125008.  
