@@ -9,7 +9,7 @@ This choice can produce very different results and thus it is important to consi
 ### Implications of using wet-hour percentiles
 For percentiles calculated from only wet hours, changes in these percentiles can mean either a change in the frequency of wet hours OR changes in precipitation intensity. That is, wet hour percentiles are affected by changes in the occurrence of weak precipitation events (e.g. drizzle) (Schär et al, 2016). For instance, in a case where there is an increase in the number of hours with drizzle, but a decrease in event intensity in the most wet hours, the wet hour percentile value may still increase. For research focussed on the intensity of these more extreme events, it seems illogical to use an indices which is influenced by these less intense events. 
 
-Using all hours ensures that the sample size being used to calculate percentiles remains constant. Therefore, changes in percentile values are due to changes in intensity alone (Alexander et al, 2019). It also means that the percentiles can be understood directly in terms of events which occur with absoloute frequencys, and so they are less complicated to interpret.  
+Using all hours ensures that the sample size being used to calculate percentiles remains constant. Therefore, changes in percentile values are due to changes in intensity alone (Alexander et al, 2019). It also means that the percentiles can be understood directly in terms of events which occur with absoloute frequencies, and so they are less complicated to interpret.  
 
 This can be understood through consideration of Fig. 1, in which two cells, Cell 1 and Cell 2, are compared:  
 * The top 50% of values:
@@ -29,6 +29,8 @@ For Cell 2, the bottom 50% of hours are all removed, and the percentiles are cal
 <img src="Figs/WetvAllHourPercentiles2.PNG" width="800"  title="Original 1km grid" /> </p>
 <p align="center">Figure 1. <p align="center">
 
+
+
 Pattern in mean and lower percentiles (95th, 97th, 99th) matches the pattern in the wet hour proportion.
 But this isn't because the wet hour proportion influences these statistics...
 
@@ -36,7 +38,7 @@ But this isn't because the wet hour proportion influences these statistics...
 <img src="CalculateStatsForClustering/Figs/wet_prop_EM_mean.png" width="242  title="Original 1km grid" />
 <img src="CalculateStatsForClustering/Figs/jja_mean_EM_mean.png" width="250"  title="Original 1km grid" />
 <img src="CalculateStatsForClustering/Figs/jja_p97_EM_mean.png" width="250"  title="Original 1km grid" />
-<p align="center">Figure 2.  <p align="center">
+<p align="center"> Figure 2. Proportion of hours which are wet (left), mean JJA precipitation (middle), 97th Percentile JJA precipitation (right)  <p align="center">
 
 <p align="center">
 <img src="CalculateStatsForClustering/Figs/em01_MeanVsWetHourProp.png" width="200"  title="Original 1km grid" />
