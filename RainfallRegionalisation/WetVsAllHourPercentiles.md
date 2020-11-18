@@ -7,7 +7,8 @@
 This choice can produce very different results and thus it is important to consider carefully the impacts of each option.
 
 ### Implications of using wet-hour percentiles
-For percentiles calculated from only wet hours, changes in these percentiles can mean either a change in the frequency of wet hours OR changes in precipitation intensity. That is, wet hour percentiles are affected by changes in the occurrence of weak precipitation events (e.g. drizzle). 
+For percentiles calculated from only wet hours, changes in these percentiles can mean either a change in the frequency of wet hours OR changes in precipitation intensity. That is, wet hour percentiles are affected by changes in the occurrence of weak precipitation events (e.g. drizzle) (Schär et al, 2016).  
+Using all hours ensures that the sample size being used to calculate percentiles remains constant 
 
 This can be understood through consideration of Fig. 1, in which two cells, Cell 1 and Cell 2, are compared:  
 * The top 50% of values:
