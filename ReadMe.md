@@ -11,3 +11,5 @@ This can then be used to convert the projection of other shapefiles, for instanc
 However, it still does not work plotting the geodataframe of the outline of Leeds with the UKCP18 data cube in its native projection system.  
 The 'grid_longitude' coordinate contains values that are >360, whereas these are supposed to (?) wrap around 360 to 0.  
 However, if the longitudes are corrected in this way, e.g. with 361 becoming 1, it is no longer possible to plot them spatially as the plotting function does not except longitude values that are not 'monotonically increasing'.
+
+Useful: https://www.bnhs.co.uk/2019/technology/grabagridref/OSGB.pdf 
