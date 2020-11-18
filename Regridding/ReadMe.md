@@ -25,17 +25,21 @@ Area weighted regridding is therefore not possible as the 1km observations and 2
 <ins> Reformatting and regridding </ins>
 * CEH-GEAR_reformat_and_regrid.py:   
   * Reformats the observations data so it can be used in Iris regridding functionality; and
-  * Performs regridding to the same format as the 2.2km UKCP18 cube.  
+  * Performs regridding to the same format as the 2.2km UKCP18 cube using both linear and nearest neighbour regridding
   * Saves a netCDF copy of both the reformatted observations and regridded observations.
 * Check_reformat.py: 
   * Checks the reformatting process above works. Checks similarity between max/mean values between original and reformatted data and checks plotting.
 
 <ins> Testing reformatting </ins>
-* TestingRegridding/IndividualCells/CompareRegriddedDataPDFs.py
-       * Finds the grid cell covering a point of interest for both the original and reformatted observations data.  
-       * Creates a csv containing a 20 year time series of data at this location.    
 * TestingRegridding/IndividualCells/CreateTimeSeriesForGridCell.py
-
+     * Finds the grid cell covering a point of interest for both the original and reformatted observations data.  
+     * Creates a csv containing a 20 year time series of data at this location.   
+* TestingRegridding/IndividualCells/CompareRegriddedDataPDFs.py
+      * Plots PDFs using the regridded and original data
+* TestingRegridding/leeds-at-centre/CombineAllYearsDataAcrossRegion.py
+      * Data from all cells across the leeds-at-centre region are combined into one array, for both original and regridded data
+* TestingRegridding/leeds-at-centre/CompareRegriddedDataPDFs.py
+      * These arrays are used to plot PDFs 
 
 ## Next steps
 * Look at observations from rain gauge data and cross-check the CEH-GEAR data with these as well
