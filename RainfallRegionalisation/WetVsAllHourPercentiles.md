@@ -17,7 +17,7 @@ This can be understood through consideration of Fig. 1, in which two cells, Cell
     * Cell 2 - they are all 0.1 (e.g. drizzly)   
     
 When calculating the wet hour percentiles:
-* Cell 1 percentiles calculated using all the values. 
+* Cell 1: percentiles are calculated using all the values. 
 * Cell 2: the bottom 50% of hours are all removed, and the percentiles are calculated using only the highest 50% of values
 Consequently, e.g. the 90th Percentile precipitation value for Cell 1 being lower than for Cell 2, despite the intensity of rainfall experienced in both cells being the same.
 
