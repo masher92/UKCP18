@@ -28,12 +28,11 @@ Area weighted regridding is therefore not possible as the 1km observations and 2
   * Saves a netCDF copy of both the reformatted observations and regridded observations.
 * Check_reformat.py: 
   * Checks the reformatting process above works. Checks similarity between max/mean values between original and reformatted data and checks plotting.
-
-  TestingRegridding:
-    Individual Cells
+* TestingRegridding/IndividualCells/CompareRegriddedDataPDFs.py
        * Finds the grid cell covering a point of interest for both the original and reformatted observations data.  
        * Creates a csv containing a 20 year time series of data at this location.    
-    Leeds-at-centre
+* TestingRegridding/IndividualCells/CreateTimeSeriesForGridCell.py
+
 
 ## Next steps
 * Look at observations from rain gauge data and cross-check the CEH-GEAR data with these as well
