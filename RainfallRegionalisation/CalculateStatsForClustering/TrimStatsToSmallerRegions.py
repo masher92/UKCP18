@@ -32,11 +32,11 @@ warnings.filterwarnings("ignore")
 #root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
 root_fp = "/nfs/a319/gy17m2a/"
 os.chdir(root_fp)
-
-stats = ['Wethours/jja_mean_wh', 'Wethours/jja_max_wh', 'Wethours/wet_prop', 'Wethours/jja_p95_wh', 'Wethours/jja_p97_wh', 'Wethours/jja_p99_wh', 'Wethours/jja_p99_wh', 'Wethours/jja_p99.5_wh', 'Wethours/jja_p99.75_wh', 'Wethours/jja_p99.9_wh']
+stats = ['Wethours/ValuesOver20Years/wet_prop']
+#stats = ['Wethours/jja_mean_wh', 'Wethours/jja_max_wh', 'Wethours/wet_prop', 'Wethours/jja_p95_wh', 'Wethours/jja_p97_wh', 'Wethours/jja_p99_wh', 'Wethours/jja_p99_wh', 'Wethours/jja_p99.5_wh', 'Wethours/jja_p99.75_wh', 'Wethours/jja_p99.9_wh']
 #stats= ['Max','Mean', '95th Percentile', '97th Percentile', '99th Percentile', '99.5th Percentile',
 #        '99.75th Percentile', '99.9th Percentile']
-regions = ['Northern']   
+regions = ['leeds-at-centre']   
 ems = ['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
 
 ############################################################################## 

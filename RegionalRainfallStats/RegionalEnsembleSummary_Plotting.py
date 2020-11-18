@@ -46,8 +46,8 @@ from Spatial_geometry_functions import *
 # Set up variables
 ems = ['01', '04', '05', '06', '07', '08', '09','10','11','12', '13','15']
 yrs_range = "1980_2001" 
-region = 'leeds-at-centre' #['Northern', 'leeds-at-centre', 'UK']
-hours = 'wet' #['wet', 'all']
+region = 'UK' #['Northern', 'leeds-at-centre', 'UK']
+hours = 'all' #['wet', 'all']
 
 ##################################################################
 # Load necessary spatial data
@@ -74,8 +74,8 @@ wider_northern_mask = np.load('Outputs/RegionalMasks/wider_northern_region_mask.
 if hours == 'all':
     stats = ['jja_max', 'jja_mean', 'jja_p95', 'jja_p97', 'jja_p99', 'jja_p99.5', 'jja_p99.75', 'jja_p99.9']
 elif hours == 'wet':
-    #stats = ['wet_prop', 'jja_max_wh', 'jja_mean_wh', 'jja_p95_wh', 'jja_p97_wh', 'jja_p99_wh', 'jja_p99.5_wh', 'jja_p99.75_wh', 'jja_p99.9_wh']
-    stats = ['wet_prop']
+    stats = ['wet_prop', 'jja_max_wh', 'jja_mean_wh', 'jja_p95_wh', 'jja_p97_wh', 'jja_p99_wh', 'jja_p99.5_wh', 'jja_p99.75_wh', 'jja_p99.9_wh']
+
 #############################################################################  
 # For each stat, load in cubes containing this data for each of the ensemble members
 # And concatenate all the ensemble member statistic cubes into one. 

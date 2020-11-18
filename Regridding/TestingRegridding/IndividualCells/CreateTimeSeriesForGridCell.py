@@ -40,7 +40,7 @@ from Spatial_geometry_functions import *
 
 # Define string which is used to establish the filepath to the files 
 # containing the regridded/reformatted files  
-string = '_regridded_2.2km/NearestNeighbour/rg_'
+string ='_reformatted/rf_'
 # '_reformatted/rf_' , '_regridded_2.2km/LinearRegridding/rg_', '_regridded_2.2km/NearestNeighbour/rg_'
 
 # Define target_crs, dependent on whether using reformatted or regridded data
@@ -103,10 +103,10 @@ plot_grid_highlight_cells(cube, target_crs,  {'init' :'epsg:3785'},
 # Define location to save dataframe to
 if string == '_reformatted/rf_':
     filename = "Outputs/CEH-GEAR_reformatted/IndividualCells_data/rf_df.csv"
-elif string =='_regridded_2.2km/LinearRegridding/rg_':
-    filename = "Outputs/CEH-GEAR_regridded_2.2km/LinearRegridding/IndividualCells_data/rg_df_nn.csv"
 elif string =='_regridded_2.2km/NearestNeighbour/rg_':
-    filename = "Outputs/CEH-GEAR_regridded_2.2km/NearestNeighbour/IndividualCells_data/rg_df_lin.csv"
+    filename = "Outputs/CEH-GEAR_regridded_2.2km/NearestNeighbour/IndividualCells_data/rg_df_nn.csv"
+elif string =='_regridded_2.2km/LinearRegridding/rg_':
+    filename = "Outputs/CEH-GEAR_regridded_2.2km/LinearRegridding/IndividualCells_data/rg_df_lin.csv"
 print("Creating dataframe")
 
 # Save dataframe

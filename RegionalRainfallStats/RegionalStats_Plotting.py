@@ -51,7 +51,7 @@ ems = ['01', '04', '05', '06', '07', '08', '09','10','11','12', '13','15']
 # Whether to plot all subplots with axis with same range, or to plot an axis each
 shared_axis = True
 # Region over which to plot
-region = 'UK' #['Northern', 'leeds-at-centre', 'UK']
+region = 'Northern' #['Northern', 'leeds-at-centre', 'UK']
 # Whether to include All hours or just Wet hours 
 hours = 'wet'
 
@@ -271,49 +271,37 @@ for stat in stats:
     # Save plot        
     plt.savefig(filename, bbox_inches = 'tight')
 
-
-
 # ##########################################
 # # Code to check whether grid lines are due to changing projection
 # ##########################################
-# # Extract data for correct ensemble member and stat
-# em_dict = ems_dict[em]
-# stats_cube = em_dict[stat]
+# Extract data for correct ensemble member and stat
+em_dict = ems_dict[em]
+stats_cube = em_dict[stat]
    
-# # Define the contour levels to use in plotting where the axis is not shared
-# local_min = stats_cube.data.min()
-# local_max = stats_cube.data.max()       
-# contour_levels = np.linspace(local_min, local_max, 11,endpoint = True)
+# Define the contour levels to use in plotting where the axis is not shared
+local_min = stats_cube.data.min()
+local_max = stats_cube.data.max()       
+contour_levels = np.linspace(local_min, local_max, 11,endpoint = True)
  
-# # Define number of decimal places to use in the rounding of the colour bar
-# # This ensures smaller numbers have decimal places, but not bigger ones.
-# if local_max >10:
-#   n_decimal_places = 0
-# else:
-#   n_decimal_places = 2
+# Define number of decimal places to use in the rounding of the colour bar
+# This ensures smaller numbers have decimal places, but not bigger ones.
+if local_max >10:
+  n_decimal_places = 0
+else:
+  n_decimal_places = 2
  
-# # Plot in Web Mercator
-# proj = ccrs.Mercator.GOOGLE
-# # Create axis using this WM projection
-# ax = plt.subplot(122, projection=proj)
-# # Plot
-# mesh = iplt.pcolormesh(stats_cube, cmap = precip_colormap, vmin = local_min,
-#                        vmax = local_max)
-# # Add regional outlines, depending on which region is being plotted
-# # if region == 'Northern':
-# #      leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=0.5)
-# #      northern_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=0.4)
-# # elif region == 'leeds-at-centre':
-# #      leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=1)
-# # elif region == 'UK':
-# #      plt.gca().coastlines(linewidth =0.5)
+########################## Plot in Web Mercator
+proj = ccrs.Mercator.GOOGLE
+#proj = ccrs.PlateCarree()
+# Think this needs to match the 
+data_crs = ccrs.Mercator.GOOGLE
 
-# # Plot without specifying projection
-# ax = plt.subplot(122)
-# # Plot
-# mesh = iplt.pcolormesh(stats_cube, cmap = precip_colormap, vmin = local_min,
-#                        vmax = local_max)
-# # Add regional outlines, depending on which region is being plotted
+# Create axis using this WM projection
+ax = plt.subplot(122, projection=proj)
+# Plot
+mesh = iplt.pcolormesh(stats_cube, cmap = precip_colormap, vmin = local_min,
+                        vmax = local_max)
+# Add regional outlines, depending on which region is being plotted
 # if region == 'Northern':
 #      leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=0.5)
 #      northern_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=0.4)
@@ -321,3 +309,36 @@ for stat in stats:
 #      leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=1)
 # elif region == 'UK':
 #      plt.gca().coastlines(linewidth =0.5)
+
+################## Plot without specifying projection
+ax = plt.subplot(122)
+# Plot
+mesh = iplt.pcolormesh(stats_cube, cmap = precip_colormap, vmin = local_min,
+                        vmax = local_max)
+
+leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=0.5)
+
+
+###
+from pyproj.crs import CRS
+cube_crs = stats_cube.coord('grid_latitude').coord_system.as_cartopy_crs()
+proj_crs = CRS.from_dict(cube_crs.proj4_params)
+leeds_gdf = leeds_gdf.to_crs(proj_crs)
+leeds_gdf.plot()
+
+
+lons_wrapped = []
+lons=stats_cube.coord('grid_longitude').points
+for lon in lons:
+    if lon >360:
+        new_lon=lon-360
+        lons_wrapped.append(new_lon)
+    else:
+        lons_wrapped.append(lon)
+stats_cube.coord('grid_longitude').points = lons_wrapped
+
+
+
+
+
+lons=stats_cube.coord('grid_longitude').points

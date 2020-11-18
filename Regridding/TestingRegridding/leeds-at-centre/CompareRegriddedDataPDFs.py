@@ -39,20 +39,6 @@ from Regridding_functions import *
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/SpatialAnalyses')
 from Spatial_geometry_functions import *
 
-# Define string which is used to establish the filepath to the files 
-# containing the regridded/reformatted files  
-string = '_regridded_2.2km/NearestNeighbour/rg_'
-# '_reformatted/rf_' , '_regridded_2.2km/LinearRegridding/rg_'
-
-# Use string to define a filepath to be built on in the code
-basic_filepath = 'Outputs/CEH-GEAR' + string [:-3]
-
-# Define target_crs, dependent on whether using reformatted or regridded data
-if string == '_reformatted/rf_':
-    target_crs = {'init' :'epsg:27700'}
-else:
-    target_crs = {'init' :'epsg:4326'}
-
 ################################################################
 # Create the spatial datafiles needed
 ################################################################   
@@ -93,7 +79,6 @@ x_axis = 'linear'
 y_axis = 'log'
 bin_nos =50
 bins_if_log_spaced= bin_nos
-cols = [navy, firebrick, green]
 
 # Equal spaced   
 equal_spaced_histogram(my_dict, cols_dict, bin_nos, x_axis, y_axis)

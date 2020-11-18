@@ -75,7 +75,8 @@ cube = create_trimmed_cube(leeds_at_centre_gdf, string, target_crs)
 ################################################################
 #cube= cube[:,1:2, 1:2]
 # test plotting
-#iplt.pcolormesh(cube[18,:,:])
+iplt.pcolormesh(cube[18,:,:])
+
 
 ################################################################
 # Create a numpy array containing all the precipitation values from across

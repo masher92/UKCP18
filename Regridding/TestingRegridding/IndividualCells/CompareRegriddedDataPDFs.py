@@ -28,9 +28,14 @@ rf_df.rename(columns={'Rainfall':'Precipitation (mm/hr)'}, inplace=True)
 rf_df = rf_df.dropna()
 #rf_wethours_df = rf_df[rf_df['Precipitation (mm/hr)'] > 0.1]
 
-rg_df_lin = pd.read_csv("Outputs/CEH-GEAR_regridded_2.2km/LinearRegridding/IndividualCells_data/rg_df_westleeds.csv")
+rg_df_lin = pd.read_csv("Outputs/CEH-GEAR_regridded_2.2km/LinearRegridding/IndividualCells_data/rg_df_westleeds_lin.csv")
 rg_df_lin.rename(columns={'Rainfall':'Precipitation (mm/hr)'}, inplace=True)
 rg_df_lin = rg_df_lin.dropna()
+#rg_wethours_df = rg_df[rg_df['Precipitation (mm/hr)'] > 0.1]
+
+rg_df_nn = pd.read_csv("Outputs/CEH-GEAR_regridded_2.2km/NearestNeighbour/IndividualCells_data/rg_df_westleeds_nn.csv")
+rg_df_nn.rename(columns={'Rainfall':'Precipitation (mm/hr)'}, inplace=True)
+rg_df_nn = rg_df_nn.dropna()
 #rg_wethours_df = rg_df[rg_df['Precipitation (mm/hr)'] > 0.1]
 
 ##############################################################################
@@ -38,7 +43,8 @@ rg_df_lin = rg_df_lin.dropna()
 ##############################################################################
 my_dict = {}
 my_dict['Original 1km'] = rf_df
-my_dict['Regridded 2.2km - nearest neighbour'] = rg_df_lin
+my_dict['Regridded 2.2km - linear'] = rg_df_lin
+my_dict['Regridded 2.2km - nearest neighbour'] = rg_df_nn
 
 # Set up colours dictionary to use in plotting
 cols_dict = {'Original 1km':"navy",
@@ -50,35 +56,33 @@ cols_dict = {'Original 1km':"navy",
 ##############################################################################
 x_axis = 'linear'
 y_axis = 'log'
-bin_nos =40
+bin_nos =30
 bins_if_log_spaced= bin_nos
 
 # Equal spaced   
 equal_spaced_histogram(my_dict, cols_dict, bin_nos, x_axis, y_axis)
 
 # Log spaced histogram
-log_spaced_histogram(my_dict, bin_nos,x_axis, y_axis)    
+log_spaced_histogram(my_dict, cols_dict, bin_nos,x_axis, y_axis)    
  
 # Fractional contribution
-fractional_contribution(my_dict, bin_nos,x_axis, y_axis) 
+fractional_contribution(my_dict, cols_dict,bin_nos,x_axis, y_axis) 
              
 # Log histogram with adaptation     
-log_discrete_histogram(my_dict, 83,x_axis, y_axis) 
-
+log_discrete_histogram(my_dict, cols_dict, bin_nos, x_axis, y_axis) 
 
 ##############################################################################
 # Plotting - simple histograms
 ##############################################################################
-plt.hist(rf_df['Precipitation (mm/hr)'], bins = 200)
+# plt.hist(rf_df['Precipitation (mm/hr)'], bins = 200)
 
-bin_density, bin_edges = np.histogram(rf_df['Precipitation (mm/hr)'], bins= 20, density=True)
-print (bin_edges)
+# bin_density, bin_edges = np.histogram(rf_df['Precipitation (mm/hr)'], bins= 20, density=True)
+# print (bin_edges)
 
-import matplotlib.pyplot as plt
-plt.bar(bin_edges[:-1], bin_density, width = 1)
-plt.xlim(min(bin_edges), max(bin_edges))
-plt.show()  
-
+# import matplotlib.pyplot as plt
+# plt.bar(bin_edges[:-1], bin_density, width = 1)
+# plt.xlim(min(bin_edges), max(bin_edges))
+# plt.show()  
 
 ##########################################################################
 # Percentile plots
