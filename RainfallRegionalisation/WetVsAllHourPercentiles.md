@@ -15,11 +15,12 @@ This can be understood through consideration of Fig. 1, in which two cells, Cell
 * Bottom 50% of values:
     * Cell 1 - they are all 0 (e.g. dry)
     * Cell 2 - they are all 0.1 (e.g. drizzly)   
-    
-When calculating the wet hour percentiles:
-* Cell 1: percentiles are calculated using all the values. 
-* Cell 2: the bottom 50% of hours are all removed, and the percentiles are calculated using only the highest 50% of values  
-Consequently, e.g. the 90th Percentile precipitation value for Cell 1 being lower than for Cell 2, despite the intensity of rainfall experienced in both cells being the same.
+
+<ins> All hour percentiles </ins>
+The two cells have wet hours with the same intensity, and if percentiles were calculated using all of the hours of data, then e.g. the 90th Percentile value for both would be the same.   
+
+<ins Wet hour percentiles </ins>
+For Cell 1 percentiles are calculated using all the hours of data. For Cell 2, the bottom 50% of hours are all removed, and the percentiles are calculated using only the highest 50% of values. Consequently, e.g. the 90th Percentile precipitation value for Cell 1 being lower than for Cell 2, despite the intensity of rainfall experienced in both cells being the same.
 
 <p align="center">
 <img src="Figs/WetvAllHourPercentiles2.PNG" width="800"  title="Original 1km grid" /> </p>
