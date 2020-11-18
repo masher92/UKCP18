@@ -22,12 +22,15 @@ There are a number of regridding algorithms which use different methods to trans
 Area weighted regridding is therefore not possible as the 1km observations and 2.2km model data are in different coordinate systems.
 
 ## Code work flow
+<ins> Reformatting and regridding </ins>
 * CEH-GEAR_reformat_and_regrid.py:   
   * Reformats the observations data so it can be used in Iris regridding functionality; and
   * Performs regridding to the same format as the 2.2km UKCP18 cube.  
   * Saves a netCDF copy of both the reformatted observations and regridded observations.
 * Check_reformat.py: 
   * Checks the reformatting process above works. Checks similarity between max/mean values between original and reformatted data and checks plotting.
+
+<ins> Testing reformatting </ins>
 * TestingRegridding/IndividualCells/CompareRegriddedDataPDFs.py
        * Finds the grid cell covering a point of interest for both the original and reformatted observations data.  
        * Creates a csv containing a 20 year time series of data at this location.    
