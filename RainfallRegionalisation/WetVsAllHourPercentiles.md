@@ -49,7 +49,7 @@ But this isn't because the wet hour proportion influences these statistics...
 <img src="CalculateStatsForClustering/Figs/em01_99.75th PercentileVsWetHourProp.png" width="200"  title="Original 1km grid" />
 <img src="CalculateStatsForClustering/Figs/em01_99.9th PercentileVsWetHourProp.png" width="200"  title="Original 1km grid" />
 <img src="CalculateStatsForClustering/Figs/em01_MaxVsWetHourProp.png" width="200"  title="Original 1km grid" /> </p>
-<p align="center">Figure 3.  <p align="center">
+<p align="center"> Figure 3. Statistic Values plotted against wet hour proportion for EM01  <p align="center">
 
 
 ### References
