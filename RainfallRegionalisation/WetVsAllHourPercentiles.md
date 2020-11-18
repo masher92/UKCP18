@@ -7,8 +7,9 @@
 This choice can produce very different results and thus it is important to consider carefully the impacts of each option.
 
 ### Implications of using wet-hour percentiles
-For percentiles calculated from only wet hours, changes in these percentiles can mean either a change in the frequency of wet hours OR changes in precipitation intensity. That is, wet hour percentiles are affected by changes in the occurrence of weak precipitation events (e.g. drizzle) (Schär et al, 2016).  
-Using all hours ensures that the sample size being used to calculate percentiles remains constant 
+For percentiles calculated from only wet hours, changes in these percentiles can mean either a change in the frequency of wet hours OR changes in precipitation intensity. That is, wet hour percentiles are affected by changes in the occurrence of weak precipitation events (e.g. drizzle) (Schär et al, 2016). For instance, in a case where there is an increase in the number of hours with drizzle, but a decrease in event intensity in the most wet hours, the wet hour percentile value may still increase. For research focussed on the intensity of these more extreme events, it seems illogical to use an indices which is influenced by these less intense events. 
+
+Using all hours ensures that the sample size being used to calculate percentiles remains constant. It also means that the percentiles can be understood directly in terms of events which occur with absoloute frequencys, and so they are less complicated to interpret.  
 
 This can be understood through consideration of Fig. 1, in which two cells, Cell 1 and Cell 2, are compared:  
 * The top 50% of values:
@@ -28,18 +29,9 @@ For Cell 2, the bottom 50% of hours are all removed, and the percentiles are cal
 <img src="Figs/WetvAllHourPercentiles2.PNG" width="800"  title="Original 1km grid" /> </p>
 <p align="center">Figure 1. <p align="center">
 
-Schar:
-Statements that are conditional on occurrence of wet days are hard to interpret.
-It doesn't seem logical to use indices that are sensitive (e.g. wet day percentiles) to occurrence of weak events (e.g. drizzle) when assessing intense events.
-
-All day percentiles --> these are directly rlated to changes in heavy events with an absoloute frequency/RP. They relate to the absoloute frequency of occurrence of extremes.
-
-Problms with wet day percentiles:
-Changes in wet day frequency may dominate changes in precipitaton totals (changes in wet-day percentiles are affected by changes in both occurrence of wet hours AND their heaviness). E.g. it might look like heavy events have increased; however there has actually been a decrease in event intensity.
 
 Alexander et al (2019)
 A different issue is sensitivity to the sample from which the percentiles are calculated. If percentiles are calculated only from wet days (typically daily precipitation ≥1 mm), then changes in such indices (measuring the intensity of the percentiles or the frequency or precipitation amount of exceedances) may also be affected by changes in the frequency of wet days, and therefore cannot solely be attributed to precipitation intensity changes (e.g. Schär et al 2016). Analysis and interpretation of changes is more straight-forward if percentiles are calculated from all daily precipitation values including wet and dry days, as this approach ensures constant sample size and any changes would therefore be due to changes in intensity alone. A possible disadvantage of this approach, however, is that in some dry regions the large majority of days are dry days, and the distribution consists of 0 mm values beyond the 90th percentile (often considered as a moderately extreme threshold). In the case of changing wet-day frequency, changes of infinity will be analysed for percentile values that are dry in one period but wet in another. The definition of a wet day itself might also be problematic as there is often under-reporting of small precipitation amounts at manual sites, or conversely spurious small reports (e.g. from dew) at automatic sites (e.g. Hennessy et al 1999).
-
 
 Pattern in mean and lower percentiles (95th, 97th, 99th) matches the pattern in the wet hour proportion.
 But this isn't because the wet hour proportion influences these statistics...
