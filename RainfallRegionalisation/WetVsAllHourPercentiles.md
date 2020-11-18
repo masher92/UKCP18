@@ -12,6 +12,13 @@ For percentiles calculated from only wet hours:
 * Wet hour percentiles are affected by changes in the occurrence of weak precipitation events (e.g. drizzle). 
 
 This can be understood through consideration of Fig. 1, in which two cells, Cell 1 and Cell 2, are compared.  
+* The top 50% of values:
+    * Identical in Cell 1 and Cell 2
+* Bottom 50% of values:
+    * Cell 1 - they are all 0 (e.g. dry)
+    * Cell 2 - they are all 0.1 (e.g. drizzly)
+    
+    
 The highest 50% of precipitation values in both cells is the same; however, in Cell 1 the bottom 50% of precipitation values are all 0.1, whislt in Cell 2 they are all 0. That is, in the hours where it is not raining intensely, in Cell 1 it is drizzly, whilst in Cell 2 it is dry. Consequently, when calculating the wet hour percentiles, for Cell 2 these bottom 50% of hours are all removed, and the percentiles are calculated using only the highest 50% of values, whereas in Cell 1 they are calculated using all the values. This results in e.g. the 90th Percentile precipitation value for Cell 1 being lower than for Cell 2, despite the intensity of rainfall experienced in both cells being the same.
 
 <p align="center">
