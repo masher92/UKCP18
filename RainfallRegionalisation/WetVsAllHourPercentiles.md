@@ -15,6 +15,7 @@ This can be understood through consideration of Fig. 1, in which two cells, Cell
 * Bottom 50% of values:
     * Cell 1 - they are all 0 (e.g. dry)
     * Cell 2 - they are all 0.1 (e.g. drizzly)   
+    
 When calculating the wet hour percentiles:
 * Cell 1 percentiles calculated using all the values. 
 * Cell 2: the bottom 50% of hours are all removed, and the percentiles are calculated using only the highest 50% of values
