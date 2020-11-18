@@ -18,3 +18,8 @@ Using this data, PDFs of precipitation rates are plotted for both the original 1
     <img src="Figs/log_discrete_histogram_77bins.png" width="320" />  
 </p>
 <p align="center"> Figure 1. PDF of precipitation rates with log-spaced histogram bins  <p align="center">
+
+#### Notes from Steef
+When you perform nearest neighbour interpolation, effectively this is like selecting one out of every ~5 points in the data. This will mean that the variations/uncertainty in the highest bins becomes larger, and you may miss out on the single highest value in the data (this is visible in e.g. the plot with 65 bins).  
+The linear interpolation means that you will also have fewer values and hence more variation/uncertainty at higher values, but you will also lose some of the extreme values due to interpolation (i.e, the yellow line will generally be below the other lines for high values, though again there may be some scatter). 
+
