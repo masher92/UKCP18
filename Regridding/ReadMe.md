@@ -21,6 +21,10 @@ There are a number of regridding algorithms which use different methods to trans
 
 Area weighted regridding is therefore not possible as the 1km observations and 2.2km model data are in different coordinate systems.
 
+#### Notes on regridding from Steef
+Nearest neighbour interpolation -- effectively this is like selecting one out of every ~5 points in the data. This will mean that the variations/uncertainty in the highest bins becomes larger, and you may miss out on the single highest value in the data (this is visible in e.g. the plot with 65 bins). The linear interpolation means that you will also have fewer values and hence more variation/uncertainty at higher values, but you will also lose some of the extreme values due to interpolation (i.e, the yellow line will generally be below the other lines for high values, though again there may be some scatter). I am not sure about using bar plots here, though this may be more of a personal preference: bar plots, to me, suggest that it is possible to calculate a useful quantity (like the total amount of rainfall) by integrating under the curve. This is not the case for the current plot. An alternative that could work is a scatter plot, I don't think there is a large difference in presenting the data using a line or scatter plot though. We can talk about this more next week.
+
+
 ## Code work flow
 * CEH-GEAR_reformat_and_regrid.py:   
   * Reformats the observations data so it can be used in Iris regridding functionality; and
