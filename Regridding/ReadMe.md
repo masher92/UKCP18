@@ -28,15 +28,13 @@ Area weighted regridding is therefore not possible as the 1km observations and 2
   * Saves a netCDF copy of both the reformatted observations and regridded observations.
 * Check_reformat.py: 
   * Checks the reformatting process above works. Checks similarity between max/mean values between original and reformatted data and checks plotting.
+  
+  
 * TestingRegridding_CreateTimeSeries.py: 
   * Finds the grid cell covering a point of interest for both the original and reformatted observations data.  
   * Creates a csv containing a 20 year time series of data at this location.    
 * TestingRegridding_plotPDFs.py: 
   * Uses the timeseries from above to plot PDFs and percentile threshold plots.
-
-## Questions
-* Comparing PDF for the grid containing a point location; however, one of these grid cells is over double the size of the other so is this a fair comparison?
-* Comparing PDF over a wider area: but if e.g. select 9 grid cells closest to the point of interest this will result in quite significantly areal coverage between the original 1km and regridded 2.2km data. Should they cover same area to be comparable? If just looked at all grid cells covering an area e.g. Leeds this would be very slow (loading 20 years of data for just one grid cell is slow).
 
 ## Next steps
 * Look at observations from rain gauge data and cross-check the CEH-GEAR data with these as well
