@@ -10,7 +10,7 @@ Alexander et al (2019)
 A different issue is sensitivity to the sample from which the percentiles are calculated. If percentiles are calculated only from wet days (typically daily precipitation ≥1 mm), then changes in such indices (measuring the intensity of the percentiles or the frequency or precipitation amount of exceedances) may also be affected by changes in the frequency of wet days, and therefore cannot solely be attributed to precipitation intensity changes (e.g. Schär et al 2016). Analysis and interpretation of changes is more straight-forward if percentiles are calculated from all daily precipitation values including wet and dry days, as this approach ensures constant sample size and any changes would therefore be due to changes in intensity alone. A possible disadvantage of this approach, however, is that in some dry regions the large majority of days are dry days, and the distribution consists of 0 mm values beyond the 90th percentile (often considered as a moderately extreme threshold). In the case of changing wet-day frequency, changes of infinity will be analysed for percentile values that are dry in one period but wet in another. The definition of a wet day itself might also be problematic as there is often under-reporting of small precipitation amounts at manual sites, or conversely spurious small reports (e.g. from dew) at automatic sites (e.g. Hennessy et al 1999).
 
 <p align="center">
-<img src="CalculateStatsForClustering/Figs/WetvAllHourPercentiles2.PNG" width="800"  title="Original 1km grid" /> </p>
+<img src="Figs/WetvAllHourPercentiles2.PNG" width="800"  title="Original 1km grid" /> </p>
 <p align="center">Figure 1. <p align="center">
 
 
