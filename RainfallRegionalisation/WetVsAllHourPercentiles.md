@@ -21,7 +21,8 @@ This can be understood through consideration of Fig. 1, in which two cells, Cell
 The most intense events in the two cells are of the same intensity. Therefore, for higher percentiles (e.g. 90th, 95th etc) calculated using all of the hours of data then the values would be the same.   
 
 <ins> Wet hour percentiles </ins>  
-For Cell 1 percentiles are calculated using all the hours of data. For Cell 2, the bottom 50% of hours are all removed, and the percentiles are calculated using only the highest 50% of values. Consequently, e.g. the 90th Percentile precipitation value for Cell 1 being lower than for Cell 2, despite the intensity of rainfall experienced in both cells being the same.
+For Cell 1 percentiles are calculated using all the hours of data.   
+For Cell 2, the bottom 50% of hours are all removed, and the percentiles are calculated using only the highest 50% of values. Consequently, e.g. the 90th Percentile precipitation value for Cell 1 being lower than for Cell 2, despite the intensity of rainfall experienced in both cells being the same.
 
 <p align="center">
 <img src="Figs/WetvAllHourPercentiles2.PNG" width="800"  title="Original 1km grid" /> </p>
