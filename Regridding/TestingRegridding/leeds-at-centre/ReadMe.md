@@ -12,7 +12,6 @@ In each case, across all the grid cells within this area, all hourly precipitati
 
 Using this data, PDFs of precipitation rates are plotted for both the original 1km data and the regridded 2.2km data, using the method specified at the bottom.
 
-PDF of precipitation rates across all cells across region over Leeds
 <p align="center">
   <img src="Figs/log_discrete_histogram_43bins.png" width="320" />
   <img src="Figs/log_discrete_histogram_65bins.png" width="320" />
