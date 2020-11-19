@@ -47,7 +47,10 @@ Hourly rainfall accumulations for a range of percentile thresholds are also plot
 </p>
 <p align="center"> Figure 6. Hourly rainfall accumulations for percentile thresholds including all hours (left) and wet-hours with rainfall >0.1mm/hr (right) <p align="center">
 
-#### PDF plotting method
+### Questions
+* Comparing PDF for the grid containing a point location; however, one of these grid cells is over double the size of the other so is this a fair comparison?
+
+### PDF plotting method
 The precipitation rates are aggregated into logarithmic-spaced histogram bins which are adjusted to ensure that none of the bin widths are narrower than one decimal place, as this is the degree to which the data is rounded. Additionally, bin width is rounded down to a multiple of 0.1, so bin edges are always located mid-way on the discretisation interval. The probability density in each bin with mean precipitation rate, P(r), is calculated as:  
 <p align="center">P(r) = n(r)/NΔr <p align="center">
 
