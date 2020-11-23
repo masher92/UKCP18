@@ -18,7 +18,7 @@ root_fp = "/nfs/a319/gy17m2a/"
 os.chdir(root_fp)
 
 # Create path to files containing functions
-sys.path.insert(0, root_fp + 'Scripts/UKCP18/Regridding')
+sys.path.insert(0, root_fp + 'Scripts/UKCP18/RegriddingObservations')
 from Regridding_functions import *
 
 # Load UKCP18 model data to use in regriddding
@@ -28,7 +28,7 @@ cube_model=iris.load_cube(file_model)
 # For each file in the CEH-GEAR directory:
 # Reformat and then regrid into same format as the UKCP18 model cube
 i = 0
-for filename in glob.glob("datadir/CEH-GEAR/*")[0:2]:
+for filename in glob.glob("datadir/CEH-GEAR/*"):
     print(i)
     # Filename to save reformatted cube to
     filename_reformat = filename.replace("datadir/CEH-GEAR/", "Outputs/CEH-GEAR_reformatted/rf_")
