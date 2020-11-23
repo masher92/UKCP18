@@ -111,21 +111,21 @@ jja_percentiles = jja.aggregated_by(['clim_season'], iris.analysis.PERCENTILE, p
 ###########################################
 ## Save to file
 ###########################################
-iris.save(jja_max, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Observations/{}/jja_max.nc'.format(regridding_method))
+iris.save(jja_max, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/RegriddedObservations/{}/jja_max.nc'.format(regridding_method))
 print("JJA max saved")
-iris.save(jja_mean, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Observations/{}/jja_mean.nc'.format(regridding_method))
+iris.save(jja_mean, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/RegriddedObservations/{}/jja_mean.nc'.format(regridding_method))
 print("JJA mean saved")
 # Save percentiles seperately
 p95 = jja_percentiles[0,:,:,:]
-iris.save(p95, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Observations/{}/jja_p95.nc'.format(regridding_method))
+iris.save(p95, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/RegriddedObservations/{}/jja_p95.nc'.format(regridding_method))
 p97 = jja_percentiles[1,:,:,:]
-iris.save(p97, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Observations/{}/jja_p97.nc'.format(regridding_method))
+iris.save(p97, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/RegriddedObservations/{}/jja_p97.nc'.format(regridding_method))
 p99 = jja_percentiles[2,:,:,:]
-iris.save(p99, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Observations/{}/jja_p99.nc'.format(regridding_method))
+iris.save(p99, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/RegriddedObservations/{}/jja_p99.nc'.format(regridding_method))
 p99_5 = jja_percentiles[3,:,:,:]
-iris.save(p99_5, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Observations/{}/jja_p99.5.nc'.format(regridding_method))
+iris.save(p99_5, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/RegriddedObservations/{}/jja_p99.5.nc'.format(regridding_method))
 p99_75 = jja_percentiles[4,:,:,:]
-iris.save(p99_75, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Observations/{}/jja_p99.75.nc'.format(regridding_method))
+iris.save(p99_75, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/RegriddedObservations/{}/jja_p99.75.nc'.format(regridding_method))
 p99_9 = jja_percentiles[5,:,:,:]
-iris.save(p99_9, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Observations/{}/jja_p99.9.nc'.format(regridding_method))
+iris.save(p99_9, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/RegriddedObservations/{}/jja_p99.9.nc'.format(regridding_method))
 

@@ -219,7 +219,60 @@ def GridCells_within_geometry(lats, lons, geometry_gdf, data):
     return within_geometry
 
  
+def trim_to_bbox_of_region_obs (cube, gdf):
+    '''
+    Description
+    ----------
+        Trims a cube to the bounding box of a region, supplied as a geodataframe.
+        This is much faster than looking for each point within a geometry as in
+        GridCellsWithin_geometry
+        Tests whether the central coordinate is within the bbox
 
+    Parameters
+    ----------
+        cube : iris cube
+            1D array of latitudes
+        gdf: GeoDataFrame
+            GeoDataFrame containing a geometry by which to cut the cubes spatial extent
+    Returns
+    -------
+        trimmed_cube : iris cube
+            Cube with spatial extent equivalent to the bounding box of the supplied geodataframe
+
+    '''
+    # CReate function to find
+    minmax = lambda x: (np.min(x), np.max(x))
+    
+    # Convert the regional gdf to WGS84 (same as cube)
+    gdf = gdf.to_crs({'init' :'epsg:4326'}) 
+    
+    # Find the bounding box of the region
+    bbox = gdf.total_bounds
+    
+    # Find the lats and lons of the cube in WGS84
+    lats_rp_1d = cube.coord('grid_latitude').points
+    lons_rp_1d = cube.coord('grid_longitude').points
+    
+    # Convert to 2D
+    lons_rp_2d, lats_rp_2d = np.meshgrid(lons_rp_1d, lats_rp_1d)
+    
+    # Convert to WGS84
+    cs = cube.coord_system()
+    #cs = cube_model.coord('grid_latitude').coord_system
+    lons, lats = iris.analysis.cartography.unrotate_pole(lons_rp_2d, lats_rp_2d, 
+              cs.grid_north_pole_longitude, cs.grid_north_pole_latitude)
+
+    inregion = np.logical_and(np.logical_and(lons > bbox[0],
+                                             lons < bbox[2]),
+                              np.logical_and(lats > bbox[1],
+                                             lats < bbox[3]))
+    region_inds = np.where(inregion)
+    imin, imax = minmax(region_inds[0])
+    jmin, jmax = minmax(region_inds[1])
+    
+    trimmed_cube = cube[..., imin:imax+1, jmin:jmax+1]
+    
+    return trimmed_cube
 
    
 def trim_to_bbox_of_region (cube, gdf):
