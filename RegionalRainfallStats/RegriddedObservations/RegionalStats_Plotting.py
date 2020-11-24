@@ -42,11 +42,6 @@ leeds_at_centre_gdf = create_leeds_at_centre_outline({'init' :'epsg:3857'})
 # This is the outline of the coast of the UK
 uk_gdf = create_uk_outline({'init' :'epsg:3857'})
 
-# Load mask for wider northern region
-# This masks out cells outwith the wider northern region
-wider_northern_mask = np.load('Outputs/RegionalMasks/wider_northern_region_mask.npy')
-uk_mask = np.load('Outputs/RegionalMasks/uk_mask_new.npy')  
-
 ##################################################################
 # Trimming to region
 ##################################################################
