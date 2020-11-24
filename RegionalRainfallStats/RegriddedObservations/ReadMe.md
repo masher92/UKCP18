@@ -25,6 +25,7 @@ The process for this involves using masks generated in the CreatingMasks.py scri
 ## Results
 For the whole of the UK, the wider Northern region and the Leeds region, plots are displayed for the max, mean and various percentiles (95th, 97th, 99th, 99.5th, 99.75th and 99.9th) June-July-August (JJA) precipitation for the period of 1980-2001.  
 
+The left hand plot shows the 1km observations regridded onto a 2.2km grid using nearest neighbour regridding, the middle plot shows observations data regridded onto a 2.2km grid using linear interpolation and the right hand plot shows the absolute value difference between the two.
 
 #### UK
 <p align="left">
