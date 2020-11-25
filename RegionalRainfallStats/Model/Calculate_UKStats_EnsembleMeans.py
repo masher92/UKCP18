@@ -1,18 +1,7 @@
 '''
-This file plots ensemble summary plots using stats cubes created in UK_stats.py
+This file creates ensemble summary NetCDFs using stats cubes created in UK_stats.py
 and UK_stats_wethours.py. 
-
-Plotting for each statistic produces two plots:
-- The ensemble mean, calculated across all 12 ensemble members
-- The ensemble spread, or standard deviation, calculated across all 12 ensemble members
-
-It can plot using either Wet Hour stats or All Hour stats, depending on how 
-the 'hours' parameter is set.
-
-It is set up to plot within three regions, depending on how 'region' parameter is set:
-- The UK (trimmed to the coastlines)
-- The Northern region (North East, North West, Yorkshire and the Humber)
-- A square region centred on Leeds
+These are saved to file
 
 '''
 

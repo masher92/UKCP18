@@ -1,6 +1,5 @@
 '''
-This file plots ensemble summary plots using stats cubes created in UK_stats.py
-and UK_stats_wethours.py. 
+This file plots ensemble summary plots using NetCDFs created in Calculate_UK_Stats_EnsembleMeans.py
 
 Plotting for each statistic produces two plots:
 - The ensemble mean, calculated across all 12 ensemble members
@@ -65,7 +64,8 @@ uk_gdf = create_uk_outline({'init' :'epsg:3857'})
 # Load mask for wider northern region
 # This masks out cells outwith the wider northern region
 wider_northern_mask = np.load('Outputs/RegionalMasks/wider_northern_region_mask.npy')
-#uk_mask = np.load('Outputs/RegionalMasks/uk_mask.npy')  
+uk_mask = np.load('Outputs/RegionalMasks/uk_mask.npy')  
+uk_mask = uk_mask.reshape(458,383)
 
 ##################################################################
 # Loop through stats:
@@ -77,43 +77,20 @@ elif hours == 'wet':
     stats = ['wet_prop', 'jja_max_wh', 'jja_mean_wh', 'jja_p95_wh', 'jja_p97_wh', 'jja_p99_wh', 'jja_p99.5_wh', 'jja_p99.75_wh', 'jja_p99.9_wh']
 
 #############################################################################  
-# For each stat, load in cubes containing this data for each of the ensemble members
-# And concatenate all the ensemble member statistic cubes into one. 
+# Loop through stats and EM summary metrics
+# Trim to the region specified
+# Plot
 #############################################################################
 for stat in stats:
-  # Load in files
-  filenames = []
-  for em in ems:
-      if hours == 'all':
-          filename= '/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/Allhours/em_'+ em+ '_' + stat + '.nc'
-      elif hours == 'wet':
-          filename= '/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/Wethours/em_'+ em+ '_' + stat + '.nc'          
-      filenames.append(filename)
-
-  # Load 12 ensemble member files into a cube list
-  cubes_list = iris.load(filenames,'lwe_precipitation_rate')
-  # Concatenate the cubes into one
-  cubes = cubes_list.concatenate_cube()
-      
-  # Remove time dimension (only had one value)
-  if hours == 'all':
-      cubes = cubes[:,0,:,:]
-      
-  #############################################################################
-  # Calculate:
-  # The ensemble mean
-  # The ensemble spread (standard deviation)
-  #############################################################################
+  print(stat)
   # Define the two different metrics
   em_cube_stats = ["EM_mean", "EM_spread"]
   # For each of the two different metrics
   for em_cube_stat in em_cube_stats:
       print(em_cube_stat)
-     # Collapse them to contain one mean value across 12 ensemble members
-      if em_cube_stat == "EM_mean":
-          stats_cube = cubes.collapsed(['ensemble_member'], iris.analysis.MEAN)
-      elif em_cube_stat == "EM_spread":
-          stats_cube = cubes.collapsed(['ensemble_member'], iris.analysis.STD_DEV)
+     
+      # Load in the cube for the correct statistic and ensemble summary metric 
+      stats_cube = iris.load("Outputs/RegionalRainfallStats/NetCDFs/Model/Allhours/EM_Summaries/{}_{}.nc".format(stat, em_cube_stat))[0]
         
       # Trim to smaller area
       if region == 'Northern':
@@ -178,9 +155,9 @@ for stat in stats:
         
       # Save files
       if hours == 'all':
-          filename = "Outputs/Stats_Spatial_plots/{}/AllHours_EM_Difference/{}_{}.png".format(region, stat, em_cube_stat)
+          filename = "Outputs/RegionalRainfallStats/Plots/Model/{}/AllHours_EM_Difference/{}_{}.png".format(region, stat, em_cube_stat)
       elif hours == 'wet':
-           filename = "Outputs/Stats_Spatial_plots/{}/WetHours_EM_Difference/{}_{}.png".format(region, stat, em_cube_stat)         
+           filename = "Outputs/RegionalRainfallStats/Plots/Model/{}/WetHours_EM_Difference/{}_{}.png".format(region, stat, em_cube_stat)         
       fig.savefig(filename, bbox_inches = 'tight')
     
       
