@@ -58,7 +58,7 @@ def make_bng_cube(xr_ds,variable):
     da=xr_ds[variable]
     # Recreate the cube with the data and the dimension coordinates
     cube = Cube(np.float32(da.values), standard_name=da.standard_name,
-                units=da.units, dim_coords_and_dims=[(iris_time, 0), (northings, 1),(eastings, 2)])
+                units='mm/hour', dim_coords_and_dims=[(iris_time, 0), (northings, 1),(eastings, 2)])
     return cube
 
 def find_closest_coordinates(cube, sample_point, n_closest_points):

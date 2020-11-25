@@ -52,7 +52,7 @@ monthly_cubes_list = iris.load(filenames,'rainfall_amount')
 concat_cube = monthly_cubes_list.concatenate_cube()
 
 # Test plotting
-iplt.pcolormesh(concat_cube[12])
+#iplt.pcolormesh(concat_cube[12])
 
 #############################################
 ## Trim to outline of UK
@@ -89,7 +89,7 @@ jmin, jmax = minmax(region_inds[1])
 concat_cube = concat_cube[..., imin:imax+1, jmin:jmax+1]
 
 # Check plotting
-iplt.pcolormesh(concat_cube[12])
+#iplt.pcolormesh(concat_cube[12])
 
 ############################################
 # Cut to just June-July_August period
@@ -104,19 +104,19 @@ iris.coord_categorisation.add_season_year(jja,'time', name = "season_year")
 ###########################################
 # Find Max, mean, percentiles
 #############################################
-jja_mean = jja.aggregated_by(['clim_season'], iris.analysis.MEAN)
-jja_max = jja.aggregated_by(['clim_season'], iris.analysis.MAX)
-jja_percentiles = jja.aggregated_by(['clim_season'], iris.analysis.PERCENTILE, percent=[95,97,99,99.5, 99.9, 99.99])
+#jja_mean = jja.aggregated_by(['clim_season'], iris.analysis.MEAN)
+#jja_max = jja.aggregated_by(['clim_season'], iris.analysis.MAX)
+jja_percentiles = jja.aggregated_by(['clim_season'], iris.analysis.PERCENTILE, percent=[95])
 
-iplt.pcolormesh(jja_mean[0])
+#iplt.pcolormesh(jja_mean[0])
 
 ###########################################
 ## Save to file
 ###########################################
-iris.save(jja_max, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Observations/{}/jja_max.nc')
-print("JJA max saved")
-iris.save(jja_mean, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Observations/jja_mean.nc')
-print("JJA mean saved")
+#iris.save(jja_max, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Observations/jja_max.nc')
+#print("JJA max saved")
+#iris.save(jja_mean, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Observations/jja_mean.nc')
+#print("JJA mean saved")
 # Save percentiles seperately
 p95 = jja_percentiles[0,:,:,:]
 iris.save(p95, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Observations/{}/jja_p95.nc'.format(regridding_method))

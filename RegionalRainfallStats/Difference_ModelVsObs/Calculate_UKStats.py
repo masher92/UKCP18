@@ -49,24 +49,20 @@ for stat in stats:
     print(stat)
     
     # Load in netcdf files containing the stats data over the whole UK
-    obs_cube = iris.load('/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Model/NearestNeighbour/{}.nc'.format(stat))[0][0]
-    model_cube= iris.load('/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/RegriddedObservations/LinearRegridding/{}.nc'.format(stat))[0][0]
+    model_cube = iris.load('/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Model/Allhours/EM_Summaries/{}_EM_mean.nc'.format(stat))[0][0]
+    obs_cube= iris.load('/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/RegriddedObservations/LinearRegridding/{}.nc'.format(stat))[0][0]
+
+    # Set units of cubes to be the same
+    model_cube.convert_units("kg m-2")
+    
+    # Find the difference between the two
+    diff_cube = model_cube-obs_cube
 
     # Trim to smaller area
     if region == 'Northern':
-         nn_cube = trim_to_bbox_of_region_obs(nn_cube, northern_gdf)
          lr_cube = trim_to_bbox_of_region_obs(lr_cube, northern_gdf)
     elif region == 'leeds-at-centre':
-         nn_cube = trim_to_bbox_of_region_obs(nn_cube, leeds_at_centre_gdf)
          lr_cube = trim_to_bbox_of_region_obs(lr_cube, leeds_at_centre_gdf)
-    
-    # Find difference cube   
-    diff_cube = nn_cube - lr_cube
-    diff_cube = iris.analysis.maths.abs(diff_cube)
-    
-    # Create dictionary storing cubes and their name/type
-    cubes_dict = {'LinearRegridding': lr_cube, 'NearestNeighbour': nn_cube,
-                 'Regridding_Difference': diff_cube}
     
     # Loop through each cube
     for key, cube in cubes_dict.items():
