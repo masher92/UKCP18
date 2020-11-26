@@ -24,7 +24,7 @@ Area weighted regridding is therefore not possible as the 1km observations and 2
 ## Code work flow
 <ins> Reformatting and regridding </ins>
 * CEH-GEAR_reformat_and_regrid.py:   
-  * Reformats the observations data so it can be used in Iris regridding functionality; and
+  * Reformats the observations data so it can be used in Iris regridding functionality (this also converts the units from kg m-2 to be mm/hour same as the model); and
   * Performs regridding to the same format as the 2.2km UKCP18 cube using both linear and nearest neighbour regridding
   * Saves a netCDF copy of both the reformatted observations and regridded observations.
 * Check_reformat.py: 
