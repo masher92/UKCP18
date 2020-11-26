@@ -25,7 +25,7 @@ from Spatial_geometry_functions import *
 # Define variables and set up environment
 #############################################
 # Region over which to plot
-region = 'UK' #['Northern', 'leeds-at-centre', 'UK']
+region = 'Northern' #['Northern', 'leeds-at-centre', 'UK']
 # Stats to plot
 stats = ['jja_max', 'jja_mean', 'jja_p95', 'jja_p97', 'jja_p99', 'jja_p99.5', 'jja_p99.75', 'jja_p99.9']
 
@@ -49,74 +49,93 @@ for stat in stats:
     print(stat)
     
     # Load in netcdf files containing the stats data over the whole UK
-    model_cube = iris.load('/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Model/Allhours/EM_Summaries/{}_EM_mean.nc'.format(stat))[0][0]
-    obs_cube= iris.load('/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/RegriddedObservations/LinearRegridding/{}.nc'.format(stat))[0][0]
+    model_cube = iris.load('/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Model/Allhours/EM_Summaries/{}_EM_mean.nc'.format(stat))[0]
+    obs_cube= iris.load('/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/RegriddedObservations/NearestNeighbour/{}.nc'.format(stat))[0][0]
 
-    # Set units of cubes to be the same
-    model_cube.convert_units("kg m-2")
+    # Remove coordinates present in model cube, but not in observations
+    model_cube.remove_coord('latitude')
+    model_cube.remove_coord('longitude')    
     
     # Find the difference between the two
     diff_cube = model_cube-obs_cube
-
+    #diff_cube = iris.analysis.maths.abs(diff_cube)
+    
     # Trim to smaller area
     if region == 'Northern':
-         lr_cube = trim_to_bbox_of_region_obs(lr_cube, northern_gdf)
+         diff_cube = trim_to_bbox_of_region_obs(diff_cube, northern_gdf)
     elif region == 'leeds-at-centre':
-         lr_cube = trim_to_bbox_of_region_obs(lr_cube, leeds_at_centre_gdf)
+         diff_cube = trim_to_bbox_of_region_obs(diff_cube, leeds_at_centre_gdf)
     
-    # Loop through each cube
-    for key, cube in cubes_dict.items():
-        print(key)
+    # Find min and max vlues in data and set up contour levels
+    local_min = np.nanmin(diff_cube.data)
+    local_max = np.nanmax(diff_cube.data)     
+    contour_levels = np.linspace(local_min, local_max, 11,endpoint = True)     
+    
+    # test = diff_cube.data 
+    # test_mask = test.mask
+    #test = test.data
+    #test[~test_mask] = np.nan
+    #diff_cube.data = test    
+    
+    ##### Plotting        
+    # Create a colourmap            
+    
+    class MidpointNormalize(colors.Normalize):
+        def __init__(self, vmin=None, vmax=None, midpoint=None, clip=False):
+            self.midpoint = midpoint
+            colors.Normalize.__init__(self, vmin, vmax, clip)
+    
+        def __call__(self, value, clip=None):
+            # I'm ignoring masked values and all kinds of edge cases to make a
+            # simple example...
+            x, y = [self.vmin, self.midpoint, self.vmax], [0, 0.5, 1]
+            return np.ma.masked_array(np.interp(value, x, y))
+                           
+    precip_colormap = create_precip_cmap()
+    from matplotlib import colors
+    cmap = matplotlib.cm.RdBu_r
+    cmap.set_under(color="white")
+    cmap.set_bad(color="white", alpha = 1.)
+    
+    norm = colors.TwoSlopeNorm(vmin = local_min, vmax = local_max,
+                                vcenter = 0)
+    
+    # Define figure size
+    if region == 'leeds-at-centre':
+        fig = plt.figure(figsize = (20,30))
+    else:
+        fig = plt.figure(figsize = (30,20))     
+        
+    # Set up projection system
+    proj = ccrs.Mercator.GOOGLE
+        
+    # Create axis using this WM projection
+    ax = fig.add_subplot(projection=proj)
+    # Plot
+    mesh = iplt.pcolormesh(diff_cube, cmap = cmap, norm = norm)
+                          # norm = MidpointNormalize(midpoint=0))
+    
+    # Add regional outlines, depending on which region is being plotted
+    # And define extent of colorbars
+    if region == 'Northern':
+         leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=2)
+         northern_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=4)
+         colorbar_axes = plt.gcf().add_axes([0.73, 0.15, 0.015, 0.7])
+    elif region == 'leeds-at-centre':
+         leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=4)
+         colorbar_axes = plt.gcf().add_axes([0.92, 0.28, 0.015, 0.45])
+    elif region == 'UK':
+         plt.gca().coastlines(linewidth =3)
+         colorbar_axes = plt.gcf().add_axes([0.76, 0.15, 0.015, 0.7])
 
-        # Find min and max vlues in data and set up contour levels
-        local_min = np.nanmin(cube.data)
-        local_max = np.nanmax(cube.data)     
-        contour_levels = np.linspace(local_min, local_max, 11,endpoint = True)     
-        
-        ##### Plotting        
-        # Create a colourmap                                   
-        precip_colormap = create_precip_cmap()
-        
-        # Define figure size
-        if region == 'leeds-at-centre':
-            fig = plt.figure(figsize = (20,30))
-        else:
-            fig = plt.figure(figsize = (30,20))     
-            
-        # Set up projection system
-        proj = ccrs.Mercator.GOOGLE
-            
-        # Create axis using this WM projection
-        ax = fig.add_subplot(projection=proj)
-        # Plot
-        mesh = iplt.pcolormesh(cube, cmap = precip_colormap)
-        
-        # Add regional outlines, depending on which region is being plotted
-        # And define extent of colorbars
-        if region == 'Northern':
-             leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=2)
-             northern_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=4)
-             colorbar_axes = plt.gcf().add_axes([0.73, 0.15, 0.015, 0.7])
-        elif region == 'leeds-at-centre':
-             leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=4)
-             colorbar_axes = plt.gcf().add_axes([0.92, 0.28, 0.015, 0.45])
-        elif region == 'UK':
-             plt.gca().coastlines(linewidth =3)
-             colorbar_axes = plt.gcf().add_axes([0.76, 0.15, 0.015, 0.7])
+    colorbar = plt.colorbar(mesh, colorbar_axes, orientation='vertical')  
+    colorbar.set_label('mm/hr', size = 20)
+    colorbar.ax.tick_params(labelsize=28)
+    colorbar.ax.set_yticklabels(["{:.{}f}".format(i, 2) for i in colorbar.get_ticks()])    
     
-        colorbar = plt.colorbar(mesh, colorbar_axes, orientation='vertical',  boundaries = contour_levels)  
-        colorbar.set_label('mm/hr', size = 20)
-        colorbar.ax.tick_params(labelsize=28)
-        colorbar.ax.set_yticklabels(["{:.{}f}".format(i, 2) for i in colorbar.get_ticks()])    
-        
-        # Save to file
-        if key == 'LinearRegridding':
-            filename = "Outputs/RegionalRainfallStats/Plots/RegriddedObservations/LinearRegridding/{}/{}.png".format(region, stat)
-        elif key == 'NearestNeighbour':
-              filename = "Outputs/RegionalRainfallStats/Plots/RegriddedObservations/NearestNeighbour/{}/{}.png".format(region, stat)          
-        elif key == 'Regridding_Difference':
-             filename = "Outputs/RegionalRainfallStats/Plots/RegriddedObservations/Regridding_Difference/{}/{}.png".format(region, stat)
-        
-        # Save plot        
-        plt.savefig(filename, bbox_inches = 'tight')
-        plt.clf()
+    # Save to file
+    filename = "Outputs/RegionalRainfallStats/Plots/Difference_ModelVsObs/{}/{}.png".format(region, stat)
+    
+    # Save plot        
+    plt.savefig(filename, bbox_inches = 'tight')
+    plt.clf()
