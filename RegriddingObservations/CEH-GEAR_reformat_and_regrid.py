@@ -31,25 +31,25 @@ i = 0
 for filename in glob.glob("datadir/CEH-GEAR/*"):
     print(i)
     # Filename to save reformatted cube to
-    filename_reformat = filename.replace("datadir/CEH-GEAR/", "Outputs/CEH-GEAR_reformatted/rf_")
+    filename_reformat = filename.replace("datadir/CEH-GEAR/", "Outputs/RegriddingObservations/CEH-GEAR_reformatted/rf_")
     # Filename to save regridded cube to -- linear
-    filename_regrid_lin = filename.replace("datadir/CEH-GEAR/", "Outputs/CEH-GEAR_regridded_2.2km/LinearRegridding/rg_")
+    filename_regrid_lin = filename.replace("datadir/CEH-GEAR/", "Outputs/RegriddingObservations/CEH-GEAR_regridded_2.2km/LinearRegridding/rg_")
     # Filename to save regridded cube to -- nearest neighbour
-    filename_regrid_nn = filename.replace("datadir/CEH-GEAR/", "Outputs/CEH-GEAR_regridded_2.2km/NearestNeighbour/rg_")
+    filename_regrid_nn = filename.replace("datadir/CEH-GEAR/", "Outputs/RegriddingObservations/CEH-GEAR_regridded_2.2km/NearestNeighbour/rg_")
     
     # If files don't already exist, then create
     #if not os.path.isfile(filename_regrid_nn):
     if 1 == 1:
       # Open dataset with Xarray
-      xr_ds=xr.open_dataset(filename)
+      #xr_ds=xr.open_dataset(filename)
       # Convert to cube in the correct format and save
-      cube=make_bng_cube(xr_ds,'rainfall_amount')
-      iris.save(cube, filename_reformat)
+      #cube=make_bng_cube(xr_ds,'rainfall_amount')
+      cube = iris.load(filename_reformat, 'rainfall_amount')[0]
       #### Regrid observaitons onto model grid
       # Lienar interpolation
-      #reg_cube_lin =cube.regrid(cube_model,iris.analysis.Linear())      
+      reg_cube_lin =cube.regrid(cube_model,iris.analysis.Linear())      
       # Nearest neighbour
-      reg_cube_nn =cube.regrid(cube_model,iris.analysis.Nearest())    
+      #reg_cube_nn =cube.regrid(cube_model,iris.analysis.Nearest())    
      
       # Area weighted regrid
       # First need to convert projection system
@@ -65,7 +65,7 @@ for filename in glob.glob("datadir/CEH-GEAR/*"):
       #reg_cube_aw =cube.regrid(cube_model,iris.analysis.AreaWeighted())   
       
       # Save 
-      #iris.save(reg_cube_lin, filename_regrid_lin)
-      iris.save(reg_cube_nn, filename_regrid_nn)
+      iris.save(reg_cube_lin, filename_regrid_lin)
+      #iris.save(reg_cube_nn, filename_regrid_nn)
     
     i = i+1

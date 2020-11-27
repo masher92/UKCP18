@@ -10,6 +10,7 @@ import warnings
 import iris.quickplot as qplt
 import iris.plot as iplt
 import cartopy.crs as ccrs
+from matplotlib import colors
 warnings.simplefilter(action = 'ignore', category = FutureWarning)
 
 # Set up path to root directory
@@ -68,37 +69,30 @@ for stat in stats:
     
     # Find min and max vlues in data and set up contour levels
     local_min = np.nanmin(diff_cube.data)
-    local_max = np.nanmax(diff_cube.data)     
-    contour_levels = np.linspace(local_min, local_max, 11,endpoint = True)     
+    local_max = np.nanmax(diff_cube.data)  
     
-    # test = diff_cube.data 
-    # test_mask = test.mask
-    #test = test.data
-    #test[~test_mask] = np.nan
-    #diff_cube.data = test    
+    if abs(local_min) > abs(local_max):
+        local_max = abs(local_min)
+    elif abs(local_max) > abs(local_min):
+        local_min = -(local_max)
+    
+    contour_levels = np.linspace(local_min, local_max, 11,endpoint = True)     
     
     ##### Plotting        
     # Create a colourmap            
-    
-    class MidpointNormalize(colors.Normalize):
-        def __init__(self, vmin=None, vmax=None, midpoint=None, clip=False):
-            self.midpoint = midpoint
-            colors.Normalize.__init__(self, vmin, vmax, clip)
-    
-        def __call__(self, value, clip=None):
-            # I'm ignoring masked values and all kinds of edge cases to make a
-            # simple example...
-            x, y = [self.vmin, self.midpoint, self.vmax], [0, 0.5, 1]
-            return np.ma.masked_array(np.interp(value, x, y))
-                           
     precip_colormap = create_precip_cmap()
-    from matplotlib import colors
-    cmap = matplotlib.cm.RdBu_r
-    cmap.set_under(color="white")
-    cmap.set_bad(color="white", alpha = 1.)
-    
-    norm = colors.TwoSlopeNorm(vmin = local_min, vmax = local_max,
-                                vcenter = 0)
+    # Create a divergine colormap
+    diverging_cmap = matplotlib.cm.RdBu_r
+    #diverging_cmap.set_under(color="white")
+    #diverging_cmap.set_bad(color="white", alpha = 1.)
+
+    # Normalise data with a defined centre point (in this case 0)
+    if local_min < 0:
+        norm = colors.TwoSlopeNorm(vmin = local_min, vmax = local_max,
+                                    vcenter = 0)
+    else:
+        norm = None
+        diverging_cmap = matplotlib.cm.Reds
     
     # Define figure size
     if region == 'leeds-at-centre':
@@ -112,7 +106,7 @@ for stat in stats:
     # Create axis using this WM projection
     ax = fig.add_subplot(projection=proj)
     # Plot
-    mesh = iplt.pcolormesh(diff_cube, cmap = cmap, norm = norm)
+    mesh = iplt.pcolormesh(diff_cube, cmap = diverging_cmap, norm=norm)
                           # norm = MidpointNormalize(midpoint=0))
     
     # Add regional outlines, depending on which region is being plotted

@@ -35,7 +35,7 @@ sys.path.insert(0, root_fp + 'Scripts/UKCP18/SpatialAnalyses')
 from Spatial_plotting_functions import *
 
 # Define regridding method
-regridding_method = 'LinearRegridding'
+regridding_method = 'NearestNeighbour'
 
 #############################################
 ## Load in the data
