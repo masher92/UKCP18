@@ -6,13 +6,13 @@ from matplotlib.ticker import ScalarFormatter
 ########################################################
 # Pre-processing functions
 ########################################################
-def find_min_max_dict_values (dict):
+def find_min_max_dict_values (dict, precip_variable):
     # Create bin edges based on data in all of the dataframes, i.e. use the same bin edges for all dataframes
     min_values = []
     max_values = []
     for key, df in dict.items():
-        max_values.append(df['Precipitation (mm/hr)'].max())
-        min_values.append(df['Precipitation (mm/hr)'].min())
+        max_values.append(df[precip_variable].max())
+        min_values.append(df[precip_variable].min())
     max_value = max(max_values)
     min_value = min(min_values)
     return(min_value, max_value)
@@ -43,7 +43,7 @@ def log_discrete_bins(min_value,max_value,bins_if_log_spaced,discretisation):
 ### Plotting functions
 ########################################################
 
-def equal_spaced_histogram (results_dict, cols_dict, bin_nos, x_axis_scaling = 'linear', y_axis_scaling = 'linear'):
+def equal_spaced_histogram (results_dict, cols_dict, bin_nos, precip_variable, x_axis_scaling = 'linear', y_axis_scaling = 'linear'):
    
     patches= []
     for key, df in results_dict.items():
@@ -53,7 +53,7 @@ def equal_spaced_histogram (results_dict, cols_dict, bin_nos, x_axis_scaling = '
         patches.append(patch)
         
         # Create a histogram and save the bin edges and the values in each bin
-        values, bin_edges = np.histogram(df['Precipitation (mm/hr)'], bins=bin_nos, density=True)
+        values, bin_edges = np.histogram(df[precip_variable], bins=bin_nos, density=True)
         # Calculate the bin central positions
         bin_centres =  0.5*(bin_edges[1:] + bin_edges[:-1])
         # Draw the plot
@@ -62,7 +62,7 @@ def equal_spaced_histogram (results_dict, cols_dict, bin_nos, x_axis_scaling = '
         #plt.hist(wethours['Precipitation (mm/hr)'], bins = bin_no, density = True, color = 'white', edgecolor = 'black', linewidth= 0.5)
         
     plt.legend(handles=patches)
-    plt.xlabel('Precipitation (mm/hr)')
+    plt.xlabel(precip_variable)
     plt.ylabel('Probability density')
     plt.title(str(bin_nos) + " bins")
     plt.xscale(x_axis_scaling)
@@ -70,11 +70,11 @@ def equal_spaced_histogram (results_dict, cols_dict, bin_nos, x_axis_scaling = '
    
 
 # Plot with log spaced bins (Holloway, 2012)
-def log_spaced_histogram(results_dict, cols_dict, bin_nos, x_axis_scaling = 'linear', y_axis_scaling = 'linear'):
+def log_spaced_histogram(results_dict, cols_dict, bin_nos, precip_variable, x_axis_scaling = 'linear', y_axis_scaling = 'linear'):
     
     # Find maximum and minimum values across all dataframes in dictionary
-    min_value = find_min_max_dict_values(results_dict)[0]
-    max_value = find_min_max_dict_values(results_dict)[1]
+    min_value = find_min_max_dict_values(results_dict, precip_variable)[0]
+    max_value = find_min_max_dict_values(results_dict, precip_variable)[1]
     
     patches= []
     for key, df in results_dict.items():
@@ -91,23 +91,23 @@ def log_spaced_histogram(results_dict, cols_dict, bin_nos, x_axis_scaling = 'lin
         #bins = np.logspace(np.log10(min_value-0.01),np.log10(max_value), bin_nos)  
             
         # Use in built np.histogram density calculator to count numbers in each bin
-        density, bin_edges = np.histogram(df['Precipitation (mm/hr)'], bins= bins, density=True)
+        density, bin_edges = np.histogram(df[precip_variable], bins= bins, density=True)
         bin_centres =  0.5*(bin_edges[1:] + bin_edges[:-1])  
         # Draw the plot
         plt.plot(bin_centres, density ,linewidth = 1, color = cols_dict[key])
         
     plt.legend(handles=patches)
-    plt.xlabel('Precipitation (mm/hr)')
+    plt.xlabel(precip_variable)
     plt.ylabel('Probability density')
     plt.title(str(bin_nos) + " bins")
     plt.xscale(x_axis_scaling)
     plt.yscale(y_axis_scaling)  
     
-def fractional_contribution(results_dict, cols_dict, bin_nos, x_axis_scaling = 'linear', y_axis_scaling = 'linear'):
+def fractional_contribution(results_dict, cols_dict, bin_nos, precip_variable, x_axis_scaling = 'linear', y_axis_scaling = 'linear'):
     
     # Find maximum and minimum values across all dataframes in dictionary
-    min_value = find_min_max_dict_values(results_dict)[0]
-    max_value = find_min_max_dict_values(results_dict)[1]
+    min_value = find_min_max_dict_values(results_dict, precip_variable)[0]
+    max_value = find_min_max_dict_values(results_dict, precip_variable)[1]
     
     patches= []
     for key, df in results_dict.items():
@@ -122,11 +122,11 @@ def fractional_contribution(results_dict, cols_dict, bin_nos, x_axis_scaling = '
         #bins = np.logspace(np.log10(min_value-0.01),np.log10(max_value), bin_nos)  
         bins = np.logspace(np.log10(0.1),np.log10(max_value), bin_nos) 
         # Find the numbers of precipitation measurements in each bin   
-        freqs, bin_edges = np.histogram(df['Precipitation (mm/hr)'], bins= bins, density=False)
+        freqs, bin_edges = np.histogram(df[precip_variable], bins= bins, density=False)
         # Find the centre point of each bin for plotting
         bin_centres =  0.5*(bin_edges[1:] + bin_edges[:-1])  
         # Find the sum of the rain rates for all included values
-        R = df['Precipitation (mm/hr)'].sum()
+        R = df[precip_variable].sum()
         
         fcs = []
         for i in range(0,len(freqs)):
@@ -142,18 +142,18 @@ def fractional_contribution(results_dict, cols_dict, bin_nos, x_axis_scaling = '
         plt.plot(bin_centres, freqs ,linewidth = 1, color = cols_dict[key])
         
     plt.legend(handles=patches)
-    plt.xlabel('Precipitation (mm/hr)')
+    plt.xlabel(precip_variable)
     plt.ylabel('Fractional contribution to rainfall')
     plt.title(str(bin_nos) + " bins")
     plt.xscale(x_axis_scaling)
     plt.yscale(y_axis_scaling)
         
         
-def log_discrete_histogram(results_dict, cols_dict, bin_nos, x_axis_scaling = 'linear', y_axis_scaling = 'linear'):
+def log_discrete_histogram(results_dict, cols_dict, bin_nos, precip_variable, x_axis_scaling = 'linear', y_axis_scaling = 'linear'):
     
     # Create bin edges based on data in all of the dataframes, i.e. use the same bin edges for all dataframes
-    min_value = find_min_max_dict_values(results_dict)[0]
-    max_value = find_min_max_dict_values(results_dict)[1]
+    min_value = find_min_max_dict_values(results_dict, precip_variable)[0]
+    max_value = find_min_max_dict_values(results_dict, precip_variable)[1]
 
     # Maybe min value shoudl be set at 0.05 to make the spacings at the right place
     min_value = 0.05
@@ -175,14 +175,14 @@ def log_discrete_histogram(results_dict, cols_dict, bin_nos, x_axis_scaling = 'l
         patches.append(patch)
         
         # Find the numbers of precipitation measurements in each bin   
-        freqs, bin_edges = np.histogram(df['Precipitation (mm/hr)'], bins= bin_edges, density=True)
+        freqs, bin_edges = np.histogram(df[precip_variable], bins= bin_edges, density=True)
         # Find the centre point of each bin for plotting
         bin_centres =  0.5*(bin_edges[1:] + bin_edges[:-1])    
         # Draw the plot
         plt.plot(bin_centres, freqs ,linewidth = 1, color = cols_dict[key])
 
     plt.legend(handles=patches)
-    plt.xlabel('Precipitation (mm/hr)')
+    plt.xlabel(precip_variable)
     plt.ylabel('Probability density')
     plt.title(str(len(bin_edges)) + " bins")
     plt.xscale(x_axis_scaling)
