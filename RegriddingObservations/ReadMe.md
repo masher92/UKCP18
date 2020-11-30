@@ -31,14 +31,14 @@ Area weighted regridding is therefore not possible as the 1km observations and 2
   * Checks the reformatting process above works. Checks similarity between max/mean values between original and reformatted data and checks plotting.
 
 <ins> Testing reformatting </ins>
-* TestingRegridding/IndividualCells/CreateTimeSeriesForGridCell.py
+* TestingRegridding/IndividualCells/CreateTimeSeriesForGridCell.py  
      * Finds the grid cell covering a point of interest for both the original and reformatted observations data.  
      * Creates a csv containing a 20 year time series of data at this location.   
-* TestingRegridding/IndividualCells/CompareRegriddedDataPDFs.py
+* TestingRegridding/IndividualCells/CompareRegriddedDataPDFs.py  
       * Plots PDFs using the regridded and original data
-* TestingRegridding/leeds-at-centre/CombineAllYearsDataAcrossRegion.py
+* TestingRegridding/leeds-at-centre/CombineAllYearsDataAcrossRegion.py  
       * Data from all cells across the leeds-at-centre region are combined into one array, for both original and regridded data
-* TestingRegridding/leeds-at-centre/CompareRegriddedDataPDFs.py
+* TestingRegridding/leeds-at-centre/CompareRegriddedDataPDFs.py  
       * These arrays are used to plot PDFs 
 
 ## Next steps
