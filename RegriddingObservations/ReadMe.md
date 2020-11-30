@@ -43,5 +43,5 @@ Area weighted regridding is therefore not possible as the 1km observations and 2
 
 ## Next steps
 * Look at observations from rain gauge data and cross-check the CEH-GEAR data with these as well
-* Once satisfied with the regridded observations, plot the observations over the UK for various stats as have done with the model data. Then create difference plots (difference between each EM and the observations).
+
 
