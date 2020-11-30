@@ -9,4 +9,4 @@ Smoothed density plot:
   <img src="Figs/Example_histogram.PNG" width="400" />
   <img src="Figs/Example_smoothedhistogram.PNG" width="400"/>
 </p>
-<p align="center"> Figure 1. Layout of 1km observations grid (model) and 2.2km model grid (right) <p align="center">
+<p align="center"> Figure 1. Histogram (left) and smoothed histogram (right) <p align="center">
