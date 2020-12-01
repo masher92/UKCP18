@@ -7,7 +7,8 @@ The location of rain gauges in and around the Leeds area which supply hourly rai
 <p align="center"> Figure 1. Location of rain gauges in area surrounding Leeds <p align="center">
 
 #### City Council
-The City Council have provided hourly rainfall data from 29 monitoring stations for 26/03/2014 - 22/11/2020. This rainfall data comes from the Met Office's radar product and is then processed by MAP rain into 1km grid squares using the Ordinance Survey Grid Reference system. Consequently, the rainfall at each monitoring point is an average of the underlying radar rainfall for the 1km grid square on which the monitoring point sits. The MAP (Meniscus Analytics Platform) was developed in 2014 and was partially funed by InnovateUK as a tool for delivering real-time Big Data Analytics (http://www.meniscus.co.uk/solutions-built-using-meniscus-analytics-platforms/map-rain-delivering-historic-and-predictive-rainfall-analytics).
+The City Council have provided hourly rainfall data from 29 monitoring stations for 26/03/2014 - 22/11/2020. This rainfall data comes from the Met Office's radar product and is then processed by MAP rain into 1km grid squares using the Ordinance Survey Grid Reference system. Consequently, the rainfall at each monitoring point is an average of the underlying radar rainfall for the 1km grid square on which the monitoring point sits.  
+The MAP (Meniscus Analytics Platform) was developed in 2014 and was partially funed by InnovateUK as a tool for delivering real-time Big Data Analytics (http://www.meniscus.co.uk/solutions-built-using-meniscus-analytics-platforms/map-rain-delivering-historic-and-predictive-rainfall-analytics).
 
 DAILY rainfall data is also available from six rain gauges operated by LCC between 2014 and 2018 via Leeds Data Mill (https://datamillnorth.org/dataset/rain-gauge-rainfall-data)
 15 minute rainfall accumulations are available at Pottery Fields from 2013-2016 (https://datamillnorth.org/dataset/pottery-fields-rain-gauge-rainfall-data).
@@ -20,7 +21,7 @@ Historical hourly rainfall data has been acquired for five rain gauges in the We
 <p align="center"> Table 1. Details of Environment Agency rain gauges in West Yorkshire <p align="center">  
 
 | Rain Gauge      |Data period      | Comments on gauge and data     |
-| :---        |    :-----------------:         |          ---: |
+| :---        |    :-----------------:         |          :---: |
 | Heckmondwike      | 07/06/1985 - 03/11/2020      | Data validated and checked since 05/01/2011.   1985-86 and June 1991- May 1992 no rainfall has been recorded.  Gauge has histry of freezing in cold months due exposure |
 | Eccup (063518)   | 13/08/1986  - 02/11/2020        | Data validated since 21/12/2010. Some data missing in the 1990s   |
 | Headingley (076413)  | 25/01/1996 -  03/11/2020   | Data validated since 01/01/11. Data mostly good quality except from chunks between 01/01/11 -02/02/2011 and 01/08/11 -30/09/11 which are marked as suspect    |

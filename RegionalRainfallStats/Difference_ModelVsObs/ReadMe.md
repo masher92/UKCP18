@@ -1,6 +1,6 @@
 # Difference between Model and Observations
 
-The mean value across the twelve UKCP18 2.2km model ensemble members are calculated for various statistics of present day rainfall. The difference between these mean values and those found in the CEH-GEAR observations data, regridded to 2.2km, are then calculated to quantify the present of model bias.  
+The mean value across the twelve UKCP18 2.2km model ensemble members are calculated for various statistics of present day rainfall. The difference between these mean values and those found in the CEH-GEAR observations data, regridded to 2.2km, are then calculated to establish the presence of model bias.  
 
 <p align="left">
             <img src="Figs/UK/jja_mean.png" width="200" />
