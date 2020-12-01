@@ -19,16 +19,6 @@ Historical hourly rainfall data has been acquired for five rain gauges in the We
 
 <p align="center"> Table 1. Details of Environment Agency rain gauges in West Yorkshire <p align="center">  
 
-+----+-------------+--------+-------+-----+
-| id | name        | gender | state | age |
-+----+-------------+--------+-------+-----+
-| 1  | John Kenedy | male   | NY    | 32  |
-+----+-------------+--------+-------+-----+
-| 2  | Meresa Oslo | female | HI    | 26  |
-+----+-------------+--------+-------+-----+
-| 3  | Mike Lanes  | male   | FL    | 25  |
-+----+-------------+--------+-------+-----+
-
 | Rain Gauge      |Data period      | Comments on gauge and data     |
 | :---        |    :-----------------:         |          :---: |
 | Heckmondwike      | 07/06/1985 - 03/11/2020      | Data validated and checked since 05/01/2011.   1985-86 and June 1991- May 1992 no rainfall has been recorded.  Gauge has histry of freezing in cold months due exposure |
