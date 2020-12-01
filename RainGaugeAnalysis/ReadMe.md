@@ -11,10 +11,34 @@ The location of rain gauges in and around the Leeds area which supply sub-hourly
   <img src="Figs/rain_gauge_table_transfer.PNG" width="400"  title="Original 1km grid" />
 
 
+| Operator           | Gauge name and location      | Time Period | Resolution  | Lat   | Long  |
+|--------------------|------------------------------|-------------|-------------|-------|-------|
+| Met Office         | Bradford (00516)             | 2010-2017   | Hourly*     |       |       |
+|                    | Huddersfield Oakes (00515    | 1957-1986   | 9am and 9pm |       |       |
+|                    | Bingley No.2 (00513)         | 1994-2017   | Hourly      |       |       |
+|                    | Emley Moor (00521)           | 1984-2010   | 9am and 9pm |       |       |
+|                    | Leeds Weather Centre (00523) | 1989-2003   | Hourly      | 53.80 |       |
+|                    | Ryhill (00529)               | 2010-2017   | Hourly      |       |       |
+|                    | Bramham (00534)              | 2001-2017   | Hourly      |       |       |
+|                    | Emley Moor No.2 (56958)      | 2011-2017   | Hourly      | 53.61 | -1.67 |
+| NCAS               | Leeds University             | 2011-2020   | 5 minutes   | 53.80 | -1.56 |
+| Environment Agency | Heckmondwike (079621)        |             |             |       |       |
+|                    | Eccup (063518)               |             |             |       |       |
+|                    | Headingley (076413)          |             |             |       |       |
+|                    | Farnley Hall (076204)        |             |             |       |       |
+|                    | Wakefield (080282)           |             |             |       |       |
+| City Council       | Pottery Fields               | 2013-2016   | 15 minutes  | 53.79 | -1.54 |
+
+
 #### City Council
 Data from six rain gauges operated by Leeds City Council for 2014-2018 is provided online via Leeds Data Mill (https://datamillnorth.org/dataset/rain-gauge-rainfall-data) or on the Government website (https://data.gov.uk/dataset/2db7bc77-bf91-49d7-a6b4-df003ae415bd/rain-gauge-rainfall-data). The gauge locations are mostly out with the inner city (Allerton Bywater; Middleton; Shadwell; Wetherby; Pottery Fields (not 2018); Otley (not in lots of them)). Only daily rainfall accumulations are provided for these locations.
 
 Additionally, rainfall accumulations at 15 minute intervals are available at Pottery Fields from 2013-2016 (https://datamillnorth.org/dataset/pottery-fields-rain-gauge-rainfall-data). This data was said to have been released as a one-off extra dataset to supplement the existing rain gauge data for flood hack event at ODI.
+
+The City Council have provided data from 29 monitoring stations. 
+
+Map Rain - Meniscus (http://www.meniscus.co.uk/solutions-built-using-meniscus-analytics-platforms/map-rain-delivering-historic-and-predictive-rainfall-analytics/)
+MAP (Meniscus Analytics Platform). The rainfall data is from the Met Office’s radar product and then MAP Rain processes this data in 1km grid squares using the Ordinance Survey Grid Reference system. So the rainfall at each monitoring point is an average of the underlying radar rainfall for the 1km grid square on which the monitoring point sits.
 
 #### Met Office
 Met Office rain gauge data is available as part of the Met Office Integrated Data Arichive System (MIDAS) and is downloadable from CEDA (https://catalogue.ceda.ac.uk/uuid/5dd1ca58159640cf9c0f27d40f7062ec), although access to the data has to be first granted.
