@@ -61,6 +61,8 @@ template = """
   <ul class='legend-labels'>
     <li><span style='background:red;opacity:0.7;'></span>Environment Agency</li>
     <li><span style='background:green;opacity:0.7;'></span>City Council</li>
+        <li><span style='background:orange;opacity:0.7;'></span>Met Office </li>
+    <li><span style='background:purple;opacity:0.7;'></span>University (NCAS)</li>
   </ul>
 </div>
 </div>
@@ -210,10 +212,10 @@ for lon, lat, Location in zip(np.array(cc_monitoringpoints['Longitude']), np.arr
     folium.Marker(location=[lat, lon],popup = Location ,  icon=folium.Icon(color='green')).add_to(m)
 #for lon, lat, ID in zip(np.array(cc_gauges['Longitude']), np.array(cc_gauges['Latitude']), np.array(cc_gauges['ID'])):
 #    folium.Marker(location=[lat, lon],  icon=folium.Icon(color='green')).add_child(folium.Popup(ID)).add_to(m)
-#for lon, lat, ID in zip(np.array(mo_gauges['Longitude']), np.array(mo_gauges['Latitude']), np.array(mo_gauges['ID'])):
-#    folium.Marker(location=[lat, lon],  icon=folium.Icon(color='orange')).add_child(folium.Popup(ID)).add_to(m)
-#for lon, lat, ID in zip(np.array(uni_gauges['Longitude']), np.array(uni_gauges['Latitude']), np.array(uni_gauges['ID'])):
-#    folium.Marker(location=[lat, lon],  icon=folium.Icon(color='purple')).add_child(folium.Popup(ID)).add_to(m)    
+for lon, lat, ID in zip(np.array(mo_gauges['Longitude']), np.array(mo_gauges['Latitude']), np.array(mo_gauges['ID'])):
+    folium.Marker(location=[lat, lon],  icon=folium.Icon(color='orange')).add_child(folium.Popup(ID)).add_to(m)
+for lon, lat, ID in zip(np.array(uni_gauges['Longitude']), np.array(uni_gauges['Latitude']), np.array(uni_gauges['ID'])):
+    folium.Marker(location=[lat, lon],  icon=folium.Icon(color='purple')).add_child(folium.Popup(ID)).add_to(m)    
 # for lon, lat, Location in zip(np.array(mo_gauges_extra['Longitude']), np.array(mo_gauges_extra['Latitude']),  np.array(mo_gauges_extra['Location'])):
 #     folium.Marker(location=[lat, lon],popup = Location ,  icon=folium.Icon(color='purple')).add_to(m)
 # Add the legend sing template below
