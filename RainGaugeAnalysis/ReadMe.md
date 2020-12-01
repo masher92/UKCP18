@@ -1,36 +1,38 @@
 # Rainfall observations
 ## Rain Gauges
-The location of rain gauges in and around the Leeds area which supply sub-hourly rainfall measurements is shown in Figure 1, and further details of these are provided in Table 1. These gauges are operated by the Environment Agency, Met Office, University and City Council, and further details for each of these are provided below.
+The location of rain gauges in and around the Leeds area which supply hourly rainfall measurements is shown in Figure 1, and further details of these are provided in Table 1. These gauges are operated by the Environment Agency, Met Office, University and City Council, and further details for each of these are provided below.
 
 <p align="center">
   <img src="Figs/RainGaugeLocations.png" width="400"  title="Original 1km grid" />
 <p align="center"> Figure 1. Location of rain gauges in area surrounding Leeds <p align="center">
 
-<p align="center"> Table 1. Details of rain gauges proximal to Leeds city region <p align="center">
-<p align="center">
-  <img src="Figs/rain_gauge_table_transfer.PNG" width="400"  title="Original 1km grid" />
-
-
 #### City Council
-The City Council have provided data from 29 monitoring stations. 
+The City Council have provided hourly rainfall data from 29 monitoring stations for 26/03/2014 - 22/11/2020. This rainfall data comes from the Met Office's radar product and is then processed by MAP rain into 1km grid squares using the Ordinance Survey Grid Reference system. Consequently, the rainfall at each monitoring point is an average of the underlying radar rainfall for the 1km grid square on which the monitoring point sits. The MAP (Meniscus Analytics Platform) was developed in 2014 and was partially funed by InnovateUK as a tool for delivering real-time Big Data Analytics (http://www.meniscus.co.uk/solutions-built-using-meniscus-analytics-platforms/map-rain-delivering-historic-and-predictive-rainfall-analytics).
 
 DAILY rainfall data is also available from six rain gauges operated by LCC between 2014 and 2018 via Leeds Data Mill (https://datamillnorth.org/dataset/rain-gauge-rainfall-data) 
 15 minute rainfall accumulations are available at Pottery Fields from 2013-2016 (https://datamillnorth.org/dataset/pottery-fields-rain-gauge-rainfall-data). 
 
-Map Rain - Meniscus (http://www.meniscus.co.uk/solutions-built-using-meniscus-analytics-platforms/map-rain-delivering-historic-and-predictive-rainfall-analytics/)
-MAP (Meniscus Analytics Platform). The rainfall data is from the Met Office’s radar product and then MAP Rain processes this data in 1km grid squares using the Ordinance Survey Grid Reference system. So the rainfall at each monitoring point is an average of the underlying radar rainfall for the 1km grid square on which the monitoring point sits.
+#### Environment Agency
+The Environment Agency are required to provide flood warning and water resource assessment at much higher resolution than Met Office rain gauge network is currently capable of and so they run their own network of automatic rain gauges across England. They have approximately 1000 rain gauges giving 15 minute readings.
+
+Historical hourly rainfall data has been provided for five gauges within West Yorkshire:
+* Heckmondwike – data available from 07/06/1985. The data has been validated and checked since 05/01/2011 where the data will then either be marked up and commented upon. In the years 1985 -1986 and again from June 1991 – May 1992 no rain has been recorded, so you may need to edit these years out of analysis if looking at long-term rainfall. The gauge also has experience of freezing during colder months due to exposure. 
+* Eccup (063518) – data available form 13/08/1986. The data has been validated since 31/12/2010. Early periods of the 1990s it seems that some data is missing. 
+* Headingley (076413) – data available from 25/01/1996 and validated since 01/01/2011. The data overall has been marked up as good, apart from two large sections from 01/01/2011 – 02/02/2011 and 01/08/2011 – 30/09/2011 of data that been marked up a suspect.
+* Farnley Hall (076204) – data available from 10/12/1987 and the data has been validated from 01/01/2011. On the whole the data that has been checked has been marked as good quality.
+* Wakefield (080282) – data from 1985 validated from 01/01/2011. The data overall is of a good quality. 
+
+
+Additionally, the most recent 100 readings (15 minute accumulations) from each rain gauge can be accessed through their Rainfall API demonstrator: https://environment.data.gov.uk/flood-monitoring/assets/demo/index.html. Historic rainfall data for the past 12 months is available to download from the Environment Agency archive: http://environment.data.gov.uk/flood-monitoring/archive. It is noted that none of this data is validated and thus could potentially contain errors due to faulty instruments or on-site maintenance.
 
 #### Met Office
 Met Office rain gauge data is available as part of the Met Office Integrated Data Arichive System (MIDAS) and is downloadable from CEDA (https://catalogue.ceda.ac.uk/uuid/5dd1ca58159640cf9c0f27d40f7062ec), although access to the data has to be first granted.
 
 The location of MIDAS stations are mapped here: http://archive.ceda.ac.uk/cgi-bin/midas_stations/midas_googlemap.cgi and you can view MIDAS stations in West Yorkshire here: http://archive.ceda.ac.uk/cgi-bin/midas_stations/search_by_county.cgi.py?county=WEST+YORKSHIRE&minyear=&maxyear=. But it's not clear whether data is accessible for these stations anywhere (only those locations marked on the map in Figure 1 have data available on CEDA)
 
-#### Environment Agency
-The Environment Agency are required to provide flood warning and water resource assessment at much higher resolution than Met Office rain gauge network is currently capable of and so they run their own network of automatic rain gauges across England. They have approximately 1000 rain gauges giving 15 minute readings.
-
-The most recent 100 readings (15 minute accumulations) from each rain gauge can be accessed through their Rainfall API demonstrator: https://environment.data.gov.uk/flood-monitoring/assets/demo/index.html. Historic rainfall data for the past 12 months is available to download from the Environment Agency archive: http://environment.data.gov.uk/flood-monitoring/archive. It is noted that none of this data is validated and thus could potentially contain errors due to faulty instruments or on-site maintenance.
-
-To acquire quality controlled, historic (more than a year old) data enquiries should be sent to enquiries@environment-agency.gov.uk (https://support.environment.data.gov.uk/hc/en-gb/articles/360009246272-How-do-I-get-historic-rainfall-data)
+<p align="center"> Table 1. Details of rain gauges proximal to Leeds city region <p align="center">
+<p align="center">
+  <img src="Figs/rain_gauge_table_transfer.PNG" width="400"  title="Original 1km grid" />
 
 ## Gridded observations data (CEH-GEAR1hr)
 Gridded hourly precipitation values were produced by temporally disaggregating CEH-GEAR daily, a pre-existing validated and quality controlled gridded daily precipitation dataset. The CEH-GEAR daily dataset is produced using a natural neighbour interpolated method and using data solely from Met Office rain gauges (Lewis et al, 2018). They cover the period of 1990-2014.
