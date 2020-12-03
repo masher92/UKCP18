@@ -44,7 +44,7 @@ for filename in glob.glob("datadir/CEH-GEAR/*"):
       #xr_ds=xr.open_dataset(filename)
       # Convert to cube in the correct format and save
       #cube=make_bng_cube(xr_ds,'rainfall_amount')
-      cube = iris.load(filename_reformat, 'rainfall_amount')[0]
+      cube = iris.save(filename_reformat, 'rainfall_amount')[0]
       #### Regrid observaitons onto model grid
       # Lienar interpolation
       reg_cube_lin =cube.regrid(cube_model,iris.analysis.Linear())      
