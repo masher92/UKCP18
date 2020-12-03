@@ -13,6 +13,10 @@ In each case, across all the grid cells within this area, all hourly precipitati
 Using this data, PDFs of precipitation rates are plotted for both the original 1km data and the regridded 2.2km data, using the method specified at the bottom.
 
 <p align="center">
+   <img src="Figs/log_discrete_histogram_25bins.png" width="320" />
+  <img src="Figs/log_discrete_histogram_26bins.png" width="320" />
+  <img src="Figs/log_discrete_histogram_28bins.png" width="320" />  
+  <img src="Figs/log_discrete_histogram_29bins.png" width="320" />
   <img src="Figs/log_discrete_histogram_33bins.png" width="320" />
   <img src="Figs/log_discrete_histogram_37bins.png" width="320" />
   <img src="Figs/log_discrete_histogram_39bins.png" width="320" />  

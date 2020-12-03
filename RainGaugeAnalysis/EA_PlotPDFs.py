@@ -21,6 +21,31 @@ os.chdir(root_fp)
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/PointLocationStats/PlotPDFs')
 from PDF_plotting_functions import *
 
+
+##############################################################################
+# Find CEH-GEAR 1km grid square within each gauge is found
+##############################################################################
+# Define gauge locations (taken manually from csv files)
+gauge_locations = pd.DataFrame({'Station': ['Wakefield' , 'Eccup', 'Farnley Hall', 'Headingley' ,'Heckmondwike'],
+                                'Easting': [434704, 430823, 424644, 427139, 422026],
+                                'Northing':[420493, 442309, 432451, 437383, 422486]})
+
+# Read in CEH-GEAR data
+filenames =[]
+# Create filepath to correct folder using ensemble member and year
+general_filename = 'Outputs/RegriddingObservations/CEH-GEAR_reformatted/rf_*'
+# Find all files in directory which start with this string
+for filename in glob.glob(general_filename):
+    #print(filename)
+    filenames.append(filename)
+    print(len(filenames))
+# Load all cubes into list
+monthly_cubes_list = iris.load(filenames,'rainfall_amount')
+
+# Concatenate the cubes into one
+concat_cube = monthly_cubes_list.concatenate_cube()
+
+
 ##############################################################################
 # Reading in data 
 ##############################################################################
@@ -28,9 +53,7 @@ ea_dict = {'wakefield':"datadir/GaugeData/EA_RainfallHourlyTotals/Wakefield_0802
            'eccup': "datadir/GaugeData/EA_RainfallHourlyTotals/Eccup_063518_RainHourly_130886_021120.csv",
            'farnley_hall': "datadir/GaugeData/EA_RainfallHourlyTotals/FarnleyHall_076204_HourlyRain_101287_041120.csv",
            'headingley': "datadir/GaugeData/EA_RainfallHourlyTotals/HeadingleyLogger_076413_HourlyRain_250196_031120.csv",
-           'heckmondwike': 'datadir/GaugeData/EA_RainfallHourlyTotals/Heckmondwike_079621_HourlyRain_070685_031120.csv'
-           }
-
+           'heckmondwike': 'datadir/GaugeData/EA_RainfallHourlyTotals/Heckmondwike_079621_HourlyRain_070685_031120.csv'}
 
 for key, filepath in ea_dict.items():
     # Wakefield
