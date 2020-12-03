@@ -127,6 +127,8 @@ for stat in stats:
     colorbar.ax.tick_params(labelsize=28)
     colorbar.ax.set_yticklabels(["{:.{}f}".format(i, 2) for i in colorbar.get_ticks()])    
     
+    # Set plot title
+    ax.set_title(stat, fontsize = 50)
     # Save to file
     filename = "Outputs/RegionalRainfallStats/Plots/Difference_ModelVsObs/{}/{}.png".format(region, stat)
     
