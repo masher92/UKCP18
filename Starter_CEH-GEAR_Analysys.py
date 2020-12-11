@@ -1,3 +1,14 @@
+import os
+import xarray as xr
+from iris.coords import DimCoord
+from iris.coord_systems import TransverseMercator,GeogCS
+from cf_units import Unit
+import numpy as np
+import cf_units
+from iris.cube import Cube
+import iris
+import iris.plot as iplt
+
 # Define function to reformat the netCDFm observation's cubes
 def make_bng_cube(xr_ds,variable):
     # Store the northings values
