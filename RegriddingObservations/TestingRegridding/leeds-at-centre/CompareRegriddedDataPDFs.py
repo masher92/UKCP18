@@ -34,7 +34,7 @@ os.chdir(root_fp)
 # Create path to files containing functions
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/PointLocationStats/PlotPDFs')
 from PDF_plotting_functions import *
-sys.path.insert(0, root_fp + 'Scripts/UKCP18/Regridding')
+sys.path.insert(0, root_fp + 'Scripts/UKCP18/RegriddingObservations')
 from Regridding_functions import *
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/SpatialAnalyses')
 from Spatial_geometry_functions import *
@@ -51,9 +51,9 @@ leeds_gdf = create_leeds_outline({'init' :'epsg:27700'})
 # Load data, and convert to dataframe
 ################################################################
 # Load data
-leeds_rg_nn = np.load("Outputs/CEH-GEAR_regridded_2.2km/NearestNeighbour/leeds-at-centre_data/leeds-at-centre.npy")
-leeds_rg_lin = np.load("Outputs/CEH-GEAR_regridded_2.2km/LinearRegridding/leeds-at-centre_data/leeds-at-centre.npy")
-leeds_rf = np.load("Outputs/CEH-GEAR_reformatted/leeds-at-centre_data/leeds-at-centre.npy")
+leeds_rg_nn = np.load("Outputs/RegriddingObservations/CEH-GEAR_regridded_2.2km/NearestNeighbour/leeds-at-centre_data/leeds-at-centre.npy")
+leeds_rg_lin = np.load("Outputs/RegriddingObservations/CEH-GEAR_regridded_2.2km/LinearRegridding/leeds-at-centre_data/leeds-at-centre.npy")
+leeds_rf = np.load("Outputs/RegriddingObservations/CEH-GEAR_reformatted/leeds-at-centre_data/leeds-at-centre.npy")
 
 # Convert to dataframe
 leeds_rg_nn = pd.DataFrame({"Precipitation (mm/hr)" : leeds_rg_nn})
@@ -81,16 +81,16 @@ bin_nos =50
 bins_if_log_spaced= bin_nos
 
 # Equal spaced   
-equal_spaced_histogram(my_dict, cols_dict, bin_nos, x_axis, y_axis)
+equal_spaced_histogram(my_dict, cols_dict, bin_nos, "Precipitation (mm/hr)", x_axis, y_axis)
 
 # Log spaced histogram
-log_spaced_histogram(my_dict, cols_dict, bin_nos,x_axis, y_axis)    
+log_spaced_histogram(my_dict, cols_dict, bin_nos, "Precipitation (mm/hr)", x_axis, y_axis)    
  
 # Fractional contribution
-fractional_contribution(my_dict, cols_dict, bin_nos,x_axis, y_axis) 
+fractional_contribution(my_dict, cols_dict, bin_nos, "Precipitation (mm/hr)", x_axis, y_axis) 
              
 # Log histogram with adaptation     
-log_discrete_histogram(my_dict, cols_dict, bin_nos, x_axis, y_axis) 
+log_discrete_histogram(my_dict, cols_dict, bin_nos, "Precipitation (mm/hr)", x_axis, y_axis) 
 
 # # ##########################################################################
 # # # Percentile plots
