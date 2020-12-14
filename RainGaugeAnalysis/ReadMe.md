@@ -30,8 +30,8 @@ Additionally, the most recent 100 readings (15 minute accumulations) from each r
 | Farnley Hall (076204)   | 10/12/1987 - 04/11/2020       | Data validated since 10/12/87. Data which has been checked has overall been marked as good quality      |
 | Wakefield | 19/03/1985 - 03/11/2020        |  Data validated from 01/01/11. Data overall of good quality. Missing data -- 1st July - 5th July 1985; 10th May - 22nd May 1992; 31 January 1993 - 6th February 1993; 25th June 1993 - 2nd July 1993 (incomplete list). Data missing mostly in blocks of several hours or up to tens of days.  |
 
-| Rain Gauge   | Proportion of data missing | MAM      |
-| :---         |    :-----------------:     |    :---: |
+| Rain Gauge   | Proportion of data missing | MAM      | JJA        |  SON      | DJF          |
+| :---         |    :-----------------:     |    :---: |:---------: |:-------:  |    :-------: |
 | Heckmondwike |     0.19%                  |  51.3%   | 
 | Eccup        |     0.5%                   |  18.3%   |   
 | Headingley   |     0.22%                  |  92.8%   |  
