@@ -28,6 +28,17 @@ Historical hourly rainfall data has been acquired for five rain gauges in the We
 | Farnley Hall (076204)   | 10/12/1987 - 04/11/2020       | Data validated since 10/12/87. Data which has been checked has overall been marked as good quality      |
 | Wakefield | 19/03/1985 - 03/11/2020        |  Data validated from 01/01/11. Data overall of good quality. Missing data -- 1st July - 5th July 1985; 10th May - 22nd May 1992; 31 January 1993 - 6th February 1993; 25th June 1993 - 2nd July 1993 (incomplete list). Data missing mostly in blocks of several hours or up to tens of days.  |
 
+| Season   | Heckmondwike  | Eccup | Headingley | Farnley Hall  | Wakefile    |
+| :---        |    :-----------------:         |          :---: |
+| MAM      
+| JJA
+| SON
+| DJF  |
+
+
+
+
+
 Additionally, the most recent 100 readings (15 minute accumulations) from each rain gauge can be accessed through their Rainfall API demonstrator: https://environment.data.gov.uk/flood-monitoring/assets/demo/index.html. Historic rainfall data for the past 12 months is available to download from the Environment Agency archive: http://environment.data.gov.uk/flood-monitoring/archive. It is noted that none of this data is validated and thus could potentially contain errors due to faulty instruments or on-site maintenance.
 
 #### Met Office
