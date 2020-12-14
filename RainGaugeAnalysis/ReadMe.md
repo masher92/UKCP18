@@ -38,11 +38,8 @@ Additionally, the most recent 100 readings (15 minute accumulations) from each r
 | SON      |     5.4%           |    54.2%   |  1.5%      |    36.3%      |    2.4%      |
 | DJF      |     8.8%          |  19.6%     |  3.6%      |    8.6%       |    32.9%     |
 
-<p align="center"> Table 2. Details of Environment Agency rain gauges in West Yorkshire <p align="center">  
-| Rain gauge      |Proportion of data missing     | MAM       | JJA |  SON  | DJF    |
-| :---     |    :--------:      |   :------: |:---------: |    :-------:  |    :-------: |  
-  
-|   | Proportion of data missing | MAM      | JJA        |  SON      | DJF  |
+<p align="center"> Table 2. Details of Environment Agency rain gauges in West Yorkshire <p align="center">   
+| Proportion of data missing | MAM      | JJA        |  SON      | DJF  |
 | :---     |    :--------:      |   :------: |:---------: |    :-------:  |    :-------: |
 | Heckmondwike |     0.19%                  |  51.3%   |  34.5%     |    5.4%   |   8.8%       |
 
