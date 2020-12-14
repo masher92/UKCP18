@@ -32,6 +32,7 @@ Additionally, the most recent 100 readings (15 minute accumulations) from each r
 
 
 <p align="center"> Table 2. Details of Environment Agency rain gauges in West Yorkshire <p align="center">  
+  
 | Rain Gauge   | Proportion of data missing | MAM      | JJA        |  SON      | DJF          |
 | :---         |    :-----------------:     |    :---: |:---------: |:-------:  |    :-------: |
 | Heckmondwike |     0.19%                  |  51.3%   |  34.5%     |    5.4%   |   8.8%       |
