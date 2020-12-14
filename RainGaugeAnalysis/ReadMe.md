@@ -32,13 +32,12 @@ Additionally, the most recent 100 readings (15 minute accumulations) from each r
 
 <p align="center"> Table 2. Details of Environment Agency rain gauges in West Yorkshire <p align="center">  
 | Rain gauge   | Proportion of data missing | MAM      | JJA        |  SON      | DJF          |
+| :---         |    :--------:              | :------: |:---------: |:-------:  |    :-------: |
 | Heckmondwike |     0.19%                  |  51.3%   |  34.5%     |    5.4%   |   8.8%       |
 | Eccup        |     0.5%                   |  18.3%   |   7.9%     |   54.2%   |    19.6%     |
 | Headingley   |     0.22%                  |  92.8%   |   2.1%     |    1.5%   |     3.6%     |
 | Farnley Hall |    0.58%                   |  25.6%   |    29.5%   |    36.3%  |    8.6%      |
 | Wakefield    |     0.33%                  |  36.3%   |    28.4%   |   2.4%    |    32.9%     |
-
-
 
 
 #### Met Office
