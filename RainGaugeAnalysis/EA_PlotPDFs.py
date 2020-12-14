@@ -14,23 +14,16 @@ import iris.plot as iplt
 from matplotlib.ticker import ScalarFormatter
 import pandas as pd
 
-#root_fp = "/nfs/a319/gy17m2a/"
-root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
+root_fp = "/nfs/a319/gy17m2a/"
+#root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
 os.chdir(root_fp)
 
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/PointLocationStats/PlotPDFs')
 from PDF_plotting_functions import *
 
-
 ##############################################################################
-# Find CEH-GEAR 1km grid square within each gauge is found
-##############################################################################
-# Define gauge locations (taken manually from csv files)
-gauge_locations = pd.DataFrame({'Station': ['Wakefield' , 'Eccup', 'Farnley Hall', 'Headingley' ,'Heckmondwike'],
-                                'Easting': [434704, 430823, 424644, 427139, 422026],
-                                'Northing':[420493, 442309, 432451, 437383, 422486]})
-
 # Read in CEH-GEAR data
+##############################################################################
 filenames =[]
 # Create filepath to correct folder using ensemble member and year
 general_filename = 'Outputs/RegriddingObservations/CEH-GEAR_reformatted/rf_*'
@@ -45,6 +38,18 @@ monthly_cubes_list = iris.load(filenames,'rainfall_amount')
 # Concatenate the cubes into one
 concat_cube = monthly_cubes_list.concatenate_cube()
 
+##############################################################################
+# Find CEH-GEAR 1km grid square within each gauge is found
+##############################################################################
+# Define gauge locations (taken manually from csv files)
+gauge_locations = pd.DataFrame({'Station': ['Wakefield' , 'Eccup', 'Farnley Hall', 'Headingley' ,'Heckmondwike'],
+                                'Easting': [434704, 430823, 424644, 427139, 422026],
+                                'Northing':[420493, 442309, 432451, 437383, 422486]})
+
+# Create a list of all the tuple pairs of latitude and longitudes
+locations = list(itertools.product(concat_cube.coord('projection_y_coordinate').points, 
+                                   concat_cube.coord('projection_x_coordinate').points))
+     
 
 ##############################################################################
 # Reading in data 
