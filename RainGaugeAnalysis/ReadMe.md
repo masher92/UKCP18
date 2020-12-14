@@ -30,7 +30,10 @@ Historical hourly rainfall data has been acquired for five rain gauges in the We
 
 | Season     |Heckmondwike     | Eccup    | Headingley |Farnley Hall  | Wakefield    |
 | :---        |    :-----------------:         |          :---: |         :---: |    :---: |    :---: |
-| Heckmondwike      | 07/06/1985 - 03/11/2020      | | || |
+| MAM      |               |       |            |               |              |
+| JJA      |               |       |            |               |              |
+| SON      |               |       |            |               |              |
+| DJF      |               |       |            |               |              |
 
 
 <p align="center"> Table 1. Details of Environment Agency rain gauges in West Yorkshire <p align="center">  
