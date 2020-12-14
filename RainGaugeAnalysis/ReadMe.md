@@ -28,6 +28,10 @@ Historical hourly rainfall data has been acquired for five rain gauges in the We
 | Farnley Hall (076204)   | 10/12/1987 - 04/11/2020       | Data validated since 10/12/87. Data which has been checked has overall been marked as good quality      |
 | Wakefield | 19/03/1985 - 03/11/2020        |  Data validated from 01/01/11. Data overall of good quality. Missing data -- 1st July - 5th July 1985; 10th May - 22nd May 1992; 31 January 1993 - 6th February 1993; 25th June 1993 - 2nd July 1993 (incomplete list). Data missing mostly in blocks of several hours or up to tens of days.  |
 
+| Season     |Heckmondwike     | Eccup    |
+| :---        |    :-----------------:         |          :---: |
+| Heckmondwike      | 07/06/1985 - 03/11/2020      | |
+
 
 <p align="center"> Table 1. Details of Environment Agency rain gauges in West Yorkshire <p align="center">  
 | Season   | Heckmondwike  | Eccup | Headingley | Farnley Hall  | Wakefield    |
