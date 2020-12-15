@@ -1,1 +1,14 @@
 
+### PDFs of precipitation intensity
+
+PDFs of precipitation intensity values across the whole of the Leeds area are plotted for the 1km observations, the regridded 2.2km observations and the twelve model ensemble members.  
+
+<p align="center">
+  <img src="PDFs/10Bins.png" width="200"  />
+  <img src="PDFs/13Bins.png" width="200"  />
+  <img src="PDFs/16Bins.png" width="200"  />  
+<p align="center"> Figure 1. Location of rain gauges in area surrounding Leeds <p align="center">
+
+#### Code work flow
+
+
