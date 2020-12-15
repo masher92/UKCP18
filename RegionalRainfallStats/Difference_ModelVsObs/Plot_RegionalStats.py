@@ -26,7 +26,7 @@ from Spatial_geometry_functions import *
 # Define variables and set up environment
 #############################################
 # Region over which to plot
-region = 'Northern' #['Northern', 'leeds-at-centre', 'UK']
+region = 'UK' #['Northern', 'leeds-at-centre', 'UK']
 # Stats to plot
 stats = ['jja_max', 'jja_mean', 'jja_p95', 'jja_p97', 'jja_p99', 'jja_p99.5', 'jja_p99.75', 'jja_p99.9']
 
@@ -59,6 +59,10 @@ for stat in stats:
     
     # Find the difference between the two
     diff_cube = model_cube-obs_cube
+    
+    # Find the percentage difference
+    diff_cube = (diff_cube/obs_cube) * 100
+    
     #diff_cube = iris.analysis.maths.abs(diff_cube)
     
     # Trim to smaller area
@@ -130,7 +134,7 @@ for stat in stats:
     # Set plot title
     ax.set_title(stat, fontsize = 50)
     # Save to file
-    filename = "Outputs/RegionalRainfallStats/Plots/Difference_ModelVsObs/{}/{}.png".format(region, stat)
+    filename = "Outputs/RegionalRainfallStats/Plots/Difference_ModelVsObs/{}/percentage_diff_{}.png".format(region, stat)
     
     # Save plot        
     plt.savefig(filename, bbox_inches = 'tight')
