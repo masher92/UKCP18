@@ -23,6 +23,11 @@ sys.path.insert(0, root_fp + 'Scripts/UKCP18/SpatialAnalyses')
 from Spatial_plotting_functions import *
 from Spatial_geometry_functions import *
 
+# Create directory to store outputs in
+ddir = "Outputs/Timeseries_UKCP18/leeds-at-centre/{}/".format(em)
+if not os.path.isdir(ddir):
+    os.mkdir(ddir)
+
 ############################################
 # Define variables and set up environment
 #############################################
@@ -32,7 +37,7 @@ region = 'UK' #['Northern', 'leeds-at-centre', 'UK']
 stats = ['jja_max', 'jja_mean', 'jja_p95', 'jja_p97', 'jja_p99', 'jja_p99.5', 'jja_p99.75', 'jja_p99.9']
 
 yrs_range = "1980_2001" 
-ems = ['15']
+ems = ['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
 
 ##################################################################
 # Load necessary spatial data
@@ -73,22 +78,27 @@ for em in ems:
                          
     # Remove ensemble member dimension
     model_cube = model_cube[0,:,:,:]
-                    
+
     ################################################################
     # Cut the cube to the extent of GDF surrounding Leeds  
     ################################################################
     model_cube = trim_to_bbox_of_region_obs(model_cube, leeds_at_centre_gdf)
     
     ################################################################
+    # Once across all ensemble members, save a numpy array storing
+    # the timestamps to which the data refer
+    ################################################################          
+    if em == '01':
+        times = model_cube.coord('yyyymmddhh').points
+        # Convert to datetime - doesnt work due to 30 days in Feb
+        #times = [datetime.datetime.strptime(x, "%Y%m%d%H") for x in times]
+        np.save(ddir + "timestamps.npy", times) 
+    
+    
+    ################################################################
     # Create a numpy array containing all the precipitation values from across
     # all 20 years of data and all positions in the cube
     ################################################################
-
-    # Create directory to store outputs in
-    ddir = "Outputs/Timeseries_UKCP18/leeds-at-centre/{}/".format(em)
-    if not os.path.isdir(ddir):
-        os.mkdir(ddir)
-    
     # Define length of variables defining spatial positions
     lat_length= model_cube.shape[1]
     lon_length= model_cube.shape[2]

@@ -334,7 +334,7 @@ def create_trimmed_cube(leeds_at_centre_gdf, string, target_crs):
     ################################################################
     # 
     ################################################################  
-    filenames=glob.glob('Outputs/CEH-GEAR' +string + 'CEH-GEAR-1hr_*')
+    filenames=glob.glob('Outputs/RegriddingObservations/CEH-GEAR' +string + 'CEH-GEAR-1hr_*')
     monthly_cubes_list = iris.load(filenames,'rainfall_amount')
     
     # Concatenate the cubes into one

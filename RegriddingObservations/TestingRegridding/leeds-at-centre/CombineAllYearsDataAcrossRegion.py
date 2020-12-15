@@ -7,28 +7,11 @@ This file loads CEH-GEAR data over the 'Leeds-at-centre' region which is either:
 It creates a numpy array which contains all the values from all the grid cells across all the years of data
 '''
 
-import numpy.ma as ma
-import iris.coord_categorisation
-import iris
-import glob
 import numpy as np
-from numba import jit
 import os
-import geopandas as gpd
-import time 
 import sys
-import iris.quickplot as qplt
-import cartopy.crs as ccrs
-import matplotlib 
 import iris.plot as iplt
-from scipy import spatial
-import itertools
-from shapely.geometry import Point, Polygon
-from pyproj import Proj, transform
-import matplotlib.pyplot as plt
-import pandas as pd
-import tilemapbase
-import matplotlib as mpl
+import datetime
 
 ################################################################
 # Define variables and set up environment
@@ -70,6 +53,19 @@ leeds_gdf = create_leeds_outline({'init' :'epsg:27700'})
 ################################################################   
 cube = create_trimmed_cube(leeds_at_centre_gdf, string, target_crs)
 
+################################################################
+# Create and save array containing a record of all the time stamps
+# which the data values refer to 
+################################################################   
+# Extract the times that the observations refer to
+times = cube.coord('time').points
+# Convert to datetimes
+times = [datetime.datetime.fromtimestamp(x).strftime("%x %X") for x in times]
+
+# Save to file
+basic_filepath= "Outputs/RegriddingObservations/CEH-GEAR_reformatted/leeds-at-centre_data/"
+np.save(basic_filepath + "timestamps.npy", times)  
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
 ################################################################
 # Trim even more for testing
 ################################################################

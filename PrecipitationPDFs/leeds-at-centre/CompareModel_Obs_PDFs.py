@@ -47,8 +47,9 @@ leeds_gdf = create_leeds_outline({'init' :'epsg:27700'})
 # Load data
 ################################################################
 # Observations
-observations_nn = np.load("Outputs/RegriddingObservations/CEH-GEAR_regridded_2.2km/NearestNeighbour/leeds-at-centre_data/leeds-at-centre.npy")
+observations_regridded = np.load("Outputs/RegriddingObservations/CEH-GEAR_regridded_2.2km/NearestNeighbour/leeds-at-centre_data/leeds-at-centre.npy")
 observations = np.load("Outputs/RegriddingObservations/CEH-GEAR_reformatted/leeds-at-centre_data/leeds-at-centre.npy")
+
 # Model ensemble members
 leeds_em01 = np.load("Outputs/Timeseries_UKCP18/leeds-at-centre/01/leeds-at-centre.npy")
 leeds_em04 = np.load("Outputs/Timeseries_UKCP18/leeds-at-centre/04/leeds-at-centre.npy")
@@ -72,7 +73,7 @@ leeds_all_ems = np.concatenate([leeds_em01, leeds_em04, leeds_em05, leeds_em06, 
 ################################################################
 # Convert to dataframes
 ################################################################
-observations_nn = pd.DataFrame({"Precipitation (mm/hr)" : observations_nn})
+observations_regridded = pd.DataFrame({"Precipitation (mm/hr)" : observations_regridded})
 observations = pd.DataFrame({"Precipitation (mm/hr)" : observations})
 
 leeds_em01 = pd.DataFrame({"Precipitation (mm/hr)" : leeds_em01})
@@ -95,7 +96,7 @@ leeds_all_ems = pd.DataFrame({"Precipitation (mm/hr)" : leeds_all_ems})
 # ##############################################################################
 my_dict = {}
 my_dict['Observations'] = observations
-my_dict['Observations Regridded'] = observations_nn
+my_dict['Observations Regridded'] = observations_regridded
 
 my_dict['Model'] = leeds_all_ems
 
@@ -117,7 +118,7 @@ my_dict['EM15'] = leeds_em15
 ##############################################################################
 cols_dict = {'Observations' : 'firebrick',
              'Observations Regridded' : 'green',
-             'Model' : 'yellow'}
+             'Model' : 'navy'}
 
              'EM01': "navy",
              'EM04': 'navy',
@@ -134,7 +135,7 @@ cols_dict = {'Observations' : 'firebrick',
 
 x_axis = 'linear'
 y_axis = 'log'
-bin_nos =25
+bin_nos =40
 bins_if_log_spaced= bin_nos
 
 # Equal spaced   
