@@ -19,6 +19,7 @@ PDFs of precipitation intensity values across the whole of the Leeds area are pl
 <p align="center">
   <img src="PDFs/ModelVsObs_25Bins.png" width="200"  />
   <img src="PDFs/ModelVsObs_33Bins.png" width="200"  />
+  <img src="PDFs/ModelVsObs_37Bins.png" width="200"  />
   
 <p align="center"> Figure 1. Location of rain gauges in area surrounding Leeds <p align="center">
 
