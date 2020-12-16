@@ -11,7 +11,7 @@ import numpy as np
 import os
 import sys
 import iris.plot as iplt
-import datetime
+from datetime import datetime    
 
 ################################################################
 # Define variables and set up environment
@@ -60,8 +60,9 @@ cube = create_trimmed_cube(leeds_at_centre_gdf, string, target_crs)
 # Extract the times that the observations refer to
 times = cube.coord('time').points
 # Convert to datetimes
-times = [datetime.datetime.fromtimestamp(x).strftime("%x %X") for x in times]
-
+times = [datetime.fromtimestamp(x).strftime("%x %X") for x in times]
+times = [datetime.strptime(x, '%m/%d/%y %H:%M:%S') for x in times]
+    
 # Save to file
 basic_filepath= "Outputs/RegriddingObservations/CEH-GEAR_reformatted/leeds-at-centre_data/"
 np.save(basic_filepath + "timestamps.npy", times)  
