@@ -21,6 +21,8 @@ There are a number of regridding algorithms which use different methods to trans
 
 Area weighted regridding is therefore not possible as the 1km observations and 2.2km model data are in different coordinate systems.
 
+In the "TestingRegridding" directory comparison is made between nearest neighbour and linear regridding. The results lead to the conclusion of using the nearest neighbour regridding.
+
 ## Code work flow
 <ins> Reformatting and regridding </ins>
 * CEH-GEAR_reformat_and_regrid.py:   
