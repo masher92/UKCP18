@@ -20,6 +20,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import tilemapbase
 import matplotlib as mpl
+from datetime import datetime  
 
 ################################################################
 # Define variables and set up environment
@@ -64,6 +65,13 @@ leeds_em12 = np.load("Outputs/Timeseries_UKCP18/leeds-at-centre/12/leeds-at-cent
 leeds_em13 = np.load("Outputs/Timeseries_UKCP18/leeds-at-centre/13/leeds-at-centre.npy")
 leeds_em15 = np.load("Outputs/Timeseries_UKCP18/leeds-at-centre/15/leeds-at-centre.npy")
 
+# Time scales
+obs_times = np.load("Outputs/RegriddingObservations/CEH-GEAR_reformatted/leeds-at-centre_data/timestamps.npy")
+# Format date column
+obs_times= [datetime.strptime(x, '%m/%d/%y %H:%M:%S') for x in obs_times]
+
+model_times = np.load('Outputs/Timeseries_UKCP18/leeds-at-centre/01/timestamps.npy')
+
 # Create one array containing all of the data
 leeds_all_ems = np.concatenate([leeds_em01, leeds_em04, leeds_em05, leeds_em06, leeds_em07,
                                 leeds_em08, leeds_em09, leeds_em10, leeds_em11, leeds_em12,
@@ -90,6 +98,23 @@ leeds_em13 = pd.DataFrame({"Precipitation (mm/hr)" : leeds_em13})
 leeds_em15 = pd.DataFrame({"Precipitation (mm/hr)" : leeds_em15})
 
 leeds_all_ems = pd.DataFrame({"Precipitation (mm/hr)" : leeds_all_ems})
+
+obs_times = pd.DataFrame({'Date' : obs_times})
+model_times = pd.DataFrame({"Date" : model_times })
+
+################################################################
+# Join precipitation dataframes with times dataframes
+################################################################
+
+
+
+##### Keep only entries between 1990-2001 (dates present in both)
+model_times['Date_Formatted'] =  pd.to_datetime(model_times['Date'], format='%Y%m%d%H',  errors='coerce')
+# Trim out dfates
+model_times = model_times[(model_times['Date_Formatted'] > '1990-01-01') & (model_times['Date_Formatted']< '2000-12-31')]
+
+# Trim out overlapping dates 
+obs_times = obs_times[(obs_times['Date'] > '1990-01-01 00:00:00') & (obs_times['Date']< '2000-12-31 00:00:00')]
 
 # ##############################################################################
 # # Setting up dictionary

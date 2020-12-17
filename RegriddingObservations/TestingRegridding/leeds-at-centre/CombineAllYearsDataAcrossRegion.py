@@ -22,7 +22,7 @@ os.chdir(root_fp)
 # Create path to files containing functions
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/PointLocationStats/PlotPDFs')
 from PDF_plotting_functions import *
-sys.path.insert(0, root_fp + 'Scripts/UKCP18/Regridding')
+sys.path.insert(0, root_fp + 'Scripts/UKCP18/RegriddingObservations')
 from Regridding_functions import *
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/SpatialAnalyses')
 from Spatial_geometry_functions import *
@@ -37,6 +37,14 @@ if string == '_reformatted/rf_':
     target_crs = {'init' :'epsg:27700'}
 else:
     target_crs = {'init' :'epsg:4326'}
+
+# Setup filepath to use
+if string == '_reformatted/rf_':
+    basic_filepath = 'Outputs/RegriddingObservations/CEH-GEAR_reformatted/leeds-at-centre_data'
+elif string == '_regridded_2.2km/LinearRegridding/rg_':
+    basic_filepath = 'Outputs/RegriddingObservations/CEH-GEAR_regridded_2.2km/LinearRegridding/leeds-at-centre_data'
+elif string == '_regridded_2.2km/NearestNeighbour/rg_':
+    basic_filepath = 'Outputs/RegriddingObservations/CEH-GEAR_regridded_2.2km/NearestNeighbour/leeds-at-centre_data'
 
 ################################################################
 # Create the spatial datafiles needed
@@ -61,11 +69,13 @@ cube = create_trimmed_cube(leeds_at_centre_gdf, string, target_crs)
 times = cube.coord('time').points
 # Convert to datetimes
 times = [datetime.fromtimestamp(x).strftime("%x %X") for x in times]
-times = [datetime.strptime(x, '%m/%d/%y %H:%M:%S') for x in times]
-    
+times= [datetime.strptime(x, '%m/%d/%y %H:%M:%S') for x in times]
+times_df = pd.DataFrame({'Date' : times})
+#times = times[(times['Date'] > '1990-01-01 00:00:00') & (times['Date']< '2000-12-31 00:00:00')]    
+
 # Save to file
-basic_filepath= "Outputs/RegriddingObservations/CEH-GEAR_reformatted/leeds-at-centre_data/"
-np.save(basic_filepath + "timestamps.npy", times)  
+#basic_filepath= "Outputs/RegriddingObservations/CEH-GEAR_reformatted/leeds-at-centre_data/"
+#np.save(basic_filepath + "timestamps.npy", times)  
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
 ################################################################
 # Trim even more for testing
@@ -91,42 +101,51 @@ print(lat_length, lon_length)
 
 # Create an empty array to fill with data
 all_the_data = np.array([])
+dates = np.array([])
 
 # Loop through each position in the cube (define by combination of i (lat_length)
 # and j (lon_length)) 
 print("entering loop through coordinates")
 total = 0
-for i in range(0,lat_length):
-    for j in range(0,lon_length):
+for i in range(60,lat_length):
+    for j in range(42,lon_length):
         # Print the position
         print(i,j)
         # Define the filename
         # If a file of this name already exists saved, then read in this file
-        filename = basic_filepath  + "interim/{}_{}.npy".format(i,j)
+        filename = basic_filepath +"/gridcell_csvs/{}_{}.csv".format(i,j)
         if os.path.isfile(filename):
-            data_slice = np.load(basic_filepath + "interim/{}_{}.npy".format(i,j))
-            total = total + data_slice.shape[0]
             print("File exists")
+            df = pd.read_csv(filename)
+            data_slice = df['Precipitation (mm/hr)']
+            total = total + data_slice.shape[0]
         # If a file of this name does not already exist, then:
         # Take just this slice from the data and save it 
         else:
+            print("File does not exist, creating")
             # Take slice from loaded data
             data_slice = data[:,i,j]
             # Remove mask
             data_slice = data_slice.data
+            # Create dataframe with times
+            df = pd.DataFrame({'Date': times_df['Date'], 'Precipitation (mm/hr)': data_slice})
             # Save to file
-            np.save(basic_filepath + "interim/{}_{}.npy".format(i,j), data_slice) 
-            total = total + data_slice.shape[0]
-            print("File does not exist")
+            df.to_csv(basic_filepath +"/gridcell_csvs/{}_{}.csv".format(i,j), index = False)
+            
+            # Save to file as Numpy array
+            #np.save(basic_filepath + "interim/{}_{}.npy".format(i,j), data_slice) 
+            #total = total + data_slice.shape[0]
+            
         # Add the slice to the array containing all the data from all the locations
         all_the_data = np.append(all_the_data,data_slice)
+        dates = np.append(dates,times)
 
 # Delete na values -
 # This is why the length of the output "leeds-at-centre.npy" does not match
 # the number of 33 * 37 * 219144
 # RG -- First 10 values in each of the (33*37) cells are NA
 # RF -- first 10 values in each of the (73*83) cells are NA
-all_the_data = all_the_data[~np.isnan(all_the_data)]
+#all_the_data = all_the_data[~np.isnan(all_the_data)]
 
 ### Save as numpy array
 print("saving data")
