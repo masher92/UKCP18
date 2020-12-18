@@ -2,6 +2,9 @@
 
 The mean value across the twelve UKCP18 2.2km model ensemble members are calculated for various statistics of present day rainfall. The difference between these mean values and those found in the CEH-GEAR observations data, regridded to 2.2km, are then calculated to establish the presence of model bias.
 
+RCMs -- have a tendency for light rainfall events to occur too often ('drizzle effect') and for extreme rainfall events to be under represented.
+CPMs -- have a tendency to simulate heavy rainfall events as too intense
+
 <p align="left">
             <img src="Figs/UK/percentage_diff_jja_mean.png" width="200" />
             <img src="Figs/UK/percentage_diff_jja_p95.png" width="200" />
@@ -13,7 +16,8 @@ The mean value across the twelve UKCP18 2.2km model ensemble members are calcula
             <img src="Figs/UK/percentage_diff_jja_max.png" width="200""/>   </p>
 <p align="left"> Figure 1. The percentage difference between UKCP18 2.2km local and CEH-GEAR observations regridded to 2.2km for various precipitation statistics (model value - obs value/obs value) <p align="center">
 
-For the 99.5, 99.75th and 99.9th percentiles and the maximum precipitation intensities, the modelled values are higher than the observations across the whole country (check if some of the values are 0?). The maximum percentage difference between these values gets higher at higher percentiles, up to a maximum difference of 800% in the maximum values.
+For the 99.5, 99.75th and 99.9th percentiles and the maximum precipitation intensities, the modelled values are higher than the observations across the whole country (check if some of the values are 0?). The maximum percentage difference between these values gets higher at higher percentiles, up to a maximum difference of 800% in the maximum values. The model gets the values of extremes too high. 
+For the lower percentiles (95th, 97th, 99th) and the mean, there is a geographical divide in the difference between the model and the observations. The model overpredicts (compared to the observations) over the Pennines and Scottish hills; however, this same effect is not seen over the Welsh hills or in higher elevation areas in the South. The particularly high percentage difference between the model and observations over the mountains could be because there are less/no gauges in these areas and so the observations values in these areas are smoothed. 
 
 <p align="left">
             <img src="Figs/Northern/percentage_diff_jja_mean.png" width="200" />
