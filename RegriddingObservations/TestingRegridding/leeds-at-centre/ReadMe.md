@@ -28,9 +28,11 @@ Using this data, PDFs of precipitation rates are plotted for both the original 1
 </p>
 <p align="center"> Figure 1. PDF of precipitation rates with log-spaced histogram bins  <p align="center">
 
-NB: The amount of data included in the regridded plot is much less than for the original data - this could have impact on tails of data.
+For both regridding methods the data is less smooth, and therefore contains more variation in the values, than in the original 1km data. The nearest neighbour regridding method adds scatter to the data. Nearest neighbour regridding involves selecting one out of every ~5 points in the data, and thus inevitably some of the variation/uncertainty in the highest data bins becomes larger. It is also possible that the highest value(s) in the dataset may not be included (this can be seen, e.g. in the plot with 65 bins). However, nearest neighbour regridding is more likely to preserve data extremes than linear regridding. In linear regridding values are derived as an average of the values at two neighbouring points, because the most extreme values in two grid cells are unlikely to occur at exactly the same time, this means that extremes can be smoothed out from the data.  
 
-#### Notes from Steef
-When you perform nearest neighbour interpolation, effectively this is like selecting one out of every ~5 points in the data. This will mean that the variations/uncertainty in the highest bins becomes larger, and you may miss out on the single highest value in the data (this is visible in e.g. the plot with 65 bins).  
-The linear interpolation means that you will also have fewer values and hence more variation/uncertainty at higher values, but you will also lose some of the extreme values due to interpolation (i.e, the yellow line will generally be below the other lines for high values, though again there may be some scatter). 
+The appearance of the PDF plots is dependent upon the number of bins, and where these bins happen to slice the data. The aim is to find a number of bins(/bin size) that preserves the behaviour of the data and avoids the presence of artefacts in the results due to sample size. These artefacts can be seen in the plots with 65 and 77 bins 
+
+Exactly how the PDFs look depends on where the bins happen to slice the data. Need a bin size that preserves behaviour and doesn't show artefacts due to the sample size. For instance, this can be seen in the plots with 46, 65 and 77 bins where there are some empty bins in the regridded data (probably because there is much less data values in the regridded data, than the original data and so this effects the tails of the data). Thus, the most useful plots here are those with < 45 bins. Considering the plots with <45 bins, we see that the nearest neighbour regridding and the linear regridding produce broadly similar results, although in a couple of places the nearest neighbour regridded data appears to be a better fit to the observations line. 
+
+
 
