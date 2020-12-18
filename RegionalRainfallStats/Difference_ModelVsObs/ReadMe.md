@@ -39,7 +39,7 @@ For the 99.5, 99.75th and 99.9th percentiles and the maximum precipitation inten
 
 
 <p align="left">
-            <img src="Figs/Topography/UK.png" width="200" />
+            <img src="Figs/Topography/UK.PNG" width="200" />
             <img src="Figs/Topography/Northern.png" width="200" />
             <img src="Figs/Topography/leeds-at-centre.png" width="200" /> </p>
 <p align="left"> Figure 1. The percentage difference between UKCP18 2.2km local and CEH-GEAR observations regridded to 2.2km for various precipitation statistics (model value - obs value/obs value) <p align="center">
