@@ -33,8 +33,9 @@ Additionally, the most recent 100 readings (15 minute accumulations) from each r
 | Farnley Hall (076204)   | 10/12/1987 - 04/11/2020       | Data validated since 10/12/87. Data which has been checked has overall been marked as good quality      |
 | Wakefield | 19/03/1985 - 03/11/2020        |  Data validated from 01/01/11. Data overall of good quality. Missing data -- 1st July - 5th July 1985; 10th May - 22nd May 1992; 31 January 1993 - 6th February 1993; 25th June 1993 - 2nd July 1993 (incomplete list). Data missing mostly in blocks of several hours or up to tens of days.  |
 
+The hourly rainfall data from the 5 rainfall gauges in West Yorkshire is missing some values. Table 2 outlines the proportion of data missing from each gauge, and the season for which the data values are missing. 
 
-<p align="center"> Table 2. Details of Environment Agency rain gauges in West Yorkshire <p align="center">  
+<p align="center"> Table 2. Proportion of hourly data values missing, and the season in which the missing values are found, for 5 Environment Agency rain gauges in West Yorkshire <p align="center">  
   
 | Rain Gauge   | Proportion of data missing | MAM      | JJA        |  SON      | DJF          |
 | :---         |    :-----------------:     |    :---: |:---------: |:-------:  |    :-------: |
