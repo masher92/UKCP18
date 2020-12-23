@@ -2,7 +2,7 @@
 
 <ins> Unresolved issues </ins>  
 Each month has 30 days: this creates a problem when converting the date to a timestamp format as it cannot recognise 30 days in February. 
-
+Check: https://unidata.github.io/cftime/api.html
 
 ### Projection
 The UKCP18 data is provided in a Rotated Pole coordinate system.  
