@@ -55,7 +55,7 @@ There is a considerable difference in the spatial patterns between the maximum a
 <p align="left"> Figure 1. The percentage difference between UKCP18 2.2km local and CEH-GEAR observations regridded to 2.2km for various precipitation statistics (model value - obs value/obs value) <p align="center">
 
 <p align="left">
-            <img src="/RainGaugeAnalysis/Figs/RainGaugeLocations.png" width="200" />
+            <img src="/RainGaugeAnalysis/Figs/CEH-GEAR_locations.png" width="400" />
 
 <p align="left"> Figure 1. The percentage difference between UKCP18 2.2km local and CEH-GEAR observations regridded to 2.2km for various precipitation statistics (model value - obs value/obs value) <p align="center">
 
