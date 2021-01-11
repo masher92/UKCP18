@@ -53,30 +53,29 @@ observations = np.load("Outputs/RegriddingObservations/CEH-GEAR_reformatted/leed
 
 # Model ensemble members
 leeds_em01 = np.load("Outputs/Timeseries_UKCP18/leeds-at-centre/01/leeds-at-centre.npy")
-leeds_em04 = np.load("Outputs/Timeseries_UKCP18/leeds-at-centre/04/leeds-at-centre.npy")
-leeds_em05 = np.load("Outputs/Timeseries_UKCP18/leeds-at-centre/05/leeds-at-centre.npy")
-leeds_em06 = np.load("Outputs/Timeseries_UKCP18/leeds-at-centre/06/leeds-at-centre.npy")
-leeds_em07 = np.load("Outputs/Timeseries_UKCP18/leeds-at-centre/07/leeds-at-centre.npy")
-leeds_em08 = np.load("Outputs/Timeseries_UKCP18/leeds-at-centre/08/leeds-at-centre.npy")
-leeds_em09 = np.load("Outputs/Timeseries_UKCP18/leeds-at-centre/09/leeds-at-centre.npy")
-leeds_em10 = np.load("Outputs/Timeseries_UKCP18/leeds-at-centre/10/leeds-at-centre.npy")
-leeds_em11 = np.load("Outputs/Timeseries_UKCP18/leeds-at-centre/11/leeds-at-centre.npy")
-leeds_em12 = np.load("Outputs/Timeseries_UKCP18/leeds-at-centre/12/leeds-at-centre.npy")
-leeds_em13 = np.load("Outputs/Timeseries_UKCP18/leeds-at-centre/13/leeds-at-centre.npy")
-leeds_em15 = np.load("Outputs/Timeseries_UKCP18/leeds-at-centre/15/leeds-at-centre.npy")
+# leeds_em04 = np.load("Outputs/Timeseries_UKCP18/leeds-at-centre/04/leeds-at-centre.npy")
+# leeds_em05 = np.load("Outputs/Timeseries_UKCP18/leeds-at-centre/05/leeds-at-centre.npy")
+# leeds_em06 = np.load("Outputs/Timeseries_UKCP18/leeds-at-centre/06/leeds-at-centre.npy")
+# leeds_em07 = np.load("Outputs/Timeseries_UKCP18/leeds-at-centre/07/leeds-at-centre.npy")
+# leeds_em08 = np.load("Outputs/Timeseries_UKCP18/leeds-at-centre/08/leeds-at-centre.npy")
+# leeds_em09 = np.load("Outputs/Timeseries_UKCP18/leeds-at-centre/09/leeds-at-centre.npy")
+# leeds_em10 = np.load("Outputs/Timeseries_UKCP18/leeds-at-centre/10/leeds-at-centre.npy")
+# leeds_em11 = np.load("Outputs/Timeseries_UKCP18/leeds-at-centre/11/leeds-at-centre.npy")
+# leeds_em12 = np.load("Outputs/Timeseries_UKCP18/leeds-at-centre/12/leeds-at-centre.npy")
+# leeds_em13 = np.load("Outputs/Timeseries_UKCP18/leeds-at-centre/13/leeds-at-centre.npy")
+# leeds_em15 = np.load("Outputs/Timeseries_UKCP18/leeds-at-centre/15/leeds-at-centre.npy")
 
 # Time scales
 obs_times = np.load("Outputs/RegriddingObservations/CEH-GEAR_reformatted/leeds-at-centre_data/timestamps.npy")
 # Format date column
 obs_times= [datetime.strptime(x, '%m/%d/%y %H:%M:%S') for x in obs_times]
 
-model_times = np.load('Outputs/Timeseries_UKCP18/leeds-at-centre/01/timestamps.npy')
+model_times = np.load('Outputs/Timeseries_UKCP18/leeds-at-centre/timestamps.npy')
 
-# Create one array containing all of the data
-leeds_all_ems = np.concatenate([leeds_em01, leeds_em04, leeds_em05, leeds_em06, leeds_em07,
-                                leeds_em08, leeds_em09, leeds_em10, leeds_em11, leeds_em12,
-                                leeds_em13, leeds_em15])
-
+# # Create one array containing all of the data
+# leeds_all_ems = np.concatenate([leeds_em01, leeds_em04, leeds_em05, leeds_em06, leeds_em07,
+#                                 leeds_em08, leeds_em09, leeds_em10, leeds_em11, leeds_em12,
+#                                 leeds_em13, leeds_em15])
 
 ################################################################
 # Convert to dataframes
@@ -85,33 +84,48 @@ observations_regridded = pd.DataFrame({"Precipitation (mm/hr)" : observations_re
 observations = pd.DataFrame({"Precipitation (mm/hr)" : observations})
 
 leeds_em01 = pd.DataFrame({"Precipitation (mm/hr)" : leeds_em01})
-leeds_em04 = pd.DataFrame({"Precipitation (mm/hr)" : leeds_em04})
-leeds_em05 = pd.DataFrame({"Precipitation (mm/hr)" : leeds_em05})
-leeds_em06 = pd.DataFrame({"Precipitation (mm/hr)" : leeds_em06})
-leeds_em07 = pd.DataFrame({"Precipitation (mm/hr)" : leeds_em07})
-leeds_em08 = pd.DataFrame({"Precipitation (mm/hr)" : leeds_em08})
-leeds_em09 = pd.DataFrame({"Precipitation (mm/hr)" : leeds_em09})
-leeds_em10 = pd.DataFrame({"Precipitation (mm/hr)" : leeds_em10})
-leeds_em11 = pd.DataFrame({"Precipitation (mm/hr)" : leeds_em11})
-leeds_em12 = pd.DataFrame({"Precipitation (mm/hr)" : leeds_em12})
-leeds_em13 = pd.DataFrame({"Precipitation (mm/hr)" : leeds_em13})
-leeds_em15 = pd.DataFrame({"Precipitation (mm/hr)" : leeds_em15})
+# leeds_em04 = pd.DataFrame({"Precipitation (mm/hr)" : leeds_em04})
+# leeds_em05 = pd.DataFrame({"Precipitation (mm/hr)" : leeds_em05})
+# leeds_em06 = pd.DataFrame({"Precipitation (mm/hr)" : leeds_em06})
+# leeds_em07 = pd.DataFrame({"Precipitation (mm/hr)" : leeds_em07})
+# leeds_em08 = pd.DataFrame({"Precipitation (mm/hr)" : leeds_em08})
+# leeds_em09 = pd.DataFrame({"Precipitation (mm/hr)" : leeds_em09})
+# leeds_em10 = pd.DataFrame({"Precipitation (mm/hr)" : leeds_em10})
+# leeds_em11 = pd.DataFrame({"Precipitation (mm/hr)" : leeds_em11})
+# leeds_em12 = pd.DataFrame({"Precipitation (mm/hr)" : leeds_em12})
+# leeds_em13 = pd.DataFrame({"Precipitation (mm/hr)" : leeds_em13})
+# leeds_em15 = pd.DataFrame({"Precipitation (mm/hr)" : leeds_em15})
 
 leeds_all_ems = pd.DataFrame({"Precipitation (mm/hr)" : leeds_all_ems})
 
 obs_times = pd.DataFrame({'Date' : obs_times})
 model_times = pd.DataFrame({"Date" : model_times })
 
-################################################################
-# Join precipitation dataframes with times dataframes
-################################################################
 
+# Select only rows between 1990-01-01 00:00:00 and 2000-11-30 23:00:00 (overlapping time period between model and obs)
+## 1. Load in timestamps that relate to one cell's worth of data
+model_times = np.load('Outputs/Timeseries_UKCP18/leeds-at-centre/timestamps.npy')
 
+## 2. Create formtted dates
+model_times_formatted =  pd.to_datetime(model_times, format='%Y%m%d%H',  errors='coerce')
 
-##### Keep only entries between 1990-2001 (dates present in both)
-model_times['Date_Formatted'] =  pd.to_datetime(model_times['Date'], format='%Y%m%d%H',  errors='coerce')
-# Trim out dfates
-model_times = model_times[(model_times['Date_Formatted'] > '1990-01-01') & (model_times['Date_Formatted']< '2000-12-31')]
+## 3. Set value as NA for values not in required date range
+for i in range(78480,172800):
+    print(i)
+    model_times[i] = '0'
+
+## 4. Repeat this 1221 times to be the same length as the precip data for whole of Leeds 
+model_times_allcells = np.repeat(model_times, 1221)    
+model_times_formatted_allcells = np.repeat(model_times_formatted, 1221) 
+
+## 5. Create a dataframe containing the dates and precip values
+leeds_em01_times = pd.DataFrame({"Date" : model_times_allcells,
+                               'Date_Formatted':model_times_formatted_allcells,
+                               'Precipitation (mm/hr)' :leeds_em01})
+
+## 6. Keep only those times 
+leeds_em01_timestokeep = leeds_em01_times.loc[leeds_em01_times['Date'] != '0']
+
 
 # Trim out overlapping dates 
 obs_times = obs_times[(obs_times['Date'] > '1990-01-01 00:00:00') & (obs_times['Date']< '2000-12-31 00:00:00')]
