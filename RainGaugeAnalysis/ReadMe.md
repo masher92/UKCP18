@@ -7,8 +7,11 @@ The location of rain gauges in and around the Leeds area which supply hourly rai
 <p align="center"> Figure 1. Location of rain gauges in area surrounding Leeds <p align="center">
 
 #### City Council
-The City Council have provided hourly rainfall data from 29 monitoring stations for 26/03/2014 - 22/11/2020. This rainfall data comes from the Met Office's radar product and is then processed by MAP rain into 1km grid squares using the Ordinance Survey Grid Reference system. Consequently, the rainfall at each monitoring point is an average of the underlying radar rainfall for the 1km grid square on which the monitoring point sits.  
+The City Council have provided hourly rainfall data from 29 monitoring stations for 26/03/2014 - 22/11/2020. This rainfall data comes from the Met Office's radar product and is then processed by MAP rain into 1km grid squares using the Ordinance Survey Grid Reference system. Consequently, the rainfall at each monitoring point is an average of the underlying radar rainfall for the 1km grid square on which the monitoring point sits. Some comparisons are made between the intensities from the radar to intensities from EA rain gauge data, to check for accuracy.
+
 The MAP (Meniscus Analytics Platform) was developed in 2014 and was partially funed by InnovateUK as a tool for delivering real-time Big Data Analytics (http://www.meniscus.co.uk/solutions-built-using-meniscus-analytics-platforms/map-rain-delivering-historic-and-predictive-rainfall-analytics).
+
+The location of the 29 monitoring points correspond to areas with a high historical incidence of flooding (identified from plotting a heat map of flooding incidents, and selecting locations with a high number of flood incidents, whilst maintaining a good coverage of the monitoring points across the Leeds City Council area).   
 
 DAILY rainfall data is also available from six rain gauges operated by LCC between 2014 and 2018 via Leeds Data Mill (https://datamillnorth.org/dataset/rain-gauge-rainfall-data)
 15 minute rainfall accumulations are available at Pottery Fields from 2013-2016 (https://datamillnorth.org/dataset/pottery-fields-rain-gauge-rainfall-data).
@@ -30,8 +33,9 @@ Additionally, the most recent 100 readings (15 minute accumulations) from each r
 | Farnley Hall (076204)   | 10/12/1987 - 04/11/2020       | Data validated since 10/12/87. Data which has been checked has overall been marked as good quality      |
 | Wakefield | 19/03/1985 - 03/11/2020        |  Data validated from 01/01/11. Data overall of good quality. Missing data -- 1st July - 5th July 1985; 10th May - 22nd May 1992; 31 January 1993 - 6th February 1993; 25th June 1993 - 2nd July 1993 (incomplete list). Data missing mostly in blocks of several hours or up to tens of days.  |
 
+The hourly rainfall data from the 5 rainfall gauges in West Yorkshire is missing some values. Table 2 outlines the proportion of data missing from each gauge, and the season for which the data values are missing. 
 
-<p align="center"> Table 2. Details of Environment Agency rain gauges in West Yorkshire <p align="center">  
+<p align="center"> Table 2. Proportion of hourly data values missing, and the season in which the missing values are found, for 5 Environment Agency rain gauges in West Yorkshire <p align="center">  
   
 | Rain Gauge   | Proportion of data missing | MAM      | JJA        |  SON      | DJF          |
 | :---         |    :-----------------:     |    :---: |:---------: |:-------:  |    :-------: |
