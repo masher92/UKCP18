@@ -36,6 +36,9 @@ from Regridding_functions import *
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/SpatialAnalyses')
 from Spatial_geometry_functions import *
 
+# Define ensemble member numbers
+ems = ['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
+
 ################################################################
 # Create the spatial datafiles needed
 ################################################################   
@@ -45,112 +48,107 @@ leeds_at_centre_gdf = create_leeds_at_centre_outline({'init' :'epsg:27700'})
 leeds_gdf = create_leeds_outline({'init' :'epsg:27700'})
 
 ################################################################
-# Load data
+# Load in model times, and define which times are within the period which overlaps between 
+# model and observations (1990-01-01 00:00:00 and 2000-11-30 23:00:00 )
+
+# This is tricky to do as the model date uses a 360 day calendar, with each month having 30 days
+# Consequently, February has 30 days and these dates cannot be recognised by the Datetime function
+# and so it is not possible to trim the data using datetime dates
+# Instead, find the index positions of the dates which are within this time period
+# and assign these a value of '0' in the array
+# This array is then stacked on top of itself 1221 times (this is how many cells 
+# there are in the leeds-at-centre array)
+# This creates an array of the same length as the leeds-at-centre.npy array which
+# contains the precip values.
+# These two arrays can then be joined as a dataframe, and all those rows with a '0'
+# in the date column are then deleted to leave only the precip values within the
+# overlapping time period
 ################################################################
-# Observations
-observations_regridded = np.load("Outputs/RegriddingObservations/CEH-GEAR_regridded_2.2km/NearestNeighbour/leeds-at-centre_data/leeds-at-centre.npy")
-observations = np.load("Outputs/RegriddingObservations/CEH-GEAR_reformatted/leeds-at-centre_data/leeds-at-centre.npy")
 
-# Model ensemble members
-leeds_em01 = np.load("Outputs/Timeseries_UKCP18/leeds-at-centre/01/leeds-at-centre.npy")
-# leeds_em04 = np.load("Outputs/Timeseries_UKCP18/leeds-at-centre/04/leeds-at-centre.npy")
-# leeds_em05 = np.load("Outputs/Timeseries_UKCP18/leeds-at-centre/05/leeds-at-centre.npy")
-# leeds_em06 = np.load("Outputs/Timeseries_UKCP18/leeds-at-centre/06/leeds-at-centre.npy")
-# leeds_em07 = np.load("Outputs/Timeseries_UKCP18/leeds-at-centre/07/leeds-at-centre.npy")
-# leeds_em08 = np.load("Outputs/Timeseries_UKCP18/leeds-at-centre/08/leeds-at-centre.npy")
-# leeds_em09 = np.load("Outputs/Timeseries_UKCP18/leeds-at-centre/09/leeds-at-centre.npy")
-# leeds_em10 = np.load("Outputs/Timeseries_UKCP18/leeds-at-centre/10/leeds-at-centre.npy")
-# leeds_em11 = np.load("Outputs/Timeseries_UKCP18/leeds-at-centre/11/leeds-at-centre.npy")
-# leeds_em12 = np.load("Outputs/Timeseries_UKCP18/leeds-at-centre/12/leeds-at-centre.npy")
-# leeds_em13 = np.load("Outputs/Timeseries_UKCP18/leeds-at-centre/13/leeds-at-centre.npy")
-# leeds_em15 = np.load("Outputs/Timeseries_UKCP18/leeds-at-centre/15/leeds-at-centre.npy")
-
-# Time scales
-obs_times = np.load("Outputs/RegriddingObservations/CEH-GEAR_reformatted/leeds-at-centre_data/timestamps.npy")
-# Format date column
-obs_times= [datetime.strptime(x, '%m/%d/%y %H:%M:%S') for x in obs_times]
-
+# Load in timestamps that relate to one cell's worth of data
 model_times = np.load('Outputs/Timeseries_UKCP18/leeds-at-centre/timestamps.npy')
 
-# # Create one array containing all of the data
-# leeds_all_ems = np.concatenate([leeds_em01, leeds_em04, leeds_em05, leeds_em06, leeds_em07,
-#                                 leeds_em08, leeds_em09, leeds_em10, leeds_em11, leeds_em12,
-#                                 leeds_em13, leeds_em15])
-
-################################################################
-# Convert to dataframes
-################################################################
-observations_regridded = pd.DataFrame({"Precipitation (mm/hr)" : observations_regridded})
-observations = pd.DataFrame({"Precipitation (mm/hr)" : observations})
-
-leeds_em01 = pd.DataFrame({"Precipitation (mm/hr)" : leeds_em01})
-# leeds_em04 = pd.DataFrame({"Precipitation (mm/hr)" : leeds_em04})
-# leeds_em05 = pd.DataFrame({"Precipitation (mm/hr)" : leeds_em05})
-# leeds_em06 = pd.DataFrame({"Precipitation (mm/hr)" : leeds_em06})
-# leeds_em07 = pd.DataFrame({"Precipitation (mm/hr)" : leeds_em07})
-# leeds_em08 = pd.DataFrame({"Precipitation (mm/hr)" : leeds_em08})
-# leeds_em09 = pd.DataFrame({"Precipitation (mm/hr)" : leeds_em09})
-# leeds_em10 = pd.DataFrame({"Precipitation (mm/hr)" : leeds_em10})
-# leeds_em11 = pd.DataFrame({"Precipitation (mm/hr)" : leeds_em11})
-# leeds_em12 = pd.DataFrame({"Precipitation (mm/hr)" : leeds_em12})
-# leeds_em13 = pd.DataFrame({"Precipitation (mm/hr)" : leeds_em13})
-# leeds_em15 = pd.DataFrame({"Precipitation (mm/hr)" : leeds_em15})
-
-leeds_all_ems = pd.DataFrame({"Precipitation (mm/hr)" : leeds_all_ems})
-
-obs_times = pd.DataFrame({'Date' : obs_times})
-model_times = pd.DataFrame({"Date" : model_times })
-
-
-# Select only rows between 1990-01-01 00:00:00 and 2000-11-30 23:00:00 (overlapping time period between model and obs)
-## 1. Load in timestamps that relate to one cell's worth of data
-model_times = np.load('Outputs/Timeseries_UKCP18/leeds-at-centre/timestamps.npy')
-
-## 2. Create formtted dates
-model_times_formatted =  pd.to_datetime(model_times, format='%Y%m%d%H',  errors='coerce')
-
-## 3. Set value as NA for values not in required date range
+# Set value as NA for values not in required date range
 for i in range(78480,172800):
     print(i)
     model_times[i] = '0'
 
-## 4. Repeat this 1221 times to be the same length as the precip data for whole of Leeds 
-model_times_allcells = np.repeat(model_times, 1221)    
-model_times_formatted_allcells = np.repeat(model_times_formatted, 1221) 
+# Repeat this 1221 times to be the same length as the precip data for whole of Leeds 
+model_times_allcells = np.tile(model_times, 1221)    
 
-## 5. Create a dataframe containing the dates and precip values
-leeds_em01_times = pd.DataFrame({"Date" : model_times_allcells,
-                               'Date_Formatted':model_times_formatted_allcells,
-                               'Precipitation (mm/hr)' :leeds_em01})
+################################################################
+# Loop through ensemble members and load in data for whole of leeds and trim
+# to contain only data from the overlapping time period
+################################################################
+# Create a dictionary to store results
+leeds_data_dict = {}
 
-## 6. Keep only those times 
-leeds_em01_timestokeep = leeds_em01_times.loc[leeds_em01_times['Date'] != '0']
+# Loop through ensemble members
+for em in ems:
+    print(em)
+    
+    # Load in 20 years of model data for the whole of leeds
+    leeds_data = np.load("Outputs/Timeseries_UKCP18/leeds-at-centre/{}/leeds-at-centre.npy".format(em))
+    # Join to corresponding dates/times
+    leeds_data_withtimes = pd.DataFrame({"Date" : model_times_allcells,
+                                   'Precipitation (mm/hr)' :leeds_data})
+
+    # Keep only data from overlapping times 
+    leeds_data_overlapping = leeds_data_withtimes.loc[leeds_data_withtimes['Date'] != '0']
+    
+    # Add formatted date
+    #leeds_data_overlapping['Date_formatted'] =  pd.to_datetime(leeds_data_overlapping['Date'], format='%Y%m%d%H',  errors='coerce')
+
+    # Add data to dictionary
+    leeds_data_dict['EM{}'.format(em)] = leeds_data_overlapping
 
 
-# Trim out overlapping dates 
-obs_times = obs_times[(obs_times['Date'] > '1990-01-01 00:00:00') & (obs_times['Date']< '2000-12-31 00:00:00')]
+frames = [leeds_data_dict['EM01'], leeds_data_dict['EM04'], leeds_data_dict['EM05'], leeds_data_dict['EM06'],
+          leeds_data_dict['EM07'], leeds_data_dict['EM08'], leeds_data_dict['EM09'], leeds_data_dict['EM10']
+          , leeds_data_dict['EM11'], leeds_data_dict['EM12'], leeds_data_dict['EM13'], leeds_data_dict['EM15']] 
+leeds_all_ems = pd.concat(frames)
+
+################################################################
+# Trim observations data to also only include data from the overlapping time period
+################################################################
+# Observations dates data
+#obs_times = np.load("Outputs/RegriddingObservations/CEH-GEAR_reformatted/leeds-at-centre_data/timestamps.npy")
+obs_times = np.load("Outputs/RegriddingObservations/CEH-GEAR_regridded_2.2km/NearestNeighbour/leeds-at-centre_data/timestamps.npy", allow_pickle = True)
+
+# Format date column
+#obs_times_ls = [datetime.strptime(x, '%m/%d/%y %H:%M:%S') for x in obs_times]
+#obs_times = np.array(obs_times_ls)
+
+# Repeat this 1221 times to be the same length as the precip data for whole of Leeds 
+obs_times_allcells_regridded = np.tile(obs_times, 1221)    
+obs_times_allcells = np.tile(obs_times, 6059) # 73*83 
+
+# Observations
+observations_regridded = np.load("Outputs/RegriddingObservations/CEH-GEAR_regridded_2.2km/NearestNeighbour/leeds-at-centre_data/leeds-at-centre.npy")
+observations = np.load("Outputs/RegriddingObservations/CEH-GEAR_reformatted/leeds-at-centre_data/leeds-at-centre.npy")
+
+# Join dates data and precip data
+observations_regridded = pd.DataFrame({"Precipitation (mm/hr)" : observations_regridded,
+                                       'Date' : obs_times_allcells_regridded})
+    
+# Remove data not in the overlapping time period
+observations_regridded_overlapping = observations_regridded[(observations_regridded['Date'] > '1990-01-01 00:00:00') 
+                                                & (observations_regridded['Date']< '2000-11-30 23:00:00 ')]
+
+
+# Add to dictionary
+leeds_data_dict['Observations'] = observations
+leeds_data_dict['Observations Regridded'] = observations_regridded_overlapping
 
 # ##############################################################################
 # # Setting up dictionary
 # ##############################################################################
 my_dict = {}
 my_dict['Observations'] = observations
-my_dict['Observations Regridded'] = observations_regridded
+my_dict['Observations Regridded'] = observations_regridded_overlapping
 
 my_dict['Model'] = leeds_all_ems
 
-my_dict['EM01'] = leeds_em01
-my_dict['EM04'] = leeds_em04
-my_dict['EM05'] = leeds_em05
-my_dict['EM06'] = leeds_em06
-my_dict['EM07'] = leeds_em07
-my_dict['EM08'] = leeds_em08
-my_dict['EM09'] = leeds_em09
-my_dict['EM10'] = leeds_em10
-my_dict['EM11'] = leeds_em11
-my_dict['EM12'] = leeds_em12
-my_dict['EM13'] = leeds_em13
-my_dict['EM15'] = leeds_em15
 
 ##############################################################################
 # Plotting
@@ -158,7 +156,6 @@ my_dict['EM15'] = leeds_em15
 cols_dict = {'Observations' : 'firebrick',
              'Observations Regridded' : 'green',
              'Model' : 'navy'}
-
              'EM01': "navy",
              'EM04': 'navy',
              'EM05': 'navy',
