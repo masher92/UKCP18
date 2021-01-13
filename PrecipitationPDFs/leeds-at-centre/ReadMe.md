@@ -1,8 +1,16 @@
 ### PDFs of precipitation intensity
 
 PDFs of precipitation intensity are plotted using data from across all cells in the "Leeds-at-centre" region.  
-In "CombineAllYearsDataAcrossregion.py", for each ensemble member, for each cell in this 'leeds-at-centre' region a numpy array is saved which contains the precipitation values across the full 1980-2000 period. An array is then also saved which contains all of the data from all of the cells stacked into one array. An array is also saved which contains the time-stamps to which these precipitation values refer.  
-The PDFs are plotted in "CompareModel_Obs_PDFs.py". PDFs are plotted using both 1. All the model data (1980-2000) and all the observations data (1990-2014) and 2. Just the model and observations data from within the overlapping time period.  
+
+In "CombineAllYearsDataAcrossregion.py", for each ensemble member:
+* For each cell in this 'leeds-at-centre' region a numpy array is saved which contains the precipitation values across the full 1980-2000 period
+* An array is saved which contains all of the data from all of the cells stacked into one array
+One array is also saved which contains the time-stamps to which these precipitation values refer (this is the same across all ensemble members).  
+
+The PDFs are plotted in "CompareModel_Obs_PDFs.py". PDFs are plotted using both:
+1. All the model data (1980-2000) and all the observations data (1990-2014)
+2. Just the model and observations data from within the overlapping time period.  
+
 Extracting the data from within just the overlapping time period is complicated because the model uses a 360 day calendar (12 months of 30 days). This means that it is not possible to simply save the dates as datetime objects and to filter out dates not in the overlapping period. A method was devised to deal with this issue:
 * sdfd
 
