@@ -71,11 +71,10 @@ times = cube.coord('time').points
 times = [datetime.fromtimestamp(x).strftime("%x %X") for x in times]
 times= [datetime.strptime(x, '%m/%d/%y %H:%M:%S') for x in times]
 times_df = pd.DataFrame({'Date' : times})
-#times = times[(times['Date'] > '1990-01-01 00:00:00') & (times['Date']< '2000-12-31 00:00:00')]    
 
 # Save to file
-#basic_filepath= "Outputs/RegriddingObservations/CEH-GEAR_reformatted/leeds-at-centre_data/"
-#np.save(basic_filepath + "timestamps.npy", times)  
+basic_filepath= "Outputs/RegriddingObservations/CEH-GEAR_reformatted/leeds-at-centre_data/"
+np.save(basic_filepath + "/timestamps.npy", times)  
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
 ################################################################
 # Trim even more for testing
@@ -107,17 +106,16 @@ dates = np.array([])
 # and j (lon_length)) 
 print("entering loop through coordinates")
 total = 0
-for i in range(60,lat_length):
-    for j in range(42,lon_length):
+for i in range(0,lat_length):
+    for j in range(0,lon_length):
         # Print the position
         print(i,j)
         # Define the filename
         # If a file of this name already exists saved, then read in this file
-        filename = basic_filepath +"/gridcell_csvs/{}_{}.csv".format(i,j)
+        filename = basic_filepath +   "/{}_{}.npy".format(i,j)
         if os.path.isfile(filename):
             print("File exists")
-            df = pd.read_csv(filename)
-            data_slice = df['Precipitation (mm/hr)']
+            data_slice = np.load(filename)
             total = total + data_slice.shape[0]
         # If a file of this name does not already exist, then:
         # Take just this slice from the data and save it 
@@ -127,28 +125,15 @@ for i in range(60,lat_length):
             data_slice = data[:,i,j]
             # Remove mask
             data_slice = data_slice.data
-            # Create dataframe with times
-            df = pd.DataFrame({'Date': times_df['Date'], 'Precipitation (mm/hr)': data_slice})
             # Save to file
-            df.to_csv(basic_filepath +"/gridcell_csvs/{}_{}.csv".format(i,j), index = False)
-            
-            # Save to file as Numpy array
-            #np.save(basic_filepath + "interim/{}_{}.npy".format(i,j), data_slice) 
-            #total = total + data_slice.shape[0]
+            np.save(basic_filepath + "/{}_{}.npy".format(i,j), data_slice) 
+            total = total + data_slice.shape[0]
             
         # Add the slice to the array containing all the data from all the locations
         all_the_data = np.append(all_the_data,data_slice)
-        dates = np.append(dates,times)
-
-# Delete na values -
-# This is why the length of the output "leeds-at-centre.npy" does not match
-# the number of 33 * 37 * 219144
-# RG -- First 10 values in each of the (33*37) cells are NA
-# RF -- first 10 values in each of the (73*83) cells are NA
-#all_the_data = all_the_data[~np.isnan(all_the_data)]
 
 ### Save as numpy array
 print("saving data")
-np.save(basic_filepath + "leeds-at-centre.npy", all_the_data)   
+np.save(basic_filepath + "/leeds-at-centre.npy", all_the_data)   
 print("saved data")
 
