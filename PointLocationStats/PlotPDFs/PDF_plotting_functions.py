@@ -216,7 +216,7 @@ def log_discrete_histogram_lesslegend(results_dict, cols_dict, bin_nos, precip_v
     patches.append(patch)
     patch = mpatches.Patch(color='firebrick', label='Observations')
     patches.append(patch)
-    patch = mpatches.Patch(color='green', label='Observations_nn')
+    patch = mpatches.Patch(color='green', label='Regridded observations')
     patches.append(patch)
 
     fig, ax = plt.subplots()
