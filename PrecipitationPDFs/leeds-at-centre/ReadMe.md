@@ -12,9 +12,13 @@ The PDFs are plotted in "CompareModel_Obs_PDFs.py". PDFs are plotted using both:
 2. Just the model and observations data from within the overlapping time period.  
 
 Extracting the data from within just the overlapping time period is complicated because the model uses a 360 day calendar (12 months of 30 days). This means that it is not possible to simply save the dates as datetime objects and to filter out dates not in the overlapping period. A method was devised to deal with this issue:
-* sdfd
+* The indices of the datetime values which are outside the overlapping time period were identified manually
+* The values of these positions in the timestamps array were set to  '0'
+* The timestamps array was stacked 1221 times on top of itself to create an array of timestamps to correspond with the array of precipitation values across the whole of the leeds-at-centre region (1221 cells)
+* This timestamps array was joined to the precipitation values array
+* Rows with a value of '0' in the timestamps column were removed.
 
-#### Using model data 1980-2000 and observations data (1990-2014)
+Something about sense checking the number of values in each of the arrays (both model and obs)
 
 ##### Observations vs 12 individual model ensemble members 
 PDFs of precipitation intensity values across the whole of the Leeds area are plotted for the 1km observations, the regridded 2.2km observations and the twelve model ensemble members.  
