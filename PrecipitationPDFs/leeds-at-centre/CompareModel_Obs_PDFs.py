@@ -103,59 +103,72 @@ for em in ems:
     leeds_data_dict['EM{}'.format(em)] = leeds_data_overlapping
 
 
+# Create a dataframe containing the data from across all ensemble members
 frames = [leeds_data_dict['EM01'], leeds_data_dict['EM04'], leeds_data_dict['EM05'], leeds_data_dict['EM06'],
           leeds_data_dict['EM07'], leeds_data_dict['EM08'], leeds_data_dict['EM09'], leeds_data_dict['EM10']
           , leeds_data_dict['EM11'], leeds_data_dict['EM12'], leeds_data_dict['EM13'], leeds_data_dict['EM15']] 
 leeds_all_ems = pd.concat(frames)
 
+# Add this to the dictionary
+leeds_data_dict['Model'] = leeds_all_ems
+
 ################################################################
 # Trim observations data to also only include data from the overlapping time period
 ################################################################
 # Observations dates data
-#obs_times = np.load("Outputs/RegriddingObservations/CEH-GEAR_reformatted/leeds-at-centre_data/timestamps.npy")
 obs_times = np.load("Outputs/RegriddingObservations/CEH-GEAR_regridded_2.2km/NearestNeighbour/leeds-at-centre_data/timestamps.npy", allow_pickle = True)
 
-# Format date column
-#obs_times_ls = [datetime.strptime(x, '%m/%d/%y %H:%M:%S') for x in obs_times]
-#obs_times = np.array(obs_times_ls)
-
-# Repeat this 1221 times to be the same length as the precip data for whole of Leeds 
+####### Regridded data
+# Repeat time data 1221 times to be the same length as the precip data for whole of Leeds 
 obs_times_allcells_regridded = np.tile(obs_times, 1221)    
-obs_times_allcells = np.tile(obs_times, 6059) # 73*83 
-
-# Observations
+# Load in regridded precip data
 observations_regridded = np.load("Outputs/RegriddingObservations/CEH-GEAR_regridded_2.2km/NearestNeighbour/leeds-at-centre_data/leeds-at-centre.npy")
-observations = np.load("Outputs/RegriddingObservations/CEH-GEAR_reformatted/leeds-at-centre_data/leeds-at-centre.npy")
 
 # Join dates data and precip data
 observations_regridded = pd.DataFrame({"Precipitation (mm/hr)" : observations_regridded,
                                        'Date' : obs_times_allcells_regridded})
-    
+
 # Remove data not in the overlapping time period
 observations_regridded_overlapping = observations_regridded[(observations_regridded['Date'] > '1990-01-01 00:00:00') 
                                                 & (observations_regridded['Date']< '2000-11-30 23:00:00 ')]
 
+####### Native data
+# Repeat this 6083 times to be the same length as the precip data for whole of Leeds  (73 cells x 83 cells)
+obs_times_allcells = np.tile(obs_times, 6059) 
+# Load in native precip data
+observations = np.load("Outputs/RegriddingObservations/CEH-GEAR_reformatted/leeds-at-centre_data/leeds-at-centre.npy")
 
-# Add to dictionary
+# Join dates data and precip data
+observations = pd.DataFrame({"Precipitation (mm/hr)" : observations,
+                                       'Date' : obs_times_allcells})
+    
+# Remove data not in the overlapping time period
+observations_overlapping = observations[(observations['Date'] > '1990-01-01 00:00:00') 
+                                                & (observations['Date']< '2000-11-30 23:00:00 ')]
+
+####### Add both native and regridded observations data to dictionary
 leeds_data_dict['Observations'] = observations
 leeds_data_dict['Observations Regridded'] = observations_regridded_overlapping
 
-# ##############################################################################
-# # Setting up dictionary
-# ##############################################################################
-my_dict = {}
-my_dict['Observations'] = observations
-my_dict['Observations Regridded'] = observations_regridded_overlapping
+##############################################################################
+# Create copies of dictionary
+##############################################################################
+all_ensemblemembers_dict = leeds_data_dict.copy()
+del all_ensemblemembers_dict['Model']
 
-my_dict['Model'] = leeds_all_ems
-
+combined_ensemblemembers_dict= leeds_data_dict.copy()
+keys_to_remove =("EM01", "EM04", "EM05", "EM06", "EM07", "EM08",
+                 "EM09", "EM10", "EM11", "EM12", "EM13", "EM15")
+for key in keys_to_remove:
+    if key in combined_ensemblemembers_dict:
+        del combined_ensemblemembers_dict[key]
 
 ##############################################################################
 # Plotting
 ##############################################################################
 cols_dict = {'Observations' : 'firebrick',
              'Observations Regridded' : 'green',
-             'Model' : 'navy'}
+             'Model' : 'navy',
              'EM01': "navy",
              'EM04': 'navy',
              'EM05': 'navy',
@@ -171,23 +184,17 @@ cols_dict = {'Observations' : 'firebrick',
 
 x_axis = 'linear'
 y_axis = 'log'
-bin_nos =40
+bin_nos =25
 bins_if_log_spaced= bin_nos
 
-# Equal spaced   
-equal_spaced_histogram(my_dict, cols_dict, bin_nos, "Precipitation (mm/hr)", x_axis, y_axis)
-
-# Log spaced histogram
-log_spaced_histogram(my_dict, cols_dict, bin_nos, "Precipitation (mm/hr)", x_axis, y_axis)    
- 
-# Fractional contribution
-fractional_contribution(my_dict, cols_dict, bin_nos, "Precipitation (mm/hr)", x_axis, y_axis) 
-             
+  
 # Log histogram with adaptation     
 log_discrete_histogram(my_dict, cols_dict, bin_nos, "Precipitation (mm/hr)", x_axis, y_axis) 
 
 # Log histogram with adaptation     
-log_discrete_histogram_lesslegend(my_dict, cols_dict, bin_nos, "Precipitation (mm/hr)", x_axis, y_axis) 
+# Without legend?
+log_discrete_histogram_lesslegend(combined_ensemblemembers_dict, cols_dict, bin_nos, "Precipitation (mm/hr)", x_axis, y_axis) 
+log_discrete_histogram_lesslegend(all_ensemblemembers_dict, cols_dict, bin_nos, "Precipitation (mm/hr)", x_axis, y_axis) 
 
 
 # # ##########################################################################

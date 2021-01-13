@@ -23,7 +23,6 @@ sys.path.insert(0, root_fp + 'Scripts/UKCP18/SpatialAnalyses')
 from Spatial_plotting_functions import *
 from Spatial_geometry_functions import *
 
-############################################
 # Define variables and set up environment
 #############################################
 yrs_range = "1980_2001" 
@@ -32,17 +31,23 @@ ems = ['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
 ##################################################################
 # Load necessary spatial data
 ##################################################################
+# These geodataframes are square
+northern_gdf = create_northern_outline({'init' :'epsg:3857'})
+wider_northern_gdf = create_wider_northern_outline({'init' :'epsg:3857'})
+# This is the outlins of Leeds
+leeds_gdf = create_leeds_outline({'init' :'epsg:3857'})
 # This is a square area surrounding Leeds
 leeds_at_centre_gdf = create_leeds_at_centre_outline({'init' :'epsg:3857'})
+# This is the outline of the coast of the UK
+uk_gdf = create_uk_outline({'init' :'epsg:3857'})
 
 ##################################################################
 # Trimming to region
 ##################################################################
 for em in ems:
     print(em)
-    
     # Create directory to store outputs in
-    ddir = "Outputs/Timeseries_UKCP18/leeds-at-centre/{}/gridcell_csvs/".format(em)
+    ddir = "Outputs/Timeseries_UKCP18/leeds-at-centre/{}/".format(em)
     if not os.path.isdir(ddir):
         os.mkdir(ddir)
     
@@ -73,30 +78,15 @@ for em in ems:
     ################################################################
     model_cube = trim_to_bbox_of_region_obs(model_cube, leeds_at_centre_gdf)
     
-    # ################################################################
-    # # Once across all ensemble members, save a numpy array storing
-    # # the timestamps to which the data refer
-    # ################################################################          
+    ################################################################
+    # Once across all ensemble members, save a numpy array storing
+    # the timestamps to which the data refer
+    ################################################################          
     if em == '01':
         times = model_cube.coord('yyyymmddhh').points
-        # Convert to dataframe
-        times = pd.DataFrame({"Date" : times })
-        # Create formatted date column
-        times['Date_Formatted'] =  pd.to_datetime(times['Date'], format='%Y%m%d%H',  errors='coerce')
-        # Trim out dates
-        times = times[(times['Date_Formatted'] > '1990-01-01') & (times['Date_Formatted']< '2000-12-31')]
-
-
-
-        # Extract the times that the observations refer to
-        times = cube.coord('time').points
-        # Convert to datetimes
-        times = [datetime.fromtimestamp(x).strftime("%x %X") for x in times]
-        times= [datetime.strptime(x, '%m/%d/%y %H:%M:%S') for x in times]
-        times_df = pd.DataFrame({'Date' : times})
-        #times = times[(times['Date'] > '1990-01-01 00:00:00') & (times['Date']< '2000-12-31 00:00:00')]    
-        
-
+        # Convert to datetime - doesnt work due to 30 days in Feb
+        #times = [datetime.datetime.strptime(x, "%Y%m%d%H") for x in times]
+        np.save("Outputs/Timeseries_UKCP18/leeds-at-centre/timestamps.npy", times) 
     
     ################################################################
     # Create a numpy array containing all the precipitation values from across
@@ -115,7 +105,6 @@ for em in ems:
     
     # Create an empty array to fill with data
     all_the_data = np.array([])
-    dates = np.array([])
     
     print("entering loop through coordinates")
     total = 0
@@ -124,38 +113,24 @@ for em in ems:
             # Print the position
             print(i,j)
             # Define the filename
+            filename = ddir + "{}_{}.npy".format(i,j)
             # If a file of this name already exists saved, then read in this file
-            filename = ddir +"{}_{}.csv".format(i,j)
-            if os.path.isfile(filename):
+            if os.path.isfile (filename):
                 print("File exists")
-                df = pd.read_csv(filename)
-                data_slice = df['Precipitation (mm/hr)']
-                total = total + data_slice.shape[0]
-            # If a file of this name does not already exist, then:
-            # Take just this slice from the data and save it 
+                data_slice = np.load(filename)
+            # IF file of this name does not exist, then create by slicing data
             else:
-                print("File does not exist, creating")
+                print("File does not exist")                
                 # Take slice from loaded data
                 data_slice = data[:,i,j]
                 # Remove mask
                 data_slice = data_slice.data
-                # Create dataframe with times
-                df = pd.DataFrame({'Date': times_df['Date'], 'Precipitation (mm/hr)': data_slice})
                 # Save to file
-                df.to_csv(ddir +"{}_{}.csv".format(i,j), index = False)
-                
-
-
+                np.save(filename, data_slice) 
+            total = total + data_slice.shape[0]
 
             # Add the slice to the array containing all the data from all the locations
             all_the_data = np.append(all_the_data,data_slice)
-    
-    # Delete na values -
-    # This is why the length of the output "leeds-at-centre.npy" does not match
-    # the number of 33 * 37 * 219144
-    # RG -- First 10 values in each of the (33*37) cells are NA
-    # RF -- first 10 values in each of the (73*83) cells are NA
-    all_the_data = all_the_data[~np.isnan(all_the_data)]
     
     ### Save as numpy array
     print("saving data")
