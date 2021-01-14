@@ -4,7 +4,7 @@ PDFs of precipitation intensity are plotted using data from across all cells in 
 
 In "CombineAllYearsDataAcrossregion.py", for each ensemble member:
 * For each cell in this 'leeds-at-centre' region a numpy array is saved which contains the precipitation values across the full 1980-2000 period
-* An array is saved which contains all of the data from all of the cells stacked into one array  
+* An array is saved which contains all of the data from all of the cells stacked into one array   
 One array is also saved which contains the time-stamps to which these precipitation values refer (this is the same across all ensemble members).  
 
 The PDFs are plotted in "CompareModel_Obs_PDFs.py". PDFs are plotted using both:
