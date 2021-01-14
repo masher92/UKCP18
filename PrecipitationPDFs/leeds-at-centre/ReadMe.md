@@ -19,7 +19,15 @@ Extracting the data from within just the overlapping time period is complicated 
 * This timestamps array was joined to the precipitation values array
 * Rows with a value of '0' in the timestamps column were removed.
 
-Something about sense checking the number of values in each of the arrays (both model and obs)
+The observations are not affected by the same problem with the 360 day calendar.  
+Arrays of precipitation values for each cell in Leeds, and one array containing the data across all the cells stacked, have been created in the "RegriddingObservations/TestingRegridding/leeds-at-centre/CombineAllYearsDataAcrossRegion.py" directory, for both the regridded and the native observations. An array of the time stamps corresponding to one cell (and equivalent for all cells) is also saved. This timestamps array is stacked on top of itself 1221 times for the regridded observations (33 * 37 cells) and 6059 times (73 * 83 cells) for the native observations, and joined to the stacked precipitation values array. The dataframe of precipitation values and timsetamps is then filtered to contain only precipitation values from the overlapping time period.  
+
+Sense checking the data:
+* Overlapping time period is 01-01-1990 00:00:00 to 30-11-2000 23:00:00. This equates to 95,688 hours  
+* Model: model data is in the 360 day format and so there are 94,320 hours within this overlapping time period. 94,320 (hours) * 1221 (cells) gives a length of 115,164,720 for the array containing precipitation values from across the whole of Leeds during the overlapping period.
+* Observations (regridded): observations use normal calendar, so there are 95,688 hours in overlapping time period. 95,688 (hours) * 1221 (cells) gives a length of 116,833,827 for the array containing precipitation values from across the whole of Leeds during the overlapping period.
+* Observations (native): observations use normal calendar, so there are 95,688 hours in overlapping time period. 95,688 (hours) * 6059 (cells) gives a length of 579,773,592 for the array containing precipitation values from across the whole of Leeds during the overlapping period.
+
 
 ##### Observations vs 12 individual model ensemble members 
 PDFs of precipitation intensity values across the whole of the Leeds area are plotted for the 1km observations, the regridded 2.2km observations and the twelve model ensemble members.  
