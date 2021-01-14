@@ -29,6 +29,16 @@ Sense checking the data:
 * Observations (native): observations use normal calendar, so there are 95,688 hours in overlapping time period. 95,688 (hours) * 6059 (cells) gives a length of 579,773,592 for the array containing precipitation values from across the whole of Leeds during the overlapping period.
 
 
+### Using just overlapping time period (1990-2000)
+
+##### Observations vs 12 individual model ensemble members 
+
+##### Observations vs combined model data across twelve ensemble members
+
+### Using full time period available for both model (1980-2000) and observations (1990-2014)
+
+NB: for code used to create this need to go to previous versions of files.
+
 ##### Observations vs 12 individual model ensemble members 
 PDFs of precipitation intensity values across the whole of the Leeds area are plotted for the 1km observations, the regridded 2.2km observations and the twelve model ensemble members.  
 
@@ -53,4 +63,4 @@ PDFs of precipitation intensity values across the whole of the Leeds area are pl
 <p align="center"> Figure 2. PDF of precipitation intensity across the Leeds area <p align="center">
 
 
-#### Using just overlapping time period ()
+
