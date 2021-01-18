@@ -44,9 +44,12 @@ Sense checking the data:
 ##### Observations vs combined model data across twelve ensemble members
 
 <p align="center">
+  <img src="PDFs/OverlappingTimePeriod/CombinedEMsVSObs_9bins.png" width="300"  />  
+  <img src="PDFs/OverlappingTimePeriod/CombinedEMsVSObs_12bins.png" width="300"  />
   <img src="PDFs/OverlappingTimePeriod/CombinedEMsVSObs_16bins.png" width="300"  />
   <img src="PDFs/OverlappingTimePeriod/CombinedEMsVSObs_21bins.png" width="300"  />
   <img src="PDFs/OverlappingTimePeriod/CombinedEMsVSObs_25bins.png" width="300"  />
+  <img src="PDFs/OverlappingTimePeriod/CombinedEMsVSObs_29bins.png" width="300"  />  
   <img src="PDFs/OverlappingTimePeriod/CombinedEMsVSObs_37bins.png" width="300"  />
 <p align="center"> Figure 1. PDF of precipitation intensity across the Leeds area <p align="center">
 
