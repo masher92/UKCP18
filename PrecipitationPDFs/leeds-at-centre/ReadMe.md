@@ -34,6 +34,7 @@ Sense checking the data:
 ##### Observations vs 12 individual model ensemble members 
 
 <p align="center">
+  <img src="PDFs/OverlappingTimePeriod/AllEMsVSObs_12bins.png" width="300"  />  
   <img src="PDFs/OverlappingTimePeriod/AllEMsVSObs_16bins.png" width="300"  />
   <img src="PDFs/OverlappingTimePeriod/AllEMsVSObs_21bins.png" width="300"  />
   <img src="PDFs/OverlappingTimePeriod/AllEMsVSObs_25bins.png" width="300"  />
