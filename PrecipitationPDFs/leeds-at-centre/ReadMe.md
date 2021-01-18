@@ -33,7 +33,21 @@ Sense checking the data:
 
 ##### Observations vs 12 individual model ensemble members 
 
+<p align="center">
+  <img src="PDFs/OverlappingTimePeriod/AllEMsVSObs_16bins.png" width="300"  />
+  <img src="PDFs/OverlappingTimePeriod/AllEMsVSObs_21bins.png" width="300"  />
+  <img src="PDFs/OverlappingTimePeriod/AllEMsVSObs_25bins.png" width="300"  />
+  <img src="PDFs/OverlappingTimePeriod/AllEMsVSObs_37bins.png" width="300"  />
+<p align="center"> Figure 1. PDF of precipitation intensity across the Leeds area <p align="center">
+
 ##### Observations vs combined model data across twelve ensemble members
+
+<p align="center">
+  <img src="PDFs/OverlappingTimePeriod/CombinedEMsVSObs_16bins.png" width="300"  />
+  <img src="PDFs/OverlappingTimePeriod/CombinedEMsVSObs_21bins.png" width="300"  />
+  <img src="PDFs/OverlappingTimePeriod/CombinedEMsVSObs_25bins.png" width="300"  />
+  <img src="PDFs/OverlappingTimePeriod/CombinedEMsVSObs_37bins.png" width="300"  />
+<p align="center"> Figure 1. PDF of precipitation intensity across the Leeds area <p align="center">
 
 ### Using full time period available for both model (1980-2000) and observations (1990-2014)
 
