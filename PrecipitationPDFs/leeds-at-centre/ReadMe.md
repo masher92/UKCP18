@@ -71,10 +71,11 @@ PDFs of precipitation intensity values across the whole of the Leeds area are pl
 PDFs of precipitation intensity values across the whole of the Leeds area are plotted for the 1km observations, the regridded 2.2km observations and the combined data from the twelve model ensemble members.  
 
 <p align="center">
-  <img src="PDFs/ModelVsObs_25Bins.png" width="300"  />
-  <img src="PDFs/ModelVsObs_33Bins.png" width="300"  />
-  <img src="PDFs/ModelVsObs_37Bins.png" width="300"  />
-  
+  <img src="PDFs/CombinedEMsVSObs_12bins.png" width="300"  />
+  <img src="PDFs/CombinedEMsVSObs_16bins.png" width="300"  />
+  <img src="PDFs/CombinedEMsVSObs_25bins.png" width="300"  />
+    <img src="PDFs/CombinedEMsVSObs_33bins.png" width="300"  />
+  <img src="PDFs/CombinedEMsVSObs_37bins.png" width="300"  />  
 <p align="center"> Figure 2. PDF of precipitation intensity across the Leeds area <p align="center">
 
 
