@@ -35,13 +35,6 @@ Sense checking the data:
   <img src="PDFs/AllEMsVSObs_12bins.png" width="240"  />  
   <img src="PDFs/CombinedEMsVSObs_12bins.png" width="240"  />
 <p align="center"> Figure 1. PDF of precipitation intensity across the Leeds area. Using the overlapping time period (1990-2001) on the left hand images, and the full time period for which data is available for each of the model and observations on the right. <p align="center">
-  
-<p align="center">
-  <img src="PDFs/OverlappingTimePeriod/AllEMsVSObs_21bins.png" width="240"  />  
-  <img src="PDFs/OverlappingTimePeriod/CombinedEMsVSObs_21bins.png" width="240"  />
-  <img src="PDFs/AllEMsVSObs_21bins.png" width="240"  />  
-  <img src="PDFs/CombinedEMsVSObs_21bins.png" width="240"  />
-<p align="center"> Figure 1. PDF of precipitation intensity across the Leeds area. Using the overlapping time period (1990-2001) on the left hand images, and the full time period for which data is available for each of the model and observations on the right. <p align="center">
 
 <p align="center">
   <img src="PDFs/OverlappingTimePeriod/AllEMsVSObs_25bins.png" width="240"  />  
@@ -63,3 +56,6 @@ Both the native and regridded observations have lower probabilities of higher va
 
 When the data from across all the ensemble members is combined then the resulting line is much smoother at higher values. There is a small amount of spread between the ensemble members. 
 
+Notes on bin numbers: More bins seems to generally be better (25 is on low side, even at 37 there is not a big difference between native and regridded observations). Could try not plotting the 0 values, so there are not the tails going straight down to the line. Looking at tails -- very dependent on single events - are these independent? In some cases the bins at the extreme end of the scale migt be running from much lower values (where line goes straight this is normally all one bin - although changes between segments may be subtle). if the curve is deviating from a smooth line then it's not sampling very well.
+
+To do: Make the x axis consistent between plots, compare to FEH magnitude of events
