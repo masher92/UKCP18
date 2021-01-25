@@ -29,6 +29,14 @@ Sense checking the data:
 * Observations (native): observations use normal calendar, so there are 95,688 hours in overlapping time period. 95,688 (hours) * 6059 (cells) gives a length of 579,773,592 for the array containing precipitation values from across the whole of Leeds during the overlapping period.
 
 
+<p align="center">
+  <img src="PDFs/OverlappingTimePeriod/AllEMsVSObs_12bins.png" width="300"  />  
+  <img src="PDFs/OverlappingTimePeriod/CombinedEMsVSObs_12bins.png" width="300"  />
+  <img src="PDFs/AllEMsVSObs_12bins.png" width="300"  />  
+  <img src="PDFs/CombinedEMsVSObs_12bins.png" width="300"  />
+<p align="center"> Figure 1. PDF of precipitation intensity across the Leeds area <p align="center">
+
+
 ### Using just overlapping time period (1990-2000)
 
 ##### Observations vs 12 individual model ensemble members 
@@ -52,6 +60,12 @@ Sense checking the data:
   <img src="PDFs/OverlappingTimePeriod/CombinedEMsVSObs_29bins.png" width="300"  />  
   <img src="PDFs/OverlappingTimePeriod/CombinedEMsVSObs_37bins.png" width="300"  />
 <p align="center"> Figure 1. PDF of precipitation intensity across the Leeds area <p align="center">
+
+Using only the overlapping time period means that there is less data available for the regridded observations than the native observations, which could explain why the regridded observations line is lower than the native observations and has a lower probablity of higher values and less extreme values. Alternatively, this could be because the regridding process results in smoothing of more extreme values. 
+
+Both the native and regridded observations have lower probabilities of higher values, and the difference between model and observations appears to be greater here than when using the full time period (check with side by side plots). The observations are likely to be lower than the model values because they are interpolated from gauge values (although should check this with gauge data).  
+
+When the data from across all the ensemble members is combined then the resulting line is much smoother at higher values. There is a small amount of spread between the ensemble members. 
 
 ### Using full time period available for both model (1980-2000) and observations (1990-2014)
 
