@@ -36,11 +36,19 @@ Sense checking the data:
   <img src="PDFs/CombinedEMsVSObs_12bins.png" width="240"  />
 <p align="center"> Figure 1. PDF of precipitation intensity across the Leeds area. Using the overlapping time period (1990-2001) on the left hand images, and the full time period for which data is available for each of the model and observations on the right. <p align="center">
   
+
 <p align="center">
-  <img src="PDFs/OverlappingTimePeriod/AllEMsVSObs_25bins.png" width="240"  />  
-  <img src="PDFs/OverlappingTimePeriod/CombinedEMsVSObs_25bins.png" width="240"  />
-  <img src="PDFs/AllEMsVSObs_25bins.png" width="240"  />  
-  <img src="PDFs/CombinedEMsVSObs_25bins.png" width="240"  />
+  <img src="PDFs/OverlappingTimePeriod/AllEMsVSObs_12bins.png" width="240"  />  
+  <img src="PDFs/OverlappingTimePeriod/CombinedEMsVSObs_12bins.png" width="240"  />
+  <img src="PDFs/AllEMsVSObs_12bins.png" width="240"  />  
+  <img src="PDFs/CombinedEMsVSObs_12bins.png" width="240"  />
+<p align="center"> Figure 1. PDF of precipitation intensity across the Leeds area. Using the overlapping time period (1990-2001) on the left hand images, and the full time period for which data is available for each of the model and observations on the right. <p align="center">  
+  
+<p align="center">
+  <img src="PDFs/OverlappingTimePeriod/AllEMsVSObs_21bins.png" width="240"  />  
+  <img src="PDFs/OverlappingTimePeriod/CombinedEMsVSObs_21bins.png" width="240"  />
+  <img src="PDFs/AllEMsVSObs_21bins.png" width="240"  />  
+  <img src="PDFs/CombinedEMsVSObs_21bins.png" width="240"  />
 <p align="center"> Figure 1. PDF of precipitation intensity across the Leeds area. Using the overlapping time period (1990-2001) on the left hand images, and the full time period for which data is available for each of the model and observations on the right. <p align="center">
 
 
@@ -49,63 +57,11 @@ Sense checking the data:
   <img src="PDFs/OverlappingTimePeriod/CombinedEMsVSObs_37bins.png" width="240"  />
   <img src="PDFs/AllEMsVSObs_37bins.png" width="240"  />  
   <img src="PDFs/CombinedEMsVSObs_37bins.png" width="240"  />
-<p align="center"> Figure 1. PDF of precipitation intensity across the Leeds area. Using the overlapping time period (1990-2001) on the left hand images, and the full time period for which data is available for each of the model and observations on the right. <p align="center">
-
-
-### Using just overlapping time period (1990-2000)
-
-##### Observations vs 12 individual model ensemble members 
-
-<p align="center">
-  <img src="PDFs/OverlappingTimePeriod/AllEMsVSObs_12bins.png" width="300"  />  
-  <img src="PDFs/OverlappingTimePeriod/AllEMsVSObs_16bins.png" width="300"  />
-  <img src="PDFs/OverlappingTimePeriod/AllEMsVSObs_21bins.png" width="300"  />
-  <img src="PDFs/OverlappingTimePeriod/AllEMsVSObs_25bins.png" width="300"  />
-  <img src="PDFs/OverlappingTimePeriod/AllEMsVSObs_37bins.png" width="300"  />
-<p align="center"> Figure 1. PDF of precipitation intensity across the Leeds area <p align="center">
-
-##### Observations vs combined model data across twelve ensemble members
-
-<p align="center">
-  <img src="PDFs/OverlappingTimePeriod/CombinedEMsVSObs_9bins.png" width="300"  />  
-  <img src="PDFs/OverlappingTimePeriod/CombinedEMsVSObs_12bins.png" width="300"  />
-  <img src="PDFs/OverlappingTimePeriod/CombinedEMsVSObs_16bins.png" width="300"  />
-  <img src="PDFs/OverlappingTimePeriod/CombinedEMsVSObs_21bins.png" width="300"  />
-  <img src="PDFs/OverlappingTimePeriod/CombinedEMsVSObs_25bins.png" width="300"  />
-  <img src="PDFs/OverlappingTimePeriod/CombinedEMsVSObs_29bins.png" width="300"  />  
-  <img src="PDFs/OverlappingTimePeriod/CombinedEMsVSObs_37bins.png" width="300"  />
-<p align="center"> Figure 1. PDF of precipitation intensity across the Leeds area <p align="center">
+<p align="center"> Figure 1. PDF of precipitation intensity across the Leeds area. Using the overlapping time period (1990-2000) on the left hand images, and the full time period for which data is available for each of the model and observations on the right. <p align="center">
 
 Using only the overlapping time period means that there is less data available for the regridded observations than the native observations, which could explain why the regridded observations line is lower than the native observations and has a lower probablity of higher values and less extreme values. Alternatively, this could be because the regridding process results in smoothing of more extreme values. 
 
 Both the native and regridded observations have lower probabilities of higher values, and the difference between model and observations appears to be greater here than when using the full time period (check with side by side plots). The observations are likely to be lower than the model values because they are interpolated from gauge values (although should check this with gauge data).  
 
 When the data from across all the ensemble members is combined then the resulting line is much smoother at higher values. There is a small amount of spread between the ensemble members. 
-
-### Using full time period available for both model (1980-2000) and observations (1990-2014)
-
-NB: for code used to create this need to go to previous versions of files.
-
-##### Observations vs 12 individual model ensemble members 
-PDFs of precipitation intensity values across the whole of the Leeds area are plotted for the 1km observations, the regridded 2.2km observations and the twelve model ensemble members.  
-
-<p align="center">
-  <img src="PDFs/AllEMsVSObs_12bins.png" width="300"  />  
-  <img src="PDFs/AllEMsVSObs_16bins.png" width="300"  />   
-  <img src="PDFs/AllEMsVSObs_21bins.png" width="300"  />  
-  <img src="PDFs/AllEMsVSObs_25bins.png" width="300"  />     
-<p align="center"> Figure 1. PDF of precipitation intensity across the Leeds area <p align="center">
-
-##### Observations vs combined model data across twelve ensemble members
-PDFs of precipitation intensity values across the whole of the Leeds area are plotted for the 1km observations, the regridded 2.2km observations and the combined data from the twelve model ensemble members.  
-
-<p align="center">
-  <img src="PDFs/CombinedEMsVSObs_12bins.png" width="300"  />
-  <img src="PDFs/CombinedEMsVSObs_16bins.png" width="300"  />
-  <img src="PDFs/CombinedEMsVSObs_25bins.png" width="300"  />
-    <img src="PDFs/CombinedEMsVSObs_33bins.png" width="300"  />
-  <img src="PDFs/CombinedEMsVSObs_37bins.png" width="300"  />  
-<p align="center"> Figure 2. PDF of precipitation intensity across the Leeds area <p align="center">
-
-
 
