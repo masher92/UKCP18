@@ -30,10 +30,10 @@ Sense checking the data:
 
 
 <p align="center">
-  <img src="PDFs/OverlappingTimePeriod/AllEMsVSObs_12bins.png" width="220"  />  
-  <img src="PDFs/OverlappingTimePeriod/CombinedEMsVSObs_12bins.png" width="220"  />
-  <img src="PDFs/AllEMsVSObs_12bins.png" width="220"  />  
-  <img src="PDFs/CombinedEMsVSObs_12bins.png" width="220"  />
+  <img src="PDFs/OverlappingTimePeriod/AllEMsVSObs_12bins.png" width="250"  />  
+  <img src="PDFs/OverlappingTimePeriod/CombinedEMsVSObs_12bins.png" width="250"  />
+  <img src="PDFs/AllEMsVSObs_12bins.png" width="250"  />  
+  <img src="PDFs/CombinedEMsVSObs_12bins.png" width="250"  />
 <p align="center"> Figure 1. PDF of precipitation intensity across the Leeds area <p align="center">
 
 
