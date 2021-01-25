@@ -36,14 +36,6 @@ Sense checking the data:
   <img src="PDFs/CombinedEMsVSObs_12bins.png" width="240"  />
 <p align="center"> Figure 1. PDF of precipitation intensity across the Leeds area. Using the overlapping time period (1990-2001) on the left hand images, and the full time period for which data is available for each of the model and observations on the right. <p align="center">
   
-
-<p align="center">
-  <img src="PDFs/OverlappingTimePeriod/AllEMsVSObs_12bins.png" width="240"  />  
-  <img src="PDFs/OverlappingTimePeriod/CombinedEMsVSObs_12bins.png" width="240"  />
-  <img src="PDFs/AllEMsVSObs_12bins.png" width="240"  />  
-  <img src="PDFs/CombinedEMsVSObs_12bins.png" width="240"  />
-<p align="center"> Figure 1. PDF of precipitation intensity across the Leeds area. Using the overlapping time period (1990-2001) on the left hand images, and the full time period for which data is available for each of the model and observations on the right. <p align="center">  
-  
 <p align="center">
   <img src="PDFs/OverlappingTimePeriod/AllEMsVSObs_21bins.png" width="240"  />  
   <img src="PDFs/OverlappingTimePeriod/CombinedEMsVSObs_21bins.png" width="240"  />
@@ -51,7 +43,13 @@ Sense checking the data:
   <img src="PDFs/CombinedEMsVSObs_21bins.png" width="240"  />
 <p align="center"> Figure 1. PDF of precipitation intensity across the Leeds area. Using the overlapping time period (1990-2001) on the left hand images, and the full time period for which data is available for each of the model and observations on the right. <p align="center">
 
-
+<p align="center">
+  <img src="PDFs/OverlappingTimePeriod/AllEMsVSObs_25bins.png" width="240"  />  
+  <img src="PDFs/OverlappingTimePeriod/CombinedEMsVSObs_25bins.png" width="240"  />
+  <img src="PDFs/AllEMsVSObs_25bins.png" width="240"  />  
+  <img src="PDFs/CombinedEMsVSObs_25bins.png" width="240"  />
+<p align="center"> Figure 1. PDF of precipitation intensity across the Leeds area. Using the overlapping time period (1990-2001) on the left hand images, and the full time period for which data is available for each of the model and observations on the right. <p align="center">
+  
 <p align="center">
   <img src="PDFs/OverlappingTimePeriod/AllEMsVSObs_37bins.png" width="240"  />  
   <img src="PDFs/OverlappingTimePeriod/CombinedEMsVSObs_37bins.png" width="240"  />
