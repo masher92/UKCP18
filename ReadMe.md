@@ -56,32 +56,12 @@ To Do:
     <tr>
       <td>Understand spatial distribution of hourly precipitation values in the model at various spatial scales </td>
       <td align="center">  Hourly JJA mean, max and percentile precipitation values plotted for the model across the North of England and for the area around Leeds </td>
-      <td align="right">         <ul>
+      <td align="left">         <ul>
           <li>Over the Northern region, there is generally an East-West gradient in precipitation, with..</li>
           <li> Over Leeds, there is a East-West gradient in precipitation, with the</li>
         </ul>    </td>
     </tr>
-    <tr>
-      <td>col 2 is</td>
-      <td align="center">centered</td>
-      <td align="right">$12</td>
-    </tr>
-    <tr>
-      <td>zebra stripes</td>
-      <td align="center">are neat</td>
-      <td align="right">$1</td>
-    </tr>
-    <tr>
-      <td>
-        <ul>
-          <li>item1</li>
-          <li>item2</li>
-        </ul>
-      </td>
-      <td align="center">See the list</td>
-      <td align="right">from the first column</td>
-    </tr>
-  </tbody>
+     </tbody>
 </table>
 
 
