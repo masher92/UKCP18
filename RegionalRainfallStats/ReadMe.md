@@ -12,6 +12,6 @@ The values of these statistics are plotted over:
 * The Northern region (North East, North West, Yorkshire and the Humber)
 * A square region centred on Leeds.  
 
-For the model, a plot is generated displaying the mean values across the 12 ensemble members, and another is created with 12 subplots containing the results from each ensemble member seperately.
+For the model, the mean values across all 12 ensemble members are plotted, and additionally the individual values from each ensemble member is plotted on one figure with 12 subplots. 
 
-Plots are also generated showing the difference between the mean values across the 12 ensemble members and the value from the regridded observations.
+The difference between the mean values across the 12 ensemble members and the value from the regridded observations is also plotted.
