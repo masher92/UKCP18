@@ -43,7 +43,7 @@ To Do:
 
 | Objective  | Outputs  | Analysis |
 | :---: |    :-----------------:   |   :-----------------:   |  
-| Understand spatial distrubtion of   |  Plots of hourly JJA mean, max and percentile precipitation values for model, regridded observations and the difference between the mean model ensemble member values and the observations  |  
+| Understand spatial distrubtion of hourly precipitation values in the model, and how this compares to observed values |  Plots of hourly JJA mean, max and percentile precipitation values for model, regridded observations and the difference between the mean model ensemble member values and the observations  |  
 
 
 The spatial distribution of hourly precipitation statistics for JJA (mean, max, percentiles) are plotted using the model data and the regridded observations. 
