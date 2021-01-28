@@ -88,9 +88,9 @@ To Do:
 <table>
   <tbody>
     <tr>    
-    <td  align="center" style="width:25%;"> Objective</td>
-    <td  align="center" style="width:25%;">Output </td>
-    <td align="center" style="width:50%;">Analysis </td>
+    <td  align="center" style="width:15%;"> Objective</td>
+    <td  align="center" style="width:15%;">Output </td>
+    <td align="center" style="width:70%;">Analysis </td>
     </tr>
     <tr>
       <td> Assess the spread in hourly precipitation intensities across the model ensemble members over the region of Leeds </td>
