@@ -87,9 +87,9 @@ To Do:
 <table>
   <tbody>
     <tr>    
-    <td  style="width:30%;"> Objective</td>
-    <td  style="width:30%;">Output </td>
-    <td  style="width:40%;">Analysis </td>
+    <td  style="width:25%;"> Objective</td>
+    <td  style="width:25%;">Output </td>
+    <td  style="width:50%;">Analysis </td>
     </tr>
     <tr>
       <td  style="width:30%;"> Assess whether regridding the observations to a 2.2km grid, using both linear and nearest neighbour regridding, alters the spatial patterns in hourly precipitation values compared to the observations on the native 1km grid. </td>
