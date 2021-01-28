@@ -8,6 +8,7 @@ This project contains code for analysis of the UKCP18 local 2.2km precipitation 
 2. [ Regridding Observations. ](#regridding)
 3. [ Raingauge Analysis. ](#raingauge)
 4. [ Regional Rainfall Statistics. ](#regionalstats)
+4. [ Precipitation PDFs. ](#precippdfs)
 5. [ Unresolved issues. ](#issues)  
   a. [ 360-day calendar ](#issuesa)    
   b. [ Projection ](#issuesb)   
@@ -80,6 +81,39 @@ To Do:
     </tr>    
      </tbody>
 </table>
+
+<a name="precippdfs"></a>
+## Precipitation PDFs
+
+<table>
+  <tbody>
+    <tr>    
+    <td  align="center" style="width:25%;"> Objective</td>
+    <td  align="center" style="width:25%;">Output </td>
+    <td align="center" style="width:50%;">Analysis </td>
+    </tr>
+    <tr>
+      <td> Assess the spread in hourly precipitation intensities across the model ensemble members over the region of Leeds, and determine the difference in hourly precipitation intensities between the model and the observations. </td>
+      <td align="center"> PDFs of hourly precipitation intensities drawn from across all the grid boxes over the region of Leeds using both the model, the regridded observations and the native observations. PDFs are plotted using data from (1) the full time period covered by the model (1980-2000) and the full time perdiod covered by the observations (1990-2014) and (2) just the overlapping time period (1990-2000) </td>
+      <td align="left">  </td>
+    </tr>    
+    <tr>
+      <td>Understand spatial distribution of hourly precipitation values in the model at various spatial scales </td>
+      <td align="center">  Hourly JJA mean, max and percentile precipitation values plotted for the model across the North of England and for the area around Leeds </td>
+      <td align="left">          <ul>  
+          <li>There are well defined spatial patterns for the mean and lower percentile values, and these become more diffuse for the max and higher percentiles  </li>
+          <li>Over the Northern region, there is generally a gradient of increasing precipitation intensity moving from East-West, with the highest values concentrated over the Pennines</li>
+          <li> Over Leeds, there is a gradient of increasing precipitation intensity moving from East-West</li>
+        </ul>  </td>
+    </tr>
+    <tr>
+      <td>Understand how spatial distrubtion of hourly precipitation values in the model compares to the regridded, observed values  </td>
+      <td align="center">  The difference between the mean model ensemble member values and the regridded observations are also plotted for hourly JJA mean, max and percentile precipitation values  </td>
+      <td align="left">  ..  </td>
+    </tr>    
+     </tbody>
+</table>
+
 
 
 <a name="issues"></a>
