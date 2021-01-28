@@ -99,14 +99,11 @@ To Do:
     </tr>    
     <tr>
       <td> Determine the difference in hourly precipitation intensities between the model, the observations and the regridded observations </td>
-      <td align="center">  "" </td>
+      <td align="center">  PDFs of hourly precipitation intensities drawn from across all the grid boxes over the region of Leeds using both the model, the regridded observations and the native observations. PDFs are plotted using data from (1) the full time period covered by the model (1980-2000) and the full time perdiod covered by the observations (1990-2014) and (2) just the overlapping time period (1990-2000) </td>
       <td align="left">  The hourly precipitation intensities in the observations are consistently lower </td>
     </tr>
-    <tr>
-   </tr>    
      </tbody>
 </table>
-
 
 
 <a name="issues"></a>
