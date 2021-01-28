@@ -50,11 +50,10 @@ To Do:
     <tr>
       <td>Understand spatial distribution of hourly precipitation values in the model at various spatial scales </td>
       <td align="center">  Hourly JJA mean, max and percentile precipitation values plotted for the model across the North of England and for the area around Leeds </td>
-      <td align="left">         <ul>
+      <td align="left"> There are well defined spatial patterns for the mean and lower percentile values, and these become more diffuse for the max and higher percentiles        <ul>
           <li>Over the Northern region, there is generally a gradient of increasing precipitation intensity moving from East-West, with the highest values concentrated over the Pennines</li>
           <li> Over Leeds, there is a gradient of increasing precipitation intensity moving from East-West</li>
-        </ul> 
-      In both cases, the spatial gradients become less defined at higher percentiles of precipitation intensity </td>
+        </ul>  </td>
     </tr>
     <tr>
       <td>Understand how spatial distrubtion of hourly precipitation values in the model compares to observed values  </td>
