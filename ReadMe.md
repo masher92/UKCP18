@@ -53,7 +53,8 @@ To Do:
       <td align="left">         <ul>
           <li>Over the Northern region, there is generally a gradient of increasing precipitation intensity moving from East-West, with the highest values concentrated over the Pennines</li>
           <li> Over Leeds, there is a gradient of increasing precipitation intensity moving from East-West</li>
-        </ul>    </td>
+        </ul> 
+      In both cases, the spatial gradients become less defined at higher percentiles of precipitation intensity </td>
     </tr>
     <tr>
       <td>Understand how spatial distrubtion of hourly precipitation values in the model compares to observed values  </td>
