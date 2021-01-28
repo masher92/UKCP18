@@ -23,21 +23,14 @@ CEH-GEAR 1km gridded observations are manually downloaded from the CEH datastore
 <a name="regridding"></a>
 ## Regridding
 
-<p align="center"> Table 1. Details of Environment Agency rain gauges in West Yorkshire <p align="center">  
-
-| Rain Gauge      |Data period      | 
+| Work      | Outcome     | 
 | :---        |    :-----------------:         |  
-| Heckmondwike      | 07/06/1985 - 03/11/2020      |
-| Eccup (063518)   | 13/08/1986  - 02/11/2020        | 
-| Headingley (076413)  | 25/01/1996 -  03/11/2020   | 
-| Farnley Hall (076204)   | 10/12/1987 - 04/11/2020       | 
-| Wakefield | 19/03/1985 - 03/11/2020  | 
+| The 1km observations are regridded onto a 2.2km grid to match the model data. Regridding is carried out using both linear regridding and nearest neighbour regridding. PDFs are plotted of all the precipitation values from the grid cells in the leeds-at-centre region using the observations on the 1km grid and the observations regridded to 2.2km using both the linear and nearest neighbour methods.   | The nearest neighbour interpolation method is deemed to be the most appropriate.     |
 
-The 1km observations are regridded onto a 2.2km grid to match the model data. 
 
-Regridding is carried out using both linear regridding and nearest neighbour regridding. PDFs are plotted of all the precipitation values from the grid cells in the leeds-at-centre region using the observations on the 1km grid and the observations regridded to 2.2km using both the linear and nearest neighbour methods.
 
-The nearest neighbour interpolation method is deemed to be the most appropriate.
+
+
 
 <a name="raingauge"></a>
 ## Rain Gauge Analysis
