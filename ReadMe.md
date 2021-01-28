@@ -2,67 +2,6 @@
 
 This project contains code for analysis of the UKCP18 local 2.2km precipitation projections. This includes validation of the model projections using a gridded observations dataset CEH-GEAR1hr. 
 
-<table border="1" width="100%">
-	<col style="width:40%">
-	<col style="width:30%">
-	<col style="width:30%">
-	<thead>
-	<tr>
-		<th>Fruits</th>
-		<th>Vitamin A</th>
-		<th>Vitamin C</th>
-	</tr>
-	</thead>
-	<tbody>
-	<tr>
-		<th>Apples</th>
-		<td>98 ui</td>
-		<td>8.4 mg</td>
-	</tr>
-	<tr>
-		<th>Oranges</th>
-		<td>295 ui</td>
-		<td>69.7 mg</td>
-	</tr>
-	<tr>
-		<th>Bananas</th>
-		<td>76 ui</td>
-		<td>10.3 mg</td>
-	</tr>
-	</tbody>
-</table>
-
-<table border="1" width="100%">
-	<col style="width:30%">
-	<col style="width:40%">
-	<col style="width:30%">
-	<thead>
-	<tr>
-		<th>Fruits</th>
-		<th>Vitamin A</th>
-		<th>Vitamin C</th>
-	</tr>
-	</thead>
-	<tbody>
-	<tr>
-		<th>Apples</th>
-		<td>98 ui</td>
-		<td>8.4 mg</td>
-	</tr>
-	<tr>
-		<th>Oranges</th>
-		<td>295 ui</td>
-		<td>69.7 mg</td>
-	</tr>
-	<tr>
-		<th>Bananas</th>
-		<td>76 ui</td>
-		<td>10.3 mg</td>
-	</tr>
-	</tbody>
-</table>
-
-
 ## Table of contents
 
 1. [ Data Download. ](#datadownload)
