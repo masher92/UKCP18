@@ -23,8 +23,8 @@ CEH-GEAR 1km gridded observations are manually downloaded from the CEH datastore
 <a name="regridding"></a>
 ## Regridding
 
-| Work      | Outcome     | 
-| :---        |    :-----------------:         |  
+| Work  | Outcome     | 
+| :---: |    :-----------------:         |  
 | The 1km observations are regridded onto a 2.2km grid to match the model data. Regridding is carried out using both linear regridding and nearest neighbour regridding. PDFs are plotted of all the precipitation values from the grid cells in the leeds-at-centre region using the observations on the 1km grid and the observations regridded to 2.2km using both the linear and nearest neighbour methods.   | The nearest neighbour interpolation method is deemed to be the most appropriate.     |
 
 
