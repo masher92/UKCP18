@@ -4,6 +4,7 @@
 
 1. [ Data Download. ](#datadownload)
 2. [ Regridding Observations. ](#regridding)
+3. [ Regional Rainfall Statistics. ](#regionalstats)
 5. [ Unresolved issues. ](#issues)  
   a. [ 360-day calendar ](#issuesa)    
   b. [ Projection ](#issuesb)   
@@ -23,15 +24,22 @@ Regridding was carried out using both linear regridding and nearest neighbour re
 
 The nearest neighbour interpolation method was deemed to be the most appropriate.
 
+<a name="regionalstats"></a>
+## Regional Rainfall Statistics
+The spatial distribution of hourly precipitation statistics for JJA (mean, max, percentiles) are plotted using the model data and the regridded observations. 
+
+The difference between the mean values across the 12 ensemble members and the value from the regridded observations is also plotted.
+
+Plots are created for the whole of the UK, Northern England and a region centred on Leeds.
 
 <a name="issues"></a>
 ## Unresolved issues
 <a name="issuesa"></a>
-## 360 day calendar
+#### 360 day calendar
 Each month has 30 days: this creates a problem when converting the date to a timestamp format as it cannot recognise 30 days in February. 
 Check: https://unidata.github.io/cftime/api.html
 <a name="issuesb"></a>
-### Projection
+#### Projection
 The UKCP18 data is provided in a Rotated Pole coordinate system.  
 It is possible to get this Rotated Pole in the format of a cartopy projection: grid_crs = grid.coord('grid_latitude').coord_system.as_cartopy_crs()  
 This can then be used to convert the projection of other shapefiles, for instance the outline of Leeds for plotting. To do this, the Cartopy projection Crs must be converted: proj_crs = CRS.from_dict(grid_crs.proj4_params) using from pyproj.crs import CRS  
