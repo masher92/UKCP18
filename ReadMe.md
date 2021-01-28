@@ -40,17 +40,11 @@ To Do:
 <a name="regionalstats"></a>
 ## Regional Rainfall Statistics
 
-
 | Objective  | Outputs  | Analysis |
 | :---: |    :-----------------:   |   :-----------------:   |  
-| Understand spatial distrubtion of hourly precipitation values in the model, and how this compares to observed values |  Plots of hourly JJA mean, max and percentile precipitation values for model, regridded observations and the difference between the mean model ensemble member values and the observations  |  
+| Understand spatial distribution of hourly precipitation values in the model at various spatial scales |  Hourly JJA mean, max and percentile precipitation values plotted for the model across the whole of the UK, the North and the area around Leeds. The difference between the mean model ensemble member values and the regridded observations are also plotted.  |  
 
-
-The spatial distribution of hourly precipitation statistics for JJA (mean, max, percentiles) are plotted using the model data and the regridded observations. 
-
-The difference between the mean values across the 12 ensemble members and the value from the regridded observations is also plotted.
-
-Plots are created for the whole of the UK, Northern England and a region centred on Leeds.
+| Understand how spatial distrubtion of hourly precipitation values in the model compares to observed values |  Hourly JJA mean, max and percentile precipitation values plotted for the model and regridded observations across the whole of the UK, the North and the area around Leeds. The difference between the mean model ensemble member values and the regridded observations are also plotted.  |  
 
 <a name="issues"></a>
 ## Unresolved issues
