@@ -123,7 +123,14 @@ To Do:
     <td align="center" style="width:70%;">Analysis </td>
     </tr>
     <tr>
-      <td align="left" style="width:15%"> Investigate techniques for identifying homogeneous rainfall regions in which, over long time periods, precipitation is statistically similar.  The purpose of this is to allow projections from multiple grid cells to be pooled to increase the sample size.  There are a range of techniques for doing this, including using the R package HiClimR, and these will be explored. </td>
+<td align="left" style="width:15%"> Calculate statistics of hourly precipitation intensity to use to determine homogeneous rainfall regions. </td>
+      <td align="center" style="width:15%"> Annual values of the max, mean and percentiles (95,9 97, 99, 99.5, 99.75 and 99.9) are calculated for each year in 1980-2001. Additionally, for each ensemble member </td>
+      <td align="left" style="width:15%"> 
+          <ul>  
+          <li> . </li>
+        </ul> 
+       </td>
+      <td align="left" style="width:15%"> Identify homogeneous rainfall regions in which, over long time periods, precipitation is statistically similar and across which precipitaiton data can be pooled to increase sample size. </td>
       <td align="center" style="width:15%">  </td>
       <td align="left" style="width:15%"> 
           <ul>  
@@ -133,11 +140,6 @@ To Do:
     </tr>    
      </tbody>
 </table>
-
-
-
-
-
 
 <a name="issues"></a>
 ## Unresolved issues
