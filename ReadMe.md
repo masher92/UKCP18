@@ -1,6 +1,6 @@
 ## UKCP18  
 
-This project contains code for analysis 
+This project contains code for analysis of the UKCP18 local 2.2km precipitation projections. This includes validation of the model projections using a gridded observations dataset CEH-GEAR1hr. 
 
 ## Table of contents
 
