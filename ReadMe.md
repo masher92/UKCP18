@@ -13,6 +13,10 @@
 <a name="datadownload"></a>
 ## Data Download
 
+UKCP18 2.2km precipitation projections are downloaded for all 12 ensemble members, for baseline (1980-2000) and future (2020-2040, 2060-2080) timeslices, via an FTP connection to the CEDA data catalogue.
+
+CEH-GEAR 1km gridded observations are manually downloaded from the CEH datastore.
+
 <a name="regridding"></a>
 ## Regridding
 
