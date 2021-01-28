@@ -83,6 +83,37 @@ To Do:
 </table>
 
 
+
+<table>
+  <tbody>
+    <tr>    
+    <td colspan="3" style="width:30%;"> Objective</td>
+    <td colspan="3" style="width:30%;">Output </td>
+    <td colspan="3" style="width:40%;">Analysis </td>
+    </tr>
+    <tr>
+      <td colspan="3" style="width:30%;"> Assess whether regridding the observations to a 2.2km grid, using both linear and nearest neighbour regridding, alters the spatial patterns in hourly precipitation values compared to the observations on the native 1km grid. </td>
+      <td  colspan="3" style="width:30%;" align="center">  Hourly JJA mean, max and percentile precipitation values plotted for the model across the UK, the North of England and for the area around Leeds using the native 1km observations and the observations regridded to 2.2km using linear regridding and nearest neighbour regridding </td>
+      <td  colspan="3" style="width:40%;" align="left"> There are no substantial differences in spatial patterns using the two regridding methods  </td>
+    </tr>    
+    <tr>
+      <td>Understand spatial distribution of hourly precipitation values in the model at various spatial scales </td>
+      <td align="center">  Hourly JJA mean, max and percentile precipitation values plotted for the model across the North of England and for the area around Leeds </td>
+      <td align="left"> There are well defined spatial patterns for the mean and lower percentile values, and these become more diffuse for the max and higher percentiles          <ul>  
+          <li>Over the Northern region, there is generally a gradient of increasing precipitation intensity moving from East-West, with the highest values concentrated over the Pennines</li>
+          <li> Over Leeds, there is a gradient of increasing precipitation intensity moving from East-West</li>
+        </ul>  </td>
+    </tr>
+    <tr>
+      <td>Understand how spatial distrubtion of hourly precipitation values in the model compares to observed values  </td>
+      <td align="center">  The difference between the mean model ensemble member values and the regridded observations are also plotted for hourly JJA mean, max and percentile precipitation values  </td>
+      <td align="left">  ..  </td>
+    </tr>    
+     </tbody>
+</table>
+
+
+
 <a name="issues"></a>
 ## Unresolved issues
 <a name="issuesa"></a>
