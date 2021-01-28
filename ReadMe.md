@@ -95,7 +95,11 @@ To Do:
     <tr>
       <td align="left" style="width:15%"> Assess the spread in hourly precipitation intensities across the model ensemble members over the region of Leeds </td>
       <td align="center" style="width:15%"> PDFs of hourly precipitation intensities drawn from across all the grid boxes over the region of Leeds using both the model, the regridded observations and the native observations. PDFs are plotted using data from (1) the full time period covered by the model (1980-2000) and the full time perdiod covered by the observations (1990-2014) and (2) just the overlapping time period (1990-2000) </td>
-      <td align="left" style="width:15%"> Some ensemble members contain much more intense values (expand on this) </td>
+      <td align="left" style="width:15%"> 
+          <ul>  
+          <li> Some ensemble members contain much more intense values (expand on this) </li>
+        </ul> 
+       </td>
     </tr>    
     <tr>
       <td> Determine the difference in hourly precipitation intensities between the model, the observations and the regridded observations </td>
