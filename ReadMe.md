@@ -42,7 +42,7 @@ To Do:
 
 | Objective  | Outputs  | Analysis |
 | :---: |    :-----------------:   |   :-----------------:   |  
-| Understand spatial distribution of hourly precipitation values in the model at various spatial scales |  Hourly JJA mean, max and percentile precipitation values plotted for the model across the North of England and for the area around Leeds.| Over the Northern region, there is generally an East-West gradient in precipitation, with.. Over Leeds, there is a East-West gradient in precipitation, with the
+| Understand spatial distribution of hourly precipitation values in the model at various spatial scales |  Hourly JJA mean, max and percentile precipitation values plotted for the model across the North of England and for the area around Leeds.| Over the Northern region, there is generally an East-West gradient in precipitation, with..   Over Leeds, there is a East-West gradient in precipitation, with the
 | Understand how spatial distrubtion of hourly precipitation values in the model compares to observed values |  Hourly JJA mean, max and percentile precipitation values plotted for the model and regridded observations across the whole of the UK, the North and the area around Leeds. The difference between the mean model ensemble member values and the regridded observations are also plotted.  |  
 
 <a name="issues"></a>
