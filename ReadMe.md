@@ -9,6 +9,7 @@
 5. [ Unresolved issues. ](#issues)  
   a. [ 360-day calendar ](#issuesa)    
   b. [ Projection ](#issuesb)   
+6. [ To do. ](#todo)   
 
 <a name="datadownload"></a>
 ## Data Download
@@ -28,6 +29,10 @@ The nearest neighbour interpolation method was deemed to be the most appropriate
 <a name="raingauge"></a>
 ## Rain Gauge Analysis
 The sources of rain gauge data, their locations and the time periods they covered are documented, and the locations of the rain gauges plotted.
+
+It also contains some code for plotting PDFs of...
+
+To Do:
 
 <a name="regionalstats"></a>
 ## Regional Rainfall Statistics
@@ -53,3 +58,6 @@ The 'grid_longitude' coordinate contains values that are >360, whereas these are
 However, if the longitudes are corrected in this way, e.g. with 361 becoming 1, it is no longer possible to plot them spatially as the plotting function does not except longitude values that are not 'monotonically increasing'.
 
 Useful: https://www.bnhs.co.uk/2019/technology/grabagridref/OSGB.pdf 
+
+<a name="todo"></a>
+## To do
