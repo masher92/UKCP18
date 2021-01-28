@@ -62,7 +62,7 @@ To Do:
         </ul>  </td>
     </tr>
     <tr>
-      <td>Understand how spatial distrubtion of hourly precipitation values in the model compares to observed values  </td>
+      <td>Understand how spatial distrubtion of hourly precipitation values in the model compares to the regridded, observed values  </td>
       <td align="center">  The difference between the mean model ensemble member values and the regridded observations are also plotted for hourly JJA mean, max and percentile precipitation values  </td>
       <td align="left">  ..  </td>
     </tr>    
