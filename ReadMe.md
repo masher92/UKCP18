@@ -1,5 +1,23 @@
 ## UKCP18  
 
+## Table of contents
+
+1. [ Data Download. ](#datadownload)
+2. [ Regridding Observations. ](#regridding)
+3. [ Workflow. ](#workflow)  
+  a. [ Comparing geostatistical and linear model performance. ](#workflowa)  
+  b. [ Exploring the impact of sampling strategy ](#workflowb)  
+4. [ Next stages. ](#nextup)
+5. [ References. ](#ref)
+
+<a name="datadownload"></a>
+## Data Download
+
+<a name="regridding"></a>
+## Regridding
+
+
+
 <ins> Unresolved issues </ins>  
 Each month has 30 days: this creates a problem when converting the date to a timestamp format as it cannot recognise 30 days in February. 
 Check: https://unidata.github.io/cftime/api.html
