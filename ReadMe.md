@@ -39,6 +39,13 @@ To Do:
 
 <a name="regionalstats"></a>
 ## Regional Rainfall Statistics
+
+
+| Objective  | Outputs  | Analysis |
+| :---: |    :-----------------:   |   :-----------------:   |  
+| Understand spatial distrubtion of   |  Plots of hourly JJA mean, max and percentile precipitation values for model, regridded observations and the difference between the mean model ensemble member values and the observations  |  
+
+
 The spatial distribution of hourly precipitation statistics for JJA (mean, max, percentiles) are plotted using the model data and the regridded observations. 
 
 The difference between the mean values across the 12 ensemble members and the value from the regridded observations is also plotted.
