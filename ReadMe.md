@@ -43,7 +43,44 @@ To Do:
 | Objective  | Outputs  | Analysis |
 | :---: |    :-----------------:   |   :-----------------:   |  
 | Understand spatial distribution of hourly precipitation values in the model at various spatial scales |  Hourly JJA mean, max and percentile precipitation values plotted for the model across the North of England and for the area around Leeds.| Over the Northern region, there is generally an East-West gradient in precipitation, with..   Over Leeds, there is a East-West gradient in precipitation, with the
-| Understand how spatial distrubtion of hourly precipitation values in the model compares to observed values |  Hourly JJA mean, max and percentile precipitation values plotted for the model and regridded observations across the whole of the UK, the North and the area around Leeds. The difference between the mean model ensemble member values and the regridded observations are also plotted.  |  
+| Understand how spatial distrubtion of hourly precipitation values in the model compares to observed values |  Hourly JJA mean, max and percentile precipitation values plotted for the model and regridded observations across the whole of the UK, the North and the area around Leeds. The difference between the mean model ensemble member values and the regridded observations are also plotted.  |
+
+
+<table>
+  <tbody>
+    <tr>
+      <th>Tables</th>
+      <th align="center">Are</th>
+      <th align="right">Cool</th>
+    </tr>
+    <tr>
+      <td>col 3 is</td>
+      <td align="center">right-aligned</td>
+      <td align="right">$1600</td>
+    </tr>
+    <tr>
+      <td>col 2 is</td>
+      <td align="center">centered</td>
+      <td align="right">$12</td>
+    </tr>
+    <tr>
+      <td>zebra stripes</td>
+      <td align="center">are neat</td>
+      <td align="right">$1</td>
+    </tr>
+    <tr>
+      <td>
+        <ul>
+          <li>item1</li>
+          <li>item2</li>
+        </ul>
+      </td>
+      <td align="center">See the list</td>
+      <td align="right">from the first column</td>
+    </tr>
+  </tbody>
+</table>
+
 
 <a name="issues"></a>
 ## Unresolved issues
