@@ -37,10 +37,7 @@ CEH-GEAR 1km gridded observations are manually downloaded from the CEH datastore
 
 To Do:
 
-td {
-  border: 1px solid #eee;
-  text-align: center;
-}
+
 <table style="width: 100%;">
   <tr>
     <td colspan="3" style="width:50%;">Cell A</td>
@@ -60,9 +57,9 @@ td {
 <table>
   <tbody>
     <tr>    
-      <th>Objective</th>
-      <th align="center">Outputs </th>
-      <th align="center">Analysis</th>
+    <td colspan="3" style="width:50%;">Cell A</td>
+    <td colspan="3" style="width:25%;">Cell B</td>
+    <td colspan="3" style="width:25%;">Cell B</td>
     </tr>
     <tr>
       <td> Assess whether regridding the observations to a 2.2km grid, using both linear and nearest neighbour regridding, alters the spatial patterns in hourly precipitation values compared to the observations on the native 1km grid. </td>
