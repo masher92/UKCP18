@@ -51,7 +51,7 @@ To Do:
     <tr>
       <th>Objective</th>
       <th align="center">Outputs</th>
-      <th align="right">Analysis</th>
+      <th align="center">Analysis</th>
     </tr>
     <tr>
       <td>Understand spatial distribution of hourly precipitation values in the model at various spatial scales </td>
