@@ -1,10 +1,8 @@
 # Percentage difference between Model and Observations
 
-Compare to what's in: https://www.metoffice.gov.uk/binaries/content/assets/metofficegovuk/pdf/research/ukcp/ukcp18_cpm_launch_kendon_sept19-20190926_with-notes.pdf
-This looks at wet day frequency - could I calculate this?
-
 The mean value across the twelve UKCP18 2.2km model ensemble members are calculated for various statistics of present day rainfall. The difference between these mean values and those found in the CEH-GEAR observations data, regridded to 2.2km, are then calculated to establish the presence of model bias.
 
+Remember:
 RCMs -- have a tendency for light rainfall events to occur too often ('drizzle effect') and for extreme rainfall events to be under represented.
 CPMs -- have a tendency to simulate heavy rainfall events as too intense
 
@@ -93,3 +91,7 @@ The mean value across the twelve UKCP18 2.2km model ensemble members are calcula
             <img src="Figs/leeds-at-centre/jja_p99.9.png" width="200" />
             <img src="Figs/leeds-at-centre/jja_max.png" width="200""/>   </p>
 <p align="left">Figure 3. The difference between UKCP18 2.2km local and CEH-GEAR observations regridded to 2.2km for various precipitation statistics <p align="center">
+
+
+Compare to what's in: https://www.metoffice.gov.uk/binaries/content/assets/metofficegovuk/pdf/research/ukcp/ukcp18_cpm_launch_kendon_sept19-20190926_with-notes.pdf
+This looks at wet day frequency - could I calculate this?
