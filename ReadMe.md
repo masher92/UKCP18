@@ -4,9 +4,9 @@
 
 1. [ Data Download. ](#datadownload)
 2. [ Regridding Observations. ](#regridding)
-5. [ Unresolved issues. ](#issues)
-  a. [ 360-day calendar ](#issuesa)  
-  b. [ Projection ](#issuesb)  
+5. [ Unresolved issues. ](#issues)  
+  a. [ 360-day calendar ](#issuesa)    
+  b. [ Projection ](#issuesb)   
 
 <a name="datadownload"></a>
 ## Data Download
