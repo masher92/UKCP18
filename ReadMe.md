@@ -87,14 +87,14 @@ To Do:
 <table>
   <tbody>
     <tr>    
-    <td colspan="3" style="width:30%;"> Objective</td>
-    <td colspan="3" style="width:30%;">Output </td>
-    <td colspan="3" style="width:40%;">Analysis </td>
+    <td  style="width:30%;"> Objective</td>
+    <td  style="width:30%;">Output </td>
+    <td  style="width:40%;">Analysis </td>
     </tr>
     <tr>
-      <td colspan="3" style="width:30%;"> Assess whether regridding the observations to a 2.2km grid, using both linear and nearest neighbour regridding, alters the spatial patterns in hourly precipitation values compared to the observations on the native 1km grid. </td>
-      <td  colspan="3" style="width:30%;" align="center">  Hourly JJA mean, max and percentile precipitation values plotted for the model across the UK, the North of England and for the area around Leeds using the native 1km observations and the observations regridded to 2.2km using linear regridding and nearest neighbour regridding </td>
-      <td  colspan="3" style="width:40%;" align="left"> There are no substantial differences in spatial patterns using the two regridding methods  </td>
+      <td  style="width:30%;"> Assess whether regridding the observations to a 2.2km grid, using both linear and nearest neighbour regridding, alters the spatial patterns in hourly precipitation values compared to the observations on the native 1km grid. </td>
+      <td  style="width:30%;" align="center">  Hourly JJA mean, max and percentile precipitation values plotted for the model across the UK, the North of England and for the area around Leeds using the native 1km observations and the observations regridded to 2.2km using linear regridding and nearest neighbour regridding </td>
+      <td style="width:40%;" align="left"> There are no substantial differences in spatial patterns using the two regridding methods  </td>
     </tr>    
     <tr>
       <td>Understand spatial distribution of hourly precipitation values in the model at various spatial scales </td>
