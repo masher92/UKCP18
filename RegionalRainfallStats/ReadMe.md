@@ -14,4 +14,4 @@ The values of these statistics are plotted over:
 
 For the model, the mean values across all 12 ensemble members are plotted, and additionally the individual values from each ensemble member is plotted on one figure with 12 subplots. 
 
-The difference between the mean values across the 12 ensemble members and the value from the regridded observations is also plotted.
+The difference between the mean values across the 12 ensemble members and the values from the regridded observations is also plotted.
