@@ -4,11 +4,9 @@
 
 1. [ Data Download. ](#datadownload)
 2. [ Regridding Observations. ](#regridding)
-3. [ Workflow. ](#workflow)  
-  a. [ Comparing geostatistical and linear model performance. ](#workflowa)  
-  b. [ Exploring the impact of sampling strategy ](#workflowb)  
-4. [ Next stages. ](#nextup)
 5. [ Unresolved issues. ](#issues)
+  a. [ 360-day calendar ](#issuesa)  
+  b. [ Projection ](#issuesb)  
 
 <a name="datadownload"></a>
 ## Data Download
@@ -28,9 +26,11 @@ The nearest neighbour interpolation method was deemed to be the most appropriate
 
 <a name="issues"></a>
 ## Unresolved issues
+<a name="issuesa"></a>
+## 360 day calendar
 Each month has 30 days: this creates a problem when converting the date to a timestamp format as it cannot recognise 30 days in February. 
 Check: https://unidata.github.io/cftime/api.html
-
+<a name="issuesb"></a>
 ### Projection
 The UKCP18 data is provided in a Rotated Pole coordinate system.  
 It is possible to get this Rotated Pole in the format of a cartopy projection: grid_crs = grid.coord('grid_latitude').coord_system.as_cartopy_crs()  
