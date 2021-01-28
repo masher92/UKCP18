@@ -115,6 +115,29 @@ To Do:
 <a name="rainfallregionalisation"></a>
 ## Rainfall regionalisation
 
+<table>
+  <tbody>
+    <tr>    
+    <td  align="center" style="width:15%;"> Objective</td>
+    <td  align="center" style="width:15%;">Output </td>
+    <td align="center" style="width:70%;">Analysis </td>
+    </tr>
+    <tr>
+      <td align="left" style="width:15%"> Investigate techniques for identifying homogeneous rainfall regions in which, over long time periods, precipitation is statistically similar.  The purpose of this is to allow projections from multiple grid cells to be pooled to increase the sample size.  There are a range of techniques for doing this, including using the R package HiClimR, and these will be explored. </td>
+      <td align="center" style="width:15%">  </td>
+      <td align="left" style="width:15%"> 
+          <ul>  
+          <li> . </li>
+        </ul> 
+       </td>
+    </tr>    
+     </tbody>
+</table>
+
+
+
+
+
 
 <a name="issues"></a>
 ## Unresolved issues
