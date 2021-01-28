@@ -37,21 +37,21 @@ CEH-GEAR 1km gridded observations are manually downloaded from the CEH datastore
 
 To Do:
 
-<table style="width: 100%">
-    <colgroup>
-       <col span="1" style="width: 15%;">
-       <col span="1" style="width: 70%;">
-       <col span="1" style="width: 15%;">
-    </colgroup>
-    <tbody>
-        <tr>
-            <td style="background-color: #777">15%</td>
-            <td style="background-color: #aaa">70%</td>
-            <td style="background-color: #777">15%</td>
-        </tr>
-    </tbody>
+td {
+  border: 1px solid #eee;
+  text-align: center;
+}
+<table style="width: 100%;">
+  <tr>
+    <td colspan="3" style="width:50%;">Cell A</td>
+    <td colspan="3" style="width:50%;">Cell B</td>
+  </tr>
+  <tr>
+    <td colspan="2">Cell A</td>
+    <td colspan="2">Cell B</td>
+    <td colspan="2">Cell C</td>
+  </tr>
 </table>
-
 
 
 <a name="regionalstats"></a>
