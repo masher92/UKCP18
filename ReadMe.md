@@ -1,14 +1,4 @@
 ## UKCP18  
-+---------------+---------------+--------------------+
-| Fruit         | Price         | Advantages         |
-+===============+===============+====================+
-| Bananas       | $1.34         | - built-in wrapper |
-|               |               | - bright color     |
-+---------------+---------------+--------------------+
-| Oranges       | $2.10         | - cures scurvy     |
-|               |               | - tasty            |
-+---------------+---------------+--------------------+
-
 
 This project contains code for analysis of the UKCP18 local 2.2km precipitation projections. This includes validation of the model projections using a gridded observations dataset CEH-GEAR1hr. 
 
@@ -59,14 +49,17 @@ To Do:
 <table>
   <tbody>
     <tr>
-      <th>Tables</th>
-      <th align="center">Are</th>
-      <th align="right">Cool</th>
+      <th>Objective</th>
+      <th align="center">Outputs</th>
+      <th align="right">Analysis</th>
     </tr>
     <tr>
-      <td>col 3 is</td>
-      <td align="center">right-aligned</td>
-      <td align="right">$1600</td>
+      <td>Understand spatial distribution of hourly precipitation values in the model at various spatial scales </td>
+      <td align="center">  Hourly JJA mean, max and percentile precipitation values plotted for the model across the North of England and for the area around Leeds </td>
+      <td align="right">         <ul>
+          <li>Over the Northern region, there is generally an East-West gradient in precipitation, with..</li>
+          <li> Over Leeds, there is a East-West gradient in precipitation, with the</li>
+        </ul>    </td>
     </tr>
     <tr>
       <td>col 2 is</td>
