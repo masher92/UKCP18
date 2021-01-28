@@ -4,7 +4,8 @@
 
 1. [ Data Download. ](#datadownload)
 2. [ Regridding Observations. ](#regridding)
-3. [ Regional Rainfall Statistics. ](#regionalstats)
+3. [ Raingauge Analysis. ](#raingauge)
+4. [ Regional Rainfall Statistics. ](#regionalstats)
 5. [ Unresolved issues. ](#issues)  
   a. [ 360-day calendar ](#issuesa)    
   b. [ Projection ](#issuesb)   
@@ -23,6 +24,10 @@ The 1km observations are regridded onto a 2.2km grid to match the model data.
 Regridding was carried out using both linear regridding and nearest neighbour regridding. PDFs were plotted of all the precipitation values from the grid cells in the leeds-at-centre region using the observations on the 1km grid and the observations regridded to 2.2km using both the linear and nearest neighbour methods.
 
 The nearest neighbour interpolation method was deemed to be the most appropriate.
+
+<a name="raingauge"></a>
+## Rain Gauge Analysis
+The sources of rain gauge data, their locations and the time periods they covered are documented, and the locations of the rain gauges plotted.
 
 <a name="regionalstats"></a>
 ## Regional Rainfall Statistics
