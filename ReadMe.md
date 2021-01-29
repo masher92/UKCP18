@@ -73,6 +73,8 @@ Rain gauge data can be used to validate the CEH-GEAR1hr gridded precipitation ob
 <a name="regionalstats"></a>
 ## Regional Rainfall Statistics
 
+Plotting statistics of hourly precipitation intensity over regional areas to assess spatial patterns. 
+
 <table>
   <tbody>
     <tr>    
