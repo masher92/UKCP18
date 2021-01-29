@@ -19,6 +19,18 @@ In section 1, each plot displays the mean value across twelve ensemble members f
 In section 2, each plot displays the value for each of the twelve ensemble members.   
 In each case the statistics plotted in the left hand plot are calculated across all hours of the data, whilst those plotted in the right hand plot are calculated using only the wet hours (>0.1mm/hr precipitation).
 
+
+<p align="left">
+            <img src="Figs/leeds-at-centre/WetHours_EM_Difference/wet_prop_EM_mean.png" width="100"  title="Regridded 2.2km grid" />  
+            <img src="Figs/leeds-at-centre/AllHours_EM_Difference/jja_mean_EM_mean.png" width="100"  title="Original 1km grid" />
+            <img src="Figs/leeds-at-centre/AllHours_EM_Difference/jja_p95_EM_mean.png" width="100"  title="Original 1km grid" />
+            <img src="Figs/leeds-at-centre/AllHours_EM_Difference/jja_p97_EM_mean.png" width="100"  title="Original 1km grid" />
+            <img src="Figs/leeds-at-centre/AllHours_EM_Difference/jja_p99_EM_mean.png" width="100"  title="Original 1km grid" />    
+            <img src="Figs/leeds-at-centre/AllHours_EM_Difference/jja_p99.5_EM_mean.png" width="100"  title="Original 1km grid" />    
+            <img src="Figs/leeds-at-centre/AllHours_EM_Difference/jja_p99.75_EM_mean.png" width="100"  title="Original 1km grid" />         
+            <img src="Figs/leeds-at-centre/AllHours_EM_Difference/jja_p99.9_EM_mean.png" width="100"  title="Original 1km grid" />            
+</p>
+
 ### 1. Ensemble means
 #### Leeds region
 <p align="left">
