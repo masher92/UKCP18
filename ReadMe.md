@@ -8,11 +8,12 @@ This project contains code for analysis of the UKCP18 local 2.2km precipitation 
 2. [ Regridding Observations. ](#regridding)
 3. [ Raingauge Analysis. ](#raingauge)
 4. [ Regional Rainfall Statistics. ](#regionalstats)
-4. [ Precipitation PDFs. ](#precippdfs)
-5. [ Unresolved issues. ](#issues)  
+5. [ Precipitation PDFs. ](#precippdfs)
+6. [ Rainfall regionalisation. ](#rainfallregionalisation) 
+7. [ Unresolved issues. ](#issues)  
   a. [ 360-day calendar ](#issuesa)    
   b. [ Projection ](#issuesb)   
-6. [ To do. ](#todo)   
+8. [ To do. ](#todo)   
 
 <a name="datadownload"></a>
 ## Data Download
@@ -138,13 +139,6 @@ Rain gauge data can be used to validate the CEH-GEAR1hr gridded precipitation ob
     <tr>
 <td align="left" style="width:15%"> Calculate statistics of hourly precipitation intensity to use to determine homogeneous rainfall regions. </td>
       <td align="center" style="width:15%"> Annual values of the max, mean and percentiles (95,9 97, 99, 99.5, 99.75 and 99.9) are calculated for each year in 1980-2001. Additionally, for each ensemble member </td>
-      <td align="left" style="width:15%"> 
-          <ul>  
-          <li> . </li>
-        </ul> 
-       </td>
-      <td align="left" style="width:15%"> Identify homogeneous rainfall regions in which, over long time periods, precipitation is statistically similar and across which precipitaiton data can be pooled to increase sample size. </td>
-      <td align="center" style="width:15%">  </td>
       <td align="left" style="width:15%"> 
           <ul>  
           <li> . </li>
