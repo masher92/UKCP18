@@ -45,6 +45,8 @@ The CEH-GEAR1hr gridded precipitation observations are on a 1km grid. In order t
 <a name="raingauge"></a>
 ## Rain Gauge Analysis
 
+Rain gauge data can be used to validate the CEH-GEAR1hr gridded precipitation observations. In particular, they can be used to establish the extent to which the process of interpolating the rain gauge data onto a grid has resulted in smoothing of extreme values.  
+
 <table>
   <tbody>
     <tr>    
@@ -55,7 +57,7 @@ The CEH-GEAR1hr gridded precipitation observations are on a 1km grid. In order t
     <tr>
       <td> To define the sources of rain gauge data, the gauge locations and the time periods they cover </td>
       <td align="center">  The EA has provided hourly gauge data from 5 rain gauges within the West Yorkshire region going back to ~1980. Some data is missing and others has not been quality controlled. A request has been made to Newcastle University for a copy of their quality controlled rain gauge dataset for the West Yorkshire region. Leeds City Council no longer operates any rain gauges and instead uses the Meniscus MAP rain product, which is based on radar. The Met Office also operate gauges within the WY region, but haven't worked out how to access this data. The location of the rain gauge has been plotted. </td>
-      <td align="left"> Once data from these rain gauges is accessed it can be used to validate the CEH-GEAR1hr gridded observations dataset. This will be useful for establishing whether the interpolation process of converting data from point locations to a grid has result in any smoothing of extremes. </td>
+      <td align="left"> Once data from these rain gauges is accessed it can be used to validate the CEH-GEAR1hr gridded observations dataset. </td>
     </tr>    
      </tbody>
 </table>
