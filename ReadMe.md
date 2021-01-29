@@ -4,7 +4,8 @@ This project contains code for analysis of the UKCP18 local 2.2km precipitation 
 
 ## Table of contents
 
-1. [ Data Download. ](#datadownload)
+1. [ Environment. ](#env)
+2. [ Data Download. ](#datadownload)
 2. [ Regridding Observations. ](#regridding)
 3. [ Raingauge Analysis. ](#raingauge)
 4. [ Regional Rainfall Statistics. ](#regionalstats)
@@ -14,6 +15,11 @@ This project contains code for analysis of the UKCP18 local 2.2km precipitation 
   a. [ 360-day calendar ](#issuesa)    
   b. [ Projection ](#issuesb)   
 8. [ To do. ](#todo)   
+
+
+<a name="env"></a>
+## Environmment
+Contains an environment.yml file for creating a conda environment for analysis which contains all the necessary packages to run the code.
 
 <a name="datadownload"></a>
 ## Data Download
