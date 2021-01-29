@@ -140,6 +140,8 @@ To do: Create similar plots but with rainfall aggregated to different durations,
 <a name="rainfallregionalisation"></a>
 ## Rainfall regionalisation
 
+Pooling data spatially from multiple rain gauge stations or model grid boxes can help to deal with data shortages in analyses where long timeseries of data would ideally be required, e.g. for estimating extreme value distributions. Regionalisation requires a means of determining areas which have similar enough rainfall characteristics to be grouped together. These regions are generally geographically coherent areas with similar physical and/or climatic features according to the focus of the analysis, and can be identified through statistical clustering techniques. 
+
 <table>
   <tbody>
     <tr>    
@@ -149,13 +151,14 @@ To do: Create similar plots but with rainfall aggregated to different durations,
     </tr>
     <tr>
 <td align="left" style="width:15%"> Calculate statistics of hourly precipitation intensity to use to determine homogeneous rainfall regions. </td>
-      <td align="center" style="width:15%"> Annual values of the max, mean and percentiles (95,9 97, 99, 99.5, 99.75 and 99.9) are calculated for each year in 1980-2001. Additionally, for each ensemble member </td>
-      <td align="left" style="width:15%"> 
-          <ul>  
-          <li> . </li>
-        </ul> 
-       </td>
+      <td align="center" style="width:15%"> Annual values of the max, mean and percentiles (95,9 97, 99, 99.5, 99.75 and 99.9) are calculated for each year in 1980-2001. Additionally, for each ensemble member all values over a certain percentile value were calculated, and the greatest ten/20 values in each year were found. </td>
+      <td align="left" style="width:15%"> </td>
     </tr>    
+        <tr>
+<td align="left" style="width:15%"> Identify regional clusters with homogenous rainfall characteristics using R package HiClimR </td>
+      <td align="center" style="width:15%">  </td>
+      <td align="left" style="width:15%"> </td>
+    </tr>   
      </tbody>
 </table>
 
