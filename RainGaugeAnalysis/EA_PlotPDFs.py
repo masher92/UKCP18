@@ -49,7 +49,6 @@ gauge_locations = pd.DataFrame({'Station': ['Wakefield' , 'Eccup', 'Farnley Hall
 # Create a list of all the tuple pairs of latitude and longitudes
 locations = list(itertools.product(concat_cube.coord('projection_y_coordinate').points, 
                                    concat_cube.coord('projection_x_coordinate').points))
-     
 
 ##############################################################################
 # Reading in data 

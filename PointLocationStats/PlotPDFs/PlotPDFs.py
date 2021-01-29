@@ -2,6 +2,7 @@
 # Set up environment
 #############################################
 import os
+import sys
 #import matplotlib.pyplot as plt
 import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
@@ -19,7 +20,7 @@ root_dir = '/nfs/a319/gy17m2a/'
 os.chdir(root_dir)
 
 # Create path to files containing functions
-sys.path.insert(0, root_fp + 'Scripts/PlotPDFs/')
+sys.path.insert(0, root_dir + 'Scripts/UKCP18/PointLocationStats/PlotPDFs/')
 from PDF_plotting_functions import *
 
 location ='Armley'

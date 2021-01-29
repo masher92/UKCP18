@@ -110,6 +110,58 @@ def wet_hour_stats(rain_data, statistic_name):
     return  stats_array
   
 
+def find_cornerpoint_coordinates_obs (cube):
+    '''
+    Description
+    ----------
+        Using a cube of lat, longs in rotated pole and associated values the function
+        creates new 2D lat, lon and data arrays in which the data values are associated
+        with a point at the bottom left of each grid cell, rather than the middle.
+    Parameters
+    ----------
+        cube: Iris Cube
+            A cube containing only latitude and longitude dimensions
+            In rotated pole coordinates so that...are constant..
+    Returns
+    -------
+        lats_wm_midpoints_2d : array
+            A 2d array of the mid point latitudes
+        lons_wm_midpoints_2d : array
+            A 2d array of the mid point longitudes
+        
+    '''
+    
+    # Extract lats and longs in rotated pol as a 2D array
+    lats_rp_1d = cube.coord('grid_latitude').points
+    lons_rp_1d = cube.coord('grid_longitude').points
+    
+    # Find the distance between each lat/lon and the next lat/lon
+    # Divide this by two to get the distance to the half way point
+    lats_rp_differences_half = np.diff(lats_rp_1d)/2
+    lons_rp_differences_half = np.diff(lons_rp_1d)/2
+    
+    # Create an array of lats/lons at the midpoints
+    lats_rp_midpoints_1d = lats_rp_1d[1:] - lats_rp_differences_half
+    lons_rp_midpoints_1d = lons_rp_1d[1:] - lons_rp_differences_half
+    
+    # Convert to 2D
+    lons_rp_midpoints_2d, lats_rp_midpoints_2d = np.meshgrid(lons_rp_midpoints_1d, lats_rp_midpoints_1d)
+    
+    # Convert to wgs84
+    cs = cube.coord_system()
+    lons_wgs84_midpoints_2d, lats_wgs84_midpoints_2d = iris.analysis.cartography.unrotate_pole(lons_rp_midpoints_2d, lats_rp_midpoints_2d, cs.grid_north_pole_longitude, cs.grid_north_pole_latitude)
+    # Convert to web mercator
+    lons_wm_midpoints_2d, lats_wm_midpoints_2d = transform(Proj(init='epsg:4326'),Proj(init='epsg:3785'),lons_wgs84_midpoints_2d,lats_wgs84_midpoints_2d)
+    
+    # Convert to 1d     
+    #lons_wm_midpoints_1d = lons_wm_midpoints_2d.reshape(-1)
+   # lats_wm_midpoints_1d = lats_wm_midpoints_2d.reshape(-1)
+    
+    # Remove same parts of data
+    #data = cube.data
+    #data_midpoints = data[1:,1:]
+    
+    return (lats_wm_midpoints_2d, lons_wm_midpoints_2d)
 
   
 

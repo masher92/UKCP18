@@ -41,3 +41,6 @@ concat_cube = concat_cube[0,:,:,:]
 # Create time constraint (only keeps hours between 1990 and 2000)
 time_constraint = iris.Constraint(time=lambda c: c.point.year >= 1990 and c.point.year <= 2000)
 time_constraint_cube =concat_cube.extract(time_constraint)
+
+## Check times covered
+times = time_constraint_cube.coord('yyyymmddhh')

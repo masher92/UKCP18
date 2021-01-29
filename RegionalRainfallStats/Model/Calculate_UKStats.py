@@ -77,6 +77,10 @@ for em in ems:
     
     # Remove ensemble member dimension
     concat_cube = concat_cube[0,:,:,:]
+    
+    time_constraint = iris.Constraint(time=lambda c: c.point.day == 12)
+    time_constraint = iris.Constraint(time=lambda c: c.point.year == 12)
+    aa=concat_cube.extract(time_constraint)
        
     #############################################
     ## Trim to outline of UK

@@ -69,7 +69,7 @@ leeds_gdf = create_leeds_outline({'init' :'epsg:27700'})
 model_times = np.load('Outputs/Timeseries_UKCP18/leeds-at-centre/timestamps.npy')
 
 # Set value as NA for values not in required date range
-for i in range(78480,172800):
+for i in range(0,78480):
     print(i)
     model_times[i] = '0'
 
@@ -129,8 +129,8 @@ observations_regridded = pd.DataFrame({"Precipitation (mm/hr)" : observations_re
                                        'Date' : obs_times_allcells_regridded})
 
 # Remove data not in the overlapping time period
-observations_regridded_overlapping = observations_regridded[(observations_regridded['Date'] > '1990-01-01 00:00:00') 
-                                                & (observations_regridded['Date']< '2000-11-30 23:00:00 ')]
+observations_regridded_overlapping = observations_regridded[(observations_regridded['Date'] >= '1990-01-01 00:00:00') 
+                                                & (observations_regridded['Date'] <= '2000-11-30 23:00:00 ')]
 
 ####### Native data
 # Repeat this 6083 times to be the same length as the precip data for whole of Leeds  (73 cells x 83 cells)
@@ -143,8 +143,8 @@ observations = pd.DataFrame({"Precipitation (mm/hr)" : observations,
                                        'Date' : obs_times_allcells})
     
 # Remove data not in the overlapping time period
-observations_overlapping = observations[(observations['Date'] > '1990-01-01 00:00:00') 
-                                                & (observations['Date']< '2000-11-30 23:00:00 ')]
+observations_overlapping = observations[(observations['Date'] >= '1990-01-01 00:00:00') 
+                                                & (observations['Date']<= '2000-11-30 23:00:00 ')]
 
 ####### Add both native and regridded observations data to dictionary
 leeds_data_dict['Observations'] = observations
@@ -184,12 +184,11 @@ cols_dict = {'Observations' : 'firebrick',
 
 x_axis = 'linear'
 y_axis = 'log'
-bin_nos =25
+bin_nos = 30
 bins_if_log_spaced= bin_nos
-
   
 # Log histogram with adaptation     
-log_discrete_histogram(my_dict, cols_dict, bin_nos, "Precipitation (mm/hr)", x_axis, y_axis) 
+#log_discrete_histogram(my_dict, cols_dict, bin_nos, "Precipitation (mm/hr)", x_axis, y_axis) 
 
 # Log histogram with adaptation     
 # Without legend?
