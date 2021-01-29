@@ -104,6 +104,8 @@ Plotting statistics of hourly precipitation intensity over regional areas to ass
      </tbody>
 </table>
 
+To do: Create similar plots but with rainfall aggregated to different durations, e.g. 3h, 6h, daily, weekly etc. 
+
 <a name="precippdfs"></a>
 ## Precipitation PDFs
 
@@ -133,6 +135,7 @@ Plotting statistics of hourly precipitation intensity over regional areas to ass
      </tbody>
 </table>
 
+To do: Create similar plots but with rainfall aggregated to different durations, e.g. 3h, 6h, daily, weekly etc. 
 
 <a name="rainfallregionalisation"></a>
 ## Rainfall regionalisation
