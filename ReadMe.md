@@ -99,7 +99,11 @@ Plotting statistics of hourly precipitation intensity over regional areas to ass
     <tr>
       <td>Understand how spatial distrubtion of hourly precipitation values in the model compares to the regridded, observed values  </td>
       <td align="center">  The difference between the mean model ensemble member values and the regridded observations are also plotted for hourly JJA mean, max and percentile precipitation values  </td>
-      <td align="left">  ..  </td>
+      <td align="left">   <ul>  
+          <li> For the higher precipitation intensities, the modelled values are higher than the observations across the whole country. The maximum percentage difference between these values gets higher at higher percentiles, up to a maximum difference of 800% in the maximum values. </li>
+          <li> For the lower percentiles of precipitation intensity, there is a geographical divide in the difference between the model and the observations. The model overpredicts (compared to the observations) over the Pennines and Scottish hills; however, this same effect is not seen over the Welsh hills or in higher elevation areas in the South.   </li>
+      </ul>
+      </td>
     </tr>    
      </tbody>
 </table>
