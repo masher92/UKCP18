@@ -73,6 +73,8 @@ Rain gauge data can be used to validate the CEH-GEAR1hr gridded precipitation ob
 <a name="regionalstats"></a>
 ## Regional Rainfall Statistics
 
+Plotting statistics of hourly precipitation intensity over regional areas to assess spatial patterns. 
+
 <table>
   <tbody>
     <tr>    
@@ -97,10 +99,16 @@ Rain gauge data can be used to validate the CEH-GEAR1hr gridded precipitation ob
     <tr>
       <td>Understand how spatial distrubtion of hourly precipitation values in the model compares to the regridded, observed values  </td>
       <td align="center">  The difference between the mean model ensemble member values and the regridded observations are also plotted for hourly JJA mean, max and percentile precipitation values  </td>
-      <td align="left">  ..  </td>
+      <td align="left">   <ul>  
+          <li> For the higher precipitation intensities, the modelled values are higher than the observations across the whole country. The maximum percentage difference between these values gets higher at higher percentiles, up to a maximum difference of 800% in the maximum values. </li>
+          <li> For the lower percentiles of precipitation intensity, there is a geographical divide in the difference between the model and the observations. The model overpredicts (compared to the observations) over the Pennines and Scottish hills; however, this same effect is not seen over the Welsh hills or in higher elevation areas in the South.   </li>
+      </ul>
+      </td>
     </tr>    
      </tbody>
 </table>
+
+To do: Create similar plots but with rainfall aggregated to different durations, e.g. 3h, 6h, daily, weekly etc. 
 
 <a name="precippdfs"></a>
 ## Precipitation PDFs
@@ -131,9 +139,12 @@ Rain gauge data can be used to validate the CEH-GEAR1hr gridded precipitation ob
      </tbody>
 </table>
 
+To do: Create similar plots but with rainfall aggregated to different durations, e.g. 3h, 6h, daily, weekly etc. 
 
 <a name="rainfallregionalisation"></a>
 ## Rainfall regionalisation
+
+Pooling data spatially from multiple rain gauge stations or model grid boxes can help to deal with data shortages in analyses where long timeseries of data would ideally be required, e.g. for estimating extreme value distributions. Regionalisation requires a means of determining areas which have similar enough rainfall characteristics to be grouped together. These regions are generally geographically coherent areas with similar physical and/or climatic features according to the focus of the analysis, and can be identified through statistical clustering techniques. 
 
 <table>
   <tbody>
@@ -144,13 +155,14 @@ Rain gauge data can be used to validate the CEH-GEAR1hr gridded precipitation ob
     </tr>
     <tr>
 <td align="left" style="width:15%"> Calculate statistics of hourly precipitation intensity to use to determine homogeneous rainfall regions. </td>
-      <td align="center" style="width:15%"> Annual values of the max, mean and percentiles (95,9 97, 99, 99.5, 99.75 and 99.9) are calculated for each year in 1980-2001. Additionally, for each ensemble member </td>
-      <td align="left" style="width:15%"> 
-          <ul>  
-          <li> . </li>
-        </ul> 
-       </td>
+      <td align="center" style="width:15%"> Annual values of the max, mean and percentiles (95,9 97, 99, 99.5, 99.75 and 99.9) are calculated for each year in 1980-2001. Additionally, for each ensemble member all values over a certain percentile value were calculated, and the greatest ten/20 values in each year were found. </td>
+      <td align="left" style="width:15%"> </td>
     </tr>    
+        <tr>
+<td align="left" style="width:15%"> Identify regional clusters with homogenous rainfall characteristics using R package HiClimR </td>
+      <td align="center" style="width:15%">  </td>
+      <td align="left" style="width:15%"> </td>
+    </tr>   
      </tbody>
 </table>
 

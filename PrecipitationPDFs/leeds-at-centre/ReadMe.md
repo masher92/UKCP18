@@ -41,14 +41,14 @@ Sense checking the data:
   <img src="PDFs/OverlappingTimePeriod/CombinedEMsVSObs_25bins.png" width="240"  />
   <img src="PDFs/AllEMsVSObs_25bins.png" width="240"  />  
   <img src="PDFs/CombinedEMsVSObs_25bins.png" width="240"  />
-<p align="center"> Figure 1. PDF of precipitation intensity across the Leeds area. Using the overlapping time period (1990-2001) on the left hand images, and the full time period for which data is available for each of the model and observations on the right. <p align="center">
+<p align="center"> Figure 2. PDF of precipitation intensity across the Leeds area. Using the overlapping time period (1990-2001) on the left hand images, and the full time period for which data is available for each of the model and observations on the right. <p align="center">
   
 <p align="center">
   <img src="PDFs/OverlappingTimePeriod/AllEMsVSObs_37bins.png" width="240"  />  
   <img src="PDFs/OverlappingTimePeriod/CombinedEMsVSObs_37bins.png" width="240"  />
   <img src="PDFs/AllEMsVSObs_37bins.png" width="240"  />  
   <img src="PDFs/CombinedEMsVSObs_37bins.png" width="240"  />
-<p align="center"> Figure 1. PDF of precipitation intensity across the Leeds area. Using the overlapping time period (1990-2000) on the left hand images, and the full time period for which data is available for each of the model and observations on the right. <p align="center">
+<p align="center"> Figure 3. PDF of precipitation intensity across the Leeds area. Using the overlapping time period (1990-2000) on the left hand images, and the full time period for which data is available for each of the model and observations on the right. <p align="center">
 
 Using only the overlapping time period means that there is less data available for the regridded observations than the native observations, which could explain why the regridded observations line is lower than the native observations and has a lower probablity of higher values and less extreme values. Alternatively, this could be because the regridding process results in smoothing of more extreme values. 
 
