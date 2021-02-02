@@ -29,15 +29,18 @@ root_fp = "/nfs/a319/gy17m2a/"
 os.chdir(root_fp)
 
 # Create path to files containing functions
-sys.path.insert(0, root_fp + 'Scripts/UKCP18/PointLocationStats/PlotPDFs')
+sys.path.insert(0, root_fp + 'Scripts/UKCP18/GlobalFunctions')
 from PDF_plotting_functions import *
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/RegriddingObservations')
 from Regridding_functions import *
-sys.path.insert(0, root_fp + 'Scripts/UKCP18/SpatialAnalyses')
+sys.path.insert(0, root_fp + 'Scripts/UKCP18/GlobalFunctions')
 from Spatial_geometry_functions import *
 
 # Define ensemble member numbers
 ems = ['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
+
+# Define whether to include observations
+include_obs = False
 
 ################################################################
 # Create the spatial datafiles needed
@@ -82,6 +85,7 @@ model_times_allcells = np.tile(model_times, 1221)
 ################################################################
 # Create a dictionary to store results
 leeds_data_dict = {}
+leeds_data_dict_overlapping = {}
 
 # Loop through ensemble members
 for em in ems:
@@ -92,6 +96,8 @@ for em in ems:
     # Join to corresponding dates/times
     leeds_data_withtimes = pd.DataFrame({"Date" : model_times_allcells,
                                    'Precipitation (mm/hr)' :leeds_data})
+    
+    leeds_data_dict['EM{}'.format(em)] = leeds_data_withtimes
 
     # Keep only data from overlapping times 
     leeds_data_overlapping = leeds_data_withtimes.loc[leeds_data_withtimes['Date'] != '0']
@@ -100,17 +106,19 @@ for em in ems:
     #leeds_data_overlapping['Date_formatted'] =  pd.to_datetime(leeds_data_overlapping['Date'], format='%Y%m%d%H',  errors='coerce')
 
     # Add data to dictionary
-    leeds_data_dict['EM{}'.format(em)] = leeds_data_overlapping
+    leeds_data_dict_overlapping['EM{}'.format(em)] = leeds_data_overlapping
 
 
 # Create a dataframe containing the data from across all ensemble members
-frames = [leeds_data_dict['EM01'], leeds_data_dict['EM04'], leeds_data_dict['EM05'], leeds_data_dict['EM06'],
-          leeds_data_dict['EM07'], leeds_data_dict['EM08'], leeds_data_dict['EM09'], leeds_data_dict['EM10']
-          , leeds_data_dict['EM11'], leeds_data_dict['EM12'], leeds_data_dict['EM13'], leeds_data_dict['EM15']] 
-leeds_all_ems = pd.concat(frames)
+for dict in [leeds_data_dict, leeds_data_dict_overlapping]:
 
-# Add this to the dictionary
-leeds_data_dict['Model'] = leeds_all_ems
+    frames = [dict['EM01'], dict['EM04'], dict['EM05'], dict['EM06'],
+              dict['EM07'], dict['EM08'], dict['EM09'], dict['EM10']
+              , dict['EM11'], dict['EM12'], dict['EM13'], dict['EM15']] 
+    leeds_all_ems = pd.concat(frames)
+    
+    # Add this to the dictionary
+    dict['Combined EMs'] = leeds_all_ems
 
 ################################################################
 # Trim observations data to also only include data from the overlapping time period
@@ -127,11 +135,6 @@ observations_regridded = np.load("Outputs/RegriddingObservations/CEH-GEAR_regrid
 # Join dates data and precip data
 observations_regridded = pd.DataFrame({"Precipitation (mm/hr)" : observations_regridded,
                                        'Date' : obs_times_allcells_regridded})
-
-# Remove data not in the overlapping time period
-observations_regridded_overlapping = observations_regridded[(observations_regridded['Date'] >= '1990-01-01 00:00:00') 
-                                                & (observations_regridded['Date'] <= '2000-11-30 23:00:00 ')]
-
 ####### Native data
 # Repeat this 6083 times to be the same length as the precip data for whole of Leeds  (73 cells x 83 cells)
 obs_times_allcells = np.tile(obs_times, 6059) 
@@ -141,60 +144,133 @@ observations = np.load("Outputs/RegriddingObservations/CEH-GEAR_reformatted/leed
 # Join dates data and precip data
 observations = pd.DataFrame({"Precipitation (mm/hr)" : observations,
                                        'Date' : obs_times_allcells})
+
+
+####### Add both native and regridded observations data to dictionary
+leeds_data_dict['Observations'] = observations
+leeds_data_dict['Observations Regridded'] = observations_regridded
     
 # Remove data not in the overlapping time period
+observations_regridded_overlapping = observations_regridded[(observations_regridded['Date'] >= '1990-01-01 00:00:00') 
+                                                & (observations_regridded['Date'] <= '2000-11-30 23:00:00 ')]
+
 observations_overlapping = observations[(observations['Date'] >= '1990-01-01 00:00:00') 
                                                 & (observations['Date']<= '2000-11-30 23:00:00 ')]
 
 ####### Add both native and regridded observations data to dictionary
-leeds_data_dict['Observations'] = observations
-leeds_data_dict['Observations Regridded'] = observations_regridded_overlapping
+leeds_data_dict_overlapping['Observations'] = observations_overlapping
+leeds_data_dict_overlapping['Observations Regridded'] = observations_regridded_overlapping
 
 ##############################################################################
-# Create copies of dictionary
+# Create dictionaries 
 ##############################################################################
-all_ensemblemembers_dict = leeds_data_dict.copy()
-del all_ensemblemembers_dict['Model']
 
-combined_ensemblemembers_dict= leeds_data_dict.copy()
+################# Just model data
+just_ems_dict = leeds_data_dict.copy()
+del just_ems_dict['Combined EMs']
+del just_ems_dict['Observations']
+del just_ems_dict['Observations Regridded']
+
+################# Model AND Observations data
+############# Ful time period
+# All ensemble members
+all_ems_obs_dict  = leeds_data_dict.copy()
+del all_ems_obs_dict['Combined EMs']
+
+# Combined ensemble members
+combined_ems_obs_dict= leeds_data_dict.copy()
 keys_to_remove =("EM01", "EM04", "EM05", "EM06", "EM07", "EM08",
                  "EM09", "EM10", "EM11", "EM12", "EM13", "EM15")
 for key in keys_to_remove:
-    if key in combined_ensemblemembers_dict:
-        del combined_ensemblemembers_dict[key]
+    if key in combined_ems_obs_dict:
+        del combined_ems_obs_dict[key]
+        
+        
+############# Overlappping time period
+# All ensemble members
+all_ems_obs_dict_overlapping  = leeds_data_dict_overlapping.copy()
+del all_ems_obs_dict_overlapping['Combined EMs']
+
+# Combined ensemble members
+combined_ems_obs_dict_overlapping = leeds_data_dict_overlapping.copy()
+keys_to_remove =("EM01", "EM04", "EM05", "EM06", "EM07", "EM08",
+                 "EM09", "EM10", "EM11", "EM12", "EM13", "EM15")
+for key in keys_to_remove:
+    if key in combined_ems_obs_dict_overlapping:
+        del combined_ems_obs_dict_overlapping[key]
+
 
 ##############################################################################
 # Plotting
 ##############################################################################
 cols_dict = {'Observations' : 'firebrick',
              'Observations Regridded' : 'green',
-             'Model' : 'navy',
-             'EM01': "navy",
-             'EM04': 'navy',
-             'EM05': 'navy',
-             'EM06': 'navy',
-             'EM07': 'navy',
-             'EM08': 'navy',
-             'EM09': 'navy',  
-             'EM10': 'navy',
-             'EM11': 'navy',
-             'EM12': 'navy',
-             'EM13': 'navy',                      
-             'EM15': 'navy'}
+             'Combined EMs' : 'navy',
+             'EM01': "navy", 'EM04': 'navy', 'EM05': 'navy','EM06': 'navy',
+             'EM07': 'navy','EM08': 'navy','EM09': 'navy',  'EM10': 'navy',
+             'EM11': 'navy','EM12': 'navy','EM13': 'navy','EM15': 'navy'}
 
 x_axis = 'linear'
 y_axis = 'log'
-bin_nos = 30
+bin_nos = 40
 bins_if_log_spaced= bin_nos
-  
-# Log histogram with adaptation     
-#log_discrete_histogram(my_dict, cols_dict, bin_nos, "Precipitation (mm/hr)", x_axis, y_axis) 
 
-# Log histogram with adaptation     
-# Without legend?
-log_discrete_histogram_lesslegend(combined_ensemblemembers_dict, cols_dict, bin_nos, "Precipitation (mm/hr)", x_axis, y_axis) 
-log_discrete_histogram_lesslegend(all_ensemblemembers_dict, cols_dict, bin_nos, "Precipitation (mm/hr)", x_axis, y_axis) 
+#################### Full time period
+####### Just ensemble members
+patches= []#=
+#patch = mpatches.Patch(color='navy', label='Model')
+#patches.append(patch)
+log_discrete_histogram_lesslegend(just_ems_dict, cols_dict, bin_nos, "Precipitation (mm/hr)", 
+                                  patches,  True, x_axis, y_axis) 
 
+####### Combined ensemble members + Obs
+patches= []
+patch = mpatches.Patch(color='navy', label='Model')
+patches.append(patch)
+patch = mpatches.Patch(color='green', label='Observations Regridded')
+patches.append(patch)
+patch = mpatches.Patch(color='firebrick', label='Observations')
+patches.append(patch)
+
+log_discrete_histogram_lesslegend(combined_ems_obs_dict, cols_dict, bin_nos, "Precipitation (mm/hr)", 
+                                  patches, False, x_axis, y_axis) 
+
+####### Individual ensemble members + Obs
+patches= []#=
+patch = mpatches.Patch(color='navy', label='Model')
+patches.append(patch)
+patch = mpatches.Patch(color='green', label='Observations Regridded')
+patches.append(patch)
+patch = mpatches.Patch(color='firebrick', label='Observations')
+patches.append(patch)
+
+log_discrete_histogram_lesslegend(all_ems_obs_dict, cols_dict, bin_nos, "Precipitation (mm/hr)", 
+                                  patches, True, x_axis, y_axis) 
+
+
+#################### Overlapping time period
+####### Individual ensemble members + Obs
+patches= []
+patch = mpatches.Patch(color='navy', label='Model')
+patches.append(patch)
+patch = mpatches.Patch(color='green', label='Observations Regridded')
+patches.append(patch)
+patch = mpatches.Patch(color='firebrick', label='Observations')
+patches.append(patch)
+log_discrete_histogram_lesslegend(all_ems_obs_dict_overlapping, cols_dict, bin_nos, "Precipitation (mm/hr)", 
+                                  patches, False,x_axis, y_axis) 
+
+####### Combined ensemble members + Obs
+patches= []#=
+patch = mpatches.Patch(color='navy', label='Model')
+patches.append(patch)
+patch = mpatches.Patch(color='green', label='Observations Regridded')
+patches.append(patch)
+patch = mpatches.Patch(color='firebrick', label='Observations')
+patches.append(patch)
+
+log_discrete_histogram_lesslegend(combined_ems_obs_dict_overlapping, cols_dict, bin_nos, "Precipitation (mm/hr)", 
+                                  patches, False,x_axis, y_axis) 
 
 # # ##########################################################################
 # # # Percentile plots

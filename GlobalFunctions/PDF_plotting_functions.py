@@ -196,7 +196,8 @@ def log_discrete_histogram(results_dict, cols_dict, bin_nos, precip_variable, x_
     #     formatter.set_scientific(False)
     #     ax.yaxis.set_major_formatter(formatter)
     
-def log_discrete_histogram_lesslegend(results_dict, cols_dict, bin_nos, precip_variable, x_axis_scaling = 'linear', y_axis_scaling = 'linear'):
+def log_discrete_histogram_lesslegend(results_dict, cols_dict, bin_nos, precip_variable, patches, del_zeroes,
+                                      x_axis_scaling = 'linear', y_axis_scaling = 'linear'):
     
     # Create bin edges based on data in all of the dataframes, i.e. use the same bin edges for all dataframes
     min_value = find_min_max_dict_values(results_dict, precip_variable)[0]
@@ -208,19 +209,13 @@ def log_discrete_histogram_lesslegend(results_dict, cols_dict, bin_nos, precip_v
     bins_if_log_spaced = bin_nos
     
     # Find edges of bins 
-    bin_edges=log_discrete_bins(min_value,max_value,bins_if_log_spaced,discretisation)
+    bin_edges_planned =log_discrete_bins(min_value,max_value,bins_if_log_spaced,discretisation)
     #print ("Based on " + str(bins_if_log_spaced) + " log spaced bins, " + str(len(bin_edges)) + " bins created with " + str(min_value) + str (max_value))
    
-    patches= []
-    patch = mpatches.Patch(color='navy', label='Model')
-    patches.append(patch)
-    patch = mpatches.Patch(color='firebrick', label='Observations')
-    patches.append(patch)
-    patch = mpatches.Patch(color='green', label='Regridded observations')
-    patches.append(patch)
-
     fig, ax = plt.subplots()
     for key, df in results_dict.items():
+        print(key)
+        print(df['Precipitation (mm/hr)'].max())
         # Define the colour to use for this entry
         # Create a patch for this colour to be used in creating the legend
         # And add to list of patches for use in legend
@@ -229,16 +224,27 @@ def log_discrete_histogram_lesslegend(results_dict, cols_dict, bin_nos, precip_v
         #patches.append(patch)
         
         # Find the numbers of precipitation measurements in each bin   
-        freqs, bin_edges = np.histogram(df[precip_variable], bins= bin_edges, density=True)
+        freqs, bin_edges = np.histogram(df[precip_variable], bins= bin_edges_planned, density=True)
+        
+        n_bins = str(len(bin_edges))
+        
         # Find the centre point of each bin for plotting
         bin_centres =  0.5*(bin_edges[1:] + bin_edges[:-1])    
+        
+        # Delete those with a value of 0
+        if del_zeroes == True:
+            indexes = np.where(freqs == 0)[0]
+            freqs = np.delete(freqs, indexes)
+            bin_centres= np.delete(bin_centres,indexes)        
+
         # Draw the plot
         plt.plot(bin_centres, freqs ,linewidth = 1, color = cols_dict[key])
-
+        
     plt.legend(handles=patches)
     plt.xlabel(precip_variable)
     plt.ylabel('Probability density')
-    plt.title(str(len(bin_edges)) + " bins")
+    plt.xlim(0,200)
+    plt.title(n_bins + " bins")
     plt.xscale(x_axis_scaling)
     plt.yscale(y_axis_scaling)
     #formatter = FormatStrFormatter('%.3f')
