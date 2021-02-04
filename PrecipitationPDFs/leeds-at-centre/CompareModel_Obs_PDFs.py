@@ -102,9 +102,6 @@ for em in ems:
     # Keep only data from overlapping times 
     leeds_data_overlapping = leeds_data_withtimes.loc[leeds_data_withtimes['Date'] != '0']
     
-    # Add formatted date
-    #leeds_data_overlapping['Date_formatted'] =  pd.to_datetime(leeds_data_overlapping['Date'], format='%Y%m%d%H',  errors='coerce')
-
     # Add data to dictionary
     leeds_data_dict_overlapping['EM{}'.format(em)] = leeds_data_overlapping
 
@@ -212,7 +209,7 @@ cols_dict = {'Observations' : 'firebrick',
 
 x_axis = 'linear'
 y_axis = 'log'
-bin_nos = 40
+bin_nos = 10
 bins_if_log_spaced= bin_nos
 
 #################### Full time period
