@@ -44,13 +44,11 @@ Sense checking the data:
 <p align="center"> Figure 2. PDF of precipitation intensity across the Leeds area. Using the overlapping time period (1990-2001) on the left hand images, and the full time period for which data is available for each of the model and observations on the right. <p align="center">
   
 <p align="center">
-  <img src="PDFs/OverlappingTimePeriod/AllEMsVSObs_37bins.png" width="240"  />  
-  <img src="PDFs/OverlappingTimePeriod/CombinedEMsVSObs_37bins.png" width="240"  />
-  <img src="PDFs/FullTimePeriod/AllEMsVSObs_37bins.png" width="240"  />  
-  <img src="PDFs/FullTimePeriod/CombinedEMsVSObs_37bins.png" width="240"  />
+  <img src="PDFs/OverlappingTimePeriod/AllEMsVSObs_41bins_NoZeros.png" width="240"  />  
+  <img src="PDFs/OverlappingTimePeriod/CombinedEMsVSObs_41bins_NoZeros.png" width="240"  />
+  <img src="PDFs/FullTimePeriod/AllEMsVSObs_41bins_NoZeros.png" width="240"  />  
+  <img src="PDFs/FullTimePeriod/CombinedEMsVSObs_41bins_NoZeros.png" width="240"  />
 <p align="center"> Figure 3. PDF of precipitation intensity across the Leeds area. Using the overlapping time period (1990-2000) on the left hand images, and the full time period for which data is available for each of the model and observations on the right. <p align="center">
-
-Using only the overlapping time period means that there is less data available for the regridded observations than the native observations, which could explain why the regridded observations line is lower than the native observations and has a lower probablity of higher values and less extreme values. Alternatively, this could be because the regridding process results in smoothing of more extreme values. 
 
 Both the native and regridded observations have lower probabilities of higher values, and the difference between model and observations appears to be greater here than when using the full time period (check with side by side plots). The observations are likely to be lower than the model values because they are interpolated from gauge values (although should check this with gauge data).  
 
@@ -58,4 +56,4 @@ When the data from across all the ensemble members is combined then the resultin
 
 Notes on bin numbers: More bins seems to generally be better (25 is on low side, even at 37 there is not a big difference between native and regridded observations). Could try not plotting the 0 values, so there are not the tails going straight down to the line. Looking at tails -- very dependent on single events - are these independent? In some cases the bins at the extreme end of the scale migt be running from much lower values (where line goes straight this is normally all one bin - although changes between segments may be subtle). if the curve is deviating from a smooth line then it's not sampling very well.
 
-To do: Make the x axis consistent between plots, compare to FEH magnitude of events
+To do: Compare to FEH magnitude of events
