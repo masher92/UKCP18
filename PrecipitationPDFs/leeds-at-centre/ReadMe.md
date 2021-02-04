@@ -44,7 +44,7 @@ Sense checking the data:
 <p align="center"> Figure 2. PDF of precipitation intensity across the Leeds area. Using the overlapping time period (1990-2001) on the left hand images, and the full time period for which data is available for each of the model and observations on the right. <p align="center">
   
 <p align="center">
-  <img src="PDFs/OverlappingTimePeriod/AllEMsVSObs_41Bins.png" width="240"  />  
+  <img src="PDFs/OverlappingTimePeriod/AllEMsVSObs_41bins.png" width="240"  />  
   <img src="PDFs/OverlappingTimePeriod/CombinedEMsVSObs_41Bins_NoZeros.png" width="240"  />
   <img src="PDFs/FullTimePeriod/AllEMsVSObs_41Bins_NoZeros.png" width="240"  />  
   <img src="PDFs/FullTimePeriod/CombinedEMsVSObs_41Bins_NoZeros" width="240"  />
