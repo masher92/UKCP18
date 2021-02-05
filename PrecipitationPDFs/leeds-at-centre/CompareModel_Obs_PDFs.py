@@ -66,7 +66,7 @@ leeds_gdf = create_leeds_outline({'init' :'epsg:27700'})
 ################################################################
 
 # Load in timestamps that relate to one cell's worth of data
-model_times = np.load('Outputs/Timeseries_UKCP18/leeds-at-centre/timestamps.npy')
+model_times = np.load('Outputs/TimeSeries/UKCP18/leeds-at-centre/timestamps.npy')
 
 # Set value as NA for values not in required date range
 for i in range(0,78480):
@@ -89,7 +89,7 @@ for em in ems:
     print(em)
     
     # Load in 20 years of model data for the whole of leeds
-    leeds_data = np.load("Outputs/Timeseries_UKCP18/leeds-at-centre/{}/leeds-at-centre.npy".format(em))
+    leeds_data = np.load("Outputs/TimeSeries/UKCP18/leeds-at-centre/{}/leeds-at-centre.npy".format(em))
     # Join to corresponding dates/times
     leeds_data_withtimes = pd.DataFrame({"Date" : model_times_allcells,
                                    'Precipitation (mm/hr)' :leeds_data})
@@ -118,13 +118,13 @@ for dict in [leeds_data_dict, leeds_data_dict_overlapping]:
 # Trim observations data to also only include data from the overlapping time period
 ################################################################
 # Observations dates data
-obs_times = np.load("Outputs/RegriddingObservations/CEH-GEAR_regridded_2.2km/NearestNeighbour/leeds-at-centre_data/timestamps.npy", allow_pickle = True)
+obs_times = np.load("Outputs/TimeSeries/CEH-GEAR_regridded/NearestNeighbour/leeds-at-centre/timestamps.npy", allow_pickle = True)
 
 ####### Regridded data
 # Repeat time data 1221 times to be the same length as the precip data for whole of Leeds 
 obs_times_allcells_regridded = np.tile(obs_times, 1221)    
 # Load in regridded precip data
-observations_regridded = np.load("Outputs/RegriddingObservations/CEH-GEAR_regridded_2.2km/NearestNeighbour/leeds-at-centre_data/leeds-at-centre.npy")
+observations_regridded = np.load("Outputs/TimeSeries/CEH-GEAR_regridded/NearestNeighbour/leeds-at-centre/leeds-at-centre.npy")
 
 # Join dates data and precip data
 observations_regridded = pd.DataFrame({"Precipitation (mm/hr)" : observations_regridded,
@@ -133,7 +133,7 @@ observations_regridded = pd.DataFrame({"Precipitation (mm/hr)" : observations_re
 # Repeat this 6083 times to be the same length as the precip data for whole of Leeds  (73 cells x 83 cells)
 obs_times_allcells = np.tile(obs_times, 6059) 
 # Load in native precip data
-observations = np.load("Outputs/RegriddingObservations/CEH-GEAR_reformatted/leeds-at-centre_data/leeds-at-centre.npy")
+observations = np.load("Outputs/TimeSeries/CEH-GEAR/leeds-at-centre/leeds-at-centre.npy")
 
 # Join dates data and precip data
 observations = pd.DataFrame({"Precipitation (mm/hr)" : observations,
@@ -177,7 +177,6 @@ keys_to_remove =("EM01", "EM04", "EM05", "EM06", "EM07", "EM08",
 for key in keys_to_remove:
     if key in combined_ems_obs_dict:
         del combined_ems_obs_dict[key]
-        
         
 ############# Overlappping time period
 # All ensemble members
@@ -234,13 +233,14 @@ log_discrete_histogram_lesslegend(all_ems_obs_dict, cols_dict, bin_nos, "Precipi
                                   patches, False, xlim, x_axis, y_axis) 
 
 #################### Overlapping time period
+####### Combined ensemble members + Obs
+log_discrete_histogram_lesslegend(combined_ems_obs_dict_overlapping, cols_dict, bin_nos, "Precipitation (mm/hr)", 
+                                  patches, False, xlim, x_axis, y_axis) 
 ####### All ensemble members + Obs
 log_discrete_histogram_lesslegend(all_ems_obs_dict_overlapping, cols_dict, bin_nos, "Precipitation (mm/hr)", 
                                   patches, False,xlim, x_axis, y_axis) 
 
-####### Combined ensemble members + Obs
-log_discrete_histogram_lesslegend(combined_ems_obs_dict_overlapping, cols_dict, bin_nos, "Precipitation (mm/hr)", 
-                                  patches, False, xlim, x_axis, y_axis) 
+
 
 # # ##########################################################################
 # # # Percentile plots
