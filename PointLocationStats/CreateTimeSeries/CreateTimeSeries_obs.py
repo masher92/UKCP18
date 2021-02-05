@@ -21,18 +21,24 @@ import pandas as pd
 from timeit import default_timer as timer
 import warnings
 warnings.simplefilter(action='ignore', category=UserWarning)
+import sys 
+import glob
 
 # Stops warning on loading Iris cubes
 iris.FUTURE.netcdf_promote = True
 iris.FUTURE.netcdf_no_unlimited = True
 
 # Provide root_fp as argument
-root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
-#root_fp = "/nfs/a319/gy17m2a/"
-
+root_fp = "/nfs/a319/gy17m2a/"
 os.chdir(root_fp)
-sys.path.insert(0, root_fp + 'Scripts/UKCP18/')
+
+sys.path.insert(0, root_fp + 'Scripts/UKCP18/GlobalFunctions')
 from Obs_functions import *
+
+# Define name and coordinates of location
+location = 'Armley'
+lat = -1.37818
+lon = 53.79282
 
 ############################################################
 # Read in monthly cubes and concatenate into one long timeseries cube
@@ -44,7 +50,7 @@ filenames = [os.path.normpath(i) for i in glob.glob('datadir/CEH-GEAR/CEH-GEAR-1
 monthly_cubes_list = iris.load(filenames, 'rainfall_amount')
 
 # Concatenate the cubes
-obs_pr_cubes = monthly_cubes_list.concatenate_cube()
+obs_cubes = monthly_cubes_list.concatenate_cube()
 
 ##############################################################################
 # Extract the indices of the data point in the cube closest to a point of interest
@@ -56,8 +62,8 @@ one_cube = iris.load(filenames[0])
 # Considering the grid both flipped and not flipped
 # For just creating a time series and not plotting, flipping is not really necesary
 # but can be used in the testing below
-closest_idx = find_idx_closestpoint(one_cube, lat, lon, flip = False)
-#closest_idx_fl = find_idx_closestpoint(cube_list, lat, lon, flip = True)
+closest_idx = find_idx_closestpoint(obs_cubes, lat, lon, flip = False)
+closest_idx_fl = find_idx_closestpoint(obs_cubes, lat, lon, flip = True)
 
 #############################################################################
 # Check that the index returned by this process matches expected location.
@@ -65,35 +71,35 @@ closest_idx = find_idx_closestpoint(one_cube, lat, lon, flip = False)
 # Set all values to 0; expect for at the location found above.
 # Plot and check location
 ##############################################################################
-# hour = obs_pr_cubes[1]
-# #Extract the data
-# hour_data = hour.data
-# # Flip the data so it's not upside down
-# hour_data_fl = np.flipud(hour_data)
-# # Fill empty values with NaN
-# hour_data_fl = hour_data_fl.filled(np.nan) 
-# # Fill all places with 0
-# hour_data_fl.fill(0)
-# # Fill the location with a different value
-# hour_data_fl[closest_idx_fl[0],closest_idx_fl[1]] = 7
+hour = obs_cubes[1]
+#Extract the data
+hour_data = hour.data
+# Flip the data so it's not upside down
+hour_data_fl = np.flipud(hour_data)
+# Fill empty values with NaN
+hour_data_fl = hour_data_fl.filled(np.nan) 
+# Fill all places with 0
+hour_data_fl.fill(0)
+# Fill the location with a different value
+hour_data_fl[closest_idx_fl[0],closest_idx_fl[1]] = 7
 
 # # Plot
-# contour = plt.contourf(hour_data_fl)
-# contour = plt.colorbar()
-# contour =plt.axes().set_aspect('equal') 
-# plt.plot(closest_idx_fl[1], closest_idx_fl[0], 'o', color='black', markersize = 3) 
+contour = plt.contourf(hour_data_fl)
+contour = plt.colorbar()
+contour =plt.axes().set_aspect('equal') 
+plt.plot(closest_idx_fl[1], closest_idx_fl[0], 'o', color='black', markersize = 3) 
 
 #############################################################################
 # Trim the concatenated cube to the location of interest
 ##############################################################################
 # Keep all of the first dimension (time), and trim to just the location of interest
-interpolated_cube = obs_pr_cubes[:,closest_idx[0], closest_idx[1]]
+interpolated_cube = obs_cubes[:,closest_idx[0], closest_idx[1]]
 
 # Plot the timeseries
 qplt.plot(interpolated_cube)
 plt.xticks(rotation=45)
 
-iplt.plot(obs_pr_cubes)
+iplt.plot(obs_cubes)
 plt.xticks(rotation=45)
 
 #############################################################################

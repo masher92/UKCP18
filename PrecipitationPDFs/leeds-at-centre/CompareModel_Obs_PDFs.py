@@ -39,9 +39,6 @@ from Spatial_geometry_functions import *
 # Define ensemble member numbers
 ems = ['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
 
-# Define whether to include observations
-include_obs = False
-
 ################################################################
 # Create the spatial datafiles needed
 ################################################################   
@@ -161,7 +158,6 @@ leeds_data_dict_overlapping['Observations Regridded'] = observations_regridded_o
 ##############################################################################
 # Create dictionaries 
 ##############################################################################
-
 ################# Just model data
 just_ems_dict = leeds_data_dict.copy()
 del just_ems_dict['Combined EMs']
