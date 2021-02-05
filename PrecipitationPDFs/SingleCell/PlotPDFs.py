@@ -1,26 +1,18 @@
-#############################################
-# Set up environment
-#############################################
 import os
 import sys
-#import matplotlib.pyplot as plt
 import warnings
-warnings.simplefilter(action='ignore', category=FutureWarning)
-#import numpy as np
 import pandas as pd
-#from scipy.stats import norm
-#from scipy.stats import gamma
-#from scipy import stats
 from matplotlib.ticker import ScalarFormatter
+warnings.simplefilter(action='ignore', category=FutureWarning)
 
+################################################################
+# Define variables and set up environment
+################################################################
 root_dir = '/nfs/a319/gy17m2a/'
-#root_dir = 'C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/'
-
-# Define the local directory where the data is stored; set this as work dir
 os.chdir(root_dir)
 
 # Create path to files containing functions
-sys.path.insert(0, root_dir + 'Scripts/UKCP18/PointLocationStats/PlotPDFs/')
+sys.path.insert(0, root_dir + 'Scripts/UKCP18/GlobalFunctions')
 from PDF_plotting_functions import *
 
 location ='Armley'
@@ -32,8 +24,8 @@ location ='Armley'
 # Carry out preprocessing of data
 precip_ts ={}
 for i in [1,4,5,6,7,8,9,10,11,12,13,15]:
-    #precip_ts['EM_'+str(i)] = root_dir + 'Outputs/TimeSeries_csv/{}/2.2km/EM{}_1980-2001.csv'.format(location, str(i).zfill(2))
-    filename = root_dir + 'Outputs/TimeSeries_csv/{}/2.2km/EM{}_1980-2001.csv'.format(location, str(i).zfill(2))
+    print(i)
+    filename = root_dir + 'Outputs/TimeSeries/UKCP18/{}/2.2km/TimeSeries_csv/EM{}_1980-2001.csv'.format(location, str(i).zfill(2))
     df = pd.read_csv(filename, index_col=None, header=0)
     # Cut all to same number of decimal places
     df['Precipitation (mm/hr)'] = df['Precipitation (mm/hr)'].round(1)
@@ -48,7 +40,7 @@ for i in [1,4,5,6,7,8,9,10,11,12,13,15]:
 merged_ensembles = pd.concat(precip_ts.values(), axis=0, ignore_index=True)
 
 # Add observations data to the dictionary
-obs_df = pd.read_csv(root_dir + 'Outputs/CEH-GEAR/{}/1990-2001.csv'.format(location))
+obs_df = pd.read_csv(root_dir + 'Outputs/TimeSeries/CEH-GEAR/{}/1990-2001.csv'.format(location))
 # Keep only entries between 1990-2001
 obs_df = obs_df[(obs_df['Date_formatted'] > '1990-01-01') & (obs_df['Date_formatted']< '2000-12-31')]
 # Remove values <0.1mm

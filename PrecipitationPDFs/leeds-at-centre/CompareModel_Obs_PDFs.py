@@ -205,7 +205,8 @@ cols_dict = {'Observations' : 'firebrick',
 
 x_axis = 'linear'
 y_axis = 'log'
-bin_nos = 10
+bin_nos = 30 #(10 gives 12, 30 gives 29, 45 gives 41 bins)
+xlim = 250
 bins_if_log_spaced= bin_nos
 
 #################### Full time period
@@ -214,7 +215,7 @@ patches= []#=
 #patch = mpatches.Patch(color='navy', label='Model')
 #patches.append(patch)
 log_discrete_histogram_lesslegend(just_ems_dict, cols_dict, bin_nos, "Precipitation (mm/hr)", 
-                                  patches,  True, x_axis, y_axis) 
+                                  patches, True, xlim, x_axis, y_axis) 
 
 ####### Combined ensemble members + Obs
 patches= []
@@ -226,44 +227,20 @@ patch = mpatches.Patch(color='firebrick', label='Observations')
 patches.append(patch)
 
 log_discrete_histogram_lesslegend(combined_ems_obs_dict, cols_dict, bin_nos, "Precipitation (mm/hr)", 
-                                  patches, False, x_axis, y_axis) 
+                                  patches, True, xlim, x_axis, y_axis) 
 
-####### Individual ensemble members + Obs
-patches= []#=
-patch = mpatches.Patch(color='navy', label='Model')
-patches.append(patch)
-patch = mpatches.Patch(color='green', label='Observations Regridded')
-patches.append(patch)
-patch = mpatches.Patch(color='firebrick', label='Observations')
-patches.append(patch)
-
+####### All ensemble members + Obs
 log_discrete_histogram_lesslegend(all_ems_obs_dict, cols_dict, bin_nos, "Precipitation (mm/hr)", 
-                                  patches, True, x_axis, y_axis) 
-
+                                  patches, False, xlim, x_axis, y_axis) 
 
 #################### Overlapping time period
-####### Individual ensemble members + Obs
-patches= []
-patch = mpatches.Patch(color='navy', label='Model')
-patches.append(patch)
-patch = mpatches.Patch(color='green', label='Observations Regridded')
-patches.append(patch)
-patch = mpatches.Patch(color='firebrick', label='Observations')
-patches.append(patch)
+####### All ensemble members + Obs
 log_discrete_histogram_lesslegend(all_ems_obs_dict_overlapping, cols_dict, bin_nos, "Precipitation (mm/hr)", 
-                                  patches, False,x_axis, y_axis) 
+                                  patches, False,xlim, x_axis, y_axis) 
 
 ####### Combined ensemble members + Obs
-patches= []#=
-patch = mpatches.Patch(color='navy', label='Model')
-patches.append(patch)
-patch = mpatches.Patch(color='green', label='Observations Regridded')
-patches.append(patch)
-patch = mpatches.Patch(color='firebrick', label='Observations')
-patches.append(patch)
-
 log_discrete_histogram_lesslegend(combined_ems_obs_dict_overlapping, cols_dict, bin_nos, "Precipitation (mm/hr)", 
-                                  patches, False,x_axis, y_axis) 
+                                  patches, False, xlim, x_axis, y_axis) 
 
 # # ##########################################################################
 # # # Percentile plots

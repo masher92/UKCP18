@@ -197,7 +197,7 @@ def log_discrete_histogram(results_dict, cols_dict, bin_nos, precip_variable, x_
     #     ax.yaxis.set_major_formatter(formatter)
     
 def log_discrete_histogram_lesslegend(results_dict, cols_dict, bin_nos, precip_variable, patches, del_zeroes,
-                                      x_axis_scaling = 'linear', y_axis_scaling = 'linear'):
+                                      xlim, x_axis_scaling = 'linear', y_axis_scaling = 'linear'):
     
     # Create bin edges based on data in all of the dataframes, i.e. use the same bin edges for all dataframes
     min_value = find_min_max_dict_values(results_dict, precip_variable)[0]
@@ -243,7 +243,7 @@ def log_discrete_histogram_lesslegend(results_dict, cols_dict, bin_nos, precip_v
     plt.legend(handles=patches)
     plt.xlabel(precip_variable)
     plt.ylabel('Probability density')
-    plt.xlim(0,200)
+    plt.xlim(0,xlim)
     plt.title(n_bins + " bins")
     plt.xscale(x_axis_scaling)
     plt.yscale(y_axis_scaling)

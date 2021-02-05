@@ -33,7 +33,6 @@ os.chdir(root_fp)
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/GlobalFunctions')
 from Pr_functions import *
 from Spatial_plotting_functions import *
-from Spatial_plotting_functions import *
 
 start_year = 1980
 end_year = 2001
@@ -54,7 +53,6 @@ leeds_at_centre_gdf = create_leeds_at_centre_outline({'init' :'epsg:3857'})
 # This is the outlins of Leeds
 leeds_gdf = create_leeds_outline({'init' :'epsg:3857'})
 
-
 ################################################################
 # Loop through ensemble members, and for each:
     
@@ -64,9 +62,9 @@ for em in ems:
     print ("Checking timeseries for " + location + " using ensemble member " + em + " over years " + str(start_year) + "-" + str(end_year))
     
     # Create paths to the folders where the outputs would be stored
-    cubefolder_fp = root_fp + "Outputs/Timeseries_UKCP18/{}/2.2km/TimeSeries_cubes".format(location)
+    cubefolder_fp = root_fp + "Outputs/TimeSeries/UKCP18/{}/2.2km/TimeSeries_cubes".format(location)
     cube_fp =  cubefolder_fp + '/EM{}_{}-{}.nc'.format(em, start_year, end_year)
-    csvfolder_fp =root_fp + "Outputs/Timeseries_UKCP18/{}/2.2km/TimeSeries_csv".format(location)
+    csvfolder_fp =root_fp + "Outputs/TimeSeries/UKCP18/{}/2.2km/TimeSeries_csv".format(location)
     csv_fp = csvfolder_fp + '/EM{}_{}-{}.csv'.format(em, start_year, end_year)
     
     # If both the csv and the cube exist, then read them from their location
@@ -130,7 +128,7 @@ for em in ems:
         # location of interest
         #############################################    
         start = timer()
-        results = create_concat_cube_one_location_m3(monthly_cubes_list, sample_point)
+        results = create_concat_cube_one_location_m3(concat_cube, sample_point)
         ts_cube = results[0]
         print("Cubes joined and interpolated to location at " + str(lat)+ "," + str(lon) + ' in ' + str(round((timer() - start)/60, 1)) + ' minutes')
         

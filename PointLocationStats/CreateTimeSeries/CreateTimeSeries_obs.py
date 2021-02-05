@@ -62,8 +62,8 @@ one_cube = iris.load(filenames[0])
 # Considering the grid both flipped and not flipped
 # For just creating a time series and not plotting, flipping is not really necesary
 # but can be used in the testing below
-closest_idx = find_idx_closestpoint(obs_cubes, lat, lon, flip = False)
-closest_idx_fl = find_idx_closestpoint(obs_cubes, lat, lon, flip = True)
+closest_idx = find_idx_closestpoint(one_cube, lat, lon, flip = False)
+closest_idx_fl = find_idx_closestpoint(one_cube, lat, lon, flip = True)
 
 #############################################################################
 # Check that the index returned by this process matches expected location.
@@ -71,23 +71,23 @@ closest_idx_fl = find_idx_closestpoint(obs_cubes, lat, lon, flip = True)
 # Set all values to 0; expect for at the location found above.
 # Plot and check location
 ##############################################################################
-hour = obs_cubes[1]
-#Extract the data
-hour_data = hour.data
-# Flip the data so it's not upside down
-hour_data_fl = np.flipud(hour_data)
-# Fill empty values with NaN
-hour_data_fl = hour_data_fl.filled(np.nan) 
-# Fill all places with 0
-hour_data_fl.fill(0)
-# Fill the location with a different value
-hour_data_fl[closest_idx_fl[0],closest_idx_fl[1]] = 7
+# hour = obs_cubes[1]
+# #Extract the data
+# hour_data = hour.data
+# # Flip the data so it's not upside down
+# hour_data_fl = np.flipud(hour_data)
+# # Fill empty values with NaN
+# hour_data_fl = hour_data_fl.filled(np.nan) 
+# # Fill all places with 0
+# hour_data_fl.fill(0)
+# # Fill the location with a different value
+# hour_data_fl[closest_idx_fl[0],closest_idx_fl[1]] = 7
 
-# # Plot
-contour = plt.contourf(hour_data_fl)
-contour = plt.colorbar()
-contour =plt.axes().set_aspect('equal') 
-plt.plot(closest_idx_fl[1], closest_idx_fl[0], 'o', color='black', markersize = 3) 
+# # # Plot
+# contour = plt.contourf(hour_data_fl)
+# contour = plt.colorbar()
+# contour =plt.axes().set_aspect('equal') 
+# plt.plot(closest_idx_fl[1], closest_idx_fl[0], 'o', color='black', markersize = 3) 
 
 #############################################################################
 # Trim the concatenated cube to the location of interest
@@ -96,11 +96,11 @@ plt.plot(closest_idx_fl[1], closest_idx_fl[0], 'o', color='black', markersize = 
 interpolated_cube = obs_cubes[:,closest_idx[0], closest_idx[1]]
 
 # Plot the timeseries
-qplt.plot(interpolated_cube)
-plt.xticks(rotation=45)
+# qplt.plot(interpolated_cube)
+# plt.xticks(rotation=45)
 
-iplt.plot(obs_cubes)
-plt.xticks(rotation=45)
+# iplt.plot(obs_cubes)
+# plt.xticks(rotation=45)
 
 #############################################################################
 # Cut to time period matching up with UKCP18 data
@@ -128,11 +128,16 @@ df_1990_2001 = pd.DataFrame({'Date': np.array(interpolated_cube_1990_2001.coord(
 # Save cube and csv
 ###########################################################
 iris.save(interpolated_cube, 
-          "/nfs/a319/gy17m2a/Outputs/CEH-GEAR/Armley/1990-2014.nc")
+          "/nfs/a319/gy17m2a/Outputs/TimeSeries/CEH-GEAR/Armley/TimeSeries_cubes/1990-2014.nc")
 iris.save(interpolated_cube_1990_2001, 
-          "/nfs/a319/gy17m2a/Outputs/CEH-GEAR/Armley/1990-2001.nc")
+          "/nfs/a319/gy17m2a/Outputs/TimeSeries/CEH-GEAR/Armley/TimeSeries_cubes/1990-2001.nc")
 
-df.to_csv("/nfs/a319/gy17m2a/Outputs/CEH-GEAR/Armley/1990-2014.csv", index = False)
-df_1990_2001.to_csv("/nfs/a319/gy17m2a/Outputs/CEH-GEAR/Armley/1990-2001.csv", index = False)
+df.to_csv("/nfs/a319/gy17m2a/Outputs/TimeSeries/CEH-GEAR/Armley/TimeSeries_csv/1990-2014.csv", index = False)
+df_1990_2001.to_csv("/nfs/a319/gy17m2a/Outputs/TimeSeries/CEH-GEAR/Armley/TimeSeries_csv/1990-2001.csv", index = False)
 
 
+### Save the coordinates for which the data was extracted
+coordinates_str = "latitude: " + str(lat) + ", longitude: " + str(lon)
+f =open("/nfs/a319/gy17m2a/Outputs/TimeSeries/CEH-GEAR/Armley/location_coordinates.txt", "w")
+f.write(coordinates_str)
+f.close()

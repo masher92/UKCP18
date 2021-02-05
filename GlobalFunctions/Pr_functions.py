@@ -23,16 +23,7 @@ def define_loc_of_interest(cube, lon, lat):
     return(sample_points)
 
 
-def create_concat_cube_one_location_m3 (cube_list, sample_point):
-    # Remove attributes which aren't the same across all the cubes.
-     for cube in cube_list:
-         for attr in ['creation_date', 'tracking_id', 'history']:
-             if attr in cube.attributes:
-                 del cube.attributes[attr]
-     
-     # Concatenate the cubes into one
-     concat_cube = cube_list.concatenate_cube()
-     
+def create_concat_cube_one_location_m3 (concat_cube, sample_point):
      # Reduce the dimensions (remove ensemble member dimension)
      concat_cube = concat_cube[0, :]
          
