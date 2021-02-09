@@ -11,9 +11,21 @@ import folium
 import pandas as pd
 from branca.element import MacroElement
 from jinja2 import Template
+import sys
 
-# Define the local directory 
-os.chdir("C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/")
+# Set up path to root directory
+root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
+os.chdir(root_fp)
+
+# Create path to files containing functions
+sys.path.insert(0, root_fp + 'Scripts/UKCP18/GlobalFunctions')
+from Spatial_plotting_functions import *
+from Spatial_geometry_functions import *
+
+# This is the outline of Leeds
+leeds_gdf = create_leeds_outline({'init' :'epsg:3857'})
+# This is a square area surrounding Leeds
+leeds_at_centre_gdf = create_leeds_at_centre_outline({'init' :'epsg:3857'})
 
 ##############################################################################
 ## For adding static legend
@@ -59,10 +71,8 @@ template = """
 <div class='legend-title'>Rain gauge</div>
 <div class='legend-scale'>
   <ul class='legend-labels'>
-    <li><span style='background:red;opacity:0.7;'></span>Environment Agency</li>
-    <li><span style='background:green;opacity:0.7;'></span>City Council</li>
+    <li><span style='background:red;opacity:0.7;'></span>Env Agency</li>
         <li><span style='background:orange;opacity:0.7;'></span>Met Office </li>
-    <li><span style='background:purple;opacity:0.7;'></span>University (NCAS)</li>
   </ul>
 </div>
 </div>
@@ -111,22 +121,6 @@ template = """
 </style>
 {% endmacro %}"""
 
-##############################################################################
-#### Create a shapely geometry of the outline of Leeds
-##############################################################################
-wards = gpd.read_file("datadir/SpatialData/england_cmwd_2011.shp")
-# Create column to merge on
-wards['City'] = 'Leeds'
-# Merge all wards into one outline
-leeds = wards.dissolve(by = 'City')
-
-# Convert Leeds outline geometry to WGS84
-leeds.crs = {'init' :'epsg:27700'}
-leeds = leeds.to_crs({'init' :'epsg:3785'})
-
-# Convert outline of Leeds into a polygon
-leeds_poly = Polygon(leeds['geometry'].iloc[0])
-
 #############################################################################
 #### Rain gauge locations
 ##############################################################################
@@ -155,20 +149,20 @@ cc_gauges= pd.DataFrame({'ID' : ["Pottery Fields", ],
                          'Latitude' : [53.784921], 
                          'Longitude' : [-1.541380]})
 
-# The city council monitoring points
-cc_monitoringpoints = pd.read_csv("datadir/GaugeData/CityCouncil/MonitoringPointLocations.csv",usecols = [0,1,2])
-# Convert to WGS84
-longs, lats = transform(Proj(init='epsg:27700'), Proj(init='epsg:4326'),
-                                            np.array(cc_monitoringpoints['Northing']), 
-                                            np.array(cc_monitoringpoints['Easting']))
-cc_monitoringpoints['Longitude'], cc_monitoringpoints['Latitude'] = longs, lats
-#cc_monitoringpoints = cc_monitoringpoints[cc_monitoringpoints['Monitoring Point']!= "St James's Street, Barleyfields, Wetherby"]
+# # The city council monitoring points
+# NB: these aren't actually from gauge data
+# cc_monitoringpoints = pd.read_csv("datadir/GaugeData/CityCouncil/MonitoringPointLocations.csv",usecols = [0,1,2])
+# # Convert to WGS84
+# longs, lats = transform(Proj(init='epsg:27700'), Proj(init='epsg:4326'),
+#                                             np.array(cc_monitoringpoints['Northing']), 
+#                                             np.array(cc_monitoringpoints['Easting']))
+# cc_monitoringpoints['Longitude'], cc_monitoringpoints['Latitude'] = longs, lats
+# #cc_monitoringpoints = cc_monitoringpoints[cc_monitoringpoints['Monitoring Point']!= "St James's Street, Barleyfields, Wetherby"]
 
-
-
-uni_gauges= pd.DataFrame({'ID' : ["NCAS", ], 
-                         'Latitude' : [53.804560], 
-                         'Longitude' : [-1.561534]})
+# University gauge - don't have this data
+# uni_gauges= pd.DataFrame({'ID' : ["NCAS", ], 
+#                          'Latitude' : [53.804560], 
+#                          'Longitude' : [-1.561534]})
 
 #############################################################################
 #### Reproject data to WM
@@ -183,19 +177,19 @@ def reproject_wm (gauges_df):
 ea_gauges = reproject_wm (ea_gauges)
 cc_gauges = reproject_wm (cc_gauges)
 mo_gauges = reproject_wm (mo_gauges)
-uni_gauges = reproject_wm (uni_gauges)
+#uni_gauges = reproject_wm (uni_gauges)
 
 #############################################################################
 #### Plot static map
 #############################################################################
 fig, ax = plt.subplots(figsize=(20,20))
-extent = tilemapbase.extent_from_frame(leeds, buffer=30)
+extent = tilemapbase.extent_from_frame(leeds_gdf, buffer=30)
 plotter = tilemapbase.Plotter(extent, tilemapbase.tiles.build_OSM(), width=600)
 plot = plotter.plot(ax)
 plot = ax.plot(ea_gauges['Long_wm'], ea_gauges['Lat_wm'], 'o', color='black', markersize =10)
 plot = ax.plot(cc_gauges['Long_wm'], cc_gauges['Lat_wm'], 'o', color='green', markersize =10)
 plot = ax.plot(mo_gauges['Long_wm'], mo_gauges['Lat_wm'], 'o', color='red', markersize =10)
-leeds.plot(ax=ax, categorical=True, alpha=1, edgecolor='firebrick', color='none', linewidth=6)
+leeds_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='firebrick', color='none', linewidth=6)
 #plt.colorbar(plot,fraction=0.046, pad=0.04).ax.tick_params(labelsize='xx-large')
 ax.tick_params(labelsize='xx-large')
 
@@ -204,24 +198,24 @@ ax.tick_params(labelsize='xx-large')
 #############################################################################
 m = folium.Map(location=[53.826919, -1.530074])
 # Add Leeds outline
-folium.GeoJson(leeds).add_to(m)
+folium.GeoJson(leeds_gdf).add_to(m)
 # Add gauge data
 for lon, lat, ID in zip(np.array(ea_gauges['Longitude']), ea_gauges['Latitude'], np.array(ea_gauges['ID'])):
     folium.Marker(location=[lat, lon],  icon=folium.Icon(color='red')).add_child(folium.Popup(ID)).add_to(m)
-for lon, lat, Location in zip(np.array(cc_monitoringpoints['Longitude']), np.array(cc_monitoringpoints['Latitude']),  np.array(cc_monitoringpoints['Monitoring Point'])):
-    folium.Marker(location=[lat, lon],popup = Location ,  icon=folium.Icon(color='green')).add_to(m)
+#for lon, lat, Location in zip(np.array(cc_monitoringpoints['Longitude']), np.array(cc_monitoringpoints['Latitude']),  np.array(cc_monitoringpoints['Monitoring Point'])):
+#    folium.Marker(location=[lat, lon],popup = Location ,  icon=folium.Icon(color='green')).add_to(m)
 #for lon, lat, ID in zip(np.array(cc_gauges['Longitude']), np.array(cc_gauges['Latitude']), np.array(cc_gauges['ID'])):
 #    folium.Marker(location=[lat, lon],  icon=folium.Icon(color='green')).add_child(folium.Popup(ID)).add_to(m)
 for lon, lat, ID in zip(np.array(mo_gauges['Longitude']), np.array(mo_gauges['Latitude']), np.array(mo_gauges['ID'])):
     folium.Marker(location=[lat, lon],  icon=folium.Icon(color='orange')).add_child(folium.Popup(ID)).add_to(m)
-for lon, lat, ID in zip(np.array(uni_gauges['Longitude']), np.array(uni_gauges['Latitude']), np.array(uni_gauges['ID'])):
-    folium.Marker(location=[lat, lon],  icon=folium.Icon(color='purple')).add_child(folium.Popup(ID)).add_to(m)    
+#for lon, lat, ID in zip(np.array(uni_gauges['Longitude']), np.array(uni_gauges['Latitude']), np.array(uni_gauges['ID'])):
+#    folium.Marker(location=[lat, lon],  icon=folium.Icon(color='purple')).add_child(folium.Popup(ID)).add_to(m)    
 # for lon, lat, Location in zip(np.array(mo_gauges_extra['Longitude']), np.array(mo_gauges_extra['Latitude']),  np.array(mo_gauges_extra['Location'])):
 #     folium.Marker(location=[lat, lon],popup = Location ,  icon=folium.Icon(color='purple')).add_to(m)
 # Add the legend sing template below
 macro = MacroElement()
 macro._template = Template(template)
 m.get_root().add_child(macro)
-m.save('Outputs/RainGaugeAnalysis/rain_gauges.html')
+m.save('Outputs/RainGaugeAnalysis/rain_gauges_new.html')
 
 
