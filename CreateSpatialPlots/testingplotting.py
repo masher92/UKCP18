@@ -1,4 +1,4 @@
-himport iris
+import iris
 import os 
 import matplotlib.pyplot as plt
 import sys

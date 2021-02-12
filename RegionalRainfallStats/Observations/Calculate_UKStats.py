@@ -31,7 +31,7 @@ root_fp = "/nfs/a319/gy17m2a/"
 os.chdir(root_fp)
 
 # Create path to files containing functions
-sys.path.insert(0, root_fp + 'Scripts/UKCP18/SpatialAnalyses')
+sys.path.insert(0, root_fp + 'Scripts/UKCP18/GlobalFunctions')
 from Spatial_plotting_functions import *
 
 #############################################
@@ -89,7 +89,7 @@ jmin, jmax = minmax(region_inds[1])
 concat_cube = concat_cube[..., imin:imax+1, jmin:jmax+1]
 
 # Check plotting
-#iplt.pcolormesh(concat_cube[12])
+iplt.pcolormesh(concat_cube[12])
 
 ############################################
 # Cut to just June-July_August period
