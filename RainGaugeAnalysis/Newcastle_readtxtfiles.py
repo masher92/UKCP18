@@ -8,7 +8,8 @@ import sys
 import folium
 
 # Set up path to root directory
-root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis"
+root_fp = '/nfs/a319/gy17m2a/'
+#root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis"
 os.chdir(root_fp)
 
 # Create path to files containing functions
@@ -25,6 +26,18 @@ leeds_gdf = create_leeds_outline({'init' :'epsg:3857'})
 leeds_at_centre_gdf = create_leeds_at_centre_outline({'init' :'epsg:4326'})
 # Convert to shapely geometry
 geometry_poly = Polygon(leeds_at_centre_gdf['geometry'].iloc[0])
+
+############################################################
+# Read in monthly cubes and concatenate into one long timeseries cube
+###########################################################
+# For some reason a backslash was showing instead of a forward slash
+filenames = [os.path.normpath(i) for i in glob.glob('datadir/CEH-GEAR/CEH-GEAR-1hr_*')]
+
+# Load in the rainfall cubes into a list, taking just the rainfall amount
+monthly_cubes_list = iris.load(filenames, 'rainfall_amount')
+
+# Concatenate the cubes
+obs_cubes = monthly_cubes_list.concatenate_cube()
 
 #############################################################################
 # Loop through every text file in the directory
