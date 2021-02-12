@@ -132,26 +132,24 @@ def find_cornerpoint_coordinates_obs (cube):
     '''
     
     # Extract lats and longs in rotated pol as a 2D array
-    lats_rp_1d = cube.coord('grid_latitude').points
-    lons_rp_1d = cube.coord('grid_longitude').points
+    lats_1d = cube.coord('projection_y_coordinate').points
+    lons_1d = cube.coord('projection_x_coordinate').points
     
     # Find the distance between each lat/lon and the next lat/lon
     # Divide this by two to get the distance to the half way point
-    lats_rp_differences_half = np.diff(lats_rp_1d)/2
-    lons_rp_differences_half = np.diff(lons_rp_1d)/2
+    lats_differences_half = np.diff(lats_1d)/2
+    lons_differences_half = np.diff(lons_1d)/2
     
     # Create an array of lats/lons at the midpoints
-    lats_rp_midpoints_1d = lats_rp_1d[1:] - lats_rp_differences_half
-    lons_rp_midpoints_1d = lons_rp_1d[1:] - lons_rp_differences_half
+    lats_midpoints_1d = lats_1d[1:] - lats_differences_half
+    lons_midpoints_1d = lons_1d[1:] - lons_differences_half
     
     # Convert to 2D
-    lons_rp_midpoints_2d, lats_rp_midpoints_2d = np.meshgrid(lons_rp_midpoints_1d, lats_rp_midpoints_1d)
-    
-    # Convert to wgs84
-    cs = cube.coord_system()
-    lons_wgs84_midpoints_2d, lats_wgs84_midpoints_2d = iris.analysis.cartography.unrotate_pole(lons_rp_midpoints_2d, lats_rp_midpoints_2d, cs.grid_north_pole_longitude, cs.grid_north_pole_latitude)
+    lons_midpoints_2d, lats_midpoints_2d = np.meshgrid(lons_midpoints_1d, lats_midpoints_1d)
+
     # Convert to web mercator
-    lons_wm_midpoints_2d, lats_wm_midpoints_2d = transform(Proj(init='epsg:4326'),Proj(init='epsg:3785'),lons_wgs84_midpoints_2d,lats_wgs84_midpoints_2d)
+    lons_wm_midpoints_2d, lats_wm_midpoints_2d = transform(Proj(init='epsg:27700'),Proj(init='epsg:3785'),
+                                                           lons_midpoints_2d,lats_midpoints_2d)
     
     # Convert to 1d     
     #lons_wm_midpoints_1d = lons_wm_midpoints_2d.reshape(-1)
@@ -271,7 +269,7 @@ def GridCells_within_geometry(lats, lons, geometry_gdf, data):
     return within_geometry
 
  
-def trim_to_bbox_of_region_obs (cube, gdf):
+def trim_to_bbox_of_region_obs (obs_cube, gdf):
     '''
     Description
     ----------
@@ -292,39 +290,37 @@ def trim_to_bbox_of_region_obs (cube, gdf):
             Cube with spatial extent equivalent to the bounding box of the supplied geodataframe
 
     '''
-    # CReate function to find
+     # CReate function to find   
     minmax = lambda x: (np.min(x), np.max(x))
+    
+    #### Find the lats and lons of the cube in BNG
+    lats_1d = obs_cube.coord('projection_y_coordinate').points
+    lons_1d = obs_cube.coord('projection_x_coordinate').points
+    
+    # Convert to 2D
+    lons_2d, lats_2d = np.meshgrid(lons_1d, lats_1d)
+    
+    # Convert to WGS84
+    lons_2d ,lats_2d= transform(Proj(init='epsg:27700'),
+                                      Proj(init='epsg:4326'),
+                                      lons_2d,lats_2d)
     
     # Convert the regional gdf to WGS84 (same as cube)
     gdf = gdf.to_crs({'init' :'epsg:4326'}) 
-    
     # Find the bounding box of the region
     bbox = gdf.total_bounds
     
-    # Find the lats and lons of the cube in WGS84
-    lats_rp_1d = cube.coord('grid_latitude').points
-    lons_rp_1d = cube.coord('grid_longitude').points
-    
-    # Convert to 2D
-    lons_rp_2d, lats_rp_2d = np.meshgrid(lons_rp_1d, lats_rp_1d)
-    
-    # Convert to WGS84
-    cs = cube.coord_system()
-    #cs = cube_model.coord('grid_latitude').coord_system
-    lons, lats = iris.analysis.cartography.unrotate_pole(lons_rp_2d, lats_rp_2d, 
-              cs.grid_north_pole_longitude, cs.grid_north_pole_latitude)
-
-    inregion = np.logical_and(np.logical_and(lons > bbox[0],
-                                             lons < bbox[2]),
-                              np.logical_and(lats > bbox[1],
-                                             lats < bbox[3]))
+    inregion = np.logical_and(np.logical_and(lons_2d > bbox[0],
+                                             lons_2d < bbox[2]),
+                              np.logical_and(lats_2d > bbox[1],
+                                             lats_2d < bbox[3]))
     region_inds = np.where(inregion)
     imin, imax = minmax(region_inds[0])
     jmin, jmax = minmax(region_inds[1])
     
-    trimmed_cube = cube[..., imin:imax+1, jmin:jmax+1]
+    obs_cube = obs_cube[..., imin:imax+1, jmin:jmax+1]
     
-    return trimmed_cube
+    return obs_cube
 
    
 def trim_to_bbox_of_region (cube, gdf):

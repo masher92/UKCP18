@@ -6,6 +6,16 @@ import glob
 from shapely.geometry import Point, Polygon
 import sys
 import folium
+from pyproj import Proj, transform
+import itertools
+from scipy import spatial
+import iris.quickplot as qplt
+import iris.plot as iplt
+import cartopy.crs as ccrs
+import numpy.ma as ma
+import matplotlib as mpl
+from pyproj import Proj, transform
+import numpy.ma as ma
 
 # Set up path to root directory
 root_fp = '/nfs/a319/gy17m2a/'
@@ -14,6 +24,7 @@ os.chdir(root_fp)
 
 # Create path to files containing functions
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/GlobalFunctions')
+from Obs_functions import *
 from Spatial_plotting_functions import *
 from Spatial_geometry_functions import *
 
@@ -23,14 +34,192 @@ from Spatial_geometry_functions import *
 # This is the outline of Leeds
 leeds_gdf = create_leeds_outline({'init' :'epsg:3857'})
 # This is a square area surrounding Leeds
-leeds_at_centre_gdf = create_leeds_at_centre_outline({'init' :'epsg:4326'})
-# Convert to shapely geometry
-geometry_poly = Polygon(leeds_at_centre_gdf['geometry'].iloc[0])
+leeds_at_centre_gdf = create_leeds_at_centre_outline({'init' :'epsg:3857'})
+# # Convert to shapely geometry
+# geometry_poly = Polygon(leeds_at_centre_gdf['geometry'].iloc[0])
+# # Outline of Northern England
+# northern_gdf = create_northern_outline({'init' :'epsg:27700'})
+
+#############################################
+## Load in the data
+#############################################
+filenames =[]
+# Create filepath to correct folder using ensemble member and year
+general_filename = 'Outputs/RegriddingObservations/CEH-GEAR_reformatted/rf_*'
+# Find all files in directory which start with this string
+for filename in glob.glob(general_filename):
+    #print(filename)
+    filenames.append(filename)
+    print(len(filenames))
+# Load all cubes into list
+monthly_cubes_list = iris.load(filenames,'rainfall_amount')
+
+# Concatenate the cubes into one
+concat_cube = monthly_cubes_list.concatenate_cube()
+
+# Test plotting
+iplt.pcolormesh(concat_cube[12])
+
+#############################################
+## Trim cube to outline of leeds-at-centre geodataframe
+#############################################
+concat_cube = trim_to_bbox_of_region_obs(concat_cube, leeds_at_centre_gdf)
+
+# Test plotting
+iplt.pcolormesh(concat_cube[12])
+
+#############################################
+## Rename grid latitude and longitude
+#############################################
+#### Rename to be grid_latitude and grid_longitude
+# y_coord = concat_cube.dim_coords[1]
+# y_coord.rename('grid_latitude')
+
+# x_coord= concat_cube.dim_coords[2] 
+# x_coord.rename('grid_longitude')
 
 ############################################################
-# Read in monthly cubes and concatenate into one long timeseries cube
+# Testing with lat, long point
+############################################################
+# Define lat, long point
+lat = 53.80228
+lon = -1.587669
+
+# Create time series cube at this location, and return the associated         
+result = create_concat_cube_one_location_obs(concat_cube, lat, lon)
+
+# 
+closest_lat = result[1]
+closest_long = result[2]
+closest_point_idx = result[3]
+
+
+#############################################
+## 
+#############################################
+
+cube_higlighted_cell = create_grid_highlighted_cell(concat_cube, closest_point_idx)
+cube_higlighted_cell_data = cube_higlighted_cell.data
+
+# Find cornerpoint coordinates
+lats_cornerpoints = find_cornerpoint_coordinates_obs(cube_higlighted_cell)[0]
+lons_cornerpoints = find_cornerpoint_coordinates_obs(cube_higlighted_cell)[1]
+
+# Trim the data timeslice to be the same dimensions as the corner coordinates
+cube_higlighted_cell_data = cube_higlighted_cell_data[1:,1:]
+
+    
+#############################################################################
+#### # Plot - highlighting grid cells whose centre point falls within Leeds
+# Uses the lats and lons of the corner points but with the values derived from 
+# the associated centre point
+##############################################################################
+lon_wm,lat_wm = transform(Proj(init = 'epsg:4326') , Proj(init = 'epsg:3857') , lon, lat)
+
+cmap = mpl.colors.ListedColormap(['yellow'])
+
+fig, ax = plt.subplots(figsize=(20,10))
+extent = tilemapbase.extent_from_frame(leeds_gdf)
+plot = plotter = tilemapbase.Plotter(extent, tilemapbase.tiles.build_OSM(), width=600)
+plot =plotter.plot(ax)
+# Add edgecolor = 'grey' for lines
+plot =ax.pcolormesh(lons_cornerpoints, lats_cornerpoints, cube_higlighted_cell_data,
+              linewidths=1, alpha = 1, cmap = cmap, edgecolors = 'grey')
+plot = ax.xaxis.set_major_formatter(plt.NullFormatter())
+plot = ax.yaxis.set_major_formatter(plt.NullFormatter())
+plot =leeds_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=2)
+plot =leeds_at_centre_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=2)
+plt.plot(lon_wm, lat_wm,  'o', color='black', markersize = 2)     
+
+
+
+
+
+
+############################################################
+#
+############################################################
+
+# Convert WGS84 coordinate to BNG
+lon_wm,lat_wm = transform(Proj(init = 'epsg:4326') , Proj(init = 'epsg:3857') , lon, lat)
+
+
+# Find min and max vlues in data and set up contour levels
+local_min = np.nanmin(hour_uk_cube.data)
+local_max = np.nanmax(hour_uk_cube.data)     
+contour_levels = np.linspace(local_min, local_max, 11,endpoint = True)     
+
+##### Plotting        
+# Create a colourmap                                   
+precip_colormap = create_precip_cmap()
+
+# Define figure size
+fig = plt.figure(figsize = (20,30))
+
+    # Set up projection system
+proj = ccrs.Mercator.GOOGLE
+    
+# Create axis using this WM projection
+ax = fig.add_subplot(projection=proj)
+# Plot
+mesh = iplt.pcolormesh(hour_uk_cube, cmap = precip_colormap)
+
+# Add regional outlines, depending on which region is being plotted
+# And define extent of colorbars
+leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=4)
+plt.plot(lon_wm, lat_wm,  'o', color='red', markersize = 15) 
+colorbar_axes = plt.gcf().add_axes([0.92, 0.28, 0.015, 0.45])
+
+colorbar = plt.colorbar(mesh, colorbar_axes, orientation='vertical',  boundaries = contour_levels)  
+colorbar.set_label('mm/hr', size = 20)
+colorbar.ax.tick_params(labelsize=28)
+colorbar.ax.set_yticklabels(["{:.{}f}".format(i, 2) for i in colorbar.get_ticks()])    
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+############################################################
+# Read in observation cubes
 ###########################################################
-# For some reason a backslash was showing instead of a forward slash
+# List all the filenames
 filenames = [os.path.normpath(i) for i in glob.glob('Outputs/RegriddingObservations/CEH-GEAR_reformatted/rf_*')]
 
 # Load in the rainfall cubes into a list, taking just the rainfall amount
@@ -39,153 +228,197 @@ monthly_cubes_list = iris.load(filenames, 'rainfall_amount')
 # Concatenate the cubes
 concat_cube = monthly_cubes_list.concatenate_cube()
 
-# Read in the list of cubes, containing the lat and long cubes
+##### Read in the list of cubes, containing the lat and long cubes
 one_cube = iris.load(filenames[0])
 
-#
-from pyproj import Proj, transform
+############################################################
+# Trim to smaller spatial area
+############################################################
+concat_cube = trim_to_bbox_of_region_obs(concat_cube, northern_gdf)
+
+########### Trim to BBOX of region
+# CReate function to find
+minmax = lambda x: (np.min(x), np.max(x))
+
+# Convert the regional gdf to WGS84 (same as cube)
+northern_gdf = northern_gdf.to_crs({'init' :'epsg:27700'}) 
+
+# Find the bounding box of the region
+bbox = northern_gdf.total_bounds
+
+# Find the lats and lons of the cube in BNG
+lats_1d = concat_cube.coord('projection_y_coordinate').points
+lons_1d = concat_cube.coord('projection_x_coordinate').points
+
+# Define projections
+inProj = Proj(init = 'epsg:27700') 
+outProj = Proj(init = 'epsg:4326') 
+
+# Convert to 2D
+lons_2d, lats_2d = np.meshgrid(lons_1d, lats_1d)
+
+
+# Convert WGS84 coordinate to BNG
+lats_bng,lons_bng = transform(inProj, outProj, lats_2d, lons_2d)
+
+
+inregion = np.logical_and(np.logical_and(lons_1d > bbox[0],
+                                         lons_1d < bbox[2]),
+                          np.logical_and(lats_1d > bbox[1],
+                                         lats_1d < bbox[3]))
+region_inds = np.where(inregion)
+imin, imax = minmax(region_inds[0])
+jmin, jmax = minmax(region_inds[1])
+
+trimmed_cube = cube[..., imin:imax+1, jmin:jmax+1]
+    
+
+   # Trim to smaller area
+    if region == 'Northern':
+         obs_cube = trim_to_bbox_of_region_obs(obs_cube, northern_gdf)
+    elif region == 'leeds-at-centre':
+         obs_cube = trim_to_bbox_of_region_obs(obs_cube, leeds_at_centre_gdf)
+    
+    # Find min and max vlues in data and set up contour levels
+    local_min = np.nanmin(obs_cube.data)
+    local_max = np.nanmax(obs_cube.data)     
+    contour_levels = np.linspace(local_min, local_max, 11,endpoint = True)     
+    
+    ##### Plotting        
+    # Create a colourmap                                   
+    precip_colormap = create_precip_cmap()
+    
+    # Define figure size
+    if region == 'leeds-at-centre':
+        fig = plt.figure(figsize = (20,30))
+    else:
+        fig = plt.figure(figsize = (30,20))     
+        
+    # Set up projection system
+    proj = ccrs.Mercator.GOOGLE
+        
+    # Create axis using this WM projection
+    ax = fig.add_subplot(projection=proj)
+    # Plot
+    mesh = iplt.pcolormesh(obs_cube, cmap = precip_colormap)
+    
+    # Add regional outlines, depending on which region is being plotted
+    # And define extent of colorbars
+    if region == 'Northern':
+         leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=2)
+         northern_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=4)
+         colorbar_axes = plt.gcf().add_axes([0.73, 0.15, 0.015, 0.7])
+    elif region == 'leeds-at-centre':
+         leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=4)
+         colorbar_axes = plt.gcf().add_axes([0.92, 0.28, 0.015, 0.45])
+    elif region == 'UK':
+         plt.gca().coastlines(linewidth =3)
+         colorbar_axes = plt.gcf().add_axes([0.76, 0.15, 0.015, 0.7])
+
+    colorbar = plt.colorbar(mesh, colorbar_axes, orientation='vertical',  boundaries = contour_levels)  
+    colorbar.set_label('mm/hr', size = 20)
+    colorbar.ax.tick_params(labelsize=28)
+    colorbar.ax.set_yticklabels(["{:.{}f}".format(i, 2) for i in colorbar.get_ticks()])    
+    
+    # Save to file
+    filename = "Outputs/RegionalRainfallStats/Plots/Observations/{}/{}.png".format(region, stat)
+    
+    # Save plot        
+    plt.savefig(filename, bbox_inches = 'tight')
+    plt.clf()
+
+
+
+
+
+
+
+
+hour = concat_cube[20]
+#Extract the data
+hour_data = hour.data
+# Flip the data so it's not upside down
+hour_data_fl = np.flipud(hour_data)
+# Fill empty values with NaN
+hour_data_fl = hour_data_fl.filled(np.nan)  
+
+# Create the contour plot, with colourbar, with axes correctly spaced
+contour = plt.contourf(hour_data_fl, cmap=precip_colormap)
+contour = plt.colorbar()
+contour =plt.axes().set_aspect('equal') 
+
+# Use this closest lat, long pair to co############################################################
+# Testing with lat, long point
+############################################################
+# Define lat, long point
+lat = 53.480546999999994
+lon = -1.4410031
+
+# Define projections
 inProj = Proj(init = 'epsg:4326') 
 outProj = Proj(init = 'epsg:27700') 
+
+# Convert WGS84 coordinate to BNG
 lon_bng,lat_bng = transform(inProj, outProj, lon, lat)
 
 sample_point = [('grid_latitude', lat_bng), ('grid_longitude', lon_bng)]
+#sample_point = [('grid_latitude', lat_bng), ('grid_longitude', lon_bng)]
 
-def define_loc_of_interest(cube, lon, lat):
-    #############################################
-    # Define a sample point at which we are interested in extracting the precipitation timeseries.
-    # Assign this the same projection as the projection data
-    #############################################
-    # Create a cartopy CRS representing the coordinate sytem of the data in the cube.
-    cs = obs_cubes[0].coord('projection_y_coordinate').coord_system.as_cartopy_crs()
-    
-    # Define a sample point of interest, in standard lat/long.
-    # Use the rot_pole CRS to transform the sample point, with the stated original CRS into the same system
-    original_crs = ccrs.Geodetic() # Instantiate an instance of Geodetic class i.e. that used in WGS
-    target_xy = rot_pole.transform_point(lon, lat, original_crs) # https://scitools.org.uk/cartopy/docs/v0.14/crs/index.html
-       
-    # Store the sample point of interest as a tuples (with their coordinate name) in a list
-    sample_points = [('projection_x_coordinate', target_xy[1]), 
-                     ('projection_y_coordinate', target_xy[0])]
-    return(sample_points)
-
-
-sample_point = [('grid_latitude', lat), ('grid_longitude', lon)]
-    concat_cube = concat_cube[0, :]
          
-     # Create a list of all the tuple pairs of latitude and longitudes
-     locations = list(itertools.product(concat_cube.coord('projection_y_coordinate').points,
-                                        concat_cube.coord('projection_x_coordinate').points))
-     
-     
-     # Find the index of the nearest neighbour of the sample point in the list of locations present in concat_cube
-     tree = spatial.KDTree(locations)
-     closest_point_idx = tree.query([(sample_point[0][1], sample_point[1][1])])[1][0]
-     
-     # Extract the lat and long values of this point using the index
-     closest_lat = locations[closest_point_idx][0]
-     closest_long = locations[closest_point_idx][1]
-     
-     # Use this closest lat, long pair to collapse the latitude and longitude dimensions
-     # of the concatenated cube to keep just the time series for this closest point 
-     time_series = concat_cube.extract(iris.Constraint(grid_latitude=closest_lat, grid_longitude = closest_long))
-     return (time_series, closest_lat, closest_long, closest_point_idx)     
+# Create a list of all the tuple pairs of latitude and longitudes
+locations = list(itertools.product(concat_cube.coord('projection_y_coordinate').points,
+                                   concat_cube.coord('projection_x_coordinate').points))
 
 
-def concat_cube_multiple_neighbours_m3 (cube_list, sample_point, n_nearest_neighbours):
-#Returns a dataframe.
-#Not possible to create as a concatenated cube because the latitiude and longitude 
-#values are not the same in every cube.
-    # Remove attributes which aren't the same across all the cubes.
-     for cube in cube_list:
-         for attr in ['creation_date', 'tracking_id', 'history']:
-             if attr in cube.attributes:
-                 del cube.attributes[attr]
-     
-     # Concatenate the cubes into one
-     concat_cube = cube_list.concatenate_cube()
-     
-     # Reduce the dimensions (remove ensemble member dimension)
-     concat_cube = concat_cube[0, :]
-     
-     # Create a list of all the tuple pairs of latitude and longitudes
-     locations = list(itertools.product(concat_cube.coord('grid_latitude').points, concat_cube.coord('grid_longitude').points))
-     
-     # Correct them so that 360 merges back into one
-     corrected_locations = []
-     for location in locations:
-         if location[0] >360:
-             new_lat = location[0] -360
-         else: 
-             new_lat = location[0]
-         if location[1] >360:
-             new_long = location[1] -360     
-         else:
-             new_long = location[1]
-         new_location = new_lat, new_long 
-         corrected_locations.append(new_location)
-     
-     # Find the index of the nearest neighbour(s) of the sample point in the list of locations present in concat_cube
-     tree = spatial.KDTree(corrected_locations)
-     #closest_point_idx = tree.query([(sample_point[0][1], sample_point[1][1])])[1][0]
-     closest_points_idxs = tree.query([(sample_point[0][1], sample_point[1][1])], k =n_nearest_neighbours )[1][0]
-     
-     time_series_dfs = []
-     for point in closest_points_idxs:
-         # Extract the lat and long values of this point using the index
-         closest_lat = locations[point][0]
-         closest_long = locations[point][1]
-         # Use this closest lat, long pair to collapse the latitude and longitude dimensions
-         # of the concatenated cube to keep just the time series for this closest point 
-         time_series = concat_cube.extract(iris.Constraint(grid_latitude=closest_lat, grid_longitude = closest_long))
-         
-         # Store data as a dataframe
-         #time_series = time_series[0:100000]
-         start = timer()
-         ts_df = pd.DataFrame({'Date': np.array(time_series.coord('yyyymmddhh').points),
-                         'Precipitation (mm/hr)': np.array(time_series.lazy_data())})
-         print("Cubes joined and interpolated to location at " + str(round((timer() - start)/60, 2)) + ' minutes')
-          # Add to list of dataframes
-         time_series_dfs.append(ts_df)
-         print("Created dataframe for nearest neighbour at " + str(point))
-     # Join all dataframes into one         
-     df = pd.concat(time_series_dfs)
-     return df  
+# Find the index of the nearest neighbour of the sample point in the list of locations present in concat_cube
+tree = spatial.KDTree(locations)
+closest_point_idx = tree.query([(sample_point[0][1], sample_point[1][1])])[1][0]
+
+# Extract the lat and long values of this point using the index
+closest_lat = locations[closest_point_idx][0]
+closest_long = locations[closest_point_idx][1]llapse the latitude and longitude dimensions
+# of the concatenated cube to keep just the time series for this closest point 
+time_series = concat_cube.extract(iris.Constraint(projection_x_coordinate=closest_lat, projection_y_coordinate = closest_long))
+
+ts_df = pd.DataFrame({'Date': np.array(time_series.coord('time').points),
+                'Precipitation (mm/hr)': np.array(time_series.lazy_data())})
  
-# Testing of fastest method
-# time_series = concat_cube.extract(iris.Constraint(grid_latitude=closest_lat, grid_longitude = closest_long))
-# time_series = time_series[0:100000]
-# print(time_series.has_lazy_data())
-# # Store data as a dataframe
-# start = timer()
-# ts_df = pd.DataFrame({'Date': np.array(time_series.coord('yyyymmddhh').points),
-#                  'Precipitation (mm/hr)': np.array(time_series.data)})
-# print("Cubes joined and interpolated to location at " + str(round((timer() - start)/60, 2)) + ' minutes')
-# print(time_series.has_lazy_data())
-   
-# time_series = concat_cube.extract(iris.Constraint(grid_latitude=closest_lat, grid_longitude = closest_long))
-# time_series = time_series[0:100000]
-# print(time_series.has_lazy_data())
-# start = timer()
-# time_series.remove_coord("time")
-# time_series.remove_coord("month_number")
-# time_series.remove_coord("year")
-# test = iris.pandas.as_data_frame  (time_series) 
-# print("Cubes joined and interpolated to location at " + str(round((timer() - start)/60, 2)) + ' minutes')
-# print(time_series.has_lazy_data())
+# Add to list of dataframes
+time_series_dfs.append(ts_df)
 
-# time_series = concat_cube.extract(iris.Constraint(grid_latitude=closest_lat, grid_longitude = closest_long))
-# time_series = time_series[0:100000]
-# print(time_series.has_lazy_data())
-# start = timer()
-# ts_df = pd.DataFrame({'Date': np.array(time_series.coord('yyyymmddhh').points),
-#                  'Precipitation (mm/hr)': np.array(time_series.lazy_data())})
-# print("Cubes joined and interpolated to location at " + str(round((timer() - start)/60, 2)) + ' minutes')
-# print(time_series.has_lazy_data())
+hour_uk_cube = concat_cube[0,:,:]
+# And then plot data spatially, and see which grid cell is highlighted.        
+test_data = np.full((hour_uk_cube.shape), 0, dtype=int)
+test_data_rs = test_data.reshape(-1)
+test_data_rs[closest_point_idx] = 500
+for i in range(0,50000):
+    test_data_rs[i] = 500
+
+test_data = test_data_rs.reshape(test_data.shape)
+
+hour_uk_cube.data = test_data
+qplt.pcolormesh(hour_uk_cube)
+iplt.pcolormesh(hour_uk_cube)
 
 
 
 
-
+hour = concat_cube[1]
+#Extract the data
+hour_data = hour.data
+# Flip the data so it's not upside down
+hour_data_fl = hour_data
+# Fill empty values with NaN
+hour_data_fl = hour_data_fl.filled(np.nan) 
+# Fill all places with 0
+hour_data_fl.fill(0)
+# Fill the location with a different value
+hour_data_fl[closest_lat,closest_long] = 7
+# # # Plot
+contour = plt.contourf(hour_data_fl)
+contour = plt.colorbar()
+contour =plt.axes().set_aspect('equal') 
+plt.plot(closest_idx_fl[1], closest_idx_fl[0], 'o', color='black', markersize = 3) 
 
 #############################################################################
 # Loop through every text file in the directory
