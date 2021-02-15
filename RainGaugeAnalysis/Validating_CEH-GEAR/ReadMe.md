@@ -6,7 +6,7 @@
 <img src="Figs/CheckingLocations/bramham_logger.png" width="500"  title="Original 1km grid" />
 <img src="Figs/PDF_GaugevsGridCell/bramham_logger.png" width="500"  title="Original 1km grid" />
 </p>
-<p align="center">Figure 1. JJA Mean for all hours <p align="center">
+<p align="center">Figure 1.Bramham Logger <p align="center">
 
 #### Knostrop Logger
 <p align="left">
