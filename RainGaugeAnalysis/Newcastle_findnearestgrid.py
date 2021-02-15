@@ -108,12 +108,12 @@ for filename in glob.glob("datadir/GaugeData/Newcastle/E*"):
         
         # Check if point is within leeds-at-centre geometry
         this_point = Point(lon, lat)
-        res = this_point.within(leeds_at_centre_poly)
+        res = this_point.within(leeds_poly)
        
         # If the point is within leeds-at-centre geometry 
         if res ==True:
             print('yes')
-
+            print(station_name)
             #############################################################################
             # Create a csv containing the data and the dates
             #############################################################################
@@ -144,7 +144,6 @@ for filename in glob.glob("datadir/GaugeData/Newcastle/E*"):
             precip_df.to_csv("datadir/GaugeData/Newcastle/leeds-at-centre_csvs/{}.csv".format(station_name),
                              index = False)
 
-
             #############################################################################
             # Create a csv containing the data and the dates for the CEH-GEAR grid cell which
             # the gauge is located within
@@ -153,14 +152,18 @@ for filename in glob.glob("datadir/GaugeData/Newcastle/E*"):
             result = create_concat_cube_one_location_obs(concat_cube, lat, lon)
             
             # Split out results
-            time_series, closest_lat, closest_long, closest_point_idx = result[0], result[1], result[2], result[3]
+            time_series_cube, closest_lat, closest_long, closest_point_idx = result[0], result[1], result[2], result[3]
+
+            # Save the cube
+            iris.save(time_series_cube, 
+            "Outputs/TimeSeries/UKCP18/Gauge_GridCells/TimeSeries_cubes/{}.nc".format(station_name))
 
             ## Create dataframe with timeseries
-            ts_df = pd.DataFrame({'Date_formatted': time_series.coord('time').units.num2date(time_series.coord('time').points),
-                             'Precipitation (mm/hr)': np.array(time_series.lazy_data())})
+            ts_df = pd.DataFrame({'Date_formatted': time_series_cube.coord('time').units.num2date(time_series.coord('time').points),
+                             'Precipitation (mm/hr)': np.array(time_series_cube.lazy_data())})
             
             # Save to file
-            ts_df.to_csv("Outputs/TimeSeries/Gauge_GridCells/{}".format(station_name)
+            ts_df.to_csv("Outputs/TimeSeries/UKCP18/Gauge_GridCells/TimeSeries_csv/{}.csv".format(station_name))
              
             #############################################################################
             ## Check that the data has been extracted for the correct location
@@ -189,7 +192,7 @@ for filename in glob.glob("datadir/GaugeData/Newcastle/E*"):
             # Create a colormap
             cmap = mpl.colors.ListedColormap(['yellow'])
             
-            fig, ax = plt.subplots(figsize=(20,10))
+            fig, ax = plt.subplots(figsize=(30,20))
             extent = tilemapbase.extent_from_frame(leeds_at_centre_gdf)
             plot = plotter = tilemapbase.Plotter(extent, tilemapbase.tiles.build_OSM(), width=600)
             plot =plotter.plot(ax)
@@ -200,11 +203,10 @@ for filename in glob.glob("datadir/GaugeData/Newcastle/E*"):
             plot = ax.yaxis.set_major_formatter(plt.NullFormatter())
             plot =leeds_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=2)
             plot =leeds_at_centre_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=2)
-            plt.plot(lon_wm, lat_wm,  'o', color='black', markersize = 5)     
+            plt.plot(lon_wm, lat_wm,  'o', color='black', markersize = 15)     
             plt.savefig('Scripts/UKCP18/RainGaugeAnalysis/Figs/NewcastleGaugeGridCells/{}.png'.format(station_name))
             plt.show()
    
-    
 ###############################################################################################################   
 ### Alternative plotting using Iris
 ###############################################################################################################
