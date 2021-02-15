@@ -114,10 +114,11 @@ for filename in glob.glob("datadir/GaugeData/Newcastle/E*"):
         if res ==True:
             print('yes')
             print(station_name)
-            #############################################################################
+           
+            ############################################################################
             # Create a csv containing the data and the dates
-            #############################################################################
-            # Read in data entries containing precipitation values
+            ############################################################################
+            #Read in data entries containing precipitation values
             data=np.loadtxt(filename, skiprows = 21)
             
             # Store start and end dates
@@ -142,28 +143,28 @@ for filename in glob.glob("datadir/GaugeData/Newcastle/E*"):
             
             # Save to file
             precip_df.to_csv("datadir/GaugeData/Newcastle/leeds-at-centre_csvs/{}.csv".format(station_name),
-                             index = False)
+                              index = False)
 
-            #############################################################################
-            # Create a csv containing the data and the dates for the CEH-GEAR grid cell which
-            # the gauge is located within
-            #############################################################################
-            # Create time series cube at this location, and return the associated         
+            # #############################################################################
+            # # Create a csv containing the data and the dates for the CEH-GEAR grid cell which
+            # # the gauge is located within
+            # #############################################################################
+            # # Create time series cube at this location, and return the associated         
             result = create_concat_cube_one_location_obs(concat_cube, lat, lon)
             
-            # Split out results
+            # # Split out results
             time_series_cube, closest_lat, closest_long, closest_point_idx = result[0], result[1], result[2], result[3]
 
             # Save the cube
             iris.save(time_series_cube, 
-            "Outputs/TimeSeries/UKCP18/Gauge_GridCells/TimeSeries_cubes/{}.nc".format(station_name))
+            "Outputs/TimeSeries/CEH-GEAR/Gauge_GridCells/TimeSeries_cubes/{}.nc".format(station_name))
 
             ## Create dataframe with timeseries
-            ts_df = pd.DataFrame({'Date_formatted': time_series_cube.coord('time').units.num2date(time_series.coord('time').points),
-                             'Precipitation (mm/hr)': np.array(time_series_cube.lazy_data())})
+            ts_df = pd.DataFrame({'Date_formatted': time_series_cube.coord('time').units.num2date(time_series_cube.coord('time').points),
+                              'Precipitation (mm/hr)': np.array(time_series_cube.lazy_data())})
             
             # Save to file
-            ts_df.to_csv("Outputs/TimeSeries/UKCP18/Gauge_GridCells/TimeSeries_csv/{}.csv".format(station_name))
+            ts_df.to_csv("Outputs/TimeSeries/CEH-GEAR/Gauge_GridCells/TimeSeries_csv/{}.csv".format(station_name))
              
             #############################################################################
             ## Check that the data has been extracted for the correct location
@@ -192,9 +193,9 @@ for filename in glob.glob("datadir/GaugeData/Newcastle/E*"):
             # Create a colormap
             cmap = mpl.colors.ListedColormap(['yellow'])
             
-            fig, ax = plt.subplots(figsize=(30,20))
+            fig, ax = plt.subplots(figsize=(30,30))
             extent = tilemapbase.extent_from_frame(leeds_at_centre_gdf)
-            plot = plotter = tilemapbase.Plotter(extent, tilemapbase.tiles.build_OSM(), width=600)
+            plot = plotter = tilemapbase.Plotter(extent, tilemapbase.tiles.build_OSM(), width=500)
             plot =plotter.plot(ax)
             # Add edgecolor = 'grey' for lines
             plot =ax.pcolormesh(lons_cornerpoints, lats_cornerpoints, cube_higlighted_cell_data,
@@ -203,8 +204,9 @@ for filename in glob.glob("datadir/GaugeData/Newcastle/E*"):
             plot = ax.yaxis.set_major_formatter(plt.NullFormatter())
             plot =leeds_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=2)
             plot =leeds_at_centre_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=2)
-            plt.plot(lon_wm, lat_wm,  'o', color='black', markersize = 15)     
-            plt.savefig('Scripts/UKCP18/RainGaugeAnalysis/Figs/NewcastleGaugeGridCells/{}.png'.format(station_name))
+            plt.plot(lon_wm, lat_wm,  'o', color='black', markersize = 10)     
+            plt.savefig('Scripts/UKCP18/RainGaugeAnalysis/Validating_CEH-GEAR/Figs/CheckingLocations/{}.png'.format(station_name),
+                        bbox_inches = 'tight')
             plt.show()
    
 ###############################################################################################################   

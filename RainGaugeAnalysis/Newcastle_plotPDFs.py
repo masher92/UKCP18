@@ -16,14 +16,14 @@ sys.path.insert(0, root_dir + 'Scripts/UKCP18/GlobalFunctions')
 from PDF_plotting_functions import *
 
 station_names = ['headingley_logger', 'eccup_logger', 'bramham_logger', 'farnley_hall_logger', 'knostrop_logger']
-                 'otley_s.wks']
+station_names = ['otley_s.wks_logger']
 
 #############################################
 # Read in data
 #############################################
 precip_ts = {}
 for station_name in station_names:
-    print(station_name)   
+    
     gauge_ts ={}
     
     # Read in CEH-GEAR data from grid cell within which the gauge is found
@@ -36,13 +36,10 @@ for station_name in station_names:
     filename_gauge= root_dir + 'datadir/GaugeData/Newcastle/leeds-at-centre_csvs/{}.csv'.format(station_name)
     df_gauge = pd.read_csv(filename_gauge, index_col=None, header=0)
     df_gauge['Datetime2'] = pd.to_datetime(df_gauge['Datetime'])
-       
+    
     # Find the overlapping time period
     earliesttime = df_gauge['Datetime2'].min() if df_gauge['Datetime2'].min() > df_cehgear['Datetime'].min() else df_cehgear['Datetime'].min()
     latesttime = df_gauge['Datetime2'].max() if df_gauge['Datetime2'].max() < df_cehgear['Datetime'].max() else df_cehgear['Datetime'].max()
-
-    print(earliesttime)
-    print(latesttime)
     
     #### Cut to same time period
     df_cehgear = df_cehgear[(df_cehgear['Datetime'] > earliesttime)& (df_cehgear['Datetime']< latesttime)]
@@ -53,7 +50,6 @@ for station_name in station_names:
         print("Same length")
 
     # Remove -999 values and na values
-    len(df_gauge[df_gauge['Precipitation (mm/hr)'] == -999])
     df_gauge = df_gauge[df_gauge['Precipitation (mm/hr)'] != -999]
     df_cehgear = df_cehgear[df_cehgear['Precipitation (mm/hr)'] != np.nan]
     df_cehgear.dropna(inplace = True)
