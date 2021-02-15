@@ -47,7 +47,7 @@ NA values in CEH-GEAR grid cell data: 9
 NA values in gauge data: 1078
 NA values in CEH-GEAR grid cell data: 0 (because these first 9 dates are already removed in trimming to same time period as gauge)
 
-#### Otley s.wks Logger  
+#### Otley s.wks Logger - 01-01-1990 00:00:00 - 31-12-2014 23:00:00 
 <p align="left">
 <img src="Figs/CheckingLocations/otley_s.wks_logger.png" width="500"  title="Original 1km grid" />
 <img src="Figs/PDF_GaugevsGridCell/otley_s.wks_logger.png" width="500"  title="Original 1km grid" />
