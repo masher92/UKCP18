@@ -43,6 +43,10 @@ for station_name in station_names:
     #### Cut to same time period
     df_cehgear = df_cehgear[(df_cehgear['Datetime'] > earliesttime)& (df_cehgear['Datetime']< latesttime)]
     df_gauge = df_gauge[(df_gauge['Datetime2'] > earliesttime)& (df_gauge['Datetime2']< latesttime)]
+    
+    # Check if gauge and CEH-GEAR data set are the same length
+    if len(df_gauge) == len(df_cehgear):
+        print("Same length")
 
     # Remove -999 values and na values
     df_gauge = df_gauge[df_gauge['Precipitation (mm/hr)'] != -999]
@@ -64,7 +68,7 @@ for station_name in station_names:
     x_axis = 'linear'
     y_axis = 'log'
     bin_nos = 30 #(10 gives 12, 30 gives 29, 45 gives 41 bins)
-    xlim = 25
+    xlim = False
     bins_if_log_spaced= bin_nos
     
     #################### Full time period
@@ -75,8 +79,10 @@ for station_name in station_names:
     patch = mpatches.Patch(color='green', label='CEH-GEAR Data')
     patches.append(patch)
     
-    log_discrete_histogram_lesslegend(precip_ts, cols_dict, bin_nos, "Precipitation (mm/hr)", 
+    log_discrete_histogram_lesslegend(gauge_ts, cols_dict, bin_nos, "Precipitation (mm/hr)", 
                                       patches, True, xlim, x_axis, y_axis) 
+
+    plt.savefig("Scripts/UKCP18/RainGaugeAnalysis/Figs/NewcastleGaugeGridCells/PDF_GaugevsGridCell/{}.png".format(station_name))
 
 ###############################################################################
 # Plots
@@ -95,7 +101,7 @@ cols_dict = {'headingley_logger_GaugeData' : 'firebrick',
 x_axis = 'linear'
 y_axis = 'log'
 bin_nos = 10 #(10 gives 12, 30 gives 29, 45 gives 41 bins)
-xlim = 25
+xlim = False
 bins_if_log_spaced= bin_nos
 
 #################### Full time period

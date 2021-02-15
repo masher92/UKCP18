@@ -132,7 +132,6 @@ plt.plot(lon_wm, lat_wm,  'o', color='black', markersize = 2)
 #plt.savefig('Scripts/UKCP18/RainGaugeAnalysis/Figs/NewcastleGaugeGridCells/{}.png'.format(station_name))
 plt.show()
    
-
 #############################################################################
 # Cut to time period matching up with UKCP18 data
 ##############################################################################
