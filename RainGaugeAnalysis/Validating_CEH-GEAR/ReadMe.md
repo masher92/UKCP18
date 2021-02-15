@@ -1,4 +1,4 @@
-## Validating CEH-GEAR1hr gridded observations using Quality-Controlled gauge data
+## Validating CEH-GEAR1hr gridded observations using quality-controlled gauge data
 
 #### Bramham Logger
 <p align="left">
