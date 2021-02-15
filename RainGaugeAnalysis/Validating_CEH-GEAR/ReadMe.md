@@ -53,5 +53,18 @@ NA values in CEH-GEAR grid cell data: 0 (because these first 9 dates are already
 <img src="Figs/PDF_GaugevsGridCell/otley_s.wks_logger.png" width="500"  title="Original 1km grid" />
 </p>
 
-NA values in gauge data:
-NA values in CEH-GEAR grid cell data:
+NA values in gauge data: 13483
+NA values in CEH-GEAR grid cell data: 9
+
+
+### Analysis
+For the Knostrop, Eccup and Farnely Hall gauges, hourly precipitation values of the same maximum intensity are found in both the gauge data and the CEH-GEAR data.
+
+Bramham, Otley
+Green (CEH-GEAR) - line longer
+
+Knostrop, Eccup, Farnley Hall
+Lines the same
+
+Headingley:
+Red (Gauge) - line longer
