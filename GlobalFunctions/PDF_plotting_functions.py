@@ -216,6 +216,7 @@ def log_discrete_histogram_lesslegend(results_dict, cols_dict, bin_nos, precip_v
     for key, df in results_dict.items():
         print(key)
         print(df['Precipitation (mm/hr)'].max())
+        print(df['Precipitation (mm/hr)'].min())        
         # Define the colour to use for this entry
         # Create a patch for this colour to be used in creating the legend
         # And add to list of patches for use in legend
@@ -243,7 +244,8 @@ def log_discrete_histogram_lesslegend(results_dict, cols_dict, bin_nos, precip_v
     plt.legend(handles=patches)
     plt.xlabel(precip_variable)
     plt.ylabel('Probability density')
-    plt.xlim(0,xlim)
+    if xlim != False:
+        plt.xlim(0,xlim)
     plt.title(n_bins + " bins")
     plt.xscale(x_axis_scaling)
     plt.yscale(y_axis_scaling)
