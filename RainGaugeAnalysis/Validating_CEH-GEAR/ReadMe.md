@@ -2,7 +2,7 @@
 
 PDFs of hourly precipitation intensity are plotted using the data from quality-controlled rain gauges and the data from the grid cell in the CEH-GEAR1hr observations dataset that the gauge is found within. In each case, only the overlapping time period between the two datasets is used. NA values are filtered out after finding the overlapping time period, so data for some datetimes may be included in one dataset but not the other.
 
-#### Bramham Logger - 01-01-1990 00:00:00 - 31-12-2014 23:00:00
+#### Bramham Logger - 01-01-1990 00:00:00 - 31-12-2014 23:00:00 
 <p align="left">
 <img src="Figs/CheckingLocations/bramham_logger.png" width="500"  title="Original 1km grid" />
 <img src="Figs/PDF_GaugevsGridCell/bramham_logger.png" width="500"  title="Original 1km grid" />
