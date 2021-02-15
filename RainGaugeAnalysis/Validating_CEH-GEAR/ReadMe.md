@@ -1,5 +1,4 @@
-# Using Quality-Controlled Rain Gauge data to validate CEH-GEAR1hr gridded observations
-## Rain Gauges
+## Validating CEH-GEAR1hr gridded observations using Quality-Controlled gauge data
 
 #### Bramham Logger
 <p align="left">
