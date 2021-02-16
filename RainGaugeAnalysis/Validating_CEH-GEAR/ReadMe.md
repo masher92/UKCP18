@@ -59,7 +59,8 @@ NA values in CEH-GEAR grid cell data: 9
 ### Analysis
 For the Knostrop, Eccup and Farnely Hall gauges, hourly precipitation values of the same maximum intensity are found in both the gauge data and the CEH-GEAR data. For the Bramham and Otley gauges, higher maximum values are found in the CEH-GEAR grid cell data, and for the Headingley gauge, a higher maximum hourly precipitation intensity is recorded at the gauge.
 
-For the Knostrop gauge, the top twenty values in the gauge were found, and the values for the same datetime were extracted from the CEH-GEAR data. This shows that often where a peak value occurs in the gauge, a peak value is not found in the CEH-GEAR data. 
+#### Further analysis Knostrop gauge
+For the Knostrop gauge, the top twenty values in the gauge were found, and the values for the same datetime were extracted from the CEH-GEAR data. This shows that often where a peak value occurs in the gauge, a peak value is not found in the CEH-GEAR data. To explore this further the two values before and after a peak value at the gauge are found for both the gauge and CEH-GEAR. This shows that whilst often the CEH-GEAR grid cell does not record a peak at the same time as the gauge there is generally a peak in one of the surrounding hours. Presumably this could be because it is drawing its data from a different grid cells (many of the   
 
 #### Knostrop
 | Datetime            | Gauge | CEH-GEAR |
@@ -117,28 +118,3 @@ For the Knostrop gauge, the top twenty values in the gauge were found, and the v
 | 2005-09-10 05:00:00 | 14.6     | 7.4   |
 | 2005-09-10 06:00:00 | 5.6      | 16.0  |
 | 2005-09-10 07:00:00 | 2.8      | 6.1   |
-
-
-Bramham
-CEH-GEAR: 1997-08-31 17:00:00 = 45.9
-Gauge: 1997-08-31 16:00:00 == 36
-1997-08-31 17:00:00 == 0.4
-
-CEH-GEAR: 2014-08-08 19:00:00 = 25.2
-      2014-08-08 18:00:00 = 19.7
-Gauge: 2014-08-08 19:00:00 == 3.8
-2014-08-08 18:00:00 == 18.2
-2014-08-08 17:00:00 == 30.2
-
-Headingley
-Gauge: 2004-08-09 12:00:00 = 19.6
-2005-08-31 16:00:00 = 19.2
-CEH-GEAR: 2004-08-09 12:00:00 = 0.5
-       2004-08-09 13:00:00 = 16.2
-	2005-08-31 16:00:00 =	0
-2005-08-31 17:00:00 = 16.4
-Otley
-CEH-GEAR: 2004-08-12 20:00 = 28.1
-Gauge: 2004-08-12 20:00 = 6.6
-Gauge: 2004-08-12 19:00 = 25
-
