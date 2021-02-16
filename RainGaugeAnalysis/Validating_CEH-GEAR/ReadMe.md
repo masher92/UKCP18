@@ -2,7 +2,7 @@
 
 PDFs of hourly precipitation intensity are plotted using the data from quality-controlled rain gauges and the data from the grid cell in the CEH-GEAR1hr observations dataset that the gauge is found within. In each case, only the overlapping time period between the two datasets is used. NA values are filtered out after finding the overlapping time period, so data for some datetimes may be included in one dataset but not the other.
 
-#### Bramham Logger - 01-01-1990 00:00:00 - 31-12-2014 23:00:00
+#### Bramham Logger - 01-01-1990 00:00:00 - 31-12-2014 23:00:00 
 <p align="left">
 <img src="Figs/CheckingLocations/bramham_logger.png" width="500"  title="Original 1km grid" />
 <img src="Figs/PDF_GaugevsGridCell/bramham_logger.png" width="500"  title="Original 1km grid" />
@@ -47,11 +47,107 @@ NA values in CEH-GEAR grid cell data: 9
 NA values in gauge data: 1078
 NA values in CEH-GEAR grid cell data: 0 (because these first 9 dates are already removed in trimming to same time period as gauge)
 
-#### Otley s.wks Logger  
+#### Otley s.wks Logger - 01-01-1990 00:00:00 - 31-12-2014 23:00:00 
 <p align="left">
 <img src="Figs/CheckingLocations/otley_s.wks_logger.png" width="500"  title="Original 1km grid" />
 <img src="Figs/PDF_GaugevsGridCell/otley_s.wks_logger.png" width="500"  title="Original 1km grid" />
 </p>
 
-NA values in gauge data:
-NA values in CEH-GEAR grid cell data:
+NA values in gauge data: 13483
+NA values in CEH-GEAR grid cell data: 9
+
+
+### Analysis
+For the Knostrop, Eccup and Farnely Hall gauges, hourly precipitation values of the same maximum intensity are found in both the gauge data and the CEH-GEAR data.
+
+Bramham, Otley
+Green (CEH-GEAR) - line longer
+
+Knostrop, Eccup, Farnley Hall
+Lines the same
+
+Headingley:
+Red (Gauge) - line longer
+
+
+#### Knostrop
+| Datetime            | CEH-GEAR | Gauge |
+|---------------------|-------------------------|-------------------------|
+| 2004-08-09 12:00:00 | 22.4                    | 0.8                     |
+| 2008-08-20 20:00:00 | 17.2                    | 6.3                     |
+| 2009-06-15 12:00:00 | 16.6                    | 0.0                     |
+| 2005-09-10 05:00:00 | 14.6                    | 7.4                     |
+| 2004-08-10 14:00:00 | 13.2                    | 0.0                     |
+| 2001-04-25 16:00:00 | 12.8                    | 0.0                     |
+| 2007-07-01 12:00:00 | 12.0                    | 0.0                     |
+| 2014-08-08 17:00:00 | 11.8                    | 0.9                     |
+| 2000-09-19 22:00:00 | 11.6                    | 7.0                     |
+| 2004-08-10 07:00:00 | 11.6                    | 2.5                     |
+| 2012-07-07 19:00:00 | 11.6                    | 15.9                    |
+| 2006-08-17 14:00:00 | 11.0                    | 0.0                     |
+| 2011-09-16 17:00:00 | 11.0                    | 0.0                     |
+| 2007-06-20 01:00:00 | 10.8                    | 0.4                     |
+| 2006-09-02 11:00:00 | 10.4                    | 2.5                     |
+| 1991-06-28 14:00:00 | 9.8                     | 0.0                     |
+| 1997-08-31 15:00:00 | 9.8                     | 8.4                     |
+| 2004-08-12 18:00:00 | 9.8                     | 5.1                     |
+| 2013-07-28 03:00:00 | 9.8                     | 8.8                     |
+| 2012-08-05 14:00:00 | 9.4                     | 0.0                     |
+
+
+| Datetime            | CEH-GEAR | Gauge |
+|---------------------|----------|-------|
+| 2004-08-09 10:00:00 | 0.2      | 0.3   |
+| 2004-08-09 11:00:00 | 1.0      | 0.2   |
+| 2004-08-09 12:00:00 | 22.4     | 0.8   |
+| 2004-08-09 13:00:00 | 1.0      | 18.9  |
+| 2004-08-09 14:00:00 | 0.2      | 0.8   |
+
+| Datetime            | CEH-GEAR | Gauge |
+|---------------------|----------|-------|
+| 2008-08-20 18:00:00 | 0.6      | 0.0   |
+| 2008-08-20 19:00:00 | 5.6      | 0.6   |
+| 2008-08-20 20:00:00 | 17.2     | 6.3   |
+| 2008-08-20 21:00:00 | 2.8      | 9.4   |
+| 2008-08-20 22:00:00 | 9.0      | 11.9  |
+
+| Datetime            | CEH-GEAR | Gauge |
+|---------------------|----------|-------|
+| 2009-06-15 10:00:00 | 0.0      | 0.0   |
+| 2009-06-15 11:00:00 | 0.0      | 0.0   |
+| 2009-06-15 12:00:00 | 16.6     | 0.0   |
+| 2009-06-15 13:00:00 | 2.0      | 16.2  |
+| 2009-06-15 14:00:00 | 0.0      | 2.0   |
+
+| Datetime            | CEH-GEAR | Gauge |
+|---------------------|----------|-------|
+| 2005-09-10 03:00:00 | 0.6      | 0.0   |
+| 2005-09-10 04:00:00 | 6.8      | 0.7   |
+| 2005-09-10 05:00:00 | 14.6     | 7.4   |
+| 2005-09-10 06:00:00 | 5.6      | 16.0  |
+| 2005-09-10 07:00:00 | 2.8      | 6.1   |
+
+
+Bramham
+CEH-GEAR: 1997-08-31 17:00:00 = 45.9
+Gauge: 1997-08-31 16:00:00 == 36
+1997-08-31 17:00:00 == 0.4
+
+CEH-GEAR: 2014-08-08 19:00:00 = 25.2
+      2014-08-08 18:00:00 = 19.7
+Gauge: 2014-08-08 19:00:00 == 3.8
+2014-08-08 18:00:00 == 18.2
+2014-08-08 17:00:00 == 30.2
+
+Headingley
+Gauge: 2004-08-09 12:00:00 = 19.6
+2005-08-31 16:00:00 = 19.2
+CEH-GEAR: 2004-08-09 12:00:00 = 0.5
+       2004-08-09 13:00:00 = 16.2
+	2005-08-31 16:00:00 =	0
+2005-08-31 17:00:00 = 16.4
+Otley
+CEH-GEAR: 2004-08-12 20:00 = 28.1
+Gauge: 2004-08-12 20:00 = 6.6
+Gauge: 2004-08-12 19:00 = 25
+
