@@ -1,6 +1,14 @@
 ## Validating CEH-GEAR1hr gridded observations using quality-controlled gauge data
 
-PDFs of hourly precipitation intensity are plotted using the data from quality-controlled rain gauges and the data from the grid cell in the CEH-GEAR1hr observations dataset that the gauge is found within. In each case, only the overlapping time period between the two datasets is used. NA values are filtered out after finding the overlapping time period, so data for some datetimes may be included in one dataset but not the other.
+### Gauges in Leeds (leeds-at-centre) region
+There are 42 quality-controlled gauges within the Leeds (leeds-at-centre) region. 
+
+<p align="left">
+<img src="Figs/CheckingLocations/Location_leeds-at-centre_Gauges.PNG" width="500"  title="Location of all gauges in Leeds region" />
+</p>
+
+### Gauges within Leeds city boundaries
+For the 6 rain gauges within the Leeds city boundary, the CEH-GEAR1hr grid cell within which the gauge is located is identified in a plot. PDFs of hourly precipitation intensity are plotted using the data from the gauge and the data from the grid cell. In each case, only the overlapping time period between the two datasets is used. NA values are filtered out after finding the overlapping time period, so data for some datetimes may be included in one dataset but not the other.
 
 #### Bramham Logger - 01-01-1990 00:00:00 - 31-12-2014 23:00:00 
 <p align="left">
