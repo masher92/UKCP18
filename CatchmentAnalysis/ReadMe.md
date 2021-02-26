@@ -4,4 +4,10 @@ Leeds City Council (LCC) defined 46 urban catchments in Leeds. Of these, 22 repr
 
 <p align="center">
   <img src="Figs/Catchments_matching_FEH.PNG" width="700"  />  
-<p align="center"> Figure 1. PDF of precipitation intensity across the Leeds area. Using the overlapping time period (1990-2001) on the left hand images, and the full time period for which data is available for each of the model and observations on the right. <p align="center">
+<p align="center"> Figure 1. Urban catchments defined by LCC (blue outlines), and catchment boundaries from FEH web server (filled in with green if ReFH2 data has been downlaoded, and red if it has not) <p align="center">
+  
+For each of these 22 catchments a catchment descriptors file has been downloaded from FEH. These can be used to summarise the characteristics of these 22 catchments.   
+
+<p align="center">
+  <img src="Figs/Catchments_matching_FEH_Area.PNG" width="700"  />  
+<p align="center"> Figure 1. Urban catchments defined by LCC (blue outlines), and catchment boundaries from FEH web server (filled in with green if ReFH2 data has been downlaoded, and red if it has not) <p align="center">
