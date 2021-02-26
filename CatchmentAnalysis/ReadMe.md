@@ -10,7 +10,7 @@ For each of these 22 catchments a catchment descriptors file has been downloaded
 
 <p align="center">
   <img src="Figs/Catchments_matching_FEH_Area.PNG" width="300"  />  
-  <img src="Figs/Catchments_matching_FEH_Area.PNG" width="300"  />  
-   <img src="Figs/Catchments_matching_FEH_Area.PNG" width="300"  /> 
-   <img src="Figs/Catchments_matching_FEH_Area.PNG" width="300"  />   
+  <img src="Figs/Catchments_matching_FEH_Urbext.PNG" width="300"  />  
+   <img src="Figs/Catchments_matching_FEH_Altitude.PNG" width="300"  /> 
+   <img src="Figs/Catchments_matching_FEH_SAAR.PNG" width="300"  />   
 <p align="center"> Figure 1. <p align="center">
