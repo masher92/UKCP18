@@ -13,4 +13,11 @@ For each of these 22 catchments a catchment descriptors file has been downloaded
   <img src="Figs/Catchments_matching_FEH_Urbext.PNG" width="300"  />  
    <img src="Figs/Catchments_matching_FEH_Altitude.PNG" width="300"  /> 
    <img src="Figs/Catchments_matching_FEH_SAAR.PNG" width="300"  />   
+   <img src="Figs/Catchments_matching_FEH_BFIHOST.PNG" width="300"  />     
 <p align="center"> Figure 1. <p align="center">
+
+<p align="center">
+  <img src="Figs/Catchments_matching_FEH_BFIHOSTvsURBEXT.PNG" width="300"  />  
+  <img src="Figs/Catchments_matching_FEH_SAARvsALTBAR.PNG" width="300"  />  
+<p align="center"> Figure 1. <p align="center">
+
