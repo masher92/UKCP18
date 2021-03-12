@@ -85,12 +85,12 @@ The ReFH2 software generates hyetographs based on Flood Studies Report (FSR)/FEH
 Ref: https://wiki.tuflow.com/index.php?title=Using_ReFH2_to_Generate_TUFLOW_Boundary_Inputs
 
 <p align="center">
-<img src="Figs/AllCatchments/Rainfall/Rainfall.png" width="500" />
+<img src="Figs/AllCatchments/Rainfall/Rainfall.png" width="1000" />
 <p align="center"> Figure 7. Longest drainage path (KM)) <p align="center">
 
 <p align="center">
 <img src="Figs/AllCatchments/Rainfall/HeatMap.png" width="500" />
-<p align="center"> Figure 7. Longest drainage path (KM)) <p align="center">
+<p align="center"> Figure X. 1 = Mill Dyke, 2 = Gill Beck (Wharfe), 3 = Gill Beck (Aire), 4 = Stank Beck, 5 = Carr Beck, 6 = Fairburn Ings <p align="center">
 
 
 ### Catchment peak flow
