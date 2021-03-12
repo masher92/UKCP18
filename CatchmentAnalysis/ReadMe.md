@@ -84,6 +84,15 @@ The ReFH2 software generates hyetographs based on Flood Studies Report (FSR)/FEH
 
 Ref: https://wiki.tuflow.com/index.php?title=Using_ReFH2_to_Generate_TUFLOW_Boundary_Inputs
 
+<p align="center">
+<img src="Figs/AllCatchments/Rainfall/Rainfall.png" width="500" />
+<p align="center"> Figure 7. Longest drainage path (KM)) <p align="center">
+
+<p align="center">
+<img src="Figs/AllCatchments/Rainfall/HeatMap.png" width="500" />
+<p align="center"> Figure 7. Longest drainage path (KM)) <p align="center">
+
+
 ### Catchment peak flow
 
 The ReFH2 Model is comprised of a rural catchment model component and an urban catchment model.
