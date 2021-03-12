@@ -15,11 +15,8 @@ os.chdir(root_fp)
 # 'GillBeck_Aire', 'LinDyke', 'OilMillBeck', 'GuiseleyBeck']
 catchment_name ='Holbeck'
 
-# Read in csv file for one duration in order to extract a list of all the 
-# return periods covered
-d_1h = pd.read_csv(root_fp +"DataAnalysis/FloodModelling/{}/ReFH2_Data/1h_12mins.csv".format(catchment_name),
-                   index_col = False)
-rps = d_1h['Return period (yrs)']
+# The return periods of interest
+rps =   [1, 2, 5, 10, 30, 50, 75, 100, 200, 1000]
 
 # Specify the durations for which there is a csv containing data
 durations = ['1h', '3h','5h','7h','9h','11h','13h','15h','17h','19h','21h', '25h','27h', '29h', '31h', '33h', '35h', '37h', '39h']
@@ -41,7 +38,6 @@ max_urbflow_vals_summer = {}#
 max_rurrunoff_vals_summer ={}
 max_rurflow_vals_summer ={}
 
-
 # Loop through return periods, 
 #   Then, loop through durations
 for rp in rps:
@@ -53,11 +49,11 @@ for rp in rps:
         
         # Read in csv for that duration      
         duration_df = pd.read_csv(root_fp +
-                    "DataAnalysis/FloodModelling/IndividualCatchments/{}/ReFH2_Data/{}_12mins.csv".format(catchment_name, duration),
+                    "DataAnalysis/FloodModelling/IndividualCatchments/{}/ReFH2_Data/Winter/{}_12mins.csv".format(catchment_name, duration),
                    index_col = False)
         
         duration_df_summer =  pd.read_csv(root_fp +
-                    "DataAnalysis/FloodModelling/IndividualCatchments/{}/ReFH2_Data/Summer/{}_12mins_summer.csv".format(catchment_name, duration),
+                    "DataAnalysis/FloodModelling/IndividualCatchments/{}/ReFH2_Data/Summer/{}_12mins.csv".format(catchment_name, duration),
                    index_col = False)
         
         # Cut the data out for just the return period of this loop
@@ -101,14 +97,11 @@ for rp in rps:
     max_rurrunoff_vals[rp] = one_rp_all_durations['Duration'][one_rp_all_durations['As-rural direct runnof (ML)'].argmax()]
     max_rurflow_vals[rp] = one_rp_all_durations['Duration'][one_rp_all_durations['As-rural peak flow (m^3/s)'].argmax()]
     
-
     max_urbrunoff_vals_summer[rp] = one_rp_all_durations['Duration'][one_rp_all_durations['Urbanised direct runoff (ML)_summer'].argmax()]
     max_urbflow_vals_summer[rp] = one_rp_all_durations['Duration'][one_rp_all_durations['Urbanised peak flow (m^3/s)_summer'].argmax()]
     max_rurrunoff_vals_summer[rp] = one_rp_all_durations['Duration'][one_rp_all_durations['As-rural direct runnof (ML)_summer'].argmax()]
     max_rurflow_vals_summer[rp] = one_rp_all_durations['Duration'][one_rp_all_durations['As-rural peak flow (m^3/s)_summer'].argmax()]
     
-
-
 ##################################################################
 # Create dataframe containing the critical durations for urban/rural runoff
 # and save to file
@@ -171,7 +164,7 @@ fig.subplots_adjust(top=0.92)
 plt.subplots_adjust(hspace=0.35)    
 
 # Save and show plot
-plt.savefig(root_fp +"DataAnalysis/FloodModelling/{}/Outputs/DirectRunoff_AllRPs.png".format(catchment_name))
+plt.savefig(root_fp +"DataAnalysis/FloodModelling/IndividualCatchments/{}/Outputs/DirectRunoff_AllRPs.png".format(catchment_name))
 plt.show()
 
 ######## Peak flow

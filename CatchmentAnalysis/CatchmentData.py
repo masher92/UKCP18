@@ -39,6 +39,14 @@ transposed = df.transpose()
 transposed.rename(columns=transposed.iloc[0], inplace = True)
 transposed = transposed[1:]
 
+# check if summer or winter storm profile used
+transposed['StormProfile'] = np.where((transposed['URBEXT2000'] >=0.3) |
+                                      ((transposed['BFIHOST'] >=0.65) & 
+                                       (transposed['URBEXT2000'] >= 0.15) & 
+                                       (transposed['URBEXT2000'] < 0.30))
+                                      , 'Summer', 'Winter')
+
+
 ##### Plot area --
 plt.hist(transposed['AREA'], bins =15, color='darkblue', edgecolor='black')
 plt.xlabel('Catchment area (km2)')
@@ -59,6 +67,17 @@ plt.ylabel('Number of catchments')
 plt.hist(transposed['BFIHOST'], bins =15, color='darkblue', edgecolor='black')
 plt.xlabel('BFIHOST')
 plt.ylabel('Number of catchments')
+
+plt.ylabel('Number of catchments')
+
+plt.hist(transposed['DPSBAR'], bins =15, color='darkblue', edgecolor='black')
+plt.xlabel('DPSBAR')
+plt.ylabel('Number of catchments')
+
+plt.hist(transposed['LDP'], bins =15, color='darkblue', edgecolor='black')
+plt.xlabel('Longest drainage path (km)')
+plt.ylabel('Number of catchments')
+
 
 # Scatter plots
 #colors = np.where(transposed['URBEXT2000']>=0.3,'green','black').tolist()

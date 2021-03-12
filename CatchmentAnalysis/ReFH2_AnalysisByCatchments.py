@@ -162,138 +162,7 @@ for seasonal_storm_profile in seasonal_storm_profiles:
             
         # Add to dictionary       
         cds[seasonal_storm_profile + '_' + rurality] = cd_allcatchments_allrps
-
-######################################################
-#        
-######################################################
-differences = pd.DataFrame()
-for catchment in catchments:
-    print(catchment)
-    df = pd.DataFrame({})
-    for x in ['Summer_Urban', 'Summer_Rural', 'Winter_Urban', 'Winter_Rural']:
-        test  = cds[x]
-        test2 = test[test['Catchments'] == catchment]
-        test2['Catchments'] = x
-        df = df.append(test2)
-    df = df.rename(columns={"Catchments": "Combo"})   
-
-    # UvR_Diff_Summer
-    UvR_Diff_Summer = df[df["Combo"] == 'Summer_Rural'].iloc[:, 1:] - df[df["Combo"] == 'Summer_Urban'].iloc[:, 1:]
-    UvR_Diff_Summer.insert(0,'Combo',"UvR_Diff_Summer")
-    
-    # UvR_Diff_Winter
-    UvR_Diff_Winter = df[df["Combo"] == 'Winter_Rural'].iloc[:, 1:] - df[df["Combo"] == 'Winter_Urban'].iloc[:, 1:]
-    UvR_Diff_Winter.insert(0,'Combo',"UvR_Diff_Winter")
-    
-    # SvW_Diff_Urban
-    SvW_Diff_Urban = df[df["Combo"] == 'Summer_Urban'].iloc[:, 1:] - df[df["Combo"] == 'Winter_Urban'].iloc[:, 1:]
-    SvW_Diff_Urban.insert(0,'Combo',"SvW_Diff_Urban")
-    
-    # SvW_Diff_Rural
-    SvW_Diff_Rural = df[df["Combo"] == 'Summer_Rural'].iloc[:, 1:] - df[df["Combo"] == 'Winter_Rural'].iloc[:, 1:]
-    SvW_Diff_Rural.insert(0,'Combo',"SvW_Diff_Rural")
-    
-    df = df.append(UvR_Diff_Winter)
-    df = df.append(UvR_Diff_Summer)
-    df = df.append(SvW_Diff_Rural)
-    df = df.append(SvW_Diff_Urban)
-    
-    print("Mean difference between Urban and Rural values in winter: " + str(df[df["Combo"] == 'UvR_Diff_Winter'].iloc[:, 1:].mean(axis=1).values[0]))
-    print("Mean difference between Urban and Rural values in summer: " + str(df[df["Combo"] == 'UvR_Diff_Summer'].iloc[:, 1:].mean(axis=1).values[0]))
-    print("Mean difference between Summer and Winter values in Urban: " + str(df[df["Combo"] == 'SvW_Diff_Urban'].iloc[:, 1:].mean(axis=1).values[0]))
-    print("Mean difference between Summer and Winter values in Rural: " + str(df[df["Combo"] == 'SvW_Diff_Rural'].iloc[:, 1:].mean(axis=1).values[0]))
-    
-    differences_catchment = pd.DataFrame({'Catchment': catchment,
-                                         "UvR_Diff_Winter": df[df["Combo"] == 'UvR_Diff_Winter'].iloc[:, 1:].mean(axis=1).values[0],
-                                         "UvR_Diff_Summer" : df[df["Combo"] == 'UvR_Diff_Summer'].iloc[:, 1:].mean(axis=1).values[0],
-                                         "SvW_Diff_Urban": df[df["Combo"] == 'SvW_Diff_Urban'].iloc[:, 1:].mean(axis=1).values[0],
-                                         "SvW_Diff_Rural" : df[df["Combo"] == 'SvW_Diff_Rural'].iloc[:, 1:].mean(axis=1).values[0]}, index=[0])
-    
-    differences = differences.append(differences_catchment)
-    
-    
-for catchment_name in catchments:
-    print(catchment_name)
-    filename = glob.glob(root_fp + "DataAnalysis/FloodModelling/IndividualCatchments/{}/CatchmentDescriptors/*.csv".format(catchment_name))[0]
-    catchment_descriptors = pd.read_csv(filename)
-    catchment_descriptors =catchment_descriptors[2:]     
-    catchment_descriptors = catchment_descriptors[catchment_descriptors.columns[0:2]]
         
-    if "df" not in globals():
-        print("True")
-        df = catchment_descriptors
-
-    df[catchment_name]=catchment_descriptors[' "FEH CD-ROM"']    
-    # Convert column to numeric
-    df[catchment_name] =pd.to_numeric(df[catchment_name])    
-    
-# Rename columns
-df.rename(columns={"VERSION": "Catchment Descriptor"}, inplace = True)
-# Delete extra column
-del df[' "FEH CD-ROM"']  
-
-# Reformat
-transposed = df.transpose()
-transposed.rename(columns=transposed.iloc[0], inplace = True)
-transposed = transposed[1:]
-        
-### Check whether bigger difference between Urban and Rural results in
-# Catchmens with greater urban extent
-plt.scatter(transposed['URBEXT2000'], differences['UvR_Diff_Winter'])
-plt.xlabel('Urbext 2000')
-plt.ylabel('Urban Rural Difference (Winter)')
-    
-plt.scatter(transposed['URBEXT2000'], differences['UvR_Diff_Summer'])
-plt.xlabel('Urbext 2000')
-plt.ylabel('Urban Rural Difference (Summer)')
-
-### Check whether bigger difference between Urban and Rural results in
-# Catchmens with greater urban extent
-plt.scatter(transposed['URBEXT2000'], differences['SvW_Diff_Urban'])
-plt.xlabel('Urbext 2000')
-plt.ylabel('Urban Rural Difference (Winter)')
-    
-plt.scatter(transposed['URBEXT2000'], differences['SvW_Diff_Rural'])
-plt.xlabel('Urbext 2000')
-plt.ylabel('Urban Rural Difference (Summer)')
-
-### Diff between urban and rural
-plt.scatter(transposed['DPSBAR'], differences['UvR_Diff_Winter'])
-plt.xlabel('Urbext 2000')
-plt.ylabel('Urban Rural Difference (Winter)')
-    
-plt.scatter(transposed['DPSBAR'], differences['UvR_Diff_Summer'])
-plt.xlabel('Urbext 2000')
-plt.ylabel('Urban Rural Difference (Summer)')
-
-### Diff between Summer and Winter
-plt.scatter(transposed['DPSBAR'], differences['SvW_Diff_Urban'])
-plt.xlabel('Urbext 2000')
-plt.ylabel('Urban Rural Difference (Winter)')
-    
-plt.scatter(transposed['DPSBAR'], differences['SvW_Diff_Rural'])
-plt.xlabel('Urbext 2000')
-plt.ylabel('Urban Rural Difference (Summer)')
-
-
-####### Area vs critical duration
-summer_urban= cds['Summer_Urban']
-summer_rural= cds['Summer_Rural']
-winter_urban= cds['Winter_Urban']
-winter_rural= cds['Winter_Rural']
-
-for rp in rps:
-    print(rp)
-    plt.scatter(transposed['BFIHOST'], summer_urban[rp])
-    plt.title(rp)
-    print(pearsonr(np.array(transposed['BFIHOST']), np.array(summer_urban[rp])))
-    plt.show()
-    plt.close()
-
-plt.scatter(transposed['AREA'], winter_rural[1])
-
-from scipy.stats import pearsonr
-
 ##################################################################
 ##################################################################
 # Plotting:
@@ -612,3 +481,133 @@ for catchment_name in catchments:
         plt.show()  
     
 
+##################################################################
+##################################################################
+#  Create a dataframe containing mean differences between summer and winter values
+# (with urban and rural models) and urban and rural values (with summer and winter storms)
+##################################################################
+##################################################################
+        
+# Find the differences between summer values and winter values, and urban values and rural values
+mean_differences = pd.DataFrame()
+
+for catchment in catchments:
+    print(catchment)
+    cds_thiscatchment = pd.DataFrame({})
+    for combo in ['Summer_Urban', 'Summer_Rural', 'Winter_Urban', 'Winter_Rural']:
+        # Extract the critical durations for this combination
+        cds_thiscombo  = cds[combo]
+        # Extract the critical durations for this combination, for this catchment
+        cds_thiscombo_thiscatchment = cds_thiscombo[cds_thiscombo['Catchments'] == catchment]
+        # Rename the catchment column value to the combination stored in this dataframe
+        cds_thiscombo_thiscatchment['Catchments'] = combo
+        # Add to dataframe storing critical duration values for each combo for this catchment
+        cds_thiscatchment = cds_thiscatchment.append(cds_thiscombo_thiscatchment)
+    # Rename the Catchments column to Combo    
+    cds_thiscatchment = cds_thiscatchment.rename(columns={"Catchments": "Combo"})   
+    
+    ### Add rows to dataframe containing differences between various combinations
+    combo_lists = [['Summer_Rural', "Summer_Urban", "UvR_Diff_Summer"],
+             ['Winter_Rural', "Winter_Urban", "UvR_Diff_Winter"],
+             ['Summer_Urban', "Winter_Urban", "SvW_Diff_Urban"],
+             ['Summer_Rural', "Winter_Rural", "SvW_Diff_Rural"]]
+             
+    for list in combo_lists:
+        print(list)
+        differences = cds_thiscatchment[cds_thiscatchment["Combo"] == list[0]].iloc[:, 1:] - cds_thiscatchment[cds_thiscatchment["Combo"] == list[1]].iloc[:, 1:]
+        differences.insert(0,'Combo',list[2])
+        cds_thiscatchment = cds_thiscatchment.append(differences)
+        
+    # Mean differences for this catchment
+    mean_differences_catchment = pd.DataFrame({'Catchment': catchment,
+                                         "UvR_Diff_Winter": cds_thiscatchment[cds_thiscatchment["Combo"] == 'UvR_Diff_Winter'].iloc[:, 1:].mean(axis=1).values[0],
+                                         "UvR_Diff_Summer" : cds_thiscatchment[cds_thiscatchment["Combo"] == 'UvR_Diff_Summer'].iloc[:, 1:].mean(axis=1).values[0],
+                                         "SvW_Diff_Urban": cds_thiscatchment[cds_thiscatchment["Combo"] == 'SvW_Diff_Urban'].iloc[:, 1:].mean(axis=1).values[0],
+                                         "SvW_Diff_Rural" : cds_thiscatchment[cds_thiscatchment["Combo"] == 'SvW_Diff_Rural'].iloc[:, 1:].mean(axis=1).values[0]}, index=[0])
+    # Add to dataframe conttaining values for all catchments
+    mean_differences = mean_differences.append(mean_differences_catchment)
+    
+##################################################################  
+# Read in catchment descriptors
+    
+for catchment_name in catchments:
+    print(catchment_name)
+    filename = glob.glob(root_fp + "DataAnalysis/FloodModelling/IndividualCatchments/{}/CatchmentDescriptors/*.csv".format(catchment_name))[0]
+    catchment_descriptors = pd.read_csv(filename)
+    catchment_descriptors =catchment_descriptors[2:]     
+    catchment_descriptors = catchment_descriptors[catchment_descriptors.columns[0:2]]
+        
+    if "df" not in globals():
+        print("True")
+        df = catchment_descriptors
+
+    df[catchment_name]=catchment_descriptors[' "FEH CD-ROM"']    
+    # Convert column to numeric
+    df[catchment_name] =pd.to_numeric(df[catchment_name])    
+    
+# Rename columns
+df.rename(columns={"VERSION": "Catchment Descriptor"}, inplace = True)
+# Delete extra column
+del df[' "FEH CD-ROM"']  
+
+# Reformat
+transposed = df.transpose()
+transposed.rename(columns=transposed.iloc[0], inplace = True)
+transposed = transposed[1:]
+        
+### Check whether bigger difference between Urban and Rural results in
+# Catchmens with greater urban extent
+plt.scatter(transposed['URBEXT2000'], differences['UvR_Diff_Winter'])
+plt.xlabel('Urbext 2000')
+plt.ylabel('Urban Rural Difference (Winter)')
+    
+plt.scatter(transposed['URBEXT2000'], differences['UvR_Diff_Summer'])
+plt.xlabel('Urbext 2000')
+plt.ylabel('Urban Rural Difference (Summer)')
+
+### Check whether bigger difference between Urban and Rural results in
+# Catchmens with greater urban extent
+plt.scatter(transposed['URBEXT2000'], differences['SvW_Diff_Urban'])
+plt.xlabel('Urbext 2000')
+plt.ylabel('Urban Rural Difference (Winter)')
+    
+plt.scatter(transposed['URBEXT2000'], differences['SvW_Diff_Rural'])
+plt.xlabel('Urbext 2000')
+plt.ylabel('Urban Rural Difference (Summer)')
+
+### Diff between urban and rural
+plt.scatter(transposed['DPSBAR'], differences['UvR_Diff_Winter'])
+plt.xlabel('Urbext 2000')
+plt.ylabel('Urban Rural Difference (Winter)')
+    
+plt.scatter(transposed['DPSBAR'], differences['UvR_Diff_Summer'])
+plt.xlabel('Urbext 2000')
+plt.ylabel('Urban Rural Difference (Summer)')
+
+### Diff between Summer and Winter
+plt.scatter(transposed['DPSBAR'], differences['SvW_Diff_Urban'])
+plt.xlabel('Urbext 2000')
+plt.ylabel('Urban Rural Difference (Winter)')
+    
+plt.scatter(transposed['DPSBAR'], differences['SvW_Diff_Rural'])
+plt.xlabel('Urbext 2000')
+plt.ylabel('Urban Rural Difference (Summer)')
+
+
+####### Area vs critical duration
+summer_urban= cds['Summer_Urban']
+summer_rural= cds['Summer_Rural']
+winter_urban= cds['Winter_Urban']
+winter_rural= cds['Winter_Rural']
+
+for rp in rps:
+    print(rp)
+    plt.scatter(transposed['BFIHOST'], summer_urban[rp])
+    plt.title(rp)
+    print(pearsonr(np.array(transposed['BFIHOST']), np.array(summer_urban[rp])))
+    plt.show()
+    plt.close()
+
+plt.scatter(transposed['AREA'], winter_rural[1])
+
+from scipy.stats import pearsonr

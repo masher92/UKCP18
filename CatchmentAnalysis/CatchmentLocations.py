@@ -1,7 +1,9 @@
 import geopandas as gpd
 import numpy as np
 import matplotlib.pyplot as plt
-
+import os
+import glob as glob
+import pandas as pd
 
 ###### LCC SHAPEFILES
 shapefile = gpd.read_file("C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/datadir/LeedsCatchments/LeedsCatchments.shp")
@@ -26,7 +28,8 @@ root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/Floo
 os.chdir(root_fp)
 
 catchment_names  = glob.glob("*")
-del concat_shps
+if "concat_shps" in globals():
+    del concat_shps
 for catchment_name in catchment_names:
     print(catchment_name)   
     # Shapefiles
@@ -72,6 +75,31 @@ concat_shps = concat_shps.merge(transposed, on='name')
    
 # Plot
 concat_shps.plot()
+
+# LDP
+fig = plt.figure()
+ax = fig.add_axes([0, 0, 1, 1])
+ax.axis('off')
+concat_shps.plot(ax=ax, column='LDP',   cmap='OrRd', edgecolor = 'black',
+             legend=True,legend_kwds={'label': "Kilometres",
+                                      'orientation': "vertical"})
+# Save and show plot
+plt.savefig("C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/Catchments_matching_FEH_LDP_spatialplot.PNG",
+            bbox_inches='tight')
+plt.show()
+
+
+fig = plt.figure()
+ax = fig.add_axes([0, 0, 1, 1])
+ax.axis('off')
+concat_shps.plot(ax=ax, column='DPSBAR',   cmap='OrRd', edgecolor = 'black',
+             legend=True,legend_kwds={'label': "Metres per Kilometre",
+                                      'orientation': "vertical"})
+# Save and show plot
+plt.savefig("C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/Catchments_matching_FEH_DPSBAR_spatialplot.PNG",
+            bbox_inches='tight')
+plt.show()
+
 
 fig = plt.figure()
 ax = fig.add_axes([0, 0, 1, 1])
