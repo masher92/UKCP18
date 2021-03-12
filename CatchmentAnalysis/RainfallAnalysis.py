@@ -121,6 +121,8 @@ ax.set_ylabel('Duration (hrs)', fontsize=25)
 plt.xticks(rotation = 45)
 
 ax.tick_params(axis='both', which='major', labelsize=20)
+
+
+plt.savefig(root_fp +"DataAnalysis/FloodModelling/AllCatchments/Rainfall/HeatMap.png",
+                bbox_inches = 'tight')
 plt.show()
-
-
