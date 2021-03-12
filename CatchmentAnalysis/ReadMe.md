@@ -92,6 +92,8 @@ Ref: https://wiki.tuflow.com/index.php?title=Using_ReFH2_to_Generate_TUFLOW_Boun
 <img src="Figs/AllCatchments/Rainfall/HeatMap.png" width="500" />
 <p align="center"> Figure X. 1 = Mill Dyke, 2 = Gill Beck (Wharfe), 3 = Gill Beck (Aire), 4 = Stank Beck, 5 = Carr Beck, 6 = Fairburn Ings <p align="center">
 
+Figure X shows the catchment with the highest rainfall for each return period and duration combination.
+
 
 ### Catchment peak flow
 
