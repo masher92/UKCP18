@@ -7,7 +7,7 @@ Leeds City Council (LCC) have defined 46 urban catchments in Leeds. The boundari
 <p align="center"> Figure 1. Urban catchments defined by LCC (blue outlines), and catchment boundaries from FEH web server (filled in with green if ReFH2 data has been downloaded, and red if it has not) <p align="center">
 
 The FEH web service identifies the catchment area upstream of a catchment outlet point. For each catchment it generates:
-* The catchment boundaries as a shapefile;
+* The catchment boundaries as a shapefile; 
 * Design rainfall depths for pre-defined return period/duration combinations;  
 * Catchment descriptors based on the Integrated Hydrological Digital Terrain Model (IHDTM).
 
