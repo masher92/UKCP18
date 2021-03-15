@@ -83,9 +83,9 @@ The FEH uses a depth-duration-frequency (DDF) model, based on complex statistica
 Figure X shows the catchment with the highest rainfall for each return period and duration combination.
 
 
-<img src="Figs/AllCatchments/Rainfall/SAARvs2yrRPRainfall.gif" width="200" />
-<img src="Figs/AllCatchments/Rainfall/SAARvs10yrRPRainfall.gif" width="200" />
-<img src="Figs/AllCatchments/Rainfall/SAARvs100yrRPRainfall.gif" width="200" />
+<img src="Figs/AllCatchments/Rainfall/SAARvs2yrRPRainfall.gif" width="300" />
+<img src="Figs/AllCatchments/Rainfall/SAARvs10yrRPRainfall.gif" width="300" />
+<img src="Figs/AllCatchments/Rainfall/SAARvs100yrRPRainfall.gif" width="300" />
 
 ![Animation](Figs/AllCatchments/Rainfall/SAARvs2yrRPRainfall.gif )
 ![Animation](Figs/AllCatchments/Rainfall/SAARvs10yrRPRainfall.gif)
