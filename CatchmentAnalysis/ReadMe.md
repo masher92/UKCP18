@@ -70,6 +70,19 @@ In Figure 6 a (weak?) negative relationship is seen between increasing urban ext
 ### Catchment design rainfall
 The FEH uses a depth-duration-frequency (DDF) model, based on complex statistical analysis of datasets of annual and seasonal maximum precipitation values, to estimate the total event rainfall of particular durations and corresponding to certain return periods. FEH DDF design rainfall is supplied through the FEH web service.
 
+<p align="center">
+<img src="Figs/AllCatchments/Rainfall/Rainfall.png" width="1000" />
+<p align="center"> Figure 7. Longest drainage path (KM)) <p align="center">
+
+<p align="center">
+<img src="Figs/AllCatchments/Rainfall/HeatMap_maxs.png" width="500" />
+<img src="Figs/AllCatchments/Rainfall/HeatMap_mins.png" width="500" />
+<p align="center"> Figure X. Maxs: 1 = Mill Dyke, 2 = Gill Beck (Wharfe), 3 = Gill Beck (Aire), 4 = Stank Beck, 5 = Carr Beck, 6 = Fairburn Ings <p align="center">
+<p align="center"> Figure X. Mins: 1 = Holbeck, 2 = Balne Beck, 3 = Fairburn Ings, 4 = Oulton Beck, 5 = Bushy Beck, 6 = Meanwood Beck, 7 = Cock Beck <p align="center">
+
+Figure X shows the catchment with the highest rainfall for each return period and duration combination.
+
+
 ReFH2's rainfall-runoff model imports the outputs from the FEH DDF model and uses them as a design storm input. FEH13 calculates
 pre-defined return period/duration combinations and so to calculate other combinations a non-linear interpolation procedure is invoked. The final design rainfall depth in ReFH2 is calculated as the product of the FEH DDF rainfall depths, the areal reduction factor, and the seasonal correction factor (SCF). The SCF converts an annual maximum rainfall depth to a seasonal maximum depth and is calculated based upon location, season, duration and selected return period [NB: the total rainfall given in ReFH2 can be calculated by multiplying the values provided in the csv file of catchment rainfalls exported from FEH web server by the SCF].
 
@@ -83,16 +96,6 @@ Out of the 21 Leeds catchments, only 4 (Wyke Beck, Bagley Beck, Meanwood Beck, C
 The ReFH2 software generates hyetographs based on Flood Studies Report (FSR)/FEH approaches, and again depending on whether a winter or summer storm profile is selected.
 
 Ref: https://wiki.tuflow.com/index.php?title=Using_ReFH2_to_Generate_TUFLOW_Boundary_Inputs
-
-<p align="center">
-<img src="Figs/AllCatchments/Rainfall/Rainfall.png" width="1000" />
-<p align="center"> Figure 7. Longest drainage path (KM)) <p align="center">
-
-<p align="center">
-<img src="Figs/AllCatchments/Rainfall/HeatMap.png" width="500" />
-<p align="center"> Figure X. 1 = Mill Dyke, 2 = Gill Beck (Wharfe), 3 = Gill Beck (Aire), 4 = Stank Beck, 5 = Carr Beck, 6 = Fairburn Ings <p align="center">
-
-Figure X shows the catchment with the highest rainfall for each return period and duration combination.
 
 
 ### Catchment peak flow
