@@ -5,9 +5,10 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import os
-import seaborn as sns
 import glob as glob
-import random
+import matplotlib.animation as animation
+#import time
+import warnings
 
 # Specify catchment name
 os.chdir("C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/FloodModelling/IndividualCatchments/")
@@ -16,6 +17,10 @@ catchments  = glob.glob("*")
 # Define rootfp and set as working directory
 root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/"
 os.chdir(root_fp)
+
+# Parameters for plotting
+plt.rcParams['animation.ffmpeg_path'] = root_fp + 'DataAnalysis/Scripts/ffmpeg-20200225-36451f9-win64-static/bin/ffmpeg'
+warnings.simplefilter(action='ignore', category=FutureWarning)
 
 # Get the rainfall metrics
 filename = glob.glob(root_fp + "DataAnalysis/FloodModelling/IndividualCatchments/BagleyBeck/DesignRainfall/*.csv")[0]
@@ -181,23 +186,7 @@ for i in RP_10yrs_t.columns:
     plt.show()
     plt.close()
     
-import iris
-import os
-import iris.quickplot as qplt
-import cartopy.crs as ccrs
-import cartopy.feature as cfeat
-import iris.plot as iplt
-from iris.time import PartialDateTime 
-import matplotlib.animation as animation
-#import time
-import warnings
-import numpy as np
-import pandas as pd
-import matplotlib.dates as mdates
-import matplotlib  
-import matplotlib.pyplot as plt
-plt.rcParams['animation.ffmpeg_path'] = root_fp + 'DataAnalysis/Scripts/ffmpeg-20200225-36451f9-win64-static/bin/ffmpeg'
-warnings.simplefilter(action='ignore', category=FutureWarning)
+
     
 # Create a figure
 fig = plt.figure()
