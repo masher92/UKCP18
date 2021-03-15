@@ -77,10 +77,7 @@ The FEH uses a depth-duration-frequency (DDF) model, based on complex statistica
 <p align="center">
 <img src="Figs/AllCatchments/Rainfall/HeatMap_maxs.png" width="500" />
 <img src="Figs/AllCatchments/Rainfall/HeatMap_mins.png" width="500" />
-<p align="center"> Figure 9. Displays the catchment with the maximum annual precipitation accumulation associated with each duration at each return period <p align="center">
-<p align="center"> Figure 10. Displays the catchment with the minimum annual precipitation accumulation associated with each duration at each return period <p align="center">
-
-
+<p align="center"> Figure 9. Displays the catchment with the maximum (left) and minimum (right) annual precipitation accumulation associated with each duration at each return period <p align="center">
 
 sdfsdfsdfsd
 
