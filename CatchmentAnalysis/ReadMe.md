@@ -52,32 +52,33 @@ In Figures 2-5, a histogram and a chloropleth map are plotted of the values of e
 <p align="center">
 <img src="Figs/Catchments_matching_FEH_DPSBAR.PNG" width="400" />
 <img src="Figs/Catchments_matching_FEH_DPSBAR_spatialplot.PNG" width="400"  />   
-<p align="center"> Figure 6. Catchment steepness (Metres per KM)) <p align="center">
+<p align="center"> Figure 6. Catchment steepness (Metres per km)) <p align="center">
 
 <p align="center">
 <img src="Figs/Catchments_matching_FEH_LDP.PNG" width="400" />
 <img src="Figs/Catchments_matching_FEH_LDP_spatialplot.PNG" width="400"  />   
-<p align="center"> Figure 7. Longest drainage path (KM)) <p align="center">
+<p align="center"> Figure 7. Longest drainage path (km)) <p align="center">
 
-
-In Figure 6 a (weak?) negative relationship is seen between increasing urban extent and base flow index. Higher base flow indices are associated with permeability and so it follows that the highest values of BFIHOST would be associated with the lowest urban extent. In Figure 7 a positive relationship is seen between catchment altitude and average areal rainfall.
+In Figure 8 a (weak?) negative relationship is seen between increasing urban extent and base flow index. Higher base flow indices are associated with permeability and so it follows that the highest values of BFIHOST would be associated with the lowest urban extent. In Figure 9 a positive relationship is seen between catchment altitude and average areal rainfall.
 
 <p align="center">
   <img src="Figs/Catchments_matching_FEH_BFIHOSTvsURBEXT.PNG" width="400"  />  
   <img src="Figs/Catchments_matching_FEH_SAARvsALTBAR.PNG" width="400"  />  
-<p align="center"> Figure 6 and 7. <p align="center">
+<p align="center"> Figure 8 and 9. <p align="center">
 
 ## Catchment design rainfall
-The FEH uses a depth-duration-frequency (DDF) model, based on complex statistical analysis of datasets of annual and seasonal maximum precipitation values, to estimate the total event rainfall of particular durations and corresponding to certain return periods. FEH DDF design rainfall is supplied through the FEH web service.
+The FEH uses a depth-duration-frequency (DDF) model, based on complex statistical analysis of datasets of annual and seasonal maximum precipitation values, to estimate the annual maximum rainfall for events of particular durations and corresponding to certain return periods. FEH DDF design rainfall is supplied through the FEH web service.
 
 <p align="center">
 <img src="Figs/AllCatchments/Rainfall/Rainfall.png" width="1000" />
-<p align="center"> Figure 8. Annual maximum rainfall accumulations within the specified durations, over a range of return periods. Each line represents a different catchment <p align="center">
+<p align="center"> Figure 10. Annual maximum rainfall accumulations within the specified durations, over a range of return periods. Each line represents a different catchment <p align="center">
+  
+Figure 9 helps to visualise the catchments which have the maximum and minimum precipitation values associated with certain durations and return periods, and to assess how much variation there is in this.
 
 <p align="center">
 <img src="Figs/AllCatchments/Rainfall/HeatMap_maxs.png" width="500" />
 <img src="Figs/AllCatchments/Rainfall/HeatMap_mins.png" width="500" />
-<p align="center"> Figure 9. Displays the catchment with the maximum (left) and minimum (right) annual precipitation accumulation associated with each duration at each return period <p align="center">
+<p align="center"> Figure 11. Displays the catchment with the maximum (left) and minimum (right) annual precipitation accumulation associated with each duration at each return period <p align="center">
 
 ### Relationship between design rainfall and catchment descriptors
 
