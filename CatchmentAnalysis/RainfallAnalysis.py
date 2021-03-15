@@ -178,15 +178,13 @@ RP_10yrs_t = RP_10yrs_t[1:22]
       
 ### Check whether bigger difference between Urban and Rural results in
 # Catchmens with greater urban extent
-for i in RP_10yrs_t.columns:
-    plt.scatter(transposed['SAAR'], RP_10yrs_t[i])
-    plt.xlabel('SAAR (mm)')
-    plt.ylabel('Rainfall (mm) for 2 hour storm, 10 year return period' )
-    #plt.ylim(0,90)
-    plt.show()
-    plt.close()
-    
-
+# for i in RP_10yrs_t.columns:
+#     plt.scatter(transposed['SAAR'], RP_10yrs_t[i])
+#     plt.xlabel('SAAR (mm)')
+#     plt.ylabel('Rainfall (mm) for 2 hour storm, 10 year return period' )
+#     #plt.ylim(0,90)
+#     plt.show()
+#     plt.close()
     
 # Create a figure
 fig = plt.figure()
@@ -198,7 +196,7 @@ def draw(frame):
     plt.clf()
     grid = plt.scatter(transposed['SAAR'], RP_10yrs_t.iloc[:,frame])
     # Create datetime in human readable format
-    plt.title(RP_10yrs_t.columns[frame])
+    plt.title(str(RP_10yrs_t.columns[frame]) + 'h')
     return grid
     
 def init():
@@ -212,7 +210,8 @@ from matplotlib import rc, animation
 rc('animation', html='html5')
 
 ani = animation.FuncAnimation(fig, animate, frames, interval=10, save_count=50, blit=False, init_func=init,repeat=False)
-ani.save(root_fp +"DataAnalysis/FloodModelling/AllCatchments/Rainfall/test.mp4", writer=animation.FFMpegWriter(fps=8))
+ani.save(root_fp +"DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Rainfall/SAARvs10yrRPRainfall.mp4", writer=animation.FFMpegWriter(fps=8))
+
 
 plt.scatter(transposed['SAAR'], RP_10yrs_t[0.25])
 plt.xlabel('SAAR (mm)')
