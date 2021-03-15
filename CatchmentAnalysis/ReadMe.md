@@ -45,18 +45,18 @@ In Figures 2-5, a histogram and a chloropleth map are plotted of the values of e
 <p align="center"> Figure 4. Base Flow Index <p align="center">
 
 <p align="center">
-   <img src="Figs/Catchments_matching_FEH_Urbext.PNG" width="200"  />
-   <img src="Figs/Catchments_matching_FEH_URBEXT_spatialplot.PNG" width="200"  />    
+   <img src="Figs/Catchments_matching_FEH_Urbext.PNG" width="400"  />
+   <img src="Figs/Catchments_matching_FEH_URBEXT_spatialplot.PNG" width="400"  />    
 <p align="center"> Figure 5. URBEXT <p align="center">
 
 <p align="center">
-<img src="Figs/Catchments_matching_FEH_DPSBAR.PNG" width="200" />
-<img src="Figs/Catchments_matching_FEH_DPSBAR_spatialplot.PNG" width="200"  />   
+<img src="Figs/Catchments_matching_FEH_DPSBAR.PNG" width="400" />
+<img src="Figs/Catchments_matching_FEH_DPSBAR_spatialplot.PNG" width="400"  />   
 <p align="center"> Figure 6. Catchment steepness (Metres per KM)) <p align="center">
 
 <p align="center">
-<img src="Figs/Catchments_matching_FEH_LDP.PNG" width="200" />
-<img src="Figs/Catchments_matching_FEH_LDP_spatialplot.PNG" width="200"  />   
+<img src="Figs/Catchments_matching_FEH_LDP.PNG" width="400" />
+<img src="Figs/Catchments_matching_FEH_LDP_spatialplot.PNG" width="400"  />   
 <p align="center"> Figure 7. Longest drainage path (KM)) <p align="center">
 
 
