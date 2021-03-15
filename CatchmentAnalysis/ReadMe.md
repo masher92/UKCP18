@@ -72,19 +72,21 @@ The FEH uses a depth-duration-frequency (DDF) model, based on complex statistica
 
 <p align="center">
 <img src="Figs/AllCatchments/Rainfall/Rainfall.png" width="1000" />
-<p align="center"> Figure 7. Longest drainage path (KM)) <p align="center">
+<p align="center"> Figure 8. Annual maximum rainfall accumulations within the specified durations, over a range of return periods. Each line represents a different catchment <p align="center">
 
 <p align="center">
 <img src="Figs/AllCatchments/Rainfall/HeatMap_maxs.png" width="500" />
 <img src="Figs/AllCatchments/Rainfall/HeatMap_mins.png" width="500" />
-<p align="center"> Figure X. Maxs: 1 = Mill Dyke, 2 = Gill Beck (Wharfe), 3 = Gill Beck (Aire), 4 = Stank Beck, 5 = Carr Beck, 6 = Fairburn Ings <p align="center">
-<p align="center"> Figure X. Mins: 1 = Holbeck, 2 = Balne Beck, 3 = Fairburn Ings, 4 = Oulton Beck, 5 = Bushy Beck, 6 = Meanwood Beck, 7 = Cock Beck <p align="center">
-
-Figure X shows the catchment with the highest rainfall for each return period and duration combination.
+<p align="center"> Figure 9. Displays the catchment with the maximum annual precipitation accumulation associated with each duration at each return period <p align="center">
+<p align="center"> Figure 10. Displays the catchment with the minimum annual precipitation accumulation associated with each duration at each return period <p align="center">
 
 
-![Animation](Figs/AllCatchments/Rainfall/SAAR_10yrRP.gif)
-![Animation](Figs/AllCatchments/Rainfall/SAAR_2yrRP.gif)
+
+sdfsdfsdfsd
+
+![Animation](Figs/AllCatchments/Rainfall/SAARvs2yrRPRainfall.gif)
+![Animation](Figs/AllCatchments/Rainfall/SAARvs10yrRPRainfall.gif)
+![Animation](Figs/AllCatchments/Rainfall/SAARvs100yrRPRainfall.gif)
 
 ReFH2's rainfall-runoff model imports the outputs from the FEH DDF model and uses them as a design storm input. FEH13 calculates
 pre-defined return period/duration combinations and so to calculate other combinations a non-linear interpolation procedure is invoked. The final design rainfall depth in ReFH2 is calculated as the product of the FEH DDF rainfall depths, the areal reduction factor, and the seasonal correction factor (SCF). The SCF converts an annual maximum rainfall depth to a seasonal maximum depth and is calculated based upon location, season, duration and selected return period [NB: the total rainfall given in ReFH2 can be calculated by multiplying the values provided in the csv file of catchment rainfalls exported from FEH web server by the SCF].
