@@ -554,7 +554,22 @@ del df[' "FEH CD-ROM"']
 transposed = df.transpose()
 transposed.rename(columns=transposed.iloc[0], inplace = True)
 transposed = transposed[1:]
-        
+
+### Add lat, long coordinates
+transposed['Easting']= [421447.26391, 430953.89936, 428012.80099, 419122.93810, 439971.34604, 
+                    435313.06265, 444972.87901, 440652.73757, 414740.11309, 417484.82690,
+                    420218.01755, 424372.24001, 424623.35377,
+                    440949.66734, 443432.87371, 428869.73707,
+                    423922.33032,433171.89675, 430147.49494, 422569.36585, 434236.96507]
+                    
+transposed['Northing'] = [435095.76616, 423510.87141, 424060.81561, 435718.98580, 436874.35527,
+                      442724.77221, 429413.50450, 441989.90114, 442164.39479, 443581.76484,
+                      441734.78141, 430767.68796, 426370.10168,
+                      431130.35374, 433173.94850, 438508.31266,
+                      440483.95345,426913.33004, 442584.89359, 431796.29458, 435664.57389]
+
+
+
 ### Check whether bigger difference between Urban and Rural results in
 # Catchmens with greater urban extent
 plt.scatter(transposed['URBEXT2000'], differences['UvR_Diff_Winter'])
@@ -592,6 +607,21 @@ plt.ylabel('Urban Rural Difference (Winter)')
 plt.scatter(transposed['DPSBAR'], differences['SvW_Diff_Rural'])
 plt.xlabel('Urbext 2000')
 plt.ylabel('Urban Rural Difference (Summer)')
+
+# How far north and south
+# Bigger number = further North
+plt.scatter(transposed['SAAR'], transposed['Easting'])
+plt.xlabel('SAAR')
+plt.ylabel('Easting')
+# How far east abd wesr
+plt.scatter(transposed['SAAR'], transposed['Northing'])
+plt.xlabel('SAAR')
+plt.ylabel('Northing')
+
+
+plt.scatter(transposed['ALTBAR'], transposed['Easting'])
+plt.xlabel('SAAR')
+plt.ylabel('Northing')
 
 
 ####### Area vs critical duration

@@ -47,7 +47,7 @@ for rainfall_metric, subplot_num in zip(rainfall_metrics, range(1,13)):
     ax.tick_params(axis='both', which='major', labelsize=12)
 
 # Add one title
-plt.suptitle("Rainfalls", fontsize=40)
+plt.suptitle("Annual maximum rainfall accumulation, by duration and return period", fontsize=40)
 
 # Adjust height between plots
 fig.subplots_adjust(top=0.92)
@@ -55,7 +55,7 @@ fig.subplots_adjust(top=0.92)
 plt.subplots_adjust(hspace=0.25)    
 
 # Save and show plot
-plt.savefig(root_fp +"DataAnalysis/FloodModelling/AllCatchments/Rainfall/Rainfall.png",
+plt.savefig(root_fp +"DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Rainfall/Rainfall.png",
             bbox_inches='tight')
 
 ###########################################
@@ -171,15 +171,15 @@ transposed = catchment_descriptors_all_catchments.transpose()
 transposed.rename(columns=transposed.iloc[0], inplace = True)
 transposed = transposed[1:]
 
-RP_10yrs = rainfalls_dict_bymetric['10 year rainfall (mm)']
+RP_10yrs = rainfalls_dict_bymetric['100 year rainfall (mm)']
 RP_10yrs_t = RP_10yrs.T  
 RP_10yrs_t.rename(columns=RP_10yrs_t.iloc[0], inplace = True)
 RP_10yrs_t = RP_10yrs_t[1:22]
       
-### Check whether bigger difference between Urban and Rural results in
+## Check whether bigger difference between Urban and Rural results in
 # Catchmens with greater urban extent
 # for i in RP_10yrs_t.columns:
-#     plt.scatter(transposed['SAAR'], RP_10yrs_t[i])
+#     plt.scatter(transposed['ALTBAR'], RP_10yrs_t[i])
 #     plt.xlabel('SAAR (mm)')
 #     plt.ylabel('Rainfall (mm) for 2 hour storm, 10 year return period' )
 #     #plt.ylim(0,90)
@@ -196,6 +196,8 @@ def draw(frame):
     plt.clf()
     grid = plt.scatter(transposed['SAAR'], RP_10yrs_t.iloc[:,frame])
     # Create datetime in human readable format
+    plt.xlabel('SAAR (mm)')
+    plt.ylabel('Design Rainfall (mm)')
     plt.title(str(RP_10yrs_t.columns[frame]) + 'h')
     return grid
     
@@ -210,13 +212,12 @@ from matplotlib import rc, animation
 rc('animation', html='html5')
 
 ani = animation.FuncAnimation(fig, animate, frames, interval=10, save_count=50, blit=False, init_func=init,repeat=False)
-ani.save(root_fp +"DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Rainfall/SAARvs10yrRPRainfall.mp4", writer=animation.FFMpegWriter(fps=8))
+ani.save(root_fp +"DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Rainfall/SAARvs100yrRPRainfall.mp4", writer=animation.FFMpegWriter(fps=8))
 
+# plt.scatter(transposed['SAAR'], RP_10yrs_t[0.25])
+# plt.xlabel('SAAR (mm)')
+# plt.ylabel('Rainfall (mm) for 2 hour storm, 10 year return period' )
 
-plt.scatter(transposed['SAAR'], RP_10yrs_t[0.25])
-plt.xlabel('SAAR (mm)')
-plt.ylabel('Rainfall (mm) for 2 hour storm, 10 year return period' )
-
-plt.scatter(transposed['SAAR'], RP_10yrs_t[96.0])
-plt.xlabel('SAAR (mm)')
-plt.ylabel('Rainfall (mm) for 2 hour storm, 10 year return period' )
+# plt.scatter(transposed['SAAR'], RP_10yrs_t[96.0])
+# plt.xlabel('SAAR (mm)')
+# plt.ylabel('Rainfall (mm) for 2 hour storm, 10 year return period' )
