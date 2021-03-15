@@ -14,7 +14,7 @@ The FEH web service identifies the catchment area upstream of a catchment outlet
 Using the FEH web service, 21 catchments with boundaries closely matching those identified by LCC have been identified and are shown on Figure 1. The LCC catchments which couldn't be generated in the FEH web service are sub-catchments of major rivers (Aire, Wharfe, Nidd and Calder). The area of these 21 catchments range between 5km<sup>2</sup> and 71km<sup>2</sup>.
 
 <p align="center">
-  <img src="Figs/Catchments_matching_FEH_Area.PNG" width="300"  />  
+  <img src="Figs/Catchments_matching_FEH_Area.PNG" width="400"  />  
 <p align="center"> Figure 1. Histogram of catchment area (km<sup>2</sup>) <p align="center">
 
 ## Catchment Descriptors
@@ -63,8 +63,8 @@ In Figures 2-5, a histogram and a chloropleth map are plotted of the values of e
 In Figure 6 a (weak?) negative relationship is seen between increasing urban extent and base flow index. Higher base flow indices are associated with permeability and so it follows that the highest values of BFIHOST would be associated with the lowest urban extent. In Figure 7 a positive relationship is seen between catchment altitude and average areal rainfall.
 
 <p align="center">
-  <img src="Figs/Catchments_matching_FEH_BFIHOSTvsURBEXT.PNG" width="200"  />  
-  <img src="Figs/Catchments_matching_FEH_SAARvsALTBAR.PNG" width="200"  />  
+  <img src="Figs/Catchments_matching_FEH_BFIHOSTvsURBEXT.PNG" width="400"  />  
+  <img src="Figs/Catchments_matching_FEH_SAARvsALTBAR.PNG" width="400"  />  
 <p align="center"> Figure 6 and 7. <p align="center">
 
 ## Catchment design rainfall
