@@ -45,7 +45,7 @@ In Figures 2-5, a histogram and a chloropleth map are plotted of the values of e
 <p align="center"> Figure 4. Base Flow Index <p align="center">
 
 <p align="center">
-   <img src="Figs/CatchmentDescriptors/Catchments_matching_FEH_Urbext.PNG" width="400"  />
+   <img src="Figs/CatchmentDescriptors/Catchments_matching_FEH_URBEXT.PNG" width="400"  />
    <img src="Figs/CatchmentDescriptors/Catchments_matching_FEH_URBEXT_spatialplot.PNG" width="400"  />    
 <p align="center"> Figure 5. URBEXT <p align="center">
 
@@ -101,7 +101,7 @@ The ReFH2 software generates hyetographs based on Flood Studies Report (FSR)/FEH
 Ref: https://wiki.tuflow.com/index.php?title=Using_ReFH2_to_Generate_TUFLOW_Boundary_Inputs
 
 
-### Catchment peak flow
+### Catchment runoff
 
 The ReFH2 Model is comprised of a rural catchment model component and an urban catchment model.
 
@@ -115,21 +115,20 @@ separately.
 ReFH2 is of particular importance in the UK, as it is the latest version of the ReFH method (Kjeldsen, 2007), which is widely used for design flood estimation in the UK. It addresses some criticisms of the original ReFH model (Faulkner & Barber, 2009) through: (a) explicit separation of urban and rural fractions within the model structure, (b) a far larger data set of calibration catchments, including more permeable catchments, and (c) an updated design rainfall model (Stewart, Vesuviano, Morris, & Prosdocimi, 2014).
 
 
-
 <p align="center">
-  <img src="Figs/PeakFlow_AllRPS.PNG" width="500"  />  
+  <img src="Figs/AllCatchments/Runoff/Peaks_Urban_Summer.png" width="500"  />    
+  <img src="Figs/AllCatchments/Runoff/Peaks_Rural_Summer.png" width="500"  />  
+  <img src="Figs/AllCatchments/Runoff/Peaks_Urban_Winter.png" width="500"  />    
+  <img src="Figs/AllCatchments/Runoff/Peaks_Rural_Winter.png" width="500"  />    
 <p align="center"> Figure 8. <p align="center">
 
-<p align="center">
-  <img src="Figs/PeakFlow_AllRPS_summer.PNG" width="500"  />  
-<p align="center"> Figure 9. <p align="center">
 
-
-#### All catchments
 <p align="center">
-  <img src="Figs/UrbanPeakFlow_byduration.png" width="500"  />  
+  <img src="Figs/AllCatchments/Runoff/DirectRunoff_Urban_Summer.png" width="500"  />    
+  <img src="Figs/AllCatchments/Runoff/DirectRunoff_Rural_Summer.png" width="500"  />  
+  <img src="Figs/AllCatchments/Runoff/DirectRunoff_Urban_Winter.png" width="500"  />    
+  <img src="Figs/AllCatchments/Runoff/DirectRunoff_Rural_Winter.png" width="500"  />    
 <p align="center"> Figure 8. <p align="center">
 
-<p align="center">
   <img src="Figs/UrbanPeakFlow_criticalduration.png" width="500"  />  
 <p align="center"> Figure 9. <p align="center">
