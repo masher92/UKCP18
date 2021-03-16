@@ -7,8 +7,9 @@ import matplotlib.pyplot as plt
 import os
 import glob as glob
 import matplotlib.animation as animation
-#import time
+import random
 import warnings
+import seaborn as sns
 
 # Specify catchment name
 os.chdir("C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/FloodModelling/IndividualCatchments/")
@@ -171,7 +172,7 @@ transposed = catchment_descriptors_all_catchments.transpose()
 transposed.rename(columns=transposed.iloc[0], inplace = True)
 transposed = transposed[1:]
 
-RP_10yrs = rainfalls_dict_bymetric['100 year rainfall (mm)']
+RP_10yrs = rainfalls_dict_bymetric['10 year rainfall (mm)']
 RP_10yrs_t = RP_10yrs.T  
 RP_10yrs_t.rename(columns=RP_10yrs_t.iloc[0], inplace = True)
 RP_10yrs_t = RP_10yrs_t[1:22]
@@ -189,12 +190,141 @@ RP_10yrs_t = RP_10yrs_t[1:22]
 # Create a figure
 fig = plt.figure()
 
+# 5 different marker options
+markers = ['.', '^', 'x', '<', '>' ] * 5    
+
+# List of colour values with each catchment a different colour
+catchment_colors = ["#"+''.join([random.choice('0123456789ABCDEF') for x in range(6)])
+             for y in range(len(catchments))]
+# List of colour values with each catchment  the same colour
+# catchment_colors = ['lightblue'] * len(catchments)  
+
+
+df = pd.DataFrame({'x': [25, 12, 15, 14, 19, 23, 25, 29],
+                   'y': [5, 7, 7, 9, 12, 9, 9, 4],
+                   'z': ['A', 'A', 'B', 'B', 'B', 'C', 'C', 'C']})
+
+#view DataFrame
+
+
+
+
+test_values =['#e6194b', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#46f0f0', '#f032e6', 
+'#bcf60c', '#fabebe', '#008080', '#e6beff', '#9a6324', '#fffac8', '#800000', '#aaffc3', 
+'#808000', '#ffd8b1', '#000075', '#808080',  '#000000']
+mStyles = ["o","v","8", ">","s","p","P","*","h","X","D"] *2
+
+catchment_colors_dict = {catchments[i]: test_values[i] for i in range(len(catchments))} 
+catchment_markers_dict = {catchments[i]: mStyles[i] for i in range(len(catchments))} 
+
+
+fig = plt.figure(figsize=(20, 13))
+ax = fig.add_subplot(1,1,1)
+for name, group in groups:
+    print(name)
+    color = catchment_colors_dict[name]
+    ax.plot(group.ALTBAR, group.Precipitation, marker=catchment_markers_dict[name], linestyle='',
+             markersize=30, label=name, color = color, markeredgecolor = 'black')
+    # Axis labels and title formatting
+    #ax.xaxis.set_ticks(xaxis_positions) #set the ticks to be a
+    #ax.xaxis.set_ticklabels(cd_allcatchments_allrps.columns[1:]) # change the ticks' names to x
+    ax.set_xlabel('Altitude (m)', fontsize=25)
+    ax.set_ylabel('Precipitation (mm)', fontsize=25)
+    #ax.set_title("Critical Durations - {}".format(catchment_name), fontsize=30)
+    ax.tick_params(axis='both', which='major', labelsize=20)
+    
+# Set up overall legend
+box = ax.get_position()
+ax.set_position([box.x0, box.y0 + box.height * 0.3,
+                  box.width, box.height * 0.8])
+handles, labels = ax.get_legend_handles_labels()
+ax.legend(loc='best', bbox_to_anchor=(0.99, -0.072),
+          fancybox=True, shadow=True, ncol=5, fontsize = 18, markerscale = 0.8)
+# Adjust height between plots
+fig.subplots_adjust(top=0.92)
+plt.subplots_adjust(hspace=0.35)    
+
+
 frames = len(RP_10yrs_t.columns)   # Number of frames
 
 def draw(frame):
+    print(frame)
+    plt.clf()
+    grid = plt.figure()
+    #creating a subplot 
+    ax1 = grid.add_subplot(1,1,1)
+    # Clear the previous figure
+    
+    df2 = pd.DataFrame({'Catchment':RP_10yrs_t.index, 
+                    'ALTBAR' : transposed['ALTBAR'],
+                    'Precipitation' :RP_10yrs_t.iloc[:,frame]})
+    #print(df2)
+    groups = df2.groupby('Catchment')
+
+    for name, group in groups:
+        #print(name)
+        color = catchment_colors_dict[name]
+        #ax1.clear()
+        ax1.plot(group.ALTBAR, group.Precipitation, marker=catchment_markers_dict[name], linestyle='',
+                 markersize=30, label=name, color = color, markeredgecolor = 'black')
+        # Axis labels and title formatting
+        #ax.xaxis.set_ticks(xaxis_positions) #set the ticks to be a
+        #ax.xaxis.set_ticklabels(cd_allcatchments_allrps.columns[1:]) # change the ticks' names to x
+        #ax.set_xlabel('Altitude (m)', fontsize=25)
+        #ax.set_ylabel('Precipitation (mm)', fontsize=25)
+        #ax.set_title("Critical Durations - {}".format(catchment_name), fontsize=30)
+        #ax.tick_params(axis='both', which='major', labelsize=20)
+        
+    # Set up overall legend
+    #box = ax.get_position()
+    #ax.set_position([box.x0, box.y0 + box.height * 0.3,
+    #                  box.width, box.height * 0.8])
+    #handles, labels = ax.get_legend_handles_labels()
+    #ax.legend(loc='best', bbox_to_anchor=(0.99, -0.072),
+    #         fancybox=True, shadow=True, ncol=5, fontsize = 18, markerscale = 0.8)
+    # Adjust height between plots
+    #fig.subplots_adjust(top=0.92)
+    #plt.subplots_adjust(hspace=0.35)    
+print(grid)
+    return grid
+    
+def init():
+    return draw(0)
+
+def animate(frame):
+    return draw(frame)
+
+# Not sure what, if anything, this does
+from matplotlib import rc, animation
+rc('animation', html='html5')
+
+ani = animation.FuncAnimation(fig, animate, frames, interval=10, save_count=50, blit=False, init_func=init,repeat=False)
+ani.save(root_fp +"DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Rainfall/tester2.mp4", writer=animation.FFMpegWriter(fps=8))
+
+
+frames = len(RP_10yrs_t.columns)   # Number of frames
+
+fig = plt.figure(figsize=(35,25))
+def draw(frame):
     # Clear the previous figure
     plt.clf()
-    grid = plt.scatter(transposed['SAAR'], RP_10yrs_t.iloc[:,frame])
+    
+    df2 = pd.DataFrame({'Catchment':RP_10yrs_t.index, 
+                'ALTBAR' : transposed['ALTBAR'],
+                'Precipitation' :RP_10yrs_t.iloc[:,frame]})
+    
+    ax = fig.add_subplot(1,1,1)
+    ax.clear()
+    ax = sns.scatterplot(data=df2, x='ALTBAR', y='Precipitation', style = 'Catchment', 
+                markers = catchment_markers_dict, hue = 'Catchment', s= 1000)
+    ax.set_xlabel('Altitude (m)', fontsize=25)
+    ax.set_ylabel('Precipitation (mm)', fontsize=25)
+    #ax.set_title("Critical Durations - {}".format(catchment_name), fontsize=30)
+    ax.tick_params(axis='both', which='major', labelsize=20)
+    plt.legend(bbox_to_anchor=(0.5, 0.1), ncol = 5)
+    
+    grid =ax.get_children()[0]
+    
     # Create datetime in human readable format
     plt.xlabel('SAAR (mm)')
     plt.ylabel('Design Rainfall (mm)')
@@ -212,7 +342,22 @@ from matplotlib import rc, animation
 rc('animation', html='html5')
 
 ani = animation.FuncAnimation(fig, animate, frames, interval=10, save_count=50, blit=False, init_func=init,repeat=False)
-ani.save(root_fp +"DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Rainfall/SAARvs100yrRPRainfall.mp4", writer=animation.FFMpegWriter(fps=8))
+ani.save(root_fp +"DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Rainfall/test3.mp4", writer=animation.FFMpegWriter(fps=8))
+
+
+####
+
+
+sns.scatterplot(data=df2, x='ALTBAR', y='Precipitation', style = 'Catchment', 
+                markers = catchment_markers_dict, hue = 'Catchment', palette = catchment_colors_dict)
+
+grid = plt.scatter(transposed['SAAR'], RP_10yrs_t.iloc[:,frame])
+
+ax = sns.scatterplot(data=df2, x='ALTBAR', y='Precipitation', style = 'Catchment', 
+                markers = catchment_markers_dict, hue = 'Catchment', palette = catchment_colors_dict)
+grid =ax.get_children()[0]
+
+
 
 # plt.scatter(transposed['SAAR'], RP_10yrs_t[0.25])
 # plt.xlabel('SAAR (mm)')
