@@ -87,7 +87,7 @@ Figure 9 helps to visualise the catchments which have the maximum and minimum pr
 <p align="center">
 <img src="Figs/CatchmentDescriptors/catchment_legend.PNG" width="400" />
 
-![Animation](Figs/AllCatchments/Rainfall/SAARvs2yrRPRainfall.gif)
+![Animation](Figs/AllCatchments/Rainfall/SAARvs10yrRPRainfall.gif)
 ![Animation](Figs/AllCatchments/Rainfall/SAARvs100yrRPRainfall.gif)
 
 Altitude (ALTBAR)
