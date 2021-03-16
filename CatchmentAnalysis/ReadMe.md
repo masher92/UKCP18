@@ -84,7 +84,7 @@ Figure 9 helps to visualise the catchments which have the maximum and minimum pr
 
 #### Standard Average Areal Rainfall (SAAR)
 ![Animation](Figs/AllCatchments/Rainfall/SAARvs2yrRPRainfall.gif)
-![Animation](Figs/AllCatchments/Rainfall/SAARvs10yrRPRainfall.gif)
+![Animation](Figs/AllCatchments/Rainfall/SAARvs100yrRPRainfall.gif)
 
 Altitude (ALTBAR)
 ![Animation](Figs/AllCatchments/Rainfall/ALTBARvs2yrRPRainfall.gif)
