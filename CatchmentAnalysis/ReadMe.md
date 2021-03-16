@@ -83,7 +83,7 @@ Figure 9 helps to visualise the catchments which have the maximum and minimum pr
 ### Relationship between design rainfall and catchment descriptors
 
 <p align="center">
-<img src="Figs/AllCatchments/Rainfall/catchment_legend.PNG" width="400" />
+<img src="Figs/AllCatchments/Rainfall/catchment_legend.PNG" width="600" />
 
 #### Standard Average Areal Rainfall (SAAR)
 
