@@ -196,7 +196,7 @@ rp_rainfalls_t = rp_rainfalls_t[1:22]
 frames = len(rp_rainfalls_t.columns)   # Number of frames
 frames = 10
 
-fig = plt.figure(figsize=(10,8))
+fig = plt.figure(figsize=(5,2))
 def draw(frame):
     # Clear the previous figure
     plt.clf()
@@ -208,17 +208,17 @@ def draw(frame):
     ax = fig.add_subplot(1,1,1)
     ax.clear()
     ax = sns.scatterplot(data=df2, x='SAAR', y='Precipitation', style = 'Catchment', 
-                markers = catchment_markers_dict, hue = 'Catchment', s= 500)
-    ax.set_xlabel('SAAR (mm)', fontsize=18)
-    ax.set_ylabel('Precipitation (mm)', fontsize=18)
-    ax.tick_params(axis='both', which='major', labelsize=15)
-    
-    box = ax.get_position()
-    ax.set_position([box.x0, box.y0 + box.height * 0.3,
-                      box.width, box.height * 0.8])
-    handles, labels = ax.get_legend_handles_labels()
-    ax.legend(handles[1:],labels[1:], loc='best', bbox_to_anchor=(1.05, -0.122),
-            fancybox=True, shadow=True, ncol=4, fontsize =12, markerscale =1.2)
+                markers = catchment_markers_dict, hue = 'Catchment', s= 100)
+    ax.set_xlabel('SAAR (mm)')
+    ax.set_ylabel('Precipitation (mm)')
+    ax.tick_params(axis='both', which='major')
+    ax._legend.remove()
+    # box = ax.get_position()
+    # ax.set_position([box.x0, box.y0 + box.height * 0.3,
+    #                   box.width, box.height * 0.8])
+    # handles, labels = ax.get_legend_handles_labels()
+    # ax.legend(handles[1:],labels[1:], loc='best', bbox_to_anchor=(1.05, -0.122),
+    #         fancybox=True, shadow=True, ncol=4)
     #Adjust height between plots
     #fig.subplots_adjust(top=1.22)
     #fig.subplots_adjust(bottom=0.1)    
@@ -229,7 +229,7 @@ def draw(frame):
     # Create datetime in human readable format
     plt.xlabel('SAAR (mm)')
     plt.ylabel('Design Rainfall (mm)')
-    plt.title(str(rp_rainfalls_t.columns[frame]) + 'h', fontsize = 20)
+    plt.title(str(rp_rainfalls_t.columns[frame]) + 'h')
     return grid
     
 def init():
