@@ -82,15 +82,15 @@ Figure 9 helps to visualise the catchments which have the maximum and minimum pr
 
 ### Relationship between design rainfall and catchment descriptors
 
+<p align="center">
+<img src="Figs/AllCatchments/Rainfall/catchment_legend.PNG" width="600" />
+
 #### Standard Average Areal Rainfall (SAAR)
 
-<p align="center">
-<img src="Figs/CatchmentDescriptors/catchment_legend.PNG" width="400" />
-
-![Animation](Figs/AllCatchments/Rainfall/SAARvs2yrRPRainfall.gif)
+![Animation](Figs/AllCatchments/Rainfall/SAARvs10yrRPRainfall.gif)
 ![Animation](Figs/AllCatchments/Rainfall/SAARvs100yrRPRainfall.gif)
 
-Altitude (ALTBAR)
+#### Altitude (ALTBAR)
 ![Animation](Figs/AllCatchments/Rainfall/ALTBARvs2yrRPRainfall.gif)
 ![Animation](Figs/AllCatchments/Rainfall/ALTBARvs10yrRPRainfall.gif)
 
