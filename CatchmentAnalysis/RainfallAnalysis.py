@@ -21,6 +21,7 @@ os.chdir(root_fp)
 
 # Parameters for plotting
 plt.rcParams['animation.ffmpeg_path'] = root_fp + 'DataAnalysis/Scripts/ffmpeg-20200225-36451f9-win64-static/bin/ffmpeg'
+plt.rcParams['savefig.bbox'] = 'tight' 
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 # Get the rainfall metrics
@@ -190,11 +191,12 @@ rp_rainfalls_t.rename(columns=rp_rainfalls_t.iloc[0], inplace = True)
 rp_rainfalls_t = rp_rainfalls_t[1:22]
 
 # Create the figure
-fig = plt.figure(figsize=(35,25))
+
 # define number of frames
 frames = len(rp_rainfalls_t.columns)   # Number of frames
-#frames = 10
+frames = 10
 
+fig = plt.figure(figsize=(10,8))
 def draw(frame):
     # Clear the previous figure
     plt.clf()
@@ -206,29 +208,28 @@ def draw(frame):
     ax = fig.add_subplot(1,1,1)
     ax.clear()
     ax = sns.scatterplot(data=df2, x='SAAR', y='Precipitation', style = 'Catchment', 
-                markers = catchment_markers_dict, hue = 'Catchment', s= 1000)
-    ax.set_xlabel('SAAR (mm)', fontsize=30)
-    ax.set_ylabel('Precipitation (mm)', fontsize=30)
-    ax.tick_params(axis='both', which='major', labelsize=25)
-    #plt.legend(bbox_to_anchor=(0.5, 0.1), ncol = 5, fontsize = 30, markerscale = 2)   
+                markers = catchment_markers_dict, hue = 'Catchment', s= 500)
+    ax.set_xlabel('SAAR (mm)', fontsize=18)
+    ax.set_ylabel('Precipitation (mm)', fontsize=18)
+    ax.tick_params(axis='both', which='major', labelsize=15)
     
     box = ax.get_position()
     ax.set_position([box.x0, box.y0 + box.height * 0.3,
                       box.width, box.height * 0.8])
     handles, labels = ax.get_legend_handles_labels()
-    ax.legend(handles[1:],labels[1:], loc='best', bbox_to_anchor=(0.97, -0.072),
-            fancybox=True, shadow=True, ncol=5, fontsize = 30, markerscale =3.5)
+    ax.legend(handles[1:],labels[1:], loc='best', bbox_to_anchor=(1.05, -0.122),
+            fancybox=True, shadow=True, ncol=4, fontsize =12, markerscale =1.2)
     #Adjust height between plots
-    #fig.subplots_adjust(top=0.92)
-    fig.subplots_adjust(bottom=0.2)    
-    plt.subplots_adjust(hspace=0.85)    
+    #fig.subplots_adjust(top=1.22)
+    #fig.subplots_adjust(bottom=0.1)    
+    #plt.subplots_adjust(hspace=0.85)    
     
     grid =ax.get_children()[0]
     
     # Create datetime in human readable format
     plt.xlabel('SAAR (mm)')
     plt.ylabel('Design Rainfall (mm)')
-    plt.title(str(rp_rainfalls_t.columns[frame]) + 'h', fontsize = 35)
+    plt.title(str(rp_rainfalls_t.columns[frame]) + 'h', fontsize = 20)
     return grid
     
 def init():
@@ -242,4 +243,5 @@ def animate(frame):
 # rc('animation', html='html5')
 
 ani = animation.FuncAnimation(fig, animate, frames, interval=10, save_count=50, blit=False, init_func=init,repeat=False)
-ani.save(root_fp +"DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Rainfall/SAARvs{}yrRPrainfall.mp4".format(rp), writer=animation.FFMpegWriter(fps=8))
+ani.save(root_fp +"DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Rainfall/SAARvs{}yrRPrainfall.mp4".format(rp),
+         writer=animation.FFMpegWriter(fps=8))
