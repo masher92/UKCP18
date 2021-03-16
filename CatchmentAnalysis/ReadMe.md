@@ -45,7 +45,7 @@ In Figures 2-5, a histogram and a chloropleth map are plotted of the values of e
 <p align="center"> Figure 4. Base Flow Index <p align="center">
 
 <p align="center">
-   <img src="Figs/CatchmentDescriptors/Catchments_matching_FEH_URBEXT.PNG" width="400"  />
+   <img src="Figs/CatchmentDescriptors/Catchments_matching_FEH_URBEXT.PNG" width="400"  /> 
    <img src="Figs/CatchmentDescriptors/Catchments_matching_FEH_URBEXT_spatialplot.PNG" width="400"  />    
 <p align="center"> Figure 5. URBEXT <p align="center">
 
