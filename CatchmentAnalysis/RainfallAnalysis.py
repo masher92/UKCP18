@@ -184,7 +184,7 @@ catchment_markers_dict = {catchments[i]: mStyles[i] for i in range(len(catchment
 
 
 # Create dataframe with....
-rp = 100
+rp = 2
 rp_rainfalls = rainfalls_dict_bymetric[str(rp) + ' year rainfall (mm)']
 rp_rainfalls_t = rp_rainfalls.T  
 rp_rainfalls_t.rename(columns=rp_rainfalls_t.iloc[0], inplace = True)
@@ -194,7 +194,7 @@ rp_rainfalls_t = rp_rainfalls_t[1:22]
 
 # define number of frames
 frames = len(rp_rainfalls_t.columns)   # Number of frames
-variable = 'SAAR'
+variable = 'BFIHOST'
 variable_unit  = 'm'
 #frames = 20
 
@@ -230,9 +230,9 @@ def draw(frame):
         grid =ax.get_children()[0]
         
         # Create datetime in human readable format
-        plt.xlabel('ALTBAR (m above sea level)')
-        plt.ylabel('Design Rainfall (mm)')
-        plt.title(str(rp_rainfalls_t.columns[frame]) + 'h')
+        #plt.xlabel('{} ({})'.format(variable, variable_unit))
+        #plt.ylabel('Design Rainfall (mm)')
+        plt.title(str(rp) + 'yr return period - ' + str(rp_rainfalls_t.columns[frame]) + 'h')
         return grid
     
 def init():
