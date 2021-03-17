@@ -62,8 +62,8 @@ In Figures 2-5, a histogram and a chloropleth map are plotted of the values of e
 In Figure 8 a (weak?) negative relationship is seen between increasing urban extent and base flow index. Higher base flow indices are associated with permeability and so it follows that the highest values of BFIHOST would be associated with the lowest urban extent. In Figure 9 a positive relationship is seen between catchment altitude and average areal rainfall.
 
 <p align="center">
-  <img src="Figs/CatchmentDescriptors/Catchments_matching_FEH_BFIHOSTvsURBEXT.PNG" width="400"  />  
-  <img src="Figs/CatchmentDescriptors/Catchments_matching_FEH_SAARvsALTBAR.PNG" width="400"  />  
+  <img src="Figs/CatchmentDescriptors/BFIHOSTvsURBEXT.PNG" width="400"  />  
+  <img src="Figs/CatchmentDescriptors/SAARvsALTBAR.PNG" width="400"  />  
 <p align="center"> Figure 8 and 9. <p align="center">
 
 ## Catchment design rainfall
