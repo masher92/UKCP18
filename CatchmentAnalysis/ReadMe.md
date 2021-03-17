@@ -92,11 +92,13 @@ The animations below track the relationship between catchment descriptors and th
 ![Animation](Figs/AllCatchments/Rainfall/SAARvs2yrRPrainfall.gif)
 ![Animation](Figs/AllCatchments/Rainfall/SAARvs100yrRPrainfall.gif)
 
-The plots show that 
+The SAAR is the average annual rainfall in the standard period (1961-1990) in millimetres. The above plots show that the catchments with the highest annual precipitation accumulations at low durations (~<8h), are those with low SAAR values. At longer durations (>~8h), the catchments with the highest annual precipitation accumulations for that duration, also have higher SAAR values. 
 
 #### Altitude (ALTBAR)
 ![Animation](Figs/AllCatchments/Rainfall/ALTBARvs2yrRPrainfall.gif)
 ![Animation](Figs/AllCatchments/Rainfall/ALTBARvs10yrRPrainfall.gif)
+
+A similar pattern is found in the relationship between the annual precipitation values at various durations and the mean catchment altitude. This follows, considering the strong positive relationship between ALTBAR and SAAR, seen in Figure 8.
 
 ReFH2's rainfall-runoff model imports the outputs from the FEH DDF model and uses them as a design storm input. FEH13 calculates
 pre-defined return period/duration combinations and so to calculate other combinations a non-linear interpolation procedure is invoked. The final design rainfall depth in ReFH2 is calculated as the product of the FEH DDF rainfall depths, the areal reduction factor, and the seasonal correction factor (SCF). The SCF converts an annual maximum rainfall depth to a seasonal maximum depth and is calculated based upon location, season, duration and selected return period [NB: the total rainfall given in ReFH2 can be calculated by multiplying the values provided in the csv file of catchment rainfalls exported from FEH web server by the SCF].
