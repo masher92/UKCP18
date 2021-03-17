@@ -170,41 +170,19 @@ ax.tick_params(axis='both', which='major')
 ax.legend_.remove()
 plt.savefig(root_fp +"DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/Allcatchments/CatchmentDescriptors/{}vs{}.PNG".format(variable1, variable2))
 
-
-
-
-
 ##### Plot area --
-plt.hist(transposed['AREA'], bins =15, color='darkblue', edgecolor='black')
-plt.xlabel('Catchment area (km2)')
-plt.ylabel('Number of catchments')
+variables = ['ALTBAR', 'AREA', 'BFIHOST', 'DPSBAR', 'LDP', 'SAAR', 'URBEXT2000']
+variable_units = ['Mean Catchment Altitude (m above sea level', 'Catchment area (km2)', 'BFIHOST', 'm per km', 
+                  'Longest drainage path (km)', 'Standard Average Areal Rainfall (mm)', 'Urban Extent (2000)']
+variable_units_dict = dict(zip(variables, variable_units))
+print(variable_units_dict) # {'a': 1, 'b': 2, 'c': 3}
 
-plt.hist(transposed['ALTBAR'], bins =15, color='darkblue', edgecolor='black')
-plt.xlabel('Mean Catchment Altitude (m above sea level)')
-plt.ylabel('Number of catchments')
-
-plt.hist(transposed['URBEXT2000'], bins =15, color='darkblue', edgecolor='black')
-plt.xlabel('Urban Extent (2000)')
-plt.ylabel('Number of catchments')
-
-plt.hist(transposed['SAAR'], bins =15, color='darkblue', edgecolor='black')
-plt.xlabel('Standard Average Areal Rainfall (mm)')
-plt.ylabel('Number of catchments')
-
-plt.hist(transposed['BFIHOST'], bins =15, color='darkblue', edgecolor='black')
-plt.xlabel('BFIHOST')
-plt.ylabel('Number of catchments')
-
-plt.ylabel('Number of catchments')
-
-plt.hist(transposed['DPSBAR'], bins =15, color='darkblue', edgecolor='black')
-plt.xlabel('DPSBAR')
-plt.ylabel('Number of catchments')
-
-plt.hist(transposed['LDP'], bins =15, color='darkblue', edgecolor='black')
-plt.xlabel('Longest drainage path (km)')
-plt.ylabel('Number of catchments')
-
+for variable, variable_unit in variable_units_dict.items():
+    plt.hist(catchments_info[variable], bins =15, color='darkblue', edgecolor='black')
+    plt.xlabel(variable_unit)
+    plt.ylabel('Number of catchments')
+    plt.savefig(root_fp +"DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/Allcatchments/CatchmentDescriptors/{}.PNG".format(variable))
+    plt.close()
 
 
 
