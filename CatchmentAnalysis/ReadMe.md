@@ -62,9 +62,16 @@ In Figures 2-5, a histogram and a chloropleth map are plotted of the values of e
 In Figure 8 a (weak?) negative relationship is seen between increasing urban extent and base flow index. Higher base flow indices are associated with permeability and so it follows that the highest values of BFIHOST would be associated with the lowest urban extent. In Figure 9 a positive relationship is seen between catchment altitude and average areal rainfall.
 
 <p align="center">
-  <img src="Figs/AllCatchments/CatchmentDescriptors/BFIHOSTvsURBEXT2000.PNG" width="400"  />  
+<img src="Figs/AllCatchments/Rainfall/catchment_legend.PNG" width="600" />
+
+<p align="center">
   <img src="Figs/AllCatchments/CatchmentDescriptors/SAARvsALTBAR.PNG" width="400"  />  
+  <img src="Figs/AllCatchments/CatchmentDescriptors/SAARvseasting.PNG" width="400"  />  
+  <img src="Figs/AllCatchments/CatchmentDescriptors/SAARvsnorthing.PNG" width="400"  />    
 <p align="center"> Figure 8 and 9. <p align="center">
+
+<img src="Figs/AllCatchments/CatchmentDescriptors/BFIHOSTvsURBEXT2000.PNG" width="400"  />  
+
 
 ## Catchment design rainfall
 The FEH uses a depth-duration-frequency (DDF) model, based on complex statistical analysis of datasets of annual and seasonal maximum precipitation values, to estimate the annual maximum rainfall for events of particular durations and corresponding to certain return periods. FEH DDF design rainfall is supplied through the FEH web service.
