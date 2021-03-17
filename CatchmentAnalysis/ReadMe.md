@@ -89,8 +89,8 @@ The animations below track the relationship between catchment descriptors and th
 
 #### Standard Average Areal Rainfall (SAAR)
 
-![Animation](Figs/AllCatchments/Rainfall/SAARvs2yrRPrainfall.gif)
-![Animation](Figs/AllCatchments/Rainfall/SAARvs100yrRPrainfall.gif)
+![Animation](Figs/AllCatchments/Rainfall/SAARvs100yrRPRainfall.gif)
+![Animation](Figs/AllCatchments/Rainfall/SAARvs100yrRPRainfall.gif)
 
 The SAAR is the average annual rainfall in the standard period (1961-1990) in millimetres. The above plots show that the catchments with the highest annual precipitation accumulations at low durations (~<8h), are those with low SAAR values. At longer durations (>~8h), the catchments with the highest annual precipitation accumulations for that duration, also have higher SAAR values. 
 
