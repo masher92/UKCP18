@@ -86,7 +86,7 @@ Figure 9 helps to visualise the catchments which have the maximum and minimum pr
 <img src="Figs/AllCatchments/Rainfall/HeatMap_maxs.png" width="500" />
 <img src="Figs/AllCatchments/Rainfall/HeatMap_mins.png" width="500" />
 <p align="center"> Figure 11. Displays the catchment with the maximum (left) and minimum (right) annual precipitation accumulation associated with each duration at each return period <p align="center">
-
+ 
 ### Relationship between design rainfall and catchment descriptors
 
 <p align="center">
