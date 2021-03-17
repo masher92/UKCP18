@@ -14,7 +14,7 @@ The FEH web service identifies the catchment area upstream of a catchment outlet
 Using the FEH web service, 21 catchments with boundaries closely matching those identified by LCC have been identified and are shown on Figure 1. The LCC catchments which couldn't be generated in the FEH web service are sub-catchments of major rivers (Aire, Wharfe, Nidd and Calder). The area of these 21 catchments range between 5km<sup>2</sup> and 71km<sup>2</sup>.
 
 <p align="center"> 
-  <img src="Figs/CatchmentDescriptors/Catchments_matching_FEH_Area.PNG" width="400"  />  
+  <img src="Figs/AllCatchments/CatchmentDescriptors/AREA.PNG" width="400" />
 <p align="center"> Figure 1. Histogram of catchment area (km<sup>2</sup>) <p align="center">
 
 ## Catchment Descriptors
@@ -45,8 +45,8 @@ In Figures 2-5, a histogram and a chloropleth map are plotted of the values of e
 <p align="center"> Figure 4. Base Flow Index <p align="center">
 
 <p align="center">
-  <img src="Figs/AllCatchments/CatchmentDescriptors/URBEXT.PNG" width="400" />
-<img src="Figs/AllCatchments/CatchmentDescriptors/URBEXT_spatial.PNG" width="400"  />    
+  <img src="Figs/AllCatchments/CatchmentDescriptors/URBEXT2000.PNG" width="400" />
+<img src="Figs/AllCatchments/CatchmentDescriptors/URBEXT2000_spatial.PNG" width="400"  />    
 <p align="center"> Figure 5. URBEXT <p align="center">
 
 <p align="center">
@@ -55,14 +55,14 @@ In Figures 2-5, a histogram and a chloropleth map are plotted of the values of e
 <p align="center"> Figure 6. Catchment steepness (Metres per km)) <p align="center">
 
 <p align="center">
-<img src="Figs/AllCatchments/CatchmentDescriptors/Catchments_matching_FEH_LDP.PNG" width="400" />
-<img src="Figs/AllCatchments/CatchmentDescriptors/Catchments_matching_FEH_LDP_spatialplot.PNG" width="400"  />   
+<img src="Figs/AllCatchments/CatchmentDescriptors/LDP.PNG" width="400" />
+<img src="Figs/AllCatchments/CatchmentDescriptors/LDP_spatial.PNG" width="400"  />   
 <p align="center"> Figure 7. Longest drainage path (km)) <p align="center">
 
 In Figure 8 a (weak?) negative relationship is seen between increasing urban extent and base flow index. Higher base flow indices are associated with permeability and so it follows that the highest values of BFIHOST would be associated with the lowest urban extent. In Figure 9 a positive relationship is seen between catchment altitude and average areal rainfall.
 
 <p align="center">
-  <img src="Figs/AllCatchments/CatchmentDescriptors/BFIHOSTvsURBEXT.PNG" width="400"  />  
+  <img src="Figs/AllCatchments/CatchmentDescriptors/BFIHOSTvsURBEXT2000.PNG" width="400"  />  
   <img src="Figs/AllCatchments/CatchmentDescriptors/SAARvsALTBAR.PNG" width="400"  />  
 <p align="center"> Figure 8 and 9. <p align="center">
 
