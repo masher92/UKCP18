@@ -130,7 +130,6 @@ ReFH2 is of particular importance in the UK, as it is the latest version of the 
   <img src="Figs/AllCatchments/Runoff/Peaks_Rural_Winter.png" width="500"  />    
 <p align="center"> Figure 8. <p align="center">
 
-
 <p align="center">
   <img src="Figs/AllCatchments/Runoff/DirectRunoff_Urban_Summer.png" width="500"  />    
   <img src="Figs/AllCatchments/Runoff/DirectRunoff_Rural_Summer.png" width="500"  />  
@@ -138,5 +137,9 @@ ReFH2 is of particular importance in the UK, as it is the latest version of the 
   <img src="Figs/AllCatchments/Runoff/DirectRunoff_Rural_Winter.png" width="500"  />    
 <p align="center"> Figure 8. <p align="center">
 
-  <img src="Figs/UrbanPeakFlow_criticalduration.png" width="500"  />  
-<p align="center"> Figure 9. <p align="center">
+Urban peak flow, winter
+<p align="center">
+  <img src="Figs/AllCatchments/Runoff/Groups/NormalisedUrbanPeakFlow_byduration_Winter_highgroup.png" width="700"  />    
+  <img src="Figs/AllCatchments/Runoff/Groups/NormalisedUrbanPeakFlow_byduration_Winter_medhighgroup.png" width="700"  />    
+  <img src="Figs/AllCatchments/Runoff/Groups/NormalisedUrbanPeakFlow_byduration_Winter_medgroup.png" width="700"  />     
+  <img src="Figs/AllCatchments/Runoff/Groups/NormalisedUrbanPeakFlow_byduration_Winter_lowgroup.png" width="700"  />    
