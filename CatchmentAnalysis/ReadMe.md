@@ -65,9 +65,9 @@ In Figure 8 a (weak?) negative relationship is seen between increasing urban ext
 <img src="Figs/AllCatchments/Rainfall/catchment_legend.PNG" width="600" />
 
 <p align="center">
-  <img src="Figs/AllCatchments/CatchmentDescriptors/SAARvsALTBAR.PNG" width="400"  />  
-  <img src="Figs/AllCatchments/CatchmentDescriptors/SAARvsEasting.PNG" width="400"  />  
-  <img src="Figs/AllCatchments/CatchmentDescriptors/SAARvsNorthing.PNG" width="400"  />    
+  <img src="Figs/AllCatchments/CatchmentDescriptors/SAARvsALTBAR.PNG" width="300"  />  
+  <img src="Figs/AllCatchments/CatchmentDescriptors/SAARvsEasting.PNG" width="300"  />  
+  <img src="Figs/AllCatchments/CatchmentDescriptors/SAARvsNorthing.PNG" width="300"  />    
 <p align="center"> Figure 8 and 9. <p align="center">
 
 <img src="Figs/AllCatchments/CatchmentDescriptors/BFIHOSTvsURBEXT2000.PNG" width="400"  />  
