@@ -14,7 +14,7 @@ The FEH web service identifies the catchment area upstream of a catchment outlet
 Using the FEH web service, 21 catchments with boundaries closely matching those identified by LCC have been identified and are shown on Figure 1. The LCC catchments which couldn't be generated in the FEH web service are sub-catchments of major rivers (Aire, Wharfe, Nidd and Calder). The area of these 21 catchments range between 5km<sup>2</sup> and 71km<sup>2</sup>.
 
 <p align="center"> 
-  <img src="Figs/AllCatchments/CatchmentDescriptors/AREA.PNG" width="400" />
+  <img src="Figs/AllCatchments/CatchmentDescriptors/Area.PNG" width="400" />
 <p align="center"> Figure 1. Histogram of catchment area (km<sup>2</sup>) <p align="center">
 
 ## Catchment Descriptors
