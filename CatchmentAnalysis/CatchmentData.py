@@ -126,7 +126,7 @@ for variable, variable_unit in variable_units_dict.items():
     # Append with catchment names
     catchments_info.apply(lambda catchments_info: ax.annotate(s=catchments_info['name'], 
                                                               xy= catchments_info.geometry.centroid.coords[0],
-                                                              ha='center', size= 13),axis=1)  
+                                                              ha='center', size= 20),axis=1)  
     # save figure
     plt.savefig("C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/CatchmentDescriptors/{}_spatial.PNG".format(variable),
                 bbox_inches='tight')
@@ -151,8 +151,8 @@ catchment_markers_dict = {catchments[i]: mStyles[i] for i in range(len(catchment
 # Scatter plots
 ##############################
 variable1 = 'SAAR'
-variable1_unit  = 'm per km'
-variable2 = 'northing'
+variable1_unit  = 'mm'
+variable2 = 'ALTBAR'
 variable2_unit  = 'm'
 
 df2 = pd.DataFrame({'Catchment':catchments_info['name'], 
@@ -170,7 +170,9 @@ ax.tick_params(axis='both', which='major')
 ax.legend_.remove()
 plt.savefig(root_fp +"DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/Allcatchments/CatchmentDescriptors/{}vs{}.PNG".format(variable1, variable2))
 
-##### Plot area --
+##############################     
+# Histograms
+##############################
 variables = ['ALTBAR', 'AREA', 'BFIHOST', 'DPSBAR', 'LDP', 'SAAR', 'URBEXT2000']
 variable_units = ['Mean Catchment Altitude (m above sea level', 'Catchment area (km2)', 'BFIHOST', 'm per km', 
                   'Longest drainage path (km)', 'Standard Average Areal Rainfall (mm)', 'Urban Extent (2000)']

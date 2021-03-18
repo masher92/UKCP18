@@ -19,10 +19,60 @@ catchments  = glob.glob("*")
 root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/"
 os.chdir(root_fp)
 
-# Parameters for plotting
-plt.rcParams['animation.ffmpeg_path'] = root_fp + 'DataAnalysis/Scripts/ffmpeg-20200225-36451f9-win64-static/bin/ffmpeg'
-plt.rcParams['savefig.bbox'] = 'tight' 
-warnings.simplefilter(action='ignore', category=FutureWarning)
+######################################################################################
+######################################################################################
+# Create a dataframe containing a row for each catchment, with the catchment's values
+# for various catchment descriptors and geometry values
+######################################################################################
+######################################################################################
+# Create a dataframe to populate with rows containing data for each catchment
+catchments_info = pd.DataFrame()   
+
+# Loop through catchments reading in spatial information and catchment descriptors
+for catchment_name in catchments:
+    print(catchment_name)   
+    ##############################
+    # Shapefiles
+    ##############################
+    # Define shapefile name
+    shpfile_name = glob.glob("C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/FloodModelling/IndividualCatchments/{}/Shapefile/*.shp".format(catchment_name))
+ 
+    # Read in shapefile 
+    concat_shp = gpd.read_file(shpfile_name[0])
+    
+    ##############################
+    # Catchment Descriptors
+    ##############################
+    # Define catchment descriptors csv file
+    filename = glob.glob(root_fp + "DataAnalysis/FloodModelling/IndividualCatchments/{}/CatchmentDescriptors/*.csv".format(catchment_name))[0]
+    # Read in catchment descriptors 
+    catchment_descriptors = pd.read_csv(filename)
+    catchment_descriptors =catchment_descriptors[2:]     
+    catchment_descriptors = catchment_descriptors[catchment_descriptors.columns[0:2]]
+
+    # Reformat 
+    catchment_descriptors = catchment_descriptors.transpose()
+    catchment_descriptors.rename(columns=catchment_descriptors.iloc[0], inplace = True)
+    catchment_descriptors = catchment_descriptors[1:]
+    # Convert values to numeric
+    catchment_descriptors[catchment_descriptors.columns] =  catchment_descriptors[catchment_descriptors.columns].apply(pd.to_numeric, errors='coerce')
+    catchment_descriptors =  catchment_descriptors.reset_index(drop = True)
+    
+    ##############################
+    # Add easting and northing of centroid
+    ##############################
+    catchment_descriptors['easting'] = concat_shp['geometry'][0].centroid.coords[0][0]
+    catchment_descriptors['northing'] = concat_shp['geometry'][0].centroid.coords[0][1]
+    
+    ##############################
+    # Join together geometry info and catchment descriptors and add to dataframe
+    # for all catchments
+    ##############################
+    catchment_info = pd.concat([concat_shp, catchment_descriptors], axis=1)
+    catchment_info['name'] = catchment_name
+    catchments_info = pd.concat([catchments_info,catchment_info])
+
+
 
 # Get the rainfall metrics
 filename = glob.glob(root_fp + "DataAnalysis/FloodModelling/IndividualCatchments/BagleyBeck/DesignRainfall/*.csv")[0]
@@ -183,6 +233,20 @@ catchment_colors_dict = {catchments[i]: catchment_colors[i] for i in range(len(c
 catchment_markers_dict = {catchments[i]: mStyles[i] for i in range(len(catchments))} 
 
 
+
+###############################################################################
+###############################################################################
+# Animation
+###############################################################################
+###############################################################################
+
+
+
+# Parameters for plotting
+plt.rcParams['animation.ffmpeg_path'] = root_fp + 'DataAnalysis/Scripts/ffmpeg-20200225-36451f9-win64-static/bin/ffmpeg'
+plt.rcParams['savefig.bbox'] = 'tight' 
+warnings.simplefilter(action='ignore', category=FutureWarning)
+
 # Create dataframe with....
 rp = 2
 rp_rainfalls = rainfalls_dict_bymetric[str(rp) + ' year rainfall (mm)']
@@ -191,6 +255,7 @@ rp_rainfalls_t.rename(columns=rp_rainfalls_t.iloc[0], inplace = True)
 rp_rainfalls_t = rp_rainfalls_t[1:22]
 
 # Create the figure
+
 
 # define number of frames
 frames = len(rp_rainfalls_t.columns)   # Number of frames
