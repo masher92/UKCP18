@@ -126,7 +126,7 @@ for variable, variable_unit in variable_units_dict.items():
     # Append with catchment names
     catchments_info.apply(lambda catchments_info: ax.annotate(s=catchments_info['name'], 
                                                               xy= catchments_info.geometry.centroid.coords[0],
-                                                              ha='center', size= 20),axis=1)  
+                                                              ha='center', size= 18),axis=1)  
     # save figure
     plt.savefig("C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/CatchmentDescriptors/{}_spatial.PNG".format(variable),
                 bbox_inches='tight')
@@ -138,14 +138,16 @@ for variable, variable_unit in variable_units_dict.items():
 # Plotting 
 ######################################################################################
 ######################################################################################
-# Create dictionary liking catchment names to a marker and color
 catchment_colors =['#e6194b', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#46f0f0', '#f032e6', 
-'#bcf60c', '#fabebe', '#008080', '#e6beff', '#9a6324', '#fffac8', '#800000', '#aaffc3', 
-'#808000', '#ffd8b1', '#000075', '#808080',  '#000000']
+'#bcf60c', '#fabebe', '#008080', '#e6beff', '#9a6324', "#006FA6", '#800000', '#aaffc3', 
+'#808000', "#FFA0F2", '#000075', '#000000']
 mStyles = ["o","v","8", ">","s","p","P","*","h","X","D"] *2
 # Create dictionaries
 catchment_colors_dict = {catchments[i]: catchment_colors[i] for i in range(len(catchments))} 
-catchment_markers_dict = {catchments[i]: mStyles[i] for i in range(len(catchments))}     
+catchment_markers_dict = {catchments[i]: mStyles[i] for i in range(len(catchments))} 
+# Create seaborn palette
+my_pal = sns.set_palette(sns.color_palette(catchment_colors))
+
 
 ##############################     
 # Scatter plots
@@ -163,7 +165,7 @@ fig = plt.figure()
 ax = fig.add_subplot(1,1,1)
 ax.clear()
 ax = sns.scatterplot(data=df2, x=variable1, y=variable2, style = 'Catchment', 
-            markers = catchment_markers_dict, hue = 'Catchment', s= 100)
+            markers = catchment_markers_dict, hue = 'Catchment', s= 100, palette = my_pal)
 ax.set_xlabel('{} ({})'.format(variable1, variable1_unit))
 ax.set_ylabel('{} ({})'.format(variable2, variable2_unit))
 ax.tick_params(axis='both', which='major')

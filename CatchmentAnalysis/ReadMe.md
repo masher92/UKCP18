@@ -7,13 +7,13 @@ Leeds City Council (LCC) have defined 46 urban catchments in Leeds. The boundari
 <p align="center"> Figure 1. Urban catchments defined by LCC (blue outlines), and catchment boundaries from FEH web server (filled in with green if ReFH2 data has been downloaded, and red if it has not) <p align="center">
 
 The FEH web service identifies the catchment area upstream of a catchment outlet point. For each catchment it generates:
-* The catchment boundaries as a shapefile; 
+* The catchment boundaries as a shapefile;
 * Design rainfall depths for pre-defined return period/duration combinations;  
 * Catchment descriptors based on the Integrated Hydrological Digital Terrain Model (IHDTM).
 
 Using the FEH web service, 21 catchments with boundaries closely matching those identified by LCC have been identified and are shown on Figure 1. The LCC catchments which couldn't be generated in the FEH web service are sub-catchments of major rivers (Aire, Wharfe, Nidd and Calder). The area of these 21 catchments range between 5km<sup>2</sup> and 71km<sup>2</sup>.
 
-<p align="center"> 
+<p align="center">
   <img src="Figs/AllCatchments/CatchmentDescriptors/Area.PNG" width="400" />
 <p align="center"> Figure 1. Histogram of catchment area (km<sup>2</sup>) <p align="center">
 
@@ -79,27 +79,27 @@ The FEH uses a depth-duration-frequency (DDF) model, based on complex statistica
 <p align="center">
 <img src="Figs/AllCatchments/Rainfall/Rainfall.png" width="1000" />
 <p align="center"> Figure 10. Annual maximum rainfall accumulations within the specified durations, over a range of return periods. Each line represents a different catchment <p align="center">
-  
+
 Figure 9 helps to visualise the catchments which have the maximum and minimum precipitation values associated with certain durations and return periods, and to assess how much variation there is in this.
 
 <p align="center">
 <img src="Figs/AllCatchments/Rainfall/HeatMap_maxs.png" width="500" />
 <img src="Figs/AllCatchments/Rainfall/HeatMap_mins.png" width="500" />
 <p align="center"> Figure 11. Displays the catchment with the maximum (left) and minimum (right) annual precipitation accumulation associated with each duration at each return period <p align="center">
- 
+
 ### Relationship between design rainfall and catchment descriptors
 
 <p align="center">
 <img src="Figs/AllCatchments/Rainfall/catchment_legend.PNG" width="600" />
 
-The animations below track the relationship between catchment descriptors and the annual maximum rainfall accumulations at various durations. 
+The animations below track the relationship between catchment descriptors and the annual maximum rainfall accumulations at various durations.
 
 #### Standard Average Areal Rainfall (SAAR)
 
 ![Animation](Figs/AllCatchments/Rainfall/SAARvs100yrRPRainfall.gif)
 ![Animation](Figs/AllCatchments/Rainfall/SAARvs100yrRPRainfall.gif)
 
-The SAAR is the average annual rainfall in the standard period (1961-1990) in millimetres. The above plots show that the catchments with the highest annual precipitation accumulations at low durations (~<8h), are those with low SAAR values. At longer durations (>~8h), the catchments with the highest annual precipitation accumulations for that duration, also have higher SAAR values. 
+The SAAR is the average annual rainfall in the standard period (1961-1990) in millimetres. The above plots show that the catchments with the highest annual precipitation accumulations at low durations (~<8h), are those with low SAAR values. At longer durations (>~8h), the catchments with the highest annual precipitation accumulations for that duration, also have higher SAAR values.
 
 #### Altitude (ALTBAR)
 ![Animation](Figs/AllCatchments/Rainfall/ALTBARvs2yrRPrainfall.gif)
@@ -155,4 +155,46 @@ Urban peak flow, winter
   <img src="Figs/AllCatchments/Runoff/Groups/NormalisedUrbanPeakFlow_byduration_Winter_highgroup.png" width="700"  />    
   <img src="Figs/AllCatchments/Runoff/Groups/NormalisedUrbanPeakFlow_byduration_Winter_medhighgroup.png" width="700"  />    
   <img src="Figs/AllCatchments/Runoff/Groups/NormalisedUrbanPeakFlow_byduration_Winter_medgroup.png" width="700"  />     
-  <img src="Figs/AllCatchments/Runoff/Groups/NormalisedUrbanPeakFlow_byduration_Winter_lowgroup.png" width="700"  />    
+  <img src="Figs/AllCatchments/Runoff/Groups/NormalisedUrbanPeakFlow_byduration_Winter_lowgroup.png" width="700"  />   
+
+## Altitude
+
+  ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Summer_UrbanvsALTBAR_CriticalDurations.gif)
+  ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Summer_RuralvsALTBAR_CriticalDurations.gif)
+  ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_UrbanvsALTBAR_CriticalDurations.gif)
+  ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_RuralvsALTBAR_CriticalDurations.gif)
+
+  ## AREA
+
+  ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Summer_UrbanvsAREA_CriticalDurations.gif)
+  ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Summer_RuralvsAREA_CriticalDurations.gif)
+  ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_UrbanvsAREA_CriticalDurations.gif)
+  ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_RuralvsAREA_CriticalDurations.gif)
+
+  ## BFIHOST
+
+  ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Summer_UrbanvsBFIHOST_CriticalDurations.gif)
+  ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Summer_RuralvsBFIHOST_CriticalDurations.gif)
+  ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_UrbanvsBFIHOST_CriticalDurations.gif)
+  ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_RuralvsBFIHOST_CriticalDurations.gif)
+
+  ## DPSBAR
+
+  ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Summer_UrbanvsDPSBAR_CriticalDurations.gif)
+  ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Summer_RuralvsDPSBAR_CriticalDurations.gif)
+  ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_UrbanvsDPSBAR_CriticalDurations.gif)
+  ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_RuralvsDPSBAR_CriticalDurations.gif)
+
+  ## LDP
+
+  ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Summer_UrbanvsLDP_CriticalDurations.gif)
+  ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Summer_RuralvsLDP_CriticalDurations.gif)
+  ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_UrbanvsLDP_CriticalDurations.gif)
+  ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_RuralvsLDP_CriticalDurations.gif)
+
+  ## URBEXT200
+
+  ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Summer_UrbanvsURBEXT2000_CriticalDurations.gif)
+  ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Summer_RuralvsURBEXT2000_CriticalDurations.gif)
+  ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_UrbanvsURBEXT2000_CriticalDurations.gif)
+  ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_RuralvsURBEXT2000_CriticalDurations.gif)  

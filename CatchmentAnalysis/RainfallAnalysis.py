@@ -235,13 +235,14 @@ plt.savefig(root_fp +"DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatc
 # Create dictionary liking catchment names to a marker and color
 catchment_colors =['#e6194b', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#46f0f0', '#f032e6', 
 '#bcf60c', '#fabebe', '#008080', '#e6beff', '#9a6324', "#006FA6", '#800000', '#aaffc3', 
-'#808000', "#FFA0F2", '#000075', '#808080',  '#000000']
+'#808000', "#FFA0F2", '#000075', '#000000']
 mStyles = ["o","v","8", ">","s","p","P","*","h","X","D"] *2
 # Create dictionaries
 catchment_colors_dict = {catchments[i]: catchment_colors[i] for i in range(len(catchments))} 
 catchment_markers_dict = {catchments[i]: mStyles[i] for i in range(len(catchments))} 
 # Create seaborn palette
 my_pal = sns.set_palette(sns.color_palette(catchment_colors))
+
 
 # Parameters for plotting
 plt.rcParams['animation.ffmpeg_path'] = root_fp + 'DataAnalysis/Scripts/ffmpeg-20200225-36451f9-win64-static/bin/ffmpeg'
@@ -276,7 +277,7 @@ def draw(frame):
         df2['Precipitation'] = round(df2['Precipitation'],1)
         ax = fig.add_subplot(1,1,1)
         ax.clear()
-        ax = sns.scatterplot(data=df2, x=, y='Precipitation', style = 'Catchment', 
+        ax = sns.scatterplot(data=df2, x=variable, y='Precipitation', style = 'Catchment', 
                     markers = catchment_markers_dict, hue = 'Catchment', s= 100, palette = my_pal)
         ax.set_xlabel('{} ({})'.format(variable, variable_unit))
         ax.set_ylabel('Precipitation (mm)')

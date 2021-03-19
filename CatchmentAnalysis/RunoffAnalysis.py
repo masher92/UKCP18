@@ -26,6 +26,7 @@ from moviepy.editor import *
 # Specify catchment name
 os.chdir("C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/FloodModelling/IndividualCatchments/")
 catchments  = glob.glob("*")
+catchments.remove("WortleyBeck")
 #catchments = ['CarrBeck', 'GillBeck_Aire', 'GillBeck_Wharfe']
 #catchments = ['BalneBeck', 'HowleyBeck', 'BagleyBeck', 'GuiseleyBeck']
 #catchments = [ 'CollinghamBeck', 'FairburnIngs','FirgreenBeck', 'CockBeck_Aberford']
@@ -279,17 +280,15 @@ for catchment in catchments:
     # Displaying their values at each duration
 ##################################################################
 ##################################################################
-# Create dictionary liking catchment names to a marker and color
 catchment_colors =['#e6194b', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#46f0f0', '#f032e6', 
 '#bcf60c', '#fabebe', '#008080', '#e6beff', '#9a6324', "#006FA6", '#800000', '#aaffc3', 
-'#808000', "#FFA0F2", '#000075', '#808080',  '#000000']
+'#808000', "#FFA0F2", '#000075', '#000000']
 mStyles = ["o","v","8", ">","s","p","P","*","h","X","D"] *2
 # Create dictionaries
 catchment_colors_dict = {catchments[i]: catchment_colors[i] for i in range(len(catchments))} 
 catchment_markers_dict = {catchments[i]: mStyles[i] for i in range(len(catchments))} 
 # Create seaborn palette
 my_pal = sns.set_palette(sns.color_palette(catchment_colors))
-
 
 # Normalise: 'Yes' or 'No'
 normalise = 'Yes'
@@ -632,58 +631,63 @@ plt.rcParams['animation.ffmpeg_path'] = root_fp + 'DataAnalysis/Scripts/ffmpeg-2
 plt.rcParams['savefig.bbox'] = 'tight' 
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
-# Define variables
-variable1, variable2 = 'Summer_Urban', 'AREA'
-variable2_unit = 'Area (km)'
+# Define variable names to use
+variable1s = ['Summer_Rural']
+variables2s =  ['AREA', 'BFIHOST', 'URBEXT2000', 'LDP', 'DPSBAR', 'ALTBAR']
+variable2_units = ['Area (km)', 'BFIHOST', 'Urban Extent (%)', 'Longest drainage path (km)', 
+                   'Catchment Steepness (m per km)', 'ALtitude (m)']
 
-# Define number of frames
-frames = len(cds[variable1].iloc[:, 1:].columns)
-
-# Set up figure
-fig = plt.figure()
-def draw(frame):
-        print(frame)
-        # clear the previous figure
-        plt.clf()
-        # Get the critical durations for this summer/winter urban/rural combination
-        cds_seasonal = cds[variable1]    
-        
-        # find return period being useed in this frame
-        rp = cds_seasonal.iloc[:, 1:].columns[frame]
-        print(rp)
-        df2 = pd.DataFrame({'Catchment':catchments_info['name'],
-             'CriticalDuration' : cds_seasonal[rp],
-             variable2 :catchments_info[variable2]})
-        
-        ax = fig.add_subplot(1,1,1)
-        ax.clear()
-        ax = sns.scatterplot(data=df2, x='CriticalDuration', y=variable2, style = 'Catchment', 
-                    markers = catchment_markers_dict, hue = 'Catchment', s= 100,
-                    palette = my_pal)
-        ax.set_xlabel('Critical Duration (hrs)')
-        ax.set_ylabel(variable2_unit)
-        ax.tick_params(axis='both', which='major')
-        ax.legend_.remove()
-        
-        grid =ax.get_children()[0]
-        
-        plt.title(str(variable1) + ': ' + str(rp) + 'yr return period')
-        return grid
+for variable1 in variable1s:
+    for variable2, variable2_unit in zip(variables2s, variable2_units):
+        print(variable1, variable2, variable2_unit)
     
-def init():
-    return draw(0)
-
-def animate(frame):
-    return draw(frame)
-
-# Create animation
-ani = animation.FuncAnimation(fig, animate, frames, interval=1, save_count=100, blit=False, init_func=init,repeat=False)
-fp = root_fp +"DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/{}_{}yrRPrainfall".format(variable1, rp)
-ani.save(fp + '.mp4',writer=animation.FFMpegWriter(fps=1))
-
-# Convert to gif
-clip = (VideoFileClip(fp + '.mp4'))
-clip.write_gif(fp + '.gif')
-# Remove mp4
-os.remove(fp + '.mp4')
-
+        # Define number of frames
+        frames = len(cds[variable1].iloc[:, 1:].columns)
+        
+        # Set up figure
+        fig = plt.figure()
+        def draw(frame):
+                # clear the previous figure
+                plt.clf()
+                # Get the critical durations for this summer/winter urban/rural combination
+                cds_seasonal = cds[variable1]    
+                
+                # find return period being useed in this frame
+                rp = cds_seasonal.iloc[:, 1:].columns[frame]
+                print(rp)
+                df2 = pd.DataFrame({'Catchment':catchments_info['name'],
+                     'CriticalDuration' : cds_seasonal[rp],
+                     variable2 :catchments_info[variable2]})
+                
+                ax = fig.add_subplot(1,1,1)
+                ax.clear()
+                ax = sns.scatterplot(data=df2, x='CriticalDuration', y=variable2, style = 'Catchment', 
+                            markers = catchment_markers_dict, hue = 'Catchment', s= 100,
+                            palette = my_pal)
+                ax.set_xlabel('Critical Duration (hrs)')
+                ax.set_ylabel(variable2_unit)
+                ax.tick_params(axis='both', which='major')
+                ax.legend_.remove()
+                
+                grid =ax.get_children()[0]
+                
+                plt.title(str(variable1) + ': ' + str(rp) + 'yr return period')
+                return grid
+            
+        def init():
+            return draw(0)
+        
+        def animate(frame):
+            return draw(frame)
+        
+        # Create animation
+        ani = animation.FuncAnimation(fig, animate, frames, interval=1, save_count=100, blit=False, init_func=init,repeat=False)
+        fp = root_fp +"DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/{}vs{}_CriticalDurations".format(variable1,variable2, rp)
+        ani.save(fp + '.mp4',writer=animation.FFMpegWriter(fps=1))
+        
+        # Convert to gif
+        clip = (VideoFileClip(fp + '.mp4'))
+        clip.write_gif(fp + '.gif')
+        # Remove mp4
+        os.remove(fp + '.mp4')
+        
