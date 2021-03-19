@@ -15,6 +15,7 @@ import geopandas as gpd
 # Specify catchment name
 os.chdir("C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/FloodModelling/IndividualCatchments/")
 catchments  = glob.glob("*")
+catchments.remove("WortleyBeck")
 
 # Define rootfp and set as working directory
 root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/"
@@ -62,8 +63,8 @@ for catchment_name in catchments:
     ##############################
     # Add easting and northing of centroid
     ##############################
-    catchment_descriptors['easting'] = concat_shp['geometry'][0].centroid.coords[0][0]
-    catchment_descriptors['northing'] = concat_shp['geometry'][0].centroid.coords[0][1]
+    catchment_descriptors['Easting'] = concat_shp['geometry'][0].centroid.coords[0][0]
+    catchment_descriptors['Northing'] = concat_shp['geometry'][0].centroid.coords[0][1]
     
     ##############################
     # Join together geometry info and catchment descriptors and add to dataframe
@@ -156,10 +157,10 @@ for array in catchments_with_maxs_arr, catchments_with_mins_arr:
     print(array)
     
     if 7 in array:
-        cmap = 'RdBu'
+        cmap = 'RGn'
         fp_to_save = root_fp +"DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Rainfall/HeatMap_mins.png"
     else:
-        cmap = "PRGn"
+        cmap = "RdBuP"
         fp_to_save=root_fp +"DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Rainfall/HeatMap_maxs.png"
     
     # Create figure
@@ -190,7 +191,7 @@ for array in catchments_with_maxs_arr, catchments_with_mins_arr:
     
     ax.tick_params(axis='both', which='major', labelsize=20)
     
-    plt.savefig(fp_to_save,bbox_inches = 'tight')
+    #plt.savefig(fp_to_save,bbox_inches = 'tight')
     plt.show()
     
     
@@ -243,80 +244,83 @@ catchment_markers_dict = {catchments[i]: mStyles[i] for i in range(len(catchment
 # Create seaborn palette
 my_pal = sns.set_palette(sns.color_palette(catchment_colors))
 
-
 # Parameters for plotting
 plt.rcParams['animation.ffmpeg_path'] = root_fp + 'DataAnalysis/Scripts/ffmpeg-20200225-36451f9-win64-static/bin/ffmpeg'
 plt.rcParams['savefig.bbox'] = 'tight' 
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
-# Create dataframe with....
-rp = 10
-rp_rainfalls = design_rainfall_by_rp[str(rp) + ' year rainfall (mm)']
-rp_rainfalls_t = rp_rainfalls.T  
-rp_rainfalls_t.rename(columns=rp_rainfalls_t.iloc[0], inplace = True)
-rp_rainfalls_t = rp_rainfalls_t[1:22]
-rp_rainfalls_t = rp_rainfalls_t.reset_index(drop = True)
+# Define variables
+rps = [2,10,100]
+variables = ['ALTBAR', 'SAAR', 'Easting', 'Northing']
+variable_units = ['Mean Catchment Altitude (m above sea level)', 'Standard Average Areal Rainfall (mm)'
+                  , 'Easting(m)', 'Northing (m)']
+variable_units_dict = dict(zip(variables, variable_units))
 
-# define number of frames
-frames = len(rp_rainfalls_t.columns)   # Number of frames
-variable = 'easting'
-variable_unit  = 'm'
-#frames = 20
-
-fig = plt.figure()
-def draw(frame):
-   # Only plot everu 4th duration
-    if frame % 4 == 0:
-         # Clear the previous figure
-        plt.clf()
-        
-       # fig = plt.figure(figsize = (35,25))
-        df2 = pd.DataFrame({'Catchment':catchments_info['name'],
-                            variable : catchments_info[variable],
-                    'Precipitation' :rp_rainfalls_t.iloc[:,frame]})
-        df2['Precipitation'] = round(df2['Precipitation'],1)
-        ax = fig.add_subplot(1,1,1)
-        ax.clear()
-        ax = sns.scatterplot(data=df2, x=variable, y='Precipitation', style = 'Catchment', 
-                    markers = catchment_markers_dict, hue = 'Catchment', s= 100, palette = my_pal)
-        ax.set_xlabel('{} ({})'.format(variable, variable_unit))
-        ax.set_ylabel('Precipitation (mm)')
-        ax.tick_params(axis='both', which='major')
-        ax.legend_.remove()
-        # box = ax.get_position()
-        # ax.set_position([box.x0, box.y0 + box.height * 0.3,
-        #                   box.width, box.height * 0.8])
-        # handles, labels = ax.get_legend_handles_labels()
-        # ax.legend(handles[1:],labels[1:], loc='best', bbox_to_anchor=(1.05, -0.122),
-        #         fancybox=True, shadow=True, ncol=4)
-        #Adjust height between plots
-        #fig.subplots_adjust(top=1.22)
-        #fig.subplots_adjust(bottom=0.1)    
-        #plt.subplots_adjust(hspace=0.85)    
-        
-        grid =ax.get_children()[0]
-        
-        # Create datetime in human readable format
-        #plt.xlabel('{} ({})'.format(variable, variable_unit))
-        #plt.ylabel('Design Rainfall (mm)')
-        plt.title(str(rp) + 'yr return period - ' + str(rp_rainfalls_t.columns[frame]) + 'h')
-        return grid
+# Loop
+for rp in rps:
     
-def init():
-    return draw(0)
-
-def animate(frame):
-    return draw(frame)
-
-# Create animation
-ani = animation.FuncAnimation(fig, animate, frames, interval=1, save_count=100, blit=False, init_func=init,repeat=False)
-ani.save(root_fp +"DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Rainfall/{}vs{}yrRPrainfall.mp4".format(variable, rp),
-         writer=animation.FFMpegWriter(fps=20))
-
-# Convert to gif
-fp = root_fp +"DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Rainfall/{}vs{}yrRPrainfall.mp4".format(variable, rp)
-clip = (VideoFileClip(fp))
-clip.write_gif(root_fp +"DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Rainfall/{}vs{}yrRPrainfall.gif".format(variable, rp))
-# Remove mp4
-os.remove(fp)
+    rp_rainfalls = design_rainfall_by_rp[str(rp) + ' year rainfall (mm)']
+    rp_rainfalls_t = rp_rainfalls.T  
+    rp_rainfalls_t.rename(columns=rp_rainfalls_t.iloc[0], inplace = True)
+    rp_rainfalls_t = rp_rainfalls_t[1:22]
+    rp_rainfalls_t = rp_rainfalls_t.reset_index(drop = True)
+    frames = len(rp_rainfalls_t.columns)   # Number of frames
+    
+    for variable, variable_unit in variable_units_dict.items():
+        fig = plt.figure()
+        def draw(frame):
+           # Only plot everu 4th duration
+            if frame % 4 == 0:
+                 # Clear the previous figure
+                plt.clf()
+                
+               # fig = plt.figure(figsize = (35,25))
+                df2 = pd.DataFrame({'Catchment':catchments_info['name'],
+                                    variable : catchments_info[variable],
+                            'Precipitation' :rp_rainfalls_t.iloc[:,frame]})
+                df2['Precipitation'] = round(df2['Precipitation'],1)
+                ax = fig.add_subplot(1,1,1)
+                ax.clear()
+                ax = sns.scatterplot(data=df2, x=variable, y='Precipitation', style = 'Catchment', 
+                            markers = catchment_markers_dict, hue = 'Catchment', s= 100, palette = my_pal)
+                ax.set_xlabel(variable_unit)
+                ax.set_ylabel('Precipitation (mm)')
+                ax.tick_params(axis='both', which='major')
+                ax.legend_.remove()
+                # box = ax.get_position()
+                # ax.set_position([box.x0, box.y0 + box.height * 0.3,
+                #                   box.width, box.height * 0.8])
+                # handles, labels = ax.get_legend_handles_labels()
+                # ax.legend(handles[1:],labels[1:], loc='best', bbox_to_anchor=(1.05, -0.122),
+                #         fancybox=True, shadow=True, ncol=4)
+                #Adjust height between plots
+                #fig.subplots_adjust(top=1.22)
+                #fig.subplots_adjust(bottom=0.1)    
+                #plt.subplots_adjust(hspace=0.85)    
+                
+                grid =ax.get_children()[0]
+                
+                # Create datetime in human readable format
+                #plt.xlabel('{} ({})'.format(variable, variable_unit))
+                #plt.ylabel('Design Rainfall (mm)')
+                plt.title(str(rp) + 'yr return period - ' + str(rp_rainfalls_t.columns[frame]) + 'h')
+                return grid
+            
+        def init():
+            return draw(0)
+        
+        def animate(frame):
+            return draw(frame)
+        
+        # Create animation
+        ani = animation.FuncAnimation(fig, animate, frames, interval=1, save_count=100, blit=False, init_func=init,repeat=False)
+        ani.save(root_fp +"DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Rainfall/{}vs{}yrRPrainfall.mp4".format(variable, rp),
+                 writer=animation.FFMpegWriter(fps=20))
+        
+        # Convert to gif
+        fp = root_fp +"DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Rainfall/{}vs{}yrRPrainfall.mp4".format(variable, rp)
+        clip = (VideoFileClip(fp))
+        clip.write_gif(root_fp +"DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Rainfall/{}vs{}yrRPrainfall.gif".format(variable, rp))
+        # Remove mp4
+        os.remove(fp)
 

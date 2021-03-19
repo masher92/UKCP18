@@ -77,8 +77,8 @@ for catchment_name in catchments:
     ##############################
     # Add easting and northing of centroid
     ##############################
-    catchment_descriptors['easting'] = concat_shp['geometry'][0].centroid.coords[0][0]
-    catchment_descriptors['northing'] = concat_shp['geometry'][0].centroid.coords[0][1]
+    catchment_descriptors['Easting'] = concat_shp['geometry'][0].centroid.coords[0][0]
+    catchment_descriptors['Northing'] = concat_shp['geometry'][0].centroid.coords[0][1]
     
     ##############################
     # Join together geometry info and catchment descriptors and add to dataframe
@@ -157,20 +157,6 @@ variable1_unit  = 'mm'
 variable2 = 'ALTBAR'
 variable2_unit  = 'm'
 
-df2 = pd.DataFrame({'Catchment':catchments_info['name'], 
-            variable1 : catchments_info[variable1],
-            variable2 :catchments_info[variable2]})
-
-fig = plt.figure()
-ax = fig.add_subplot(1,1,1)
-ax.clear()
-ax = sns.scatterplot(data=df2, x=variable1, y=variable2, style = 'Catchment', 
-            markers = catchment_markers_dict, hue = 'Catchment', s= 100, palette = my_pal)
-ax.set_xlabel('{} ({})'.format(variable1, variable1_unit))
-ax.set_ylabel('{} ({})'.format(variable2, variable2_unit))
-ax.tick_params(axis='both', which='major')
-ax.legend_.remove()
-plt.savefig(root_fp +"DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/Allcatchments/CatchmentDescriptors/{}vs{}.PNG".format(variable1, variable2))
 
 ##############################     
 # Histograms
@@ -188,5 +174,25 @@ for variable, variable_unit in variable_units_dict.items():
     plt.savefig(root_fp +"DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/Allcatchments/CatchmentDescriptors/{}.PNG".format(variable))
     plt.close()
 
-
-
+##############################     
+# Scatter plots
+##############################
+variables2s = ["Easting", "Northing", 'ALTBAR']
+for variable2 in variables2s:
+    for variable1, variable1_unit in variable_units_dict.items():
+        if variable1 != variable2:
+            df2 = pd.DataFrame({'Catchment':catchments_info['name'], 
+                        variable1 : catchments_info[variable1],
+                        variable2 :catchments_info[variable2]})
+            
+            fig = plt.figure(figsize = (9,6))
+            ax = fig.add_subplot(1,1,1)
+            ax.clear()
+            ax = sns.scatterplot(data=df2, x=variable1, y=variable2, style = 'Catchment', 
+                        markers = catchment_markers_dict, hue = 'Catchment', s= 200, palette = my_pal)
+            ax.set_xlabel('{} ({})'.format(variable1, variable1_unit), fontsize = 12)
+            ax.set_ylabel('{} ({})'.format(variable2, ("m")), fontsize = 12)
+            ax.tick_params(axis='both', which='major')
+            ax.legend_.remove()
+            plt.savefig(root_fp +"DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/Allcatchments/CatchmentDescriptors/{}vs{}.PNG".format(variable1, variable2))
+            

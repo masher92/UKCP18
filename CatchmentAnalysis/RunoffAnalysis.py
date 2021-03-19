@@ -26,7 +26,7 @@ from moviepy.editor import *
 # Specify catchment name
 os.chdir("C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/FloodModelling/IndividualCatchments/")
 catchments  = glob.glob("*")
-catchments.remove("WortleyBeck")
+ArithmeticErrorcatchments.remove("WortleyBeck")
 #catchments = ['CarrBeck', 'GillBeck_Aire', 'GillBeck_Wharfe']
 #catchments = ['BalneBeck', 'HowleyBeck', 'BagleyBeck', 'GuiseleyBeck']
 #catchments = [ 'CollinghamBeck', 'FairburnIngs','FirgreenBeck', 'CockBeck_Aberford']
