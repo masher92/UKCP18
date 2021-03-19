@@ -55,19 +55,19 @@ In Figures 2-5, a histogram and a chloropleth map are plotted of the values of e
 <img src="Figs/AllCatchments/CatchmentDescriptors/BFIHOST_spatial.PNG" width="300"  />    
 <p align="center">  
 <img src="Figs/AllCatchments/CatchmentDescriptors/BFIHOSTvsNorthing.PNG" width="300" />
-<img src="Figs/AllCatchments/CatchmentDescriptors/BFIHOSTsEasting.PNG" width="300"  />  
+<img src="Figs/AllCatchments/CatchmentDescriptors/BFIHOSTvsEasting.PNG" width="300"  />  
   <img src="Figs/AllCatchments/CatchmentDescriptors/BFIHOSTvsALTBAR.PNG" width="300"  />  
 <p align="center"> Figure 4. BFIHOST <p align="center">
 
 
 ### Urban Extent (%)
 <p align="center">
-  <img src="Figs/AllCatchments/CatchmentDescriptors/URBEXT.PNG" width="300" />
-<img src="Figs/AllCatchments/CatchmentDescriptors/URBEXT_spatial.PNG" width="300"  />    
+  <img src="Figs/AllCatchments/CatchmentDescriptors/URBEXT2000.PNG" width="300" />
+<img src="Figs/AllCatchments/CatchmentDescriptors/URBEXT2000_spatial.PNG" width="300"  />    
 <p align="center">  
-<img src="Figs/AllCatchments/CatchmentDescriptors/URBEXTvsNorthing.PNG" width="300" />
-<img src="Figs/AllCatchments/CatchmentDescriptors/URBEXTvsEasting.PNG" width="300"  />  
-  <img src="Figs/AllCatchments/CatchmentDescriptors/URBEXTvsALTBAR.PNG" width="300"  />  
+<img src="Figs/AllCatchments/CatchmentDescriptors/URBEXT2000vsNorthing.PNG" width="300" />
+<img src="Figs/AllCatchments/CatchmentDescriptors/URBEXT2000vsEasting.PNG" width="300"  />  
+  <img src="Figs/AllCatchments/CatchmentDescriptors/URBEXT2000vsALTBAR.PNG" width="300"  />  
 <p align="center"> Figure 5. URBEXT <p align="center">
 
 ### Catchment Steepness (m per km)
