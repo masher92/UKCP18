@@ -34,6 +34,7 @@ In Figures 2-5, a histogram and a chloropleth map are plotted of the values of e
 <img src="Figs/AllCatchments/CatchmentDescriptors/SAAR_spatial.PNG" width="200"  />   
 <img src="Figs/AllCatchments/CatchmentDescriptors/SAARvsEasting.PNG" width="200"  />   
 <img src="Figs/AllCatchments/CatchmentDescriptors/SAARvsNorthing.PNG" width="200"  />     
+<img src="Figs/AllCatchments/CatchmentDescriptors/SAARvsALTBAR.PNG" width="200"  />       
 <p align="center"> Figure 2. Standard Average Areal Rainfall (mm) <p align="center">
 
 <p align="center">
