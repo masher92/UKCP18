@@ -131,13 +131,12 @@ The animations below track the relationship between catchment descriptors and th
 #### Standard Average Areal Rainfall (SAAR)
 
 #### Northing
-![Animation](Figs/AllCatchments/Rainfall/Northingvs2yrRPrainfall.gif)
-![Animation](Figs/AllCatchments/Rainfall/Northingvs10yrRPrainfall.gif)
-
+![Animation](Figs/AllCatchments/Rainfall/northingvs2yrRPrainfall.gif)
+![Animation](Figs/AllCatchments/Rainfall/northingvs10yrRPrainfall.gif)
 
 #### Easting
-![Animation](Figs/AllCatchments/Rainfall/Eastingvs2yrRPrainfall.gif)
-![Animation](Figs/AllCatchments/Rainfall/Eastingvs10yrRPrainfall.gif)
+![Animation](Figs/AllCatchments/Rainfall/eastingvs2yrRPrainfall.gif)
+![Animation](Figs/AllCatchments/Rainfall/eastingvs10yrRPrainfall.gif)
 
 #### Altitude (ALTBAR)
 ![Animation](Figs/AllCatchments/Rainfall/ALTBARvs2yrRPrainfall.gif)
