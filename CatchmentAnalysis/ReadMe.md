@@ -261,12 +261,9 @@ In Figure 10 the peak flow at durations between 1 and 39 hours are plottted for 
 #### Critical storm duration 
 The critical storm duration (duration with highest peak flow) is generally associated with the widest flood extent and is of great importance for surface water flooding. Understanding a catchment's critical storm duration is important in order to understand the kinds of storms which are most likely to lead to surface water flooding in the catchment. 
 
-Urban peak flow, winter
 <p align="center">
-  <img src="Figs/AllCatchments/Runoff/Groups/NormalisedUrbanPeakFlow_byduration_Winter_highgroup.png" width="700"  />    
-  <img src="Figs/AllCatchments/Runoff/Groups/NormalisedUrbanPeakFlow_byduration_Winter_medhighgroup.png" width="700"  />    
-  <img src="Figs/AllCatchments/Runoff/Groups/NormalisedUrbanPeakFlow_byduration_Winter_medgroup.png" width="700"  />     
-  <img src="Figs/AllCatchments/Runoff/Groups/NormalisedUrbanPeakFlow_byduration_Winter_lowgroup.png" width="700"  />   
+  <img src="Figs/AllCatchments/Runoff/UrbanSummerPeaks_grouped.PNG" width="1000"  />    
+<p align="center"> Figure 10. Normalised peak flows in Leeds catchments for durations between 1 and 39h, for various return periods <p align="center">
 
 #### Catchment critical durations
 
