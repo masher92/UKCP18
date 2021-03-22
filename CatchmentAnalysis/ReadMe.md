@@ -4,10 +4,11 @@ This file contains analysis of 20 urban catchments within Leeds.
 
 ## Table of contents
 
-1. [ Catchment Locations. ](#loc)
-2. [ Catchment Descriptors. ](#descriptors)
-3. [ Catchment Rainfall from FEH. ](#rainfall)
-4. [ Catchment Runoff. ](#runoff)
+1. [ Catchment locations. ](#loc)
+2. [ Catchment descriptors. ](#descriptors)
+3. [ Catchment rainfall from FEH. ](#rainfall)
+  a. [ Relationship between catchment rainfall and catchment descriptors. ](#rainfallvsdescriptors)
+5. [ Catchment runoff. ](#runoff)
 
 <a name="loc"></a>
 ## Catchment Locations
@@ -134,6 +135,7 @@ Figure 10 helps to visualise the catchments which have the maximum and minimum p
 <img src="Figs/AllCatchments/Rainfall/HeatMap_mins.png" width="500" />
 <p align="center"> Figure 10. Displays the catchment with the maximum (left) and minimum (right) annual precipitation accumulation associated with each duration at each return period <p align="center">
 
+<a name="rainfallvsdescriptors"></a>
 ### Relationship between annual maximum rainfall accumulation and catchment descriptors
 
 The correlation between annual maximum rainfall accumulations predicted by the FEH model and the catchment altitude, easting and northing values are examined below. These catchment descriptors are those which we would expect to control rainfall accumualtions. 
