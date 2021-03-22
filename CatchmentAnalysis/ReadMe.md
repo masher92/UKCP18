@@ -163,26 +163,19 @@ A similar pattern is found in the relationship between the annual precipitation 
 
 The SAAR is the average annual rainfall in the standard period (1961-1990) in millimetres. The above plots show that the catchments with the highest annual precipitation accumulations at low durations (~<8h), are those with low SAAR values. At longer durations (>~8h), the catchments with the highest annual precipitation accumulations for that duration, also have higher SAAR values.
 
-### Calculating design rainfalls from...
+<a name="runoff"></a>
+## Catchment runoff
 
-ReFH2's rainfall-runoff model imports the outputs from the FEH DDF model and uses them as a design storm input. FEH13 calculates
-pre-defined return period/duration combinations and so to calculate other combinations a non-linear interpolation procedure is invoked. The final design rainfall depth in ReFH2 is calculated as the product of the FEH DDF rainfall depths, the areal reduction factor, and the seasonal correction factor (SCF). The SCF converts an annual maximum rainfall depth to a seasonal maximum depth and is calculated based upon location, season, duration and selected return period [NB: the total rainfall given in ReFH2 can be calculated by multiplying the values provided in the csv file of catchment rainfalls exported from FEH web server by the SCF].
+The ReFH2 rainfall runoff model translates the rainfall depths derived from the FEH13 DDF model into runoff. FEH13 calculates pre-defined return period/duration combinations and so to calculate other combinations a non-linear interpolation procedure is invoked. The final design rainfall depth in ReFH2 is calculated as the product of the FEH DDF rainfall depths, the areal reduction factor, and the seasonal correction factor (SCF). The SCF converts an annual maximum rainfall depth to a seasonal maximum depth and is calculated based upon location, season, duration and selected return period [NB: the total rainfall given in ReFH2 can be calculated by multiplying the values provided in the csv file of catchment rainfalls exported from FEH web server by the SCF].
 
-The default seasonality is adopted based on urban extent and BFIHOST19, and summer storms are selected by default if:  
+ReFH2 uses data on initial catchment conditions and model parameters that are estimated from catchment descriptors to convert rainfall into runoff. A storm seasonality (summer or winter) is selected and the rainfall depth is scaled accordingly to reflect that season in order to produce summer and winter hyetographs. The default seasonality is adopted based on urban extent and BFIHOST19, and summer storms are selected by default if:  
 * URBEXT2000 is ≥ 0.30, or  
 *	0.15 ≤ URBEXT2000 < 0.30 and BFIHOST19 is ≥ 0.65.
 Winter storms are selected by default in all other cases.
 
-Out of the 20 Leeds catchments, only 4 (Wyke Beck, Bagley Beck, Meanwood Beck, Carr Beck) use a summer storm profile by default.
+Out of the 20 Leeds catchments, only 4 (Wyke Beck, Bagley Beck, Meanwood Beck, Carr Beck) use a summer storm profile by default. 
 
-The ReFH2 software generates hyetographs based on Flood Studies Report (FSR)/FEH approaches, and again depending on whether a winter or summer storm profile is selected.
-
-Ref: https://wiki.tuflow.com/index.php?title=Using_ReFH2_to_Generate_TUFLOW_Boundary_Inputs
-
-<a name="runoff"></a>
-## Catchment runoff
-
-The ReFH2 model translates the rainfall depths derived from the FEH13 DDF model into runoff. This uses data on initial catchment conditions and model parameters that are estimated from catchment descriptors. A storm seasonality (summer or winter) is selected and the rainfall depth is scaled accordingly to reflect that season in order to produce summer and winter hyetographs. Additionally, in ReFH2 rainfall hyetographs are available as both rural and urbanised scenarios. The ReFH2 model has both a rural catchment model component and an urban catchment model. In rural scenarios, the whole catchment is modelled using the rural catchment model, wheras in urbanised scenarios the catchment area which is urban is first delineated, and then this urban area is run through the urban model, and the remainder of the catchment is modelled as rural.  
+Additionally, in ReFH2 rainfall hyetographs are available as both rural and urbanised scenarios. The ReFH2 model has both a rural catchment model component and an urban catchment model. In rural scenarios, the whole catchment is modelled using the rural catchment model, wheras in urbanised scenarios the catchment area which is urban is first delineated, and then this urban area is run through the urban model, and the remainder of the catchment is modelled as rural.  
 
 ReFH2 allows the user to define a duration of rainfall and then calculates the associated peak flow (m^3/s) and total direct runoff (ml) in both rural and urbanised scenarios for return periods of 1, 2, 5, 10, 30, 50, 75, 100, 200 and 1000 years. The direct runoff is the total cumulative amount of runoff during that rainfall event, and as such the longer duration the storm the higher that value becomes. Contrastingly, the storm duration associated with the highest peak flow (known as the critical storm duration) is not generally the longest storm duration, and will be dependent on catchment characteristics. This is seen in Figure 8, where the greatest runoff volume is found at the longest duration, whereas the greatest peak flow value varies between catchments but generally occurs at a shorter duration.  
 
