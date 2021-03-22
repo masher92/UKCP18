@@ -201,13 +201,40 @@ Across all return periods, the mean difference
   <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/ALTBARvsUvR_Diff_Winter.PNG" width="230"  />      
 <p align="center">  <p align="center">
 
-#### Altitude
+#### BfIHOST
 Across all return periods, the mean difference
 <p align="center">
   <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/BFIHOSTvsSvW_Diff_Urban.PNG" width="230"  />    
   <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/BFIHOSTvsSvW_Diff_Rural.PNG" width="230"  />    
   <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/BFIHOSTvsUvR_Diff_Summer.PNG" width="230"  />
   <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/BFIHOSTvsUvR_Diff_Winter.PNG" width="230"  />      
+<p align="center">  <p align="center">
+
+#### Steepness
+Across all return periods, the mean difference
+<p align="center">
+  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/DPSBARvsSvW_Diff_Urban.PNG" width="230"  />    
+  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/DPSBARvsSvW_Diff_Rural.PNG" width="230"  />    
+  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/DPSBARvsUvR_Diff_Summer.PNG" width="230"  />
+  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/DPSBARvsUvR_Diff_Winter.PNG" width="230"  />      
+<p align="center">  <p align="center">
+
+#### Standard Average Areal Rainfall
+Across all return periods, the mean difference
+<p align="center">
+  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/DPSBARvsSvW_Diff_Urban.PNG" width="230"  />    
+  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/DPSBARvsSvW_Diff_Rural.PNG" width="230"  />    
+  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/DPSBARvsUvR_Diff_Summer.PNG" width="230"  />
+  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/DPSBARvsUvR_Diff_Winter.PNG" width="230"  />      
+<p align="center">  <p align="center">
+  
+#### Urban Extent
+Across all return periods, the mean difference
+<p align="center">
+  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/URBEXT2000vsSvW_Diff_Urban.PNG" width="230"  />    
+  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/URBEXT2000vsSvW_Diff_Rural.PNG" width="230"  />    
+  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/URBEXT2000vsUvR_Diff_Summer.PNG" width="230"  />
+  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/URBEXT2000vsUvR_Diff_Winter.PNG" width="230"  />      
 <p align="center">  <p align="center">
 
 
