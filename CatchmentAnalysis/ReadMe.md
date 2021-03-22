@@ -12,19 +12,19 @@ This file contains analysis of 20 urban catchments within Leeds.
 <a name="loc"></a>
 ## Catchment Locations
 
-Leeds City Council (LCC) have defined 46 urban catchments in Leeds. The boundaries of these catchments are defined in blue in Figure 1.
-
-
 <p align="center">
   <img src="Figs/Catchments_matching_FEH.PNG" width="500"  />  
-<p align="center"> Figure 1. Urban catchments defined by LCC (blue outlines), and catchment boundaries from FEH web server (filled in with green if ReFH2 data has been downloaded, and red if it has not) <p align="center">
+  <img src="Figs/AllCatchments/CatchmentDescriptors/Area.PNG" width="400" />
+<p align="center"> Figure 1. Urban catchments defined by LCC (blue outlines), and catchment boundaries from FEH web server (green fill) <p align="center">
+
+Leeds City Council (LCC) defined the boundaries of 46 urban catchments in Leeds, shown in blue in Figure 1. Using the FEH web service, 20 catchments with boundaries closely matching those identified by LCC have been identified and are shown in green on Figure 1.  The area of these 20 catchments range between 5km<sup>2</sup> and 71km<sup>2</sup>.  The LCC catchments which couldn't be generated in the FEH web service are sub-catchments of major rivers (Aire, Wharfe, Nidd and Calder).
 
 The FEH web service identifies the catchment area upstream of a catchment outlet point. For each catchment it generates:
 * The catchment boundaries as a shapefile;
 * Design rainfall depths for pre-defined return period/duration combinations;  
 * Catchment descriptors based on the Integrated Hydrological Digital Terrain Model (IHDTM).
 
-Using the FEH web service, 21 catchments with boundaries closely matching those identified by LCC have been identified and are shown on Figure 1. The LCC catchments which couldn't be generated in the FEH web service are sub-catchments of major rivers (Aire, Wharfe, Nidd and Calder). The area of these 21 catchments range between 5km<sup>2</sup> and 71km<sup>2</sup>.
+This data is analysed in more depth below.
 
 <p align="center">
   <img src="Figs/AllCatchments/CatchmentDescriptors/Area.PNG" width="400" />
