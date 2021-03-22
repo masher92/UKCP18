@@ -14,10 +14,13 @@ This file contains analysis of 20 urban catchments within Leeds.
 
 <p align="center">
   <img src="Figs/Catchments_matching_FEH.PNG" width="500"  />  
-  <img src="Figs/AllCatchments/CatchmentDescriptors/Area.PNG" width="400" />
 <p align="center"> Figure 1. Urban catchments defined by LCC (blue outlines), and catchment boundaries from FEH web server (green fill) <p align="center">
 
 Leeds City Council (LCC) defined the boundaries of 46 urban catchments in Leeds, shown in blue in Figure 1. Using the FEH web service, 20 catchments with boundaries closely matching those identified by LCC have been identified and are shown in green on Figure 1.  The area of these 20 catchments range between 5km<sup>2</sup> and 71km<sup>2</sup>.  The LCC catchments which couldn't be generated in the FEH web service are sub-catchments of major rivers (Aire, Wharfe, Nidd and Calder).
+
+<p align="center">
+  <img src="Figs/AllCatchments/CatchmentDescriptors/Area.PNG" width="400" />
+<p align="center"> Figure 2. Histogram of catchment area (km<sup>2</sup>) <p align="center">
 
 The FEH web service identifies the catchment area upstream of a catchment outlet point. For each catchment it generates:
 * The catchment boundaries as a shapefile;
@@ -25,10 +28,6 @@ The FEH web service identifies the catchment area upstream of a catchment outlet
 * Catchment descriptors based on the Integrated Hydrological Digital Terrain Model (IHDTM).
 
 This data is analysed in more depth below.
-
-<p align="center">
-  <img src="Figs/AllCatchments/CatchmentDescriptors/Area.PNG" width="400" />
-<p align="center"> Figure 2. Histogram of catchment area (km<sup>2</sup>) <p align="center">
 
 <a name="descriptors"></a>
 ## Catchment Descriptors
