@@ -251,18 +251,15 @@ Weak negative correlation between the difference in peak flow between summer and
 
 
 ### Variation in peak flow between catchments 
+
+In Figure 10 the peak flow at durations between 1 and 39 hours are plottted for each catchment, for several return periods. 
+
 <p align="center">
   <img src="Figs/AllCatchments/Runoff/Peaks_Urban_Summer.png" width="1000"  />    
 <p align="center"> Figure 10. Normalised peak flows in Leeds catchments for durations between 1 and 39h, for various return periods <p align="center">
 
-Difference between summer and winter - maybe its not very easy to compare between these whilst the plots are normalised?
-
-
-
 #### Critical storm duration 
 The critical storm duration (duration with highest peak flow) is generally associated with the widest flood extent and is of great importance for surface water flooding. Understanding a catchment's critical storm duration is important in order to understand the kinds of storms which are most likely to lead to surface water flooding in the catchment. 
-
-
 
 Urban peak flow, winter
 <p align="center">
@@ -270,9 +267,6 @@ Urban peak flow, winter
   <img src="Figs/AllCatchments/Runoff/Groups/NormalisedUrbanPeakFlow_byduration_Winter_medhighgroup.png" width="700"  />    
   <img src="Figs/AllCatchments/Runoff/Groups/NormalisedUrbanPeakFlow_byduration_Winter_medgroup.png" width="700"  />     
   <img src="Figs/AllCatchments/Runoff/Groups/NormalisedUrbanPeakFlow_byduration_Winter_lowgroup.png" width="700"  />   
-
-
-
 
 #### Catchment critical durations
 
