@@ -7,8 +7,8 @@ This file contains analysis of 20 urban catchments within Leeds.
 1. [ Catchment locations. ](#loc)
 2. [ Catchment descriptors. ](#descriptors)
 3. [ Catchment rainfall from FEH. ](#rainfall)  
-  a. [ Relationship between catchment rainfall and catchment descriptors. ](#rainfallvsdescriptors)
-5. [ Catchment runoff. ](#runoff)
+  a. [ Relationship with catchment descriptors. ](#rainfallvsdescriptors)
+4. [ Catchment runoff. ](#runoff)
 
 <a name="loc"></a>
 ## Catchment Locations
