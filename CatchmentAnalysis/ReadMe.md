@@ -54,7 +54,7 @@ For each of these catchment descriptors the spread of values across the 20 catch
 <img src="Figs/AllCatchments/CatchmentDescriptors/ALTBARvsEasting.PNG" width="300"  />    
 <p align="center"> Figure 3. Mean Catchment Altitude (m above sea level) <p align="center">
 
-The altitude of the catchments vary between 47m and 226m. The highest catchment is in the North-West. There is a strong negative relationship between catchment altitude and Easting (meaning the further West you go, the higher the altitude) and a weaker positive relationship between altitude and Northing.
+The altitude of the catchments vary between 47m and 226m above sea level. The highest catchment is Gill Beck (Aire) in the north west. There is a strong negative relationship between catchment altitude and easting (meaning the further west you go, the higher the altitude) and a weaker positive relationship between altitude and northing.
 
 ### Catchment Steepness (m per km)
 <p align="center">
@@ -66,7 +66,7 @@ The altitude of the catchments vary between 47m and 226m. The highest catchment 
   <img src="Figs/AllCatchments/CatchmentDescriptors/DPSBARvsALTBAR.PNG" width="300"  />  
 <p align="center"> Figure 4. Catchment steepness (Metres per km)) <p align="center">
 
-The steepness of the catchments varies between 31.1 and 80.8. Catchments with a higher mean catchment altitude tend to have a higher catchment steepness; however, the relationship with Easting and Northing are not as clear as they are for altitude. 
+The steepness of the catchments varies between 31.1 and 80.8 m per km. Catchments with a higher mean catchment altitude tend to have a higher catchment steepness; however, the relationship with easting and northing are not as clear as they are for altitude. 
 
 ### Longest Drainage Path (km)
 <p align="center">
@@ -102,8 +102,8 @@ The urban extent in the catchments also has no correlation with easting, northin
   <img src="Figs/AllCatchments/CatchmentDescriptors/BFIHOSTvsALTBAR.PNG" width="300"  />  
 <p align="center"> Figure 7. BFIHOST <p align="center">
 
-The Base Flow Index has a weak positive relationship with Easting, and a negative relationship with Altitude, with the highest values generally found in catchments in the East.
-Cock Beck, Firgreen Beck, Fairburn Ings and Mill Dyke have values over 0.65, which represents that they are permeable catchments. The rest of the catchments have values belo 0.65, so are classed as impermeable.
+The Base Flow Index has a weak positive relationship with easting, and a negative relationship with altitude, with the highest values generally found in catchments in the east.
+Cock Beck, Firgreen Beck, Fairburn Ings and Mill Dyke have values over 0.65, which represents that they are permeable catchments. The rest of the catchments have values below 0.65, so are classed as impermeable.
 
 ### Standard Average Areal Rainfall (mm)
 <p align="center">
@@ -121,10 +121,10 @@ SAAR is strongly postively related to altitude, and consequently negatively rela
 ## Catchment design rainfall
 The FEH uses a depth-duration-frequency (DDF) model, based on complex statistical analysis of datasets of annual and seasonal maximum precipitation values, to estimate the annual maximum rainfall for events of particular durations and corresponding to certain return periods. FEH DDF design rainfall is supplied through the FEH web service.
 
-In Figure 9, the annual maximum rainfall accumualtions within the specified durations (between 0 and 96h, at 0.25h intervals) are shown for each return period, with a line for each catchment.
+In Figure 9, the annual maximum rainfall accumualtions within the specified durations (between 0.25 and 96 hours, at 0.25h intervals) are shown for each return period, with a line for each catchment.
 
 <p align="center">
-<img src="Figs/AllCatchments/Rainfall/Rainfall.png" width="1000" />
+<img src="Figs/AllCatchments/Rainfall/Rainfall.png" width="700" />
 <p align="center"> Figure 9. Annual maximum rainfall accumulations within the specified durations, over a range of return periods. Each line represents a different catchment <p align="center">
 
 Figure 10 helps to visualise the catchments which have the maximum and minimum precipitation values associated with certain durations and return periods, and to assess how much variation there is in this. 
