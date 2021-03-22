@@ -191,7 +191,7 @@ The peak flows found in Leeds catchments for various durations and return period
 
 
 <p align="center">
-  <img src="Figs/AllCatchments/10RP_comparingseason_rurality.png" width="500"  />    
+  <img src="Figs/AllCatchments/10RP_comparingseason_rurality.png" width="800"  />    
 <p align="center">  <p align="center">
 
 
