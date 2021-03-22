@@ -200,7 +200,10 @@ The plots in the section below help understand more about which catchment charac
   <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/ALTBARvsUvR_Diff_Winter.PNG" width="230"  />      
 <p align="center">  <p align="center">
 
-#### BfIHOST
+There is a strong negative correlation between the difference in peak flow between summer and winter and altitude, for models both with and without and urban component. This means that the higher the catchment altitude, the smaller the difference between peak flow from summer and winter storms.
+There is a weaker negative correlation between the difference in peak flow between a model with and without and urban component, for both summer and winter storm profiles.
+
+#### BFIHOST
 Across all return periods, the mean difference
 <p align="center">
   <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/BFIHOSTvsSvW_Diff_Urban.PNG" width="230"  />    
@@ -208,6 +211,8 @@ Across all return periods, the mean difference
   <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/BFIHOSTvsUvR_Diff_Summer.PNG" width="230"  />
   <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/BFIHOSTvsUvR_Diff_Winter.PNG" width="230"  />      
 <p align="center">  <p align="center">
+
+There is a weak positive correlation between the difference in peak flow between summer and winter and BFIHOST, for models both with and without and urban component. This means that catchments with a higher BFIHOST value (e.g. more permeable) have a greater difference between peak flow from summer and winter storms. There is no clear correlation between BFIHOST and the difference in peak flow between a model with and without and urban component.
 
 #### Steepness
 Across all return periods, the mean difference
@@ -217,6 +222,9 @@ Across all return periods, the mean difference
   <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/DPSBARvsUvR_Diff_Summer.PNG" width="230"  />
   <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/DPSBARvsUvR_Diff_Winter.PNG" width="230"  />      
 <p align="center">  <p align="center">
+
+There is a strong negative correlation between the difference in peak flow between summer and winter and altitude, for models both with and without and urban component. This means that the higher the catchment altitude, the smaller the difference between peak flow from summer and winter storms.
+There is a weaker negative correlation between the difference in peak flow between a model with and without and urban component, for both summer and winter storm profiles.
 
 #### Standard Average Areal Rainfall
 Across all return periods, the mean difference
