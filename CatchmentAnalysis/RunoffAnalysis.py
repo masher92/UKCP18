@@ -26,7 +26,7 @@ from moviepy.editor import *
 # Specify catchment name
 os.chdir("C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/FloodModelling/IndividualCatchments/")
 catchments  = glob.glob("*")
-ArithmeticErrorcatchments.remove("WortleyBeck")
+catchments.remove("WortleyBeck")
 #catchments = ['CarrBeck', 'GillBeck_Aire', 'GillBeck_Wharfe']
 #catchments = ['BalneBeck', 'HowleyBeck', 'BagleyBeck', 'GuiseleyBeck']
 #catchments = [ 'CollinghamBeck', 'FairburnIngs','FirgreenBeck', 'CockBeck_Aberford']
@@ -499,6 +499,90 @@ for i in range(0,len(catchments)):
     plt.savefig(root_fp +"DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/IndividualCatchments/CriticalDurations/{}_CriticalDurations.png".format(catchment_name),
                 bbox_inches = 'tight')
     plt.show()  
+    
+    
+##################################################################
+##################################################################
+# Plotting:
+
+##################################################################
+##################################################################   
+rp = 10
+
+# Create figure
+fig = plt.figure(figsize=(35, 20)) 
+# Loop through catchments, creating a plot for each catchment        
+for catchment_num, subplot_num in zip(range(0,len(catchments)+1), range(1,len(catchments)+1)):
+    print(catchment_num, subplot_num)
+   
+    # Define catchment
+    catchment_name = catchments[catchment_num]
+    print(catchment_name)
+    
+    # Loop through measures
+    for measure in ['Peaks']:
+        # Loop through ruralities
+        for rurality in ['Urban', 'Rural']:
+            # Define different base colors for each ruraliy
+            if rurality == 'Urban':
+                colors = ['black']  * len(durations)   
+            elif rurality == 'Rural':
+                colors = ['teal']  * len(durations)    
+            # Loop through seasonal storm profiles
+            for seasonal_storm_profile in seasonal_storm_profiles:
+                # Define different marker styles for summer and winter
+                if seasonal_storm_profile == 'Summer':
+                    marker = '^'
+                else:
+                    marker= 'x'
+                ## Extract correct data (according to whether on peak loop or runoff loop)                 
+                if measure == 'Peaks':
+                    label = 'Peak flow ($m^3$/s)'
+                    values = peaks_all_catchments_allrps[str(rp) + '_' + rurality+ '_' + seasonal_storm_profile] 
+                elif measure == 'Runoff':
+                    label = 'Direct Runoff (ml)'
+                    values = runoff_all_catchments_allrps[str(rp) + '_' + rurality+ '_' + seasonal_storm_profile] 
+                # Create a copy of the current color scheme being used (depending on urban or rural)
+                current_colors = colors.copy()
+                # set the maximum value to gold
+                current_colors[values[catchment_name].argmax()] = 'gold'    
+                    # Set up plot
+                ax = fig.add_subplot(4,5,subplot_num)
+                # Add line to plot
+                ax.scatter(values['Duration'], values[catchment_name], marker = marker, label= rurality  + ' (' + seasonal_storm_profile + ')',
+                           color = current_colors, s= 70)
+                
+                if subplot_num in [16,17,18,19,20]:
+                    # Axis labels and title formatting
+                    ax.set_xlabel('Duration', fontsize=18)
+                if subplot_num in [1,6,11,16]:
+                    ax.set_ylabel(label, fontsize=18)
+                ax.set_title(catchment_name, fontsize=20)
+                ax.tick_params(axis='both', which='major', labelsize=15)
+                # Rotate X ticks
+                plt.xticks(rotation = 45)
+      
+        # Add overall figure title
+        plt.suptitle("{} year RP".format(rp), fontsize=34)
+        
+    # # Set up overall legend
+box = ax.get_position()
+ax.set_position([box.x0, box.y0 + box.height * 0.3,
+                  box.width, box.height * 0.8])
+handles, labels = ax.get_legend_handles_labels()
+labels= ['Model with urban component (Summer)', 'Model with urban component (Winter)',
+         'Model without urban component (Summer)', 'Model without urban component (Winter)']
+ax.legend(handles,labels, loc='best', bbox_to_anchor=(0.4, -0.3),
+          fancybox=True, shadow=True, ncol=2,  fontsize = 30, markerscale = 3)
+# Adjust height between plots
+fig.subplots_adjust(top=0.92)
+plt.subplots_adjust(hspace=0.35)    
+            
+# Save and show plot
+plt.savefig(root_fp +"DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/{}RP_comparingseason_rurality.png".format(rp),
+            bbox_inches = 'tight')
+plt.show()  
+        
 
 ##################################################################
 ##################################################################
@@ -591,12 +675,13 @@ for catchment_name in catchments:
     # Plotted against catchment descriptors
 ##################################################################
 ##################################################################     
-variable1s = ['DPSBAR', 'URBEXT2000', 'ALTBAR', 'BFIHOST', 'SAAR']
-variabl1_units =['Catchment Steepness (m per km)', 'Urban extent (%)', 'Altitude (m above sea level)', 
+variable1s = ['AREA', 'DPSBAR', 'URBEXT2000', 'ALTBAR', 'BFIHOST', 'SAAR']
+variabl1_units =['Area (km)','Catchment Steepness (m per km)', 'Urban extent (%)', 'Altitude (m above sea level)', 
                  'BFIHOST', 'SAAR (mm)']
 variable2s = ['UvR_Diff_Winter', 'UvR_Diff_Summer', 'SvW_Diff_Urban', 'SvW_Diff_Rural']
 variable2_units = ['Urban Rural Difference (Winter)', 'Urban Rural Difference (Summer)', 'Summer Winter Difference (Urban)', 
                   'Summer Winter Difference (Rural)']
+
 variable1_units_dict = dict(zip(variable1s, variabl1_units))
 variable2_units_dict = dict(zip(variable2s, variable2_units))
 
@@ -608,12 +693,14 @@ for variable1, variable1_unit in variable1_units_dict.items():
         df2 = pd.DataFrame({'Catchment':catchments_info['name'], 
             variable1 : catchments_info[variable1],
             variable2 :mean_differences[variable2]})
+        df2['colo']
 
         fig = plt.figure()
         ax = fig.add_subplot(1,1,1)
         ax.clear()
         ax = sns.scatterplot(data=df2, x=variable1, y=variable2, style = 'Catchment', 
                     markers = catchment_markers_dict, hue = 'Catchment', s= 100)
+        
         ax.set_xlabel(variable1_unit)
         ax.set_ylabel(variable2_unit)
         ax.tick_params(axis='both', which='major')
