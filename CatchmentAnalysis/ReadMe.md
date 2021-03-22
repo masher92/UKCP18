@@ -252,57 +252,61 @@ Weak negative correlation between the difference in peak flow between summer and
 
 ### Variation in peak flow between catchments 
 
-In Figure 10 the peak flow at durations between 1 and 39 hours are plottted for each catchment, for several return periods. 
-
 <p align="center">
   <img src="Figs/AllCatchments/Runoff/Peaks_Urban_Summer.png" width="1000"  />    
 <p align="center"> Figure 10. Normalised peak flows in Leeds catchments for durations between 1 and 39h, for various return periods <p align="center">
 
-#### Critical storm duration 
-The critical storm duration (duration with highest peak flow) is generally associated with the widest flood extent and is of great importance for surface water flooding. Understanding a catchment's critical storm duration is important in order to understand the kinds of storms which are most likely to lead to surface water flooding in the catchment. 
+The nature of the relationship between duration and peak flow varies between catchments. To explore this, the peak flow at durations between 1 and 39 hours are plottted for each catchment, for several return periods, in Figure 10. This focuses on a summer storm profile, using a model including an urban component.
 
 <p align="center">
   <img src="Figs/AllCatchments/Runoff/UrbanSummerPeaks_grouped.PNG" width="1000"  />    
-<p align="center"> Figure 10. Normalised peak flows in Leeds catchments for durations between 1 and 39h, for various return periods <p align="center">
+<p align="center"> Figure 11. Normalised peak flows in Leeds catchments for durations between 1 and 39h, for various return periods <p align="center">
+  
+From Figure 10 it is apparent that the shape of the relationship between duration and peak flow varies between catchments. Four predominant response shapes can be picked out from Figure 10, and the catchments within each of these groups ae plotted seperately in Figure 11.
 
-#### Catchment critical durations
+### Critical storm duration 
+The critical storm duration (duration with highest peak flow) is generally associated with the widest flood extent and is of great importance for surface water flooding. Understanding a catchment's critical storm duration is important in order to understand the kinds of storms which are most likely to lead to surface water flooding in the catchment. 
 
-## Altitude
+<p align="center">
+  <img src="Figs/AllCatchments/Runoff/Peaks_criticaldurations_Urban_Summer.png" width="1000"  />    
+<p align="center"> Figure 12. Critical durations for each catchment and return period, for a summer storm profile and model including urban component s <p align="center">
+
+### Altitude
 
   ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Summer_UrbanvsALTBAR_CriticalDurations.gif)
   ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Summer_RuralvsALTBAR_CriticalDurations.gif)
   ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_UrbanvsALTBAR_CriticalDurations.gif)
   ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_RuralvsALTBAR_CriticalDurations.gif)
 
-  ## AREA
+### AREA
 
   ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Summer_UrbanvsAREA_CriticalDurations.gif)
   ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Summer_RuralvsAREA_CriticalDurations.gif)
   ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_UrbanvsAREA_CriticalDurations.gif)
   ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_RuralvsAREA_CriticalDurations.gif)
 
-  ## BFIHOST
+### BFIHOST
 
   ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Summer_UrbanvsBFIHOST_CriticalDurations.gif)
   ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Summer_RuralvsBFIHOST_CriticalDurations.gif)
   ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_UrbanvsBFIHOST_CriticalDurations.gif)
   ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_RuralvsBFIHOST_CriticalDurations.gif)
 
-  ## DPSBAR
+### DPSBAR
 
   ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Summer_UrbanvsDPSBAR_CriticalDurations.gif)
   ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Summer_RuralvsDPSBAR_CriticalDurations.gif)
   ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_UrbanvsDPSBAR_CriticalDurations.gif)
   ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_RuralvsDPSBAR_CriticalDurations.gif)
 
-  ## LDP
+### LDP
 
   ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Summer_UrbanvsLDP_CriticalDurations.gif)
   ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Summer_RuralvsLDP_CriticalDurations.gif)
   ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_UrbanvsLDP_CriticalDurations.gif)
   ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_RuralvsLDP_CriticalDurations.gif)
 
-  ## URBEXT200
+### URBEXT200
 
   ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Summer_UrbanvsURBEXT2000_CriticalDurations.gif)
   ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Summer_RuralvsURBEXT2000_CriticalDurations.gif)
