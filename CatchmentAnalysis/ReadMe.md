@@ -191,9 +191,8 @@ The peak flows found in Leeds catchments for various durations and return period
 
 
 <p align="center">
-  <img src="Figs/AllCatchments/" width="500"  />    
-<p align="center"> Figure 9. Normalised peak flows in Leeds catchments for durations between 1 and 39h, for various return periods <p align="center">
-
+  <img src="Figs/AllCatchments/10RP_comparingseason_rurality.png" width="500"  />    
+<p align="center">  <p align="center">
 
 
 <p align="center">
@@ -201,7 +200,7 @@ The peak flows found in Leeds catchments for various durations and return period
   <img src="Figs/AllCatchments/Runoff/Peaks_Rural_Summer.png" width="500"  />  
   <img src="Figs/AllCatchments/Runoff/Peaks_Urban_Winter.png" width="500"  />    
   <img src="Figs/AllCatchments/Runoff/Peaks_Rural_Winter.png" width="500"  />    
-<p align="center"> Figure 9. Normalised peak flows in Leeds catchments for durations between 1 and 39h, for various return periods <p align="center">
+<p align="center"> Figure 10. Normalised peak flows in Leeds catchments for durations between 1 and 39h, for various return periods <p align="center">
 
 Difference between summer and winter - maybe its not very easy to compare between these whilst the plots are normalised?
 
