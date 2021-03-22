@@ -190,11 +190,14 @@ The peak flow is generally associated with the widest flood extent and is of gre
   <img src="Figs/AllCatchments/10RP_comparingseason_rurality.png" width="1000"  />    
 <p align="center">  <p align="center">
 
+To understand more about the factors inf
+
+Across all return periods, the mean difference
 <p align="center">
-  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/ALTBARvsSvW_Diff_Urban.PNG" width="200"  />    
-  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/ALTBARvsSvW_Diff_Rural.PNG" width="200"  />    
-  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/ALTBARvsUvR_Diff_Summer.PNG" width="200"  />
-  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/ALTBARvsUvR_Diff_Winter.PNG" width="200"  />      
+  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/ALTBARvsSvW_Diff_Urban.PNG" width="300"  />    
+  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/ALTBARvsSvW_Diff_Rural.PNG" width="300"  />    
+  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/ALTBARvsUvR_Diff_Summer.PNG" width="300"  />
+  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/ALTBARvsUvR_Diff_Winter.PNG" width="300"  />      
 <p align="center">  <p align="center">
 
 
