@@ -165,7 +165,7 @@ The SAAR is the average annual rainfall in the standard period (1961-1990) in mi
 
 <a name="runoff"></a>
 ## Catchment runoff
-#### Calculating catchment runoff
+### Calculating catchment runoff
 The ReFH2 rainfall runoff model translates the rainfall depths derived from the FEH13 DDF model into runoff. FEH13 calculates pre-defined return period/duration combinations and so to calculate other combinations a non-linear interpolation procedure is invoked. The final design rainfall depth in ReFH2 is calculated as the product of the FEH DDF rainfall depths, the areal reduction factor, and the seasonal correction factor (SCF). The SCF converts an annual maximum rainfall depth to a seasonal maximum depth and is calculated based upon location, season, duration and selected return period [NB: the total rainfall given in ReFH2 can be calculated by multiplying the values provided in the csv file of catchment rainfalls exported from FEH web server by the SCF]. The storm seasonality (summer or winter) can be selected in ReFH2 manually, or alternatively a default seasonality is adopted based on urban extent and BFIHOST19, and summer storms are selected by default if:  
 * URBEXT2000 is ≥ 0.30, or  
 *	0.15 ≤ URBEXT2000 < 0.30 and BFIHOST19 is ≥ 0.65.
@@ -175,7 +175,7 @@ Out of the 20 Leeds catchments, only 4 (Wyke Beck, Bagley Beck, Meanwood Beck, C
 
 ReFH2 uses data on initial catchment conditions and model parameters that are estimated from catchment descriptors to convert rainfall into runoff, and the rainfall depth is scaled accordingly to reflect that season in order to produce summer and winter hyetographs. Additionally, in ReFH2 rainfall hyetographs are available as both rural and urbanised scenarios. The ReFH2 model has both a rural catchment model component and an urban catchment model. In rural scenarios, the whole catchment is modelled using the rural catchment model, wheras in urbanised scenarios the catchment area which is urban is first delineated, and then this urban area is run through the urban model, and the remainder of the catchment is modelled as rural.  
 
-#### ReFH2 outputs: peak flow and direct runoff
+### ReFH2 outputs: peak flow and direct runoff
 ReFH2 allows the user to define a duration of rainfall and then calculates the associated peak flow (m^3/s) and total direct runoff (ml) in both rural and urbanised scenarios for return periods of 1, 2, 5, 10, 30, 50, 75, 100, 200 and 1000 years. The direct runoff is the total cumulative amount of runoff during that rainfall event, and as such the longer duration the storm the higher that value becomes. Contrastingly, the storm duration associated with the highest peak flow (known as the critical storm duration) is not generally the longest storm duration, and will be dependent on catchment characteristics. This is seen in Figure 8, where the greatest runoff volume is found at the longest duration, whereas the greatest peak flow value varies between catchments but generally occurs at a shorter duration.  
 
 <p align="center">
@@ -183,15 +183,74 @@ ReFH2 allows the user to define a duration of rainfall and then calculates the a
   <img src="Figs/AllCatchments/Peaks_SummerUrban_1yr.PNG" width="300"  />  
 <p align="center"> Figure 8. Direct runoff in ml (left) and peak flow in m^3/s (right) for a 1 year return period event in summer using an urbanised scenario <p align="center">
 
-
-#### Peak flow by duration 
+### Variation in peak flow with rurality and seasonality 
 The peak flow is generally associated with the widest flood extent and is of great importance for surface water flooding. The peak flows found in Leeds catchments for various durationsacross both urbanised and rural scenarios, and for both winter and summer storm profiles, at a ten year return period, are shown in Figure 9. This shows that the relationship between peak flow and rainfall event duration varies extensively between different catchments. There is also clear variation between catchments in how much this relationship differs from summer to winter, and between urbanised and rural scenarios. Across all catchments, using a summer storm profile results in higher peak flows than a winter storm profile. In almost all catchments the model including the urban component has higher peak flows than the model with no urban component. However, in Gill Beck (Aire) which is one of the catchments with the lowest urban extent, there is practically no difference between the two. 
 
 <p align="center">
   <img src="Figs/AllCatchments/10RP_comparingseason_rurality.png" width="1000"  />    
 <p align="center">  <p align="center">
 
+The plots in the section below help understand more about which catchment characteristics influence the variation in catchment response to summer and winter storms and to modelling with or without an urban component. The mean difference across all return periods between the peak flow in summer and winter (for a model both with and without an urban component) and between the peak flow using a model with an urban component and the model without an urban component (for both summer and winter storm profiles), is plotted against the value for various catchment descriptors for each catchment.
 
+#### Altitude
+<p align="center">
+  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/ALTBARvsSvW_Diff_Urban.PNG" width="230"  />    
+  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/ALTBARvsSvW_Diff_Rural.PNG" width="230"  />    
+  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/ALTBARvsUvR_Diff_Summer.PNG" width="230"  />
+  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/ALTBARvsUvR_Diff_Winter.PNG" width="230"  />      
+<p align="center">  <p align="center">
+
+There is a strong negative correlation between the difference in peak flow between summer and winter and altitude, for models both with and without and urban component. This means that the higher the catchment altitude, the smaller the difference between peak flow from summer and winter storms.
+There is a weaker negative correlation between the difference in peak flow between a model with and without and urban component, for both summer and winter storm profiles.
+
+#### BFIHOST
+<p align="center">
+  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/BFIHOSTvsSvW_Diff_Urban.PNG" width="230"  />    
+  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/BFIHOSTvsSvW_Diff_Rural.PNG" width="230"  />    
+  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/BFIHOSTvsUvR_Diff_Summer.PNG" width="230"  />
+  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/BFIHOSTvsUvR_Diff_Winter.PNG" width="230"  />      
+<p align="center">  <p align="center">
+
+There is a weak positive correlation between the difference in peak flow between summer and winter and BFIHOST, for models both with and without and urban component. This means that catchments with a higher BFIHOST value (e.g. more permeable) have a greater difference between peak flow from summer and winter storms. There is no clear correlation between BFIHOST and the difference in peak flow between a model with and without and urban component.
+
+#### Steepness
+<p align="center">
+  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/DPSBARvsSvW_Diff_Urban.PNG" width="230"  />    
+  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/DPSBARvsSvW_Diff_Rural.PNG" width="230"  />    
+  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/DPSBARvsUvR_Diff_Summer.PNG" width="230"  />
+  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/DPSBARvsUvR_Diff_Winter.PNG" width="230"  />      
+<p align="center">  <p align="center">
+
+There is a weak negative correlation between the difference in peak flow between summer and winter and steepness, for models both with and without and urban component, and between the difference in peak flow between a model with and without and urban component and steepnes, for both summer and winter storm profiles.
+
+#### Standard Average Areal Rainfall
+<p align="center">
+  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/DPSBARvsSvW_Diff_Urban.PNG" width="230"  />    
+  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/DPSBARvsSvW_Diff_Rural.PNG" width="230"  />    
+  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/DPSBARvsUvR_Diff_Summer.PNG" width="230"  />
+  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/DPSBARvsUvR_Diff_Winter.PNG" width="230"  />      
+<p align="center">  <p align="center">
+  
+#### Urban Extent
+<p align="center">
+  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/URBEXT2000vsSvW_Diff_Urban.PNG" width="230"  />    
+  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/URBEXT2000vsSvW_Diff_Rural.PNG" width="230"  />    
+  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/URBEXT2000vsUvR_Diff_Summer.PNG" width="230"  />
+  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/URBEXT2000vsUvR_Diff_Winter.PNG" width="230"  />      
+<p align="center">  <p align="center">
+
+Weak negative correlation between the difference in peak flow between summer and winter and urban extent, for models both with and without and urban component. Surprisingly, there is little correlation evident between the urban extent and the difference in peak flow between a model with and without and urban component, for both summer and winter storm profiles.
+
+#### Area
+<p align="center">
+  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/AREAvsSvW_Diff_Urban.PNG" width="230"  />    
+  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/AREAvsSvW_Diff_Rural.PNG" width="230"  />    
+  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/AREAvsUvR_Diff_Summer.PNG" width="230"  />
+  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/AREAvsUvR_Diff_Winter.PNG" width="230"  />      
+<p align="center">  <p align="center">
+
+
+### Variation in peak flow between catchments 
 <p align="center">
   <img src="Figs/AllCatchments/Runoff/Peaks_Urban_Summer.png" width="1000"  />    
 <p align="center"> Figure 10. Normalised peak flows in Leeds catchments for durations between 1 and 39h, for various return periods <p align="center">
