@@ -253,23 +253,28 @@ Weak negative correlation between the difference in peak flow between summer and
 ### Variation in peak flow between catchments 
 
 <p align="center">
-  <img src="Figs/AllCatchments/Runoff/Peaks_Urban_Summer.png" width="1000"  />    
+  <img src="Figs/AllCatchments/Runoff/Peaks_Urban_Summer.png" width="800"  />    
 <p align="center"> Figure 10. Normalised peak flows in Leeds catchments for durations between 1 and 39h, for various return periods <p align="center">
 
 The nature of the relationship between duration and peak flow varies between catchments. To explore this, the peak flow at durations between 1 and 39 hours are plottted for each catchment, for several return periods, in Figure 10. This focuses on a summer storm profile, using a model including an urban component.
 
 <p align="center">
-  <img src="Figs/AllCatchments/Runoff/UrbanSummerPeaks_grouped.PNG" width="1000"  />    
+  <img src="Figs/AllCatchments/Runoff/UrbanSummerPeaks_grouped.PNG" width="800"  />    
 <p align="center"> Figure 11. Normalised peak flows in Leeds catchments for durations between 1 and 39h, for various return periods <p align="center">
   
 From Figure 10 it is apparent that the shape of the relationship between duration and peak flow varies between catchments. Four predominant response shapes can be picked out from Figure 10, and the catchments within each of these groups ae plotted seperately in Figure 11.
 
-### Critical storm duration 
+## Critical storm duration 
 The critical storm duration (duration with highest peak flow) is generally associated with the widest flood extent and is of great importance for surface water flooding. Understanding a catchment's critical storm duration is important in order to understand the kinds of storms which are most likely to lead to surface water flooding in the catchment. 
 
 <p align="center">
-  <img src="Figs/AllCatchments/Runoff/Peaks_criticaldurations_Urban_Summer.png" width="1000"  />    
+  <img src="Figs/AllCatchments/Runoff/Peaks_criticaldurations_Urban_Summer.png" width="400"  />    
 <p align="center"> Figure 12. Critical durations for each catchment and return period, for a summer storm profile and model including urban component s <p align="center">
+
+
+## Relationship between critical storm durations and catchment descriptors
+
+Critical storm durations are likely to be influenced by catchment characteristics. To investigate this, the plots below display the relationship between catchment critical duration and various catchment descriptors. Each frame in the animation shows the relationship for one return period, with a seperate plot for summer and winter storm profiles, and models including and excluding an urban component.
 
 ### Altitude
 
@@ -278,12 +283,16 @@ The critical storm duration (duration with highest peak flow) is generally assoc
   ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_UrbanvsALTBAR_CriticalDurations.gif)
   ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_RuralvsALTBAR_CriticalDurations.gif)
 
-### AREA
+Across all return periods, there is a negative correlation between catchment altitude and critical duration. This means that the higher the elevation of the catchment, the shorter the critical storm duration. 
+
+### Area
 
   ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Summer_UrbanvsAREA_CriticalDurations.gif)
   ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Summer_RuralvsAREA_CriticalDurations.gif)
   ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_UrbanvsAREA_CriticalDurations.gif)
   ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_RuralvsAREA_CriticalDurations.gif)
+
+Across all return periods, there is a negative correlation between catchment altitude and critical duration. This means that the higher the elevation of the catchment, the shorter the critical storm duration. 
 
 ### BFIHOST
 
