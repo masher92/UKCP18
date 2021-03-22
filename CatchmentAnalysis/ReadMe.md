@@ -190,10 +190,9 @@ The peak flow is generally associated with the widest flood extent and is of gre
   <img src="Figs/AllCatchments/10RP_comparingseason_rurality.png" width="1000"  />    
 <p align="center">  <p align="center">
 
-To understand more about the factors inf
+The plots in the section below help understand more about which catchment characteristics influence the variation in catchment response to summer and winter storms and to modelling with or without an urban component. The mean difference across all return periods between the peak flow in summer and winter (for a model both with and without an urban component) and between the peak flow using a model with an urban component and the model without an urban component (for both summer and winter storm profiles), is plotted against the value for various catchment descriptors for each catchment.
 
 #### Altitude
-Across all return periods, the mean difference
 <p align="center">
   <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/ALTBARvsSvW_Diff_Urban.PNG" width="230"  />    
   <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/ALTBARvsSvW_Diff_Rural.PNG" width="230"  />    
