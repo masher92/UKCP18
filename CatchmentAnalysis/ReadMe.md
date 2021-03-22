@@ -191,16 +191,14 @@ The peak flow is generally associated with the widest flood extent and is of gre
 <p align="center">  <p align="center">
 
 <p align="center">
-  <img src="Figs/AllCatchments/VsCatchmentDescriptors/ALTBARvsSvW_Diff_Urban.PNG" width="200"  />    
-  <img src="Figs/AllCatchments/VsCatchmentDescriptors/ALTBARvsSvW_Diff_Rural.PNG" width="200"  />    
-  <img src="Figs/AllCatchments/VsCatchmentDescriptors/ALTBARvsUvR_Diff_Summer.PNG" width="200"  />
-  <img src="Figs/AllCatchments/VsCatchmentDescriptors/ALTBARvsUvR_Diff_Winter.PNG" width="200"  />      
+  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/ALTBARvsSvW_Diff_Urban.PNG" width="200"  />    
+  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/ALTBARvsSvW_Diff_Rural.PNG" width="200"  />    
+  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/ALTBARvsUvR_Diff_Summer.PNG" width="200"  />
+  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/ALTBARvsUvR_Diff_Winter.PNG" width="200"  />      
 <p align="center">  <p align="center">
 
 
-
-
-
+### Variation in peak flow between catchments 
 <p align="center">
   <img src="Figs/AllCatchments/Runoff/Peaks_Urban_Summer.png" width="1000"  />    
 <p align="center"> Figure 10. Normalised peak flows in Leeds catchments for durations between 1 and 39h, for various return periods <p align="center">
