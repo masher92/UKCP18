@@ -175,6 +175,7 @@ Out of the 20 Leeds catchments, only 4 (Wyke Beck, Bagley Beck, Meanwood Beck, C
 
 ReFH2 uses data on initial catchment conditions and model parameters that are estimated from catchment descriptors to convert rainfall into runoff, and the rainfall depth is scaled accordingly to reflect that season in order to produce summer and winter hyetographs. Additionally, in ReFH2 rainfall hyetographs are available as both rural and urbanised scenarios. The ReFH2 model has both a rural catchment model component and an urban catchment model. In rural scenarios, the whole catchment is modelled using the rural catchment model, wheras in urbanised scenarios the catchment area which is urban is first delineated, and then this urban area is run through the urban model, and the remainder of the catchment is modelled as rural.  
 
+#### ReFH2 outputs: peak flow and direct runoff
 ReFH2 allows the user to define a duration of rainfall and then calculates the associated peak flow (m^3/s) and total direct runoff (ml) in both rural and urbanised scenarios for return periods of 1, 2, 5, 10, 30, 50, 75, 100, 200 and 1000 years. The direct runoff is the total cumulative amount of runoff during that rainfall event, and as such the longer duration the storm the higher that value becomes. Contrastingly, the storm duration associated with the highest peak flow (known as the critical storm duration) is not generally the longest storm duration, and will be dependent on catchment characteristics. This is seen in Figure 8, where the greatest runoff volume is found at the longest duration, whereas the greatest peak flow value varies between catchments but generally occurs at a shorter duration.  
 
 <p align="center">
@@ -182,14 +183,32 @@ ReFH2 allows the user to define a duration of rainfall and then calculates the a
   <img src="Figs/AllCatchments/Peaks_SummerUrban_1yr.PNG" width="300"  />  
 <p align="center"> Figure 8. Direct runoff in ml (left) and peak flow in m^3/s (right) for a 1 year return period event in summer using an urbanised scenario <p align="center">
 
-The critical storm duration (duration with highest peak flow) is generally associated with the widest flood extent and is of great importance for surface water flooding. Understanding a catchment's critical storm duration is important in order to understand the kinds of storms which are most likely to lead to surface water flooding in the catchment.
+#### Peak flow by duration and return period
+
+The critical storm duration (duration with highest peak flow) is generally associated with the widest flood extent and is of great importance for surface water flooding. Understanding a catchment's critical storm duration is important in order to understand the kinds of storms which are most likely to lead to surface water flooding in the catchment. 
+
+The peak flows found in Leeds catchments for various durations and return periods are explored in Figure 9, across both urbanised and rural scenarios, and for both winter and summer storm profiles. The peak flows have been normalised to allow comparison between catchments. 
+
+
+<p align="center">
+  <img src="Figs/AllCatchments/" width="500"  />    
+<p align="center"> Figure 9. Normalised peak flows in Leeds catchments for durations between 1 and 39h, for various return periods <p align="center">
+
+
 
 <p align="center">
   <img src="Figs/AllCatchments/Runoff/Peaks_Urban_Summer.png" width="500"  />    
   <img src="Figs/AllCatchments/Runoff/Peaks_Rural_Summer.png" width="500"  />  
   <img src="Figs/AllCatchments/Runoff/Peaks_Urban_Winter.png" width="500"  />    
   <img src="Figs/AllCatchments/Runoff/Peaks_Rural_Winter.png" width="500"  />    
-<p align="center"> Figure 8. <p align="center">
+<p align="center"> Figure 9. Normalised peak flows in Leeds catchments for durations between 1 and 39h, for various return periods <p align="center">
+
+Difference between summer and winter - maybe its not very easy to compare between these whilst the plots are normalised?
+
+
+
+
+
 
 Urban peak flow, winter
 <p align="center">
@@ -197,6 +216,11 @@ Urban peak flow, winter
   <img src="Figs/AllCatchments/Runoff/Groups/NormalisedUrbanPeakFlow_byduration_Winter_medhighgroup.png" width="700"  />    
   <img src="Figs/AllCatchments/Runoff/Groups/NormalisedUrbanPeakFlow_byduration_Winter_medgroup.png" width="700"  />     
   <img src="Figs/AllCatchments/Runoff/Groups/NormalisedUrbanPeakFlow_byduration_Winter_lowgroup.png" width="700"  />   
+
+
+
+
+#### Catchment critical durations
 
 ## Altitude
 
