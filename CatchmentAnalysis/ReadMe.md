@@ -204,7 +204,6 @@ There is a strong negative correlation between the difference in peak flow betwe
 There is a weaker negative correlation between the difference in peak flow between a model with and without and urban component, for both summer and winter storm profiles.
 
 #### BFIHOST
-Across all return periods, the mean difference
 <p align="center">
   <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/BFIHOSTvsSvW_Diff_Urban.PNG" width="230"  />    
   <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/BFIHOSTvsSvW_Diff_Rural.PNG" width="230"  />    
@@ -215,7 +214,6 @@ Across all return periods, the mean difference
 There is a weak positive correlation between the difference in peak flow between summer and winter and BFIHOST, for models both with and without and urban component. This means that catchments with a higher BFIHOST value (e.g. more permeable) have a greater difference between peak flow from summer and winter storms. There is no clear correlation between BFIHOST and the difference in peak flow between a model with and without and urban component.
 
 #### Steepness
-Across all return periods, the mean difference
 <p align="center">
   <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/DPSBARvsSvW_Diff_Urban.PNG" width="230"  />    
   <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/DPSBARvsSvW_Diff_Rural.PNG" width="230"  />    
@@ -223,11 +221,9 @@ Across all return periods, the mean difference
   <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/DPSBARvsUvR_Diff_Winter.PNG" width="230"  />      
 <p align="center">  <p align="center">
 
-There is a strong negative correlation between the difference in peak flow between summer and winter and altitude, for models both with and without and urban component. This means that the higher the catchment altitude, the smaller the difference between peak flow from summer and winter storms.
-There is a weaker negative correlation between the difference in peak flow between a model with and without and urban component, for both summer and winter storm profiles.
+There is a weak negative correlation between the difference in peak flow between summer and winter and steepness, for models both with and without and urban component, and between the difference in peak flow between a model with and without and urban component and steepnes, for both summer and winter storm profiles.
 
 #### Standard Average Areal Rainfall
-Across all return periods, the mean difference
 <p align="center">
   <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/DPSBARvsSvW_Diff_Urban.PNG" width="230"  />    
   <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/DPSBARvsSvW_Diff_Rural.PNG" width="230"  />    
@@ -236,7 +232,6 @@ Across all return periods, the mean difference
 <p align="center">  <p align="center">
   
 #### Urban Extent
-Across all return periods, the mean difference
 <p align="center">
   <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/URBEXT2000vsSvW_Diff_Urban.PNG" width="230"  />    
   <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/URBEXT2000vsSvW_Diff_Rural.PNG" width="230"  />    
@@ -244,6 +239,15 @@ Across all return periods, the mean difference
   <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/URBEXT2000vsUvR_Diff_Winter.PNG" width="230"  />      
 <p align="center">  <p align="center">
 
+Weak negative correlation between the difference in peak flow between summer and winter and urban extent, for models both with and without and urban component. Surprisingly, there is little correlation evident between the urban extent and the difference in peak flow between a model with and without and urban component, for both summer and winter storm profiles.
+
+#### Area
+<p align="center">
+  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/AREAvsSvW_Diff_Urban.PNG" width="230"  />    
+  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/AREAvsSvW_Diff_Rural.PNG" width="230"  />    
+  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/AREAvsUvR_Diff_Summer.PNG" width="230"  />
+  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/AREAvsUvR_Diff_Winter.PNG" width="230"  />      
+<p align="center">  <p align="center">
 
 
 ### Variation in peak flow between catchments 
