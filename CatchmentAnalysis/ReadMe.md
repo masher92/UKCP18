@@ -138,14 +138,10 @@ Figure 10 helps to visualise the catchments which have the maximum and minimum p
 <a name="rainfallvsdescriptors"></a>
 ### Relationship between annual maximum rainfall accumulation and catchment descriptors
 
-The correlation between annual maximum rainfall accumulations predicted by the FEH model and the catchment altitude, easting and northing values are examined below. These catchment descriptors are those which we would expect to control rainfall accumualtions. 
+Catchment rainfall accumulations are influenced by the catchment's geographic location, primarily because in Leeds altitude has a strong spatial component, with the highest values found in the north west. The animations below display the relationship beween catchment annual precipitation accumulations and northing, easting, altitude and standard average areal rainfall values. Each frame in the animation shows the relationship for one duration, and they cycle between 0.25h and 95.25h at hourly intervals. The plot on the left is for a 2 year return period, and on the right for a 10 year return period.  
 
 <p align="center">
 <img src="Figs/AllCatchments/Rainfall/catchment_legend.PNG" width="600" />
-
-The animations below track the relationship between catchment descriptors and the annual maximum rainfall accumulations at various durations.
-
-#### Standard Average Areal Rainfall (SAAR)
 
 #### Northing
 ![Animation](Figs/AllCatchments/Rainfall/northingvs2yrRPrainfall.gif)
@@ -159,14 +155,15 @@ The animations below track the relationship between catchment descriptors and th
 ![Animation](Figs/AllCatchments/Rainfall/ALTBARvs2yrRPrainfall.gif)
 ![Animation](Figs/AllCatchments/Rainfall/ALTBARvs10yrRPrainfall.gif)
 
-A similar pattern is found in the relationship between the annual precipitation values at various durations and the mean catchment altitude. This follows, considering the strong positive relationship between ALTBAR and SAAR, seen in Figure 8.
-
 #### Standard  Average Areal Rainfall (SAAR)
 ![Animation](Figs/AllCatchments/Rainfall/SAARvs100yrRPRainfall.gif)
 ![Animation](Figs/AllCatchments/Rainfall/SAARvs100yrRPRainfall.gif)
 
+A similar pattern is found in the relationship between the annual precipitation values at various durations and the mean catchment altitude. This follows, considering the strong positive relationship between ALTBAR and SAAR, seen in Figure 8.
+
 The SAAR is the average annual rainfall in the standard period (1961-1990) in millimetres. The above plots show that the catchments with the highest annual precipitation accumulations at low durations (~<8h), are those with low SAAR values. At longer durations (>~8h), the catchments with the highest annual precipitation accumulations for that duration, also have higher SAAR values.
 
+### Calculating design rainfalls from...
 
 ReFH2's rainfall-runoff model imports the outputs from the FEH DDF model and uses them as a design storm input. FEH13 calculates
 pre-defined return period/duration combinations and so to calculate other combinations a non-linear interpolation procedure is invoked. The final design rainfall depth in ReFH2 is calculated as the product of the FEH DDF rainfall depths, the areal reduction factor, and the seasonal correction factor (SCF). The SCF converts an annual maximum rainfall depth to a seasonal maximum depth and is calculated based upon location, season, duration and selected return period [NB: the total rainfall given in ReFH2 can be calculated by multiplying the values provided in the csv file of catchment rainfalls exported from FEH web server by the SCF].
@@ -176,7 +173,7 @@ The default seasonality is adopted based on urban extent and BFIHOST19, and summ
 *	0.15 ≤ URBEXT2000 < 0.30 and BFIHOST19 is ≥ 0.65.
 Winter storms are selected by default in all other cases.
 
-Out of the 21 Leeds catchments, only 4 (Wyke Beck, Bagley Beck, Meanwood Beck, Carr Beck) use a summer storm profile by default.
+Out of the 20 Leeds catchments, only 4 (Wyke Beck, Bagley Beck, Meanwood Beck, Carr Beck) use a summer storm profile by default.
 
 The ReFH2 software generates hyetographs based on Flood Studies Report (FSR)/FEH approaches, and again depending on whether a winter or summer storm profile is selected.
 
