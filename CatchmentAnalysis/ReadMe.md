@@ -184,28 +184,20 @@ Ref: https://wiki.tuflow.com/index.php?title=Using_ReFH2_to_Generate_TUFLOW_Boun
 
 The ReFH2 model translates the rainfall depths derived from the FEH13 DDF model into runoff. This uses data on initial catchment conditions and model parameters that are estimated from catchment descriptors. A storm seasonality (summer or winter) is selected and the rainfall depth is scaled accordingly to reflect that season in order to produce summer and winter hyetographs. Additionally, in ReFH2 rainfall hyetographs are available as both rural and urbanised scenarios. The ReFH2 model has both a rural catchment model component and an urban catchment model. In rural scenarios, the whole catchment is modelled using the rural catchment model, wheras in urbanised scenarios the catchment area which is urban is first delineated, and then this urban area is run through the urban model, and the remainder of the catchment is modelled as rural.  
 
-ReFH2 allows the user to define a duration of rainfall and then calculates the associated peak flow (m^3/s) and total direct runoff (ml) in both rural and urbanised scenarios for return periods of 1, 2, 5, 10, 30, 50, 75, 100, 200 and 1000 years. The direct runoff is the total cumulative amount of runoff during that rainfall event, and as such the longer duration the storm the higher that value becomes. Contrastingly, the storm duration associated with the highest peak flow (known as the critical storm duration) is not generally the longest storm duration, and will be dependent on catchment characteristics.
+ReFH2 allows the user to define a duration of rainfall and then calculates the associated peak flow (m^3/s) and total direct runoff (ml) in both rural and urbanised scenarios for return periods of 1, 2, 5, 10, 30, 50, 75, 100, 200 and 1000 years. The direct runoff is the total cumulative amount of runoff during that rainfall event, and as such the longer duration the storm the higher that value becomes. Contrastingly, the storm duration associated with the highest peak flow (known as the critical storm duration) is not generally the longest storm duration, and will be dependent on catchment characteristics. This is seen in Figure 8, where the greatest runoff volume is found at the longest duration, whereas the greatest peak flow value varies between catchments but generally occurs at a shorter duration.  
 
 <p align="center">
   <img src="Figs/AllCatchments/DirectRunoff_SummerUrban_1yr.PNG" width="300"  />    
   <img src="Figs/AllCatchments/Peaks_SummerUrban_1yr.PNG" width="300"  />  
-<p align="center"> Figure 8. <p align="center">
+<p align="center"> Figure 8. Direct runoff in ml (left) and peak flow in m^3/s (right) for a 1 year return period event in summer using an urbanised scenario <p align="center">
 
-
-
+The critical storm duration (duration with highest peak flow) is generally associated with the widest flood extent and is of great importance for surface water flooding. Understanding a catchment's critical storm duration is important in order to understand the kinds of storms which are most likely to lead to surface water flooding in the catchment.
 
 <p align="center">
   <img src="Figs/AllCatchments/Runoff/Peaks_Urban_Summer.png" width="500"  />    
   <img src="Figs/AllCatchments/Runoff/Peaks_Rural_Summer.png" width="500"  />  
   <img src="Figs/AllCatchments/Runoff/Peaks_Urban_Winter.png" width="500"  />    
   <img src="Figs/AllCatchments/Runoff/Peaks_Rural_Winter.png" width="500"  />    
-<p align="center"> Figure 8. <p align="center">
-
-<p align="center">
-  <img src="Figs/AllCatchments/Runoff/DirectRunoff_Urban_Summer.png" width="500"  />    
-  <img src="Figs/AllCatchments/Runoff/DirectRunoff_Rural_Summer.png" width="500"  />  
-  <img src="Figs/AllCatchments/Runoff/DirectRunoff_Urban_Winter.png" width="500"  />    
-  <img src="Figs/AllCatchments/Runoff/DirectRunoff_Rural_Winter.png" width="500"  />    
 <p align="center"> Figure 8. <p align="center">
 
 Urban peak flow, winter
