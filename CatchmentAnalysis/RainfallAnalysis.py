@@ -265,12 +265,12 @@ for rp in rps:
     rp_rainfalls_t = rp_rainfalls_t[1:22]
     rp_rainfalls_t = rp_rainfalls_t.reset_index(drop = True)
     frames = len(rp_rainfalls_t.columns)   # Number of frames
-    
+    #frames = 50
     for variable, variable_unit in variable_units_dict.items():
         fig = plt.figure()
         def draw(frame):
            # Only plot everu 4th duration
-            if frame % 4 == 0:
+            if frame % 1 == 0:
                  # Clear the previous figure
                 plt.clf()
                 
@@ -279,6 +279,24 @@ for rp in rps:
                                     variable : catchments_info[variable],
                             'Precipitation' :rp_rainfalls_t.iloc[:,frame]})
                 df2['Precipitation'] = round(df2['Precipitation'],1)
+                
+            
+                # # If normalise is 'Yes', then normalise
+                # if normalise == 'Yes':
+                #     df2['Normalised'] =  df2['Precipitation']/ df2['Precipitation'].max() 
+                # else:
+                #     measure_df_thiscatchment =  measure_df[catchment_name]        
+                
+                # ax = fig.add_subplot(1,1,1)
+                # ax.clear()
+                # ax = sns.scatterplot(data=df2, x=variable, y='Normalised', style = 'Catchment', 
+                #             markers = catchment_markers_dict, hue = 'Catchment', s= 100, palette = my_pal)
+                # ax.set_xlabel(variable_unit)
+                # ax.set_ylabel('Precipitation (mm)')
+                # ax.tick_params(axis='both', which='major')
+                # ax.legend_.remove()
+                
+                
                 ax = fig.add_subplot(1,1,1)
                 ax.clear()
                 ax = sns.scatterplot(data=df2, x=variable, y='Precipitation', style = 'Catchment', 
@@ -314,13 +332,46 @@ for rp in rps:
         
         # Create animation
         ani = animation.FuncAnimation(fig, animate, frames, interval=1, save_count=100, blit=False, init_func=init,repeat=False)
-        ani.save(root_fp +"DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Rainfall/{}vs{}yrRPrainfall.mp4".format(variable, rp),
-                 writer=animation.FFMpegWriter(fps=20))
+        ani.save(root_fp +"DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Rainfall/{}vs{}yrRPrainfall_start.mp4".format(variable, rp),
+                 writer=animation.FFMpegWriter(fps=2))
         
         # Convert to gif
-        fp = root_fp +"DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Rainfall/{}vs{}yrRPrainfall.mp4".format(variable, rp)
+        fp = root_fp +"DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Rainfall/{}vs{}yrRPrainfall_start.mp4".format(variable, rp)
         clip = (VideoFileClip(fp))
-        clip.write_gif(root_fp +"DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Rainfall/{}vs{}yrRPrainfall.gif".format(variable, rp))
+        clip.write_gif(root_fp +"DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Rainfall/{}vs{}yrRPrainfall_start.gif".format(variable, rp))
         # Remove mp4
         os.remove(fp)
 
+
+################### Test
+rp_rainfalls = design_rainfall_by_rp[str(rp) + ' year rainfall (mm)']
+rp_rainfalls_t = rp_rainfalls.T  
+rp_rainfalls_t.rename(columns=rp_rainfalls_t.iloc[0], inplace = True)
+rp_rainfalls_t = rp_rainfalls_t[1:22]
+rp_rainfalls_t = rp_rainfalls_t.reset_index(drop = True)
+
+frames = len(rp_rainfalls_t.columns) 
+test = pd.DataFrame({'Catchments' :catchments_info['name']})
+for frame in range(0,frames):
+    print(frame)
+    this_df = pd.DataFrame({rp_rainfalls_t.columns[frame]:rp_rainfalls_t.iloc[:,frame]/ rp_rainfalls_t.iloc[:,frame].max()  })
+    test = pd.concat([test, this_df], axis =1)
+    
+test['hmm'] = 'Yes' if test['Catchments'] == 'Apple' else 'No'
+test['hmm']= np.where(test[96.0] > test[1.0], 'Group1', 'Group2')
+
+trim = test[["Catchments", "hmm"]]
+trim['Diff'] = test[96.0] - test[1.0]
+
+merged =pd.concat([trim, catchments_info], axis =1)
+
+
+fig = plt.figure()
+ax = fig.add_subplot(1,1,1)
+ax.clear()
+ax = sns.scatterplot(data=merged, x="Diff", y='BFIHOST', style = 'Catchments', 
+            markers = catchment_markers_dict, hue = 'Catchments', s= 100, palette = my_pal)
+ax.set_xlabel('Precipitation (mm)')
+#ax.set_ylabel('Precipitation (mm)')
+ax.tick_params(axis='both', which='major')
+ax.legend_.remove()
