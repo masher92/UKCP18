@@ -131,8 +131,8 @@ In Figure 9, the annual maximum rainfall accumualtions within the specified dura
 Figure 10 helps to visualise the catchments which have the maximum and minimum precipitation values associated with certain durations and return periods, and to assess how much variation there is in this. 
 
 <p align="center">
-<img src="Figs/AllCatchments/Rainfall/HeatMap_maxs.png" width="500" />
-<img src="Figs/AllCatchments/Rainfall/HeatMap_mins.png" width="500" />
+<img src="Figs/AllCatchments/Rainfall/HeatMap_maxs.png" width="350" />
+<img src="Figs/AllCatchments/Rainfall/HeatMap_mins.png" width="350" />
 <p align="center"> Figure 10. Displays the catchment with the maximum (left) and minimum (right) annual precipitation accumulation associated with each duration at each return period <p align="center">
 
 <a name="rainfallvsdescriptors"></a>
