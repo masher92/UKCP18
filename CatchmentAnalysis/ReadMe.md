@@ -165,7 +165,7 @@ The SAAR is the average annual rainfall in the standard period (1961-1990) in mi
 
 <a name="runoff"></a>
 ## Catchment runoff
-#### Calculating catchment runoff
+### Calculating catchment runoff
 The ReFH2 rainfall runoff model translates the rainfall depths derived from the FEH13 DDF model into runoff. FEH13 calculates pre-defined return period/duration combinations and so to calculate other combinations a non-linear interpolation procedure is invoked. The final design rainfall depth in ReFH2 is calculated as the product of the FEH DDF rainfall depths, the areal reduction factor, and the seasonal correction factor (SCF). The SCF converts an annual maximum rainfall depth to a seasonal maximum depth and is calculated based upon location, season, duration and selected return period [NB: the total rainfall given in ReFH2 can be calculated by multiplying the values provided in the csv file of catchment rainfalls exported from FEH web server by the SCF]. The storm seasonality (summer or winter) can be selected in ReFH2 manually, or alternatively a default seasonality is adopted based on urban extent and BFIHOST19, and summer storms are selected by default if:  
 * URBEXT2000 is ≥ 0.30, or  
 *	0.15 ≤ URBEXT2000 < 0.30 and BFIHOST19 is ≥ 0.65.
@@ -175,7 +175,7 @@ Out of the 20 Leeds catchments, only 4 (Wyke Beck, Bagley Beck, Meanwood Beck, C
 
 ReFH2 uses data on initial catchment conditions and model parameters that are estimated from catchment descriptors to convert rainfall into runoff, and the rainfall depth is scaled accordingly to reflect that season in order to produce summer and winter hyetographs. Additionally, in ReFH2 rainfall hyetographs are available as both rural and urbanised scenarios. The ReFH2 model has both a rural catchment model component and an urban catchment model. In rural scenarios, the whole catchment is modelled using the rural catchment model, wheras in urbanised scenarios the catchment area which is urban is first delineated, and then this urban area is run through the urban model, and the remainder of the catchment is modelled as rural.  
 
-#### ReFH2 outputs: peak flow and direct runoff
+### ReFH2 outputs: peak flow and direct runoff
 ReFH2 allows the user to define a duration of rainfall and then calculates the associated peak flow (m^3/s) and total direct runoff (ml) in both rural and urbanised scenarios for return periods of 1, 2, 5, 10, 30, 50, 75, 100, 200 and 1000 years. The direct runoff is the total cumulative amount of runoff during that rainfall event, and as such the longer duration the storm the higher that value becomes. Contrastingly, the storm duration associated with the highest peak flow (known as the critical storm duration) is not generally the longest storm duration, and will be dependent on catchment characteristics. This is seen in Figure 8, where the greatest runoff volume is found at the longest duration, whereas the greatest peak flow value varies between catchments but generally occurs at a shorter duration.  
 
 <p align="center">
@@ -183,13 +183,22 @@ ReFH2 allows the user to define a duration of rainfall and then calculates the a
   <img src="Figs/AllCatchments/Peaks_SummerUrban_1yr.PNG" width="300"  />  
 <p align="center"> Figure 8. Direct runoff in ml (left) and peak flow in m^3/s (right) for a 1 year return period event in summer using an urbanised scenario <p align="center">
 
-
-#### Peak flow by duration 
+### Variation in peak flow with rurality and seasonality 
 The peak flow is generally associated with the widest flood extent and is of great importance for surface water flooding. The peak flows found in Leeds catchments for various durationsacross both urbanised and rural scenarios, and for both winter and summer storm profiles, at a ten year return period, are shown in Figure 9. This shows that the relationship between peak flow and rainfall event duration varies extensively between different catchments. There is also clear variation between catchments in how much this relationship differs from summer to winter, and between urbanised and rural scenarios. Across all catchments, using a summer storm profile results in higher peak flows than a winter storm profile. In almost all catchments the model including the urban component has higher peak flows than the model with no urban component. However, in Gill Beck (Aire) which is one of the catchments with the lowest urban extent, there is practically no difference between the two. 
 
 <p align="center">
   <img src="Figs/AllCatchments/10RP_comparingseason_rurality.png" width="1000"  />    
 <p align="center">  <p align="center">
+
+<p align="center">
+  <img src="Figs/AllCatchments/VsCatchmentDescriptors/ALTBARvsSvW_Diff_Urban.PNG" width="200"  />    
+  <img src="Figs/AllCatchments/VsCatchmentDescriptors/ALTBARvsSvW_Diff_Rural.PNG" width="200"  />    
+  <img src="Figs/AllCatchments/VsCatchmentDescriptors/ALTBARvsUvR_Diff_Summer.PNG" width="200"  />
+  <img src="Figs/AllCatchments/VsCatchmentDescriptors/ALTBARvsUvR_Diff_Winter.PNG" width="200"  />      
+<p align="center">  <p align="center">
+
+
+
 
 
 <p align="center">
