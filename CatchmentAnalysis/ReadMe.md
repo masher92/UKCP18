@@ -192,13 +192,24 @@ The peak flow is generally associated with the widest flood extent and is of gre
 
 To understand more about the factors inf
 
+#### Altitude
 Across all return periods, the mean difference
 <p align="center">
-  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/ALTBARvsSvW_Diff_Urban.PNG" width="220"  />    
-  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/ALTBARvsSvW_Diff_Rural.PNG" width="220"  />    
-  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/ALTBARvsUvR_Diff_Summer.PNG" width="220"  />
-  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/ALTBARvsUvR_Diff_Winter.PNG" width="220"  />      
+  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/ALTBARvsSvW_Diff_Urban.PNG" width="230"  />    
+  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/ALTBARvsSvW_Diff_Rural.PNG" width="230"  />    
+  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/ALTBARvsUvR_Diff_Summer.PNG" width="230"  />
+  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/ALTBARvsUvR_Diff_Winter.PNG" width="230"  />      
 <p align="center">  <p align="center">
+
+#### Altitude
+Across all return periods, the mean difference
+<p align="center">
+  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/BFIHOSTvsSvW_Diff_Urban.PNG" width="230"  />    
+  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/BFIHOSTvsSvW_Diff_Rural.PNG" width="230"  />    
+  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/BFIHOSTvsUvR_Diff_Summer.PNG" width="230"  />
+  <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/BFIHOSTvsUvR_Diff_Winter.PNG" width="230"  />      
+<p align="center">  <p align="center">
+
 
 
 ### Variation in peak flow between catchments 
