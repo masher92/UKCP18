@@ -387,3 +387,4 @@ Across all return periods, there is a negative correlation between catchment alt
   <img src="Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_UrbanvsURBEXT2000_CriticalDurations.gif" alt="animated"  width="230" />
   <img src="Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_RuralvsURBEXT2000_CriticalDurations.gif" alt="animated"  width="230" />  
 </p>
+
