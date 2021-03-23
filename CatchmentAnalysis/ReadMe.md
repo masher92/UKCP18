@@ -309,36 +309,47 @@ Across all return periods, there is a negative correlation between catchment alt
 
 ### Area
 
-  ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Summer_UrbanvsAREA_CriticalDurations.gif)
-  ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Summer_RuralvsAREA_CriticalDurations.gif)
-  ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_UrbanvsAREA_CriticalDurations.gif)
-  ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_RuralvsAREA_CriticalDurations.gif)
+<p align="center">
+  <img src="Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Summer_UrbanvsAREA_CriticalDurations.gif" alt="animated"  width="230" />
+  <img src="Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Summer_RuralvsAREA_CriticalDurations.gif" alt="animated"  width="230" />
+  <img src="Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_UrbanvsAREA_CriticalDurations.gif" alt="animated"  width="230" />
+  <img src="Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_RuralvsAREA_CriticalDurations.gif" alt="animated"  width="230" />  
+</p>
 
 
 ### BFIHOST
 
-  ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Summer_UrbanvsBFIHOST_CriticalDurations.gif)
-  ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Summer_RuralvsBFIHOST_CriticalDurations.gif)
-  ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_UrbanvsBFIHOST_CriticalDurations.gif)
-  ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_RuralvsBFIHOST_CriticalDurations.gif)
+<p align="center">
+  <img src="Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Summer_UrbanvsBFIHOST_CriticalDurations.gif" alt="animated"  width="230" />
+  <img src="Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Summer_RuralvsBFIHOST_CriticalDurations.gif" alt="animated"  width="230" />
+  <img src="Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_UrbanvsBFIHOST_CriticalDurations.gif" alt="animated"  width="230" />
+  <img src="Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_RuralvsBFIHOST_CriticalDurations.gif" alt="animated"  width="230" />  
+</p>
+
 
 ### DPSBAR
 
-  ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Summer_UrbanvsDPSBAR_CriticalDurations.gif)
-  ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Summer_RuralvsDPSBAR_CriticalDurations.gif)
-  ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_UrbanvsDPSBAR_CriticalDurations.gif)
-  ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_RuralvsDPSBAR_CriticalDurations.gif)
+<p align="center">
+  <img src="Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Summer_UrbanvsDPSBAR_CriticalDurations.gif" alt="animated"  width="230" />
+  <img src="Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Summer_RuralvsDPSBAR_CriticalDurations.gif" alt="animated"  width="230" />
+  <img src="Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_UrbanvsDPSBAR_CriticalDurations.gif" alt="animated"  width="230" />
+  <img src="Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_RuralvsDPSBAR_CriticalDurations.gif" alt="animated"  width="230" />  
+</p>
 
 ### LDP
 
-  ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Summer_UrbanvsLDP_CriticalDurations.gif)
-  ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Summer_RuralvsLDP_CriticalDurations.gif)
-  ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_UrbanvsLDP_CriticalDurations.gif)
-  ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_RuralvsLDP_CriticalDurations.gif)
+<p align="center">
+  <img src="Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Summer_UrbanvsLDP_CriticalDurations.gif" alt="animated"  width="230" />
+  <img src="Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Summer_RuralvsLDP_CriticalDurations.gif" alt="animated"  width="230" />
+  <img src="Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_UrbanvsLDP_CriticalDurations.gif" alt="animated"  width="230" />
+  <img src="Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_RuralvsLDP_CriticalDurations.gif" alt="animated"  width="230" />  
+</p>
 
 ### URBEXT200
 
-  ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Summer_UrbanvsURBEXT2000_CriticalDurations.gif)
-  ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Summer_RuralvsURBEXT2000_CriticalDurations.gif)
-  ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_UrbanvsURBEXT2000_CriticalDurations.gif)
-  ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_RuralvsURBEXT2000_CriticalDurations.gif)  
+<p align="center">
+  <img src="Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Summer_UrbanvsURBEXT2000_CriticalDurations.gif" alt="animated"  width="230" />
+  <img src="Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Summer_RuralvsURBEXT2000_CriticalDurations.gif" alt="animated"  width="230" />
+  <img src="Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_UrbanvsURBEXT2000_CriticalDurations.gif" alt="animated"  width="230" />
+  <img src="Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_RuralvsURBEXT2000_CriticalDurations.gif" alt="animated"  width="230" />  
+</p>
