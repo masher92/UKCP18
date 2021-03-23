@@ -175,7 +175,7 @@ TO BE COMPLETED
 
 <p align="center">
 <img src="Figs/AllCatchments/Rainfall/SAARvs10yrRPrainfall_start.gif" alt="animated"  width="330" />
-<img src="Figs/AllCatchments/Rainfall/SAARvs10yrRPrainfall_frame1.png" width="300" />
+<img src="Figs/AllCatchments/Rainfall/SAARvs10yrRPrainfall_frame1.png" width="310" />
 <img src="Figs/AllCatchments/Rainfall/SAARvs10yrRPrainfall_frame50.png" width="300" />
 <p align="center"> Figure 2. Histogram of catchment area (km<sup>2</sup>) <p align="center">
 
