@@ -154,8 +154,6 @@ The rainfall values for some return period and duration combinations are display
 <img src="Figs/AllCatchments/Rainfall/MinMaxRainfalValues.PNG" width="600" />
 <p align="center"> <p align="center">
 
-
-
 <a name="rainfallvsdescriptors"></a>
 ### Relationship between annual maximum rainfall accumulation and catchment descriptors
 
@@ -198,9 +196,9 @@ TO BE COMPLETED
 <img src="Figs/AllCatchments/Rainfall/SAARvs10yrRPrainfall_frame50.png" width="300" />
 <p align="center">  ... <p align="center">
 
-Two groups are notable:
-Group1: FEH13 rainfall is higher than other catchments at very short durations, but is lower than other catchments at longer durations (generally catchments with low SAAR, low altitude and which are further east and south).
-Group2: FEH13 rainfall is lower than other catchments at very short durations, but is higher than other catchments at longer durations (generally catchments with high SAAR, high altitude and which are further west and north).
+Two groups are notable:  
+* Group1: FEH13 rainfall is higher than other catchments at very short durations, but is lower than other catchments at longer durations (generally catchments with low SAAR, low altitude and which are further east and south).  
+* Group2: FEH13 rainfall is lower than other catchments at very short durations, but is higher than other catchments at longer durations (generally catchments with high SAAR, high altitude and which are further west and north).  
 
 To determine the catchments in each group, the precipitation value for each catchment is normalised for 96h and 1h durations. For group 1, the 96h normalised precipitation is lower than the 1h value, and for group 2 it is larger. 
 
