@@ -270,6 +270,7 @@ for catchment in catchments:
     mean_differences = mean_differences.append(mean_differences_catchment)
     
     mean_differences = mean_differences.reset_index(drop = True)
+    
 ##################################################################
 ##################################################################
 # Plotting:
@@ -368,6 +369,94 @@ for rurality in ['Urban', 'Rural']:
             plt.savefig(root_fp +"DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Runoff/{}_{}_{}.png".format(measure_title, rurality, seasonal_storm_profile),
                         bbox_inches='tight')
             plt.show()
+
+##################################################################
+##################################################################
+# Plotting:
+    # Peaks/runoff values
+    # All catchments, one plot
+    # One subplot for each RP
+    # With each subplot containing a line for each catchment
+    # Displaying their values at each duration
+##################################################################
+##################################################################
+# Normalise: 'Yes' or 'No'
+normalise = 'Yes'
+
+catchment_groups = {}
+catchment_groups["low"] = ['CarrBeck', 'GillBeck_Aire', 'GillBeck_Wharfe']
+catchment_groups['med'] = ['BalneBeck', 'HowleyBeck', 'BagleyBeck', 'GuiseleyBeck']
+catchment_groups['medhigh'] = [ 'CollinghamBeck', 'FairburnIngs','FirgreenBeck', 'CockBeck_Aberford']
+catchment_groups['high'] = [ 'BushyBeck','Holbeck','LinDyke', 'MeanwoodBeck', 'MillDyke',
+                            'OilMillBeck','OultonBeck', 'StankBeck', 'WykeBeck']
+
+rp =10
+fig = plt.figure(figsize=(35, 20)) 
+### Creating plot
+
+for group, catchments, subplot_num in zip(catchment_groups.keys(), catchment_groups.values(), range(1,5)):
+    print(group, catchments, subplot_num)
+    
+    # Make subplot for each Return Period
+    measure_df = peaks_all_catchments_allrps[str(rp) + '_Urban_Summer']
+        
+    # Set up the subplot
+    ax = fig.add_subplot(2,2,subplot_num)
+    # Add lines to that subplot from each catchment
+    for i in range(0,len(catchments)):
+        # Find the catchment name
+        catchment_name = catchments[i]
+        
+        #### Make the maximum value for this catchment a different colour
+        # Find the number of points
+        num_durations= len(measure_df)
+        # Find the color for this catchment
+        point_color = catchment_colors_dict[catchment_name]
+        # Repeat the colour the number of times as there is points
+        point_colors = [point_color]  * num_durations  
+
+        # Set the peak value to a different color (gold)
+        peak_val_idx = measure_df[catchment_name].argmax()        
+        critical_duration = measure_df['Duration'][peak_val_idx]
+        point_colors[peak_val_idx] = 'darkblue'
+
+        # If normalise is 'Yes', then normalise
+        if normalise == 'Yes':
+            measure_df_thiscatchment =  measure_df[catchment_name]/ measure_df[catchment_name].max() 
+        else:
+            measure_df_thiscatchment =  measure_df[catchment_name]            
+            
+        #### Plot (df lines and points)
+        ax.plot(measure_df['Duration'],
+         measure_df_thiscatchment,  linestyle = ':', color = point_color )     
+        ax.scatter(measure_df['Duration'],
+         measure_df_thiscatchment, marker = catchment_markers_dict[catchment_name], s =200, c= point_colors,
+         label=catchment_name)
+                
+    # Axis labels and title
+    ax.set_xlabel('Duration', fontsize=30)
+    ax.set_ylabel('Peak Flow ($m^3$/s) ', fontsize=30)
+    #ax.set_title("{} Year RP".format(rp), fontsize=30)
+    ax.tick_params(axis='both', which='major', labelsize=25)
+    ax.legend(fontsize = 20, markerscale = 2)
+
+    plt.xticks(rotation = 45)
+
+# Add one title
+plt.suptitle("Urban Peak Flow, $m^3$/s (Summer)", fontsize=40)
+
+# # Adjust height between plots
+fig.subplots_adjust(top=0.92)
+plt.subplots_adjust(hspace=0.25)    
+
+# Save and show plot
+plt.savefig(root_fp +"DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Runoff/UrbanSummerPeaks_grouped.PNG",
+            bbox_inches='tight')
+plt.show()
+
+catchments_info['group_num'] = [2, 2, 4, 1, 3, 3, 3,3,1,1,2,4,4,4,4,4,4,4,4,4]
+plt.scatter(catchments_info['group_num'], catchments_info['ALTBAR'])
+
             
 ##################################################################
 ##################################################################
