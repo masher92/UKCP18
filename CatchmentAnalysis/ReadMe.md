@@ -166,13 +166,11 @@ The above plots show that the catchments with the highest annual precipitation a
 TO BE COMPLETED
 
 <p align="center">
-  <img src="Figs/AllCatchments/Rainfall/SAARvs10yrRPrainfall_start.gif" alt="animated" />
+  <img src="Figs/AllCatchments/Rainfall/SAARvs10yrRPrainfall_start.gif" alt="animated"  width="550" />
 </p>
 
-
-![Animation](Figs/AllCatchments/Rainfall/SAARvs10yrRPrainfall_start.gif)
-
 <p align="center">
+<img src="Figs/AllCatchments/Rainfall/SAARvs10yrRPrainfall_start.gif" alt="animated"  width="350" />
 <img src="Figs/AllCatchments/Rainfall/SAARvs10yrRPrainfall_frame1.png" width="350" />
 <img src="Figs/AllCatchments/Rainfall/SAARvs10yrRPrainfall_frame50.png" width="350" />
 <p align="center"> Figure 2. Histogram of catchment area (km<sup>2</sup>) <p align="center">
