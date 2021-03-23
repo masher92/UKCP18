@@ -17,7 +17,7 @@ This file contains analysis of 20 urban catchments within Leeds.
   <img src="Figs/Catchments_matching_FEH.PNG" width="500"  />  
 <p align="center"> Figure 1. Urban catchments defined by LCC (blue outlines), and catchment boundaries from FEH web server (green fill) <p align="center">
 
-Leeds City Council (LCC) defined the boundaries of 46 urban catchments in Leeds, shown in blue in Figure 1. Using the FEH web service, 20 catchments with boundaries closely matching those identified by LCC have been identified and are shown in green on Figure 1.  The area of these 20 catchments range between 5km<sup>2</sup> and 71km<sup>2</sup>.  The LCC catchments which couldn't be generated in the FEH web service are sub-catchments of major rivers (Aire, Wharfe, Nidd and Calder).
+Leeds City Council (LCC) defined the boundaries of 46 urban catchments in Leeds, shown in blue in Figure 1. Using the FEH web service, 20 catchments with boundaries closely matching those identified by LCC have been identified and are shown in green on Figure 1.  The area of these 20 catchments range between 5km<sup>2</sup> and 71km<sup>2</sup>.  The LCC catchments which couldn't be generated in the FEH web service are sub-catchments of major rivers (Aire, Wharfe, Nidd and Calder). Additionally, LCC define Holbeck and Wortley Beck as seperate catchments, but the FEH produces one catchment boundary for Holbeck covering the area of both.
 
 <p align="center">
   <img src="Figs/AllCatchments/CatchmentDescriptors/Area.PNG" width="400" />
