@@ -200,12 +200,11 @@ Two groups are notable:
 * Group1: FEH13 rainfall is higher than other catchments at very short durations, but is lower than other catchments at longer durations (generally catchments with low SAAR, low altitude and which are further east and south).  
 * Group2: FEH13 rainfall is lower than other catchments at very short durations, but is higher than other catchments at longer durations (generally catchments with high SAAR, high altitude and which are further west and north).  
 
-To determine the catchments in each group, the precipitation value for each catchment is normalised for 96h and 1h durations. For group 1, the 96h normalised precipitation is lower than the 1h value, and for group 2 it is larger. 
-
+To determine the catchments in each group, the precipitation value for each catchment is normalised for 96h and 1h durations. For group 1, the 96h normalised precipitation is lower than the 1h value, and for group 2 it is larger. This difference in normalised precipitation can be plotted against different catchment descriptors to investigar the relationship.
 
 <p align="center">
-<img src="Figs/AllCatchments/Rainfall/DifferenceNormalised_Northing.png" width="230" />
-<img src="Figs/AllCatchments/Rainfall/DifferenceNormalised_Easting.png" width="230" />
+<img src="Figs/AllCatchments/Rainfall/DifferenceNormalised_Northing.png" width="240" />
+<img src="Figs/AllCatchments/Rainfall/DifferenceNormalised_Easting.png" width="240" />
 <img src="Figs/AllCatchments/Rainfall/DifferenceNormalised_ALTBAR.png" width="230" />
 <img src="Figs/AllCatchments/Rainfall/DifferenceNormalised_SAAR.png" width="230" />  
 <p align="center"> ..  <p align="center">
