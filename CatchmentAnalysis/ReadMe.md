@@ -7,8 +7,17 @@ This file contains analysis of 20 urban catchments within Leeds.
 1. [ Catchment locations. ](#loc)
 2. [ Catchment descriptors. ](#descriptors)
 3. [ Catchment rainfall from FEH. ](#rainfall)  
-  a. [ Relationship with catchment descriptors. ](#rainfallvsdescriptors)
-4. [ Catchment runoff. ](#runoff)
+  a. [ FEH13 rainfall values. ](#feh13_rainfall)  
+  b. [ Relationship with catchment descriptors. ](#rainfallvsdescriptors)
+4. [ Catchment runoff. ](#runoff)  
+  a. [ ReFH2: Calculating catchment runoff. ](#calculatingrunoff)  
+  b. [ ReFH2 outputs: peak flow and direct runoff. ](#peakflow_directrunoff)  
+  c. [ Variation in peak flow with rurality and seasonality. ](#flow_vs_rurality_seasonality)  
+  d. [ Variation in peak flow between catchments. ](#flow_vs_catchments)  
+5. [ Critical storm durations. ](#criticaldurations)  
+  a. [Relationship with catchment descriptors. ](#criticaldurationsvsdescriptors)  
+
+<a name="loc"></a>
 
 <a name="loc"></a>
 ## Catchment Locations
@@ -119,7 +128,11 @@ Cock Beck, Firgreen Beck, Fairburn Ings and Mill Dyke have values over 0.65, whi
 SAAR is strongly postively related to altitude, and consequently negatively related to easting. There is a weaker positive relationship with northing. 
 
 <a name="rainfall"></a>
-## Catchment design rainfall
+## Catchment rainfall (FEH13)
+
+<a name="feh13_rainfall"></a>
+## Rainfall values: FEH13
+
 The FEH uses a depth-duration-frequency (DDF) model, based on complex statistical analysis of datasets of annual and seasonal maximum precipitation values, to estimate the annual maximum rainfall for events of particular durations and corresponding to certain return periods. FEH DDF design rainfall is supplied through the FEH web service.
 
 In Figure 9, the annual maximum rainfall accumulations within the specified durations (between 0.25 and 96 hours, at 0.25h intervals) are shown for each return period, with a line for each catchment.
@@ -169,19 +182,32 @@ Catchment rainfall accumulations are influenced by the catchment's geographic lo
 
 A similar pattern is found in the relationship between SAAR, mean catchment altitude, easting and northing, and FEH13 precipitation values at various durations. This follows, considering the strong positive relationship between altitude and SAAR (Figure 8) and altitude and easting and northing (Figure 3). This pattern is that at the shorter durations (~ <10 hrs) there is no clear relationships seen; however, during this time a clear relationship develops. 
 
-The above plots show that the catchments with the highest annual precipitation accumulations at low durations (~<8h), are those with low SAAR values. At longer durations (>~8h), the catchments with the highest annual precipitation accumulations for that duration, also have higher SAAR values.
-
 TO BE COMPLETED
 
 <p align="center">
 <img src="Figs/AllCatchments/Rainfall/SAARvs10yrRPrainfall_start.gif" alt="animated"  width="330" />
 <img src="Figs/AllCatchments/Rainfall/SAARvs10yrRPrainfall_frame1.png" width="310" />
 <img src="Figs/AllCatchments/Rainfall/SAARvs10yrRPrainfall_frame50.png" width="300" />
-<p align="center">  (km<sup>2</sup>) <p align="center">
+<p align="center">  ... <p align="center">
+
+Two groups are notable:
+Group1: FEH13 rainfall is higher than other catchments at very short durations, but is lower than other catchments at longer durations (generally catchments with low SAAR, low altitude and which are further east and south).
+Group2: FEH13 rainfall is lower than other catchments at very short durations, but is higher than other catchments at longer durations (generally catchments with high SAAR, high altitude and which are further west and north).
+
+To determine the catchments in each group, the precipitation value for each catchment is normalised for 96h and 1h durations. For group 1, the 96h normalised precipitation is lower than the 1h value, and for group 2 it is larger. 
+
+
+<p align="center">
+<img src="Figs/AllCatchments/Rainfall/DifferenceNormalised_Northing.png" width="230" />
+<img src="Figs/AllCatchments/Rainfall/DifferenceNormalised_Easting.png" width="230" />
+<img src="Figs/AllCatchments/Rainfall/DifferenceNormalised_ALTBAR.png" width="230" />
+<img src="Figs/AllCatchments/Rainfall/DifferenceNormalised_SAAR.png" width="230" />  
+<p align="center"> ..  <p align="center">
 
 <a name="runoff"></a>
 ## Catchment runoff
-### Calculating catchment runoff
+<a name="calculatingrunoff"></a>
+### ReFH2: Calculating catchment runoff
 The ReFH2 rainfall runoff model translates the rainfall depths derived from the FEH13 DDF model into runoff. FEH13 calculates pre-defined return period/duration combinations and so to calculate other combinations a non-linear interpolation procedure is invoked. The final design rainfall depth in ReFH2 is calculated as the product of the FEH DDF rainfall depths, the areal reduction factor, and the seasonal correction factor (SCF). The SCF converts an annual maximum rainfall depth to a seasonal maximum depth and is calculated based upon location, season, duration and selected return period [NB: the total rainfall given in ReFH2 can be calculated by multiplying the values provided in the csv file of catchment rainfalls exported from FEH web server by the SCF given in ReFH2]. 
 
 The storm seasonality (summer or winter) can be selected in ReFH2 manually, or alternatively a default seasonality is adopted based on urban extent and BFIHOST19, and summer storms are selected by default if:  
@@ -193,6 +219,7 @@ Out of the 20 Leeds catchments, only 4 (Wyke Beck, Bagley Beck, Meanwood Beck, C
 
 ReFH2 uses data on initial catchment conditions and model parameters that are estimated from catchment descriptors to convert rainfall into runoff, and the rainfall depth is scaled accordingly to reflect that season in order to produce summer and winter hyetographs. Additionally, in ReFH2 rainfall hyetographs are available as both rural and urbanised scenarios. The ReFH2 model has both a rural catchment model component and an urban catchment model component. In rural scenarios, the whole catchment is modelled using the rural catchment model, whereas in urbanised scenarios the catchment area which is urban is first delineated, and then this urban area is run through the urban model, and the remainder of the catchment is modelled as rural.  
 
+<a name="peakflow_directrunoff"></a>
 ### ReFH2 outputs: peak flow and direct runoff
 ReFH2 allows the user to define a duration of rainfall and then calculates the associated peak flow (m<sup>3</sup>/s) and total direct runoff (ml) in both rural and urbanised scenarios for return periods of 1, 2, 5, 10, 30, 50, 75, 100, 200 and 1000 years. The direct runoff is the total cumulative amount of runoff during that rainfall event, and as such the longer duration the storm the higher that value becomes. Contrastingly, the storm duration associated with the highest peak flow (known as the critical storm duration) is not generally the longest storm duration, and will be dependent on catchment characteristics. This is seen in Figure 11, where the greatest runoff volume is found at the longest duration, whereas the greatest peak flow value varies between catchments but generally occurs at a shorter duration.  
 
@@ -201,6 +228,7 @@ ReFH2 allows the user to define a duration of rainfall and then calculates the a
   <img src="Figs/AllCatchments/Peaks_SummerUrban_1yr.PNG" width="300"  />  
 <p align="center"> Figure 11. Direct runoff in ml (left) and peak flow in m<sup>3</sup>/s (right) for a 1 year return period event in summer using an urbanised scenario <p align="center">
 
+<a name="flow_vs_rurality_seasonality"></a>
 ### Variation in peak flow with rurality and seasonality 
 The peak flow is generally associated with the widest flood extent and is of great importance for surface water flooding. The peak flows found in Leeds catchments for various durations across both urbanised and rural scenarios, and for both winter and summer storm profiles, at a ten year return period, are shown in Figure 12. This shows that the relationship between peak flow and rainfall event duration varies extensively between different catchments. There is also clear variation between catchments in how much this relationship differs from summer to winter, and between urbanised and rural scenarios. Across all catchments, using a summer storm profile results in higher peak flows than a winter storm profile. In almost all catchments the model including the urban component has higher peak flows than the model with no urban component. However, in Gill Beck (Aire) which is one of the catchments with the lowest urban extent, there is practically no difference between the two. 
 
@@ -267,7 +295,7 @@ Weak negative correlation between the difference in peak flow between summer and
   <img src="Figs/AllCatchments/Runoff/VsCatchmentDescriptors/AREAvsUvR_Diff_Winter.PNG" width="230"  />      
 <p align="center">  <p align="center">
 
-
+<a name="flow_vs_catchments"></a>
 ### Variation in peak flow between catchments 
 
 <p align="center">
@@ -284,6 +312,7 @@ From Figure 13 it is apparent that the shape of the relationship between duratio
 
 ANYTHING TO LINK TOGETHER THE GROUPS?
 
+<a name="criticaldurations"></a>
 ## Critical storm duration 
 The critical storm duration (duration with highest peak flow) is generally associated with the widest flood extent and is of great importance for surface water flooding. Understanding a catchment's critical storm duration is important in order to understand the kinds of storms which are most likely to lead to surface water flooding in the catchment. In Figure 15 the critical storm duration at each return period for each catchment is plotted. 
 
@@ -291,7 +320,7 @@ The critical storm duration (duration with highest peak flow) is generally assoc
   <img src="Figs/AllCatchments/Runoff/Peaks_criticaldurations_Urban_Summer.png" width="500"  />    
 <p align="center"> Figure 15. Critical durations for each catchment and return period, for a summer storm profile and model including urban component <p align="center">
 
-
+<a name="criticaldurationsvsdescriptors"></a>
 ## Relationship between critical storm durations and catchment descriptors
 
 Critical storm durations are likely to be influenced by catchment characteristics. To investigate this, the plots below display the relationship between catchment critical duration and various catchment descriptors. Each frame in the animation shows the relationship for one return period, with a seperate plot for summer and winter storm profiles, and models including and excluding an urban component.
