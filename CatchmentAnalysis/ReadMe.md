@@ -165,6 +165,9 @@ The above plots show that the catchments with the highest annual precipitation a
 
 TO BE COMPLETED
 
+![Animation](Figs/AllCatchments/Rainfall/Northingvs100yrRPrainfall_start.gif)
+
+
 <a name="runoff"></a>
 ## Catchment runoff
 ### Calculating catchment runoff
