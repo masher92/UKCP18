@@ -299,10 +299,10 @@ Critical storm durations are likely to be influenced by catchment characteristic
 ### Altitude
 
 <p align="center">
-  <img src="Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Summer_UrbanvsALTBAR_CriticalDurations.gif" alt="animated"  width="220" />
-  <img src="Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Summer_RuralvsALTBAR_CriticalDurations.gif" alt="animated"  width="220" />
-  <img src="Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_UrbanvsALTBAR_CriticalDurations.gif" alt="animated"  width="220" />
-  <img src="Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_RuralvsALTBAR_CriticalDurations.gif" alt="animated"  width="220" />  
+  <img src="Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Summer_UrbanvsALTBAR_CriticalDurations.gif" alt="animated"  width="230" />
+  <img src="Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Summer_RuralvsALTBAR_CriticalDurations.gif" alt="animated"  width="230" />
+  <img src="Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_UrbanvsALTBAR_CriticalDurations.gif" alt="animated"  width="230" />
+  <img src="Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_RuralvsALTBAR_CriticalDurations.gif" alt="animated"  width="230" />  
 </p>
 
 Across all return periods, there is a negative correlation between catchment altitude and critical duration. This means that the higher the elevation of the catchment, the shorter the critical storm duration. 
