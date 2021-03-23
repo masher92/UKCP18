@@ -163,8 +163,8 @@ Catchment rainfall accumulations are influenced by the catchment's geographic lo
 
 #### Standard  Average Areal Rainfall (SAAR)
 <p align="center">
-  <img src="Figs/AllCatchments/Rainfall/SAARvs2yrRPRainfall.gif" alt="animated"  width="250" />
-  <img src="Figs/AllCatchments/Rainfall/SAARvs10yrRPRainfall.gif" alt="animated"  width="250" />
+  <img src="Figs/AllCatchments/Rainfall/SAARvs2yrRPRainfall.gif" alt="animated"  width="350" />
+  <img src="Figs/AllCatchments/Rainfall/SAARvs10yrRPRainfall.gif" alt="animated"  width="350" />
 </p>
 
 A similar pattern is found in the relationship between SAAR, mean catchment altitude, easting and northing, and FEH13 precipitation values at various durations. This follows, considering the strong positive relationship between altitude and SAAR (Figure 8) and altitude and easting and northing (Figure 3). This pattern is that at the shorter durations (~ <10 hrs) there is no clear relationships seen; however, during this time a clear relationship develops. 
@@ -174,13 +174,9 @@ The above plots show that the catchments with the highest annual precipitation a
 TO BE COMPLETED
 
 <p align="center">
-  <img src="Figs/AllCatchments/Rainfall/SAARvs10yrRPrainfall_start.gif" alt="animated"  width="550" />
-</p>
-
-<p align="center">
-<img src="Figs/AllCatchments/Rainfall/SAARvs10yrRPrainfall_start.gif" alt="animated"  width="350" />
-<img src="Figs/AllCatchments/Rainfall/SAARvs10yrRPrainfall_frame1.png" width="350" />
-<img src="Figs/AllCatchments/Rainfall/SAARvs10yrRPrainfall_frame50.png" width="350" />
+<img src="Figs/AllCatchments/Rainfall/SAARvs10yrRPrainfall_start.gif" alt="animated"  width="300" />
+<img src="Figs/AllCatchments/Rainfall/SAARvs10yrRPrainfall_frame1.png" width="300" />
+<img src="Figs/AllCatchments/Rainfall/SAARvs10yrRPrainfall_frame50.png" width="300" />
 <p align="center"> Figure 2. Histogram of catchment area (km<sup>2</sup>) <p align="center">
 
 <a name="runoff"></a>
