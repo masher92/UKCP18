@@ -144,20 +144,28 @@ Catchment rainfall accumulations are influenced by the catchment's geographic lo
 <img src="Figs/AllCatchments/Rainfall/catchment_legend.PNG" width="600" />
 
 #### Northing
-![Animation](Figs/AllCatchments/Rainfall/northingvs2yrRPrainfall.gif)
-![Animation](Figs/AllCatchments/Rainfall/northingvs10yrRPrainfall.gif)
+<p align="center">
+  <img src="Figs/AllCatchments/Rainfall/northingvs2yrRPrainfall.gif" alt="animated"  width="250" />
+  <img src="Figs/AllCatchments/Rainfall/northingvs10yrRPrainfall.gif" alt="animated"  width="250" />
+</p>
 
 #### Easting
-![Animation](Figs/AllCatchments/Rainfall/eastingvs2yrRPrainfall.gif)
-![Animation](Figs/AllCatchments/Rainfall/eastingvs10yrRPrainfall.gif)
+<p align="center">
+  <img src="Figs/AllCatchments/Rainfall/eastingvs2yrRPrainfall.gif" alt="animated"  width="250" />
+  <img src="Figs/AllCatchments/Rainfall/eastingvs10yrRPrainfall.gif" alt="animated"  width="250" />
+</p>
 
 #### Altitude (ALTBAR)
-![Animation](Figs/AllCatchments/Rainfall/ALTBARvs2yrRPrainfall.gif)
-![Animation](Figs/AllCatchments/Rainfall/ALTBARvs10yrRPrainfall.gif)
+<p align="center">
+  <img src="Figs/AllCatchments/Rainfall/ALTBARvs2yrRPrainfall.gif" alt="animated"  width="250" />
+  <img src="Figs/AllCatchments/Rainfall/ALTBARvs10yrRPrainfall.gif" alt="animated"  width="250" />  
+</p>
 
 #### Standard  Average Areal Rainfall (SAAR)
-![Animation](Figs/AllCatchments/Rainfall/SAARvs100yrRPRainfall.gif)
-![Animation](Figs/AllCatchments/Rainfall/SAARvs100yrRPRainfall.gif)
+<p align="center">
+  <img src="Figs/AllCatchments/Rainfall/SAARvs2yrRPrainfall.gif" alt="animated"  width="250" />
+  <img src="Figs/AllCatchments/Rainfall/SAARvs10yrRPrainfall.gif" alt="animated"  width="250" />
+</p>
 
 A similar pattern is found in the relationship between SAAR, mean catchment altitude, easting and northing, and FEH13 precipitation values at various durations. This follows, considering the strong positive relationship between altitude and SAAR (Figure 8) and altitude and easting and northing (Figure 3). This pattern is that at the shorter durations (~ <10 hrs) there is no clear relationships seen; however, during this time a clear relationship develops. 
 
