@@ -380,39 +380,7 @@ ax = fig.add_subplot(1,1,1)
 ax.clear()
 ax = sns.scatterplot(data=merged, x="Diff_normalised", y='BFIHOST', style = 'Catchments', 
             markers = catchment_markers_dict, hue = 'Catchments', s= 100, palette = my_pal)
-ax.set_xlabel('Precipitation (mm)')
-#ax.set_ylabel('Precipitation (mm)')
-ax.tick_params(axis='both', which='major')
-ax.legend_.remove()
-
-fig = plt.figure()
-ax = fig.add_subplot(1,1,1)
-ax.clear()
-ax = sns.scatterplot(data=merged, x="Diff_normalised", y='SAAR', style = 'Catchments', 
-            markers = catchment_markers_dict, hue = 'Catchments', s= 100, palette = my_pal)
-ax.set_xlabel('Precipitation (mm)')
-#ax.set_ylabel('Precipitation (mm)')
-ax.tick_params(axis='both', which='major')
-ax.legend_.remove()
-
-
-fig = plt.figure()
-ax = fig.add_subplot(1,1,1)
-ax.clear()
-ax = sns.scatterplot(data=merged, x="Diff_normalised", y='ALTBAR', style = 'Catchments', 
-            markers = catchment_markers_dict, hue = 'Catchments', s= 100, palette = my_pal)
 ax.set_xlabel('Difference between normalised 1h and 96h precipitation')
-#ax.set_ylabel('Precipitation (mm)')
-ax.tick_params(axis='both', which='major')
-ax.legend_.remove()
-
-
-fig = plt.figure()
-ax = fig.add_subplot(1,1,1)
-ax.clear()
-ax = sns.scatterplot(data=merged, x="Diff_normalised", y='Easting', style = 'Catchments', 
-            markers = catchment_markers_dict, hue = 'Catchments', s= 100, palette = my_pal)
-ax.set_xlabel('Precipitation (mm)')
 #ax.set_ylabel('Precipitation (mm)')
 ax.tick_params(axis='both', which='major')
 ax.legend_.remove()
@@ -423,7 +391,7 @@ ax = fig.add_subplot(1,1,1)
 ax.clear()
 ax = sns.scatterplot(data=merged, x="Diff_normalised", y='Northing', style = 'Catchments', 
             markers = catchment_markers_dict, hue = 'Catchments', s= 100, palette = my_pal)
-ax.set_xlabel('Precipitation (mm)')
+ax.set_xlabel('Difference between normalised 1h and 96h precipitation')
 #ax.set_ylabel('Precipitation (mm)')
 ax.tick_params(axis='both', which='major')
 ax.legend_.remove()
