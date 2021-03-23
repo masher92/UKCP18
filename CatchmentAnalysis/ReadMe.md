@@ -169,15 +169,27 @@ Catchment rainfall accumulations are influenced by the catchment's geographic lo
 
 A similar pattern is found in the relationship between SAAR, mean catchment altitude, easting and northing, and FEH13 precipitation values at various durations. This follows, considering the strong positive relationship between altitude and SAAR (Figure 8) and altitude and easting and northing (Figure 3). This pattern is that at the shorter durations (~ <10 hrs) there is no clear relationships seen; however, during this time a clear relationship develops. 
 
-The above plots show that the catchments with the highest annual precipitation accumulations at low durations (~<8h), are those with low SAAR values. At longer durations (>~8h), the catchments with the highest annual precipitation accumulations for that duration, also have higher SAAR values.
-
 TO BE COMPLETED
 
 <p align="center">
 <img src="Figs/AllCatchments/Rainfall/SAARvs10yrRPrainfall_start.gif" alt="animated"  width="330" />
 <img src="Figs/AllCatchments/Rainfall/SAARvs10yrRPrainfall_frame1.png" width="310" />
 <img src="Figs/AllCatchments/Rainfall/SAARvs10yrRPrainfall_frame50.png" width="300" />
-<p align="center">  (km<sup>2</sup>) <p align="center">
+<p align="center">  ... <p align="center">
+
+Two groups are notable:
+Group1: FEH13 rainfall is higher than other catchments at very short durations, but is lower than other catchments at longer durations (generally catchments with low SAAR, low altitude and which are further east and south).
+Group2: FEH13 rainfall is lower than other catchments at very short durations, but is higher than other catchments at longer durations (generally catchments with high SAAR, high altitude and which are further west and north).
+
+To determine the catchments in each group, the precipitation value for each catchment is normalised for 96h and 1h durations. For group 1, the 96h normalised precipitation is lower than the 1h value, and for group 2 it is larger. 
+
+
+<p align="center">
+<img src="Figs/AllCatchments/Rainfall/DifferenceNormalised_Northing.png" width="230" />
+<img src="Figs/AllCatchments/Rainfall/DifferenceNormalised_Easting.png" width="230" />
+<img src="Figs/AllCatchments/Rainfall/DifferenceNormalised_ALTBAR.png" width="230" />
+<img src="Figs/AllCatchments/Rainfall/DifferenceNormalised_SAAR.png" width="230" />  
+<p align="center"> ..  <p align="center">
 
 <a name="runoff"></a>
 ## Catchment runoff
