@@ -180,19 +180,19 @@ Out of the 20 Leeds catchments, only 4 (Wyke Beck, Bagley Beck, Meanwood Beck, C
 ReFH2 uses data on initial catchment conditions and model parameters that are estimated from catchment descriptors to convert rainfall into runoff, and the rainfall depth is scaled accordingly to reflect that season in order to produce summer and winter hyetographs. Additionally, in ReFH2 rainfall hyetographs are available as both rural and urbanised scenarios. The ReFH2 model has both a rural catchment model component and an urban catchment model component. In rural scenarios, the whole catchment is modelled using the rural catchment model, whereas in urbanised scenarios the catchment area which is urban is first delineated, and then this urban area is run through the urban model, and the remainder of the catchment is modelled as rural.  
 
 ### ReFH2 outputs: peak flow and direct runoff
-ReFH2 allows the user to define a duration of rainfall and then calculates the associated peak flow (m<sup>3</sup>/s) and total direct runoff (ml) in both rural and urbanised scenarios for return periods of 1, 2, 5, 10, 30, 50, 75, 100, 200 and 1000 years. The direct runoff is the total cumulative amount of runoff during that rainfall event, and as such the longer duration the storm the higher that value becomes. Contrastingly, the storm duration associated with the highest peak flow (known as the critical storm duration) is not generally the longest storm duration, and will be dependent on catchment characteristics. This is seen in Figure 8, where the greatest runoff volume is found at the longest duration, whereas the greatest peak flow value varies between catchments but generally occurs at a shorter duration.  
+ReFH2 allows the user to define a duration of rainfall and then calculates the associated peak flow (m<sup>3</sup>/s) and total direct runoff (ml) in both rural and urbanised scenarios for return periods of 1, 2, 5, 10, 30, 50, 75, 100, 200 and 1000 years. The direct runoff is the total cumulative amount of runoff during that rainfall event, and as such the longer duration the storm the higher that value becomes. Contrastingly, the storm duration associated with the highest peak flow (known as the critical storm duration) is not generally the longest storm duration, and will be dependent on catchment characteristics. This is seen in Figure 11, where the greatest runoff volume is found at the longest duration, whereas the greatest peak flow value varies between catchments but generally occurs at a shorter duration.  
 
 <p align="center">
   <img src="Figs/AllCatchments/DirectRunoff_SummerUrban_1yr.PNG" width="300"  />    
   <img src="Figs/AllCatchments/Peaks_SummerUrban_1yr.PNG" width="300"  />  
-<p align="center"> Figure 8. Direct runoff in ml (left) and peak flow in m<sup>3</sup>/s (right) for a 1 year return period event in summer using an urbanised scenario <p align="center">
+<p align="center"> Figure 11. Direct runoff in ml (left) and peak flow in m<sup>3</sup>/s (right) for a 1 year return period event in summer using an urbanised scenario <p align="center">
 
 ### Variation in peak flow with rurality and seasonality 
-The peak flow is generally associated with the widest flood extent and is of great importance for surface water flooding. The peak flows found in Leeds catchments for various durationsacross both urbanised and rural scenarios, and for both winter and summer storm profiles, at a ten year return period, are shown in Figure 9. This shows that the relationship between peak flow and rainfall event duration varies extensively between different catchments. There is also clear variation between catchments in how much this relationship differs from summer to winter, and between urbanised and rural scenarios. Across all catchments, using a summer storm profile results in higher peak flows than a winter storm profile. In almost all catchments the model including the urban component has higher peak flows than the model with no urban component. However, in Gill Beck (Aire) which is one of the catchments with the lowest urban extent, there is practically no difference between the two. 
+The peak flow is generally associated with the widest flood extent and is of great importance for surface water flooding. The peak flows found in Leeds catchments for various durations across both urbanised and rural scenarios, and for both winter and summer storm profiles, at a ten year return period, are shown in Figure 12. This shows that the relationship between peak flow and rainfall event duration varies extensively between different catchments. There is also clear variation between catchments in how much this relationship differs from summer to winter, and between urbanised and rural scenarios. Across all catchments, using a summer storm profile results in higher peak flows than a winter storm profile. In almost all catchments the model including the urban component has higher peak flows than the model with no urban component. However, in Gill Beck (Aire) which is one of the catchments with the lowest urban extent, there is practically no difference between the two. 
 
 <p align="center">
   <img src="Figs/AllCatchments/10RP_comparingseason_rurality.png" width="1000"  />    
-<p align="center">  <p align="center">
+<p align="center"> Figure 12. Peak flows in Leeds catchments for various durations across both urbanised and rural scenarios, and for both winter and summer storm profiles, at a ten year return period <p align="center">
 
 The plots in the section below help understand more about which catchment characteristics influence the variation in catchment response to summer and winter storms and to modelling with or without an urban component. The mean difference across all return periods between the peak flow in summer and winter (for a model both with and without an urban component) and between the peak flow using a model with an urban component and the model without an urban component (for both summer and winter storm profiles), is plotted against the value for various catchment descriptors for each catchment.
 
@@ -258,22 +258,24 @@ Weak negative correlation between the difference in peak flow between summer and
 
 <p align="center">
   <img src="Figs/AllCatchments/Runoff/Peaks_Urban_Summer.png" width="800"  />    
-<p align="center"> Figure 10. Normalised peak flows in Leeds catchments for durations between 1 and 39h, for various return periods <p align="center">
+<p align="center"> Figure 13. Normalised peak flows in Leeds catchments for durations between 1 and 39h, for various return periods <p align="center">
 
-The nature of the relationship between duration and peak flow varies between catchments. To explore this, the peak flow at durations between 1 and 39 hours are plottted for each catchment, for several return periods, in Figure 10. This focuses on a summer storm profile, using a model including an urban component.
+The shape of the relationship between duration and peak flow varies between catchments. To explore this, the peak flow at durations between 1 and 39 hours are plottted for each catchment, for several return periods, in Figure 13. This focuses on a summer storm profile, using a model including an urban component.
 
 <p align="center">
   <img src="Figs/AllCatchments/Runoff/UrbanSummerPeaks_grouped.PNG" width="800"  />    
-<p align="center"> Figure 11. Normalised peak flows in Leeds catchments for durations between 1 and 39h, for various return periods <p align="center">
+<p align="center"> Figure 14. Normalised peak flows in Leeds catchments for durations between 1 and 39h, for 10 year return period <p align="center">
   
-From Figure 10 it is apparent that the shape of the relationship between duration and peak flow varies between catchments. Four predominant response shapes can be picked out from Figure 10, and the catchments within each of these groups ae plotted seperately in Figure 11.
+From Figure 13 it is apparent that the shape of the relationship between duration and peak flow varies between catchments. Four predominant response shapes can be picked out in the plots in Figure 13. To illustrate this further, in Figure 14 for a 10 year return period, these grouped are manually identified and the response curves for each group are plotted seperately. 
+
+ANYTHING TO LINK TOGETHER THE GROUPS?
 
 ## Critical storm duration 
-The critical storm duration (duration with highest peak flow) is generally associated with the widest flood extent and is of great importance for surface water flooding. Understanding a catchment's critical storm duration is important in order to understand the kinds of storms which are most likely to lead to surface water flooding in the catchment. 
+The critical storm duration (duration with highest peak flow) is generally associated with the widest flood extent and is of great importance for surface water flooding. Understanding a catchment's critical storm duration is important in order to understand the kinds of storms which are most likely to lead to surface water flooding in the catchment. In Figure 15 the critical storm duration at each return period for each catchment is plotted. 
 
 <p align="center">
-  <img src="Figs/AllCatchments/Runoff/Peaks_criticaldurations_Urban_Summer.png" width="400"  />    
-<p align="center"> Figure 12. Critical durations for each catchment and return period, for a summer storm profile and model including urban component s <p align="center">
+  <img src="Figs/AllCatchments/Runoff/Peaks_criticaldurations_Urban_Summer.png" width="500"  />    
+<p align="center"> Figure 15. Critical durations for each catchment and return period, for a summer storm profile and model including urban component <p align="center">
 
 
 ## Relationship between critical storm durations and catchment descriptors
@@ -296,7 +298,6 @@ Across all return periods, there is a negative correlation between catchment alt
   ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_UrbanvsAREA_CriticalDurations.gif)
   ![Animation](Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_RuralvsAREA_CriticalDurations.gif)
 
-Across all return periods, there is a negative correlation between catchment altitude and critical duration. This means that the higher the elevation of the catchment, the shorter the critical storm duration. 
 
 ### BFIHOST
 
