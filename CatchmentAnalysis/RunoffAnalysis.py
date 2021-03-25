@@ -26,6 +26,7 @@ from moviepy.editor import *
 # Specify catchment name
 os.chdir("C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/FloodModelling/IndividualCatchments/")
 catchments  = glob.glob("*")
+catchments.remove("WortleyBeck")
 #catchments = ['CarrBeck', 'GillBeck_Aire', 'GillBeck_Wharfe']
 #catchments = ['BalneBeck', 'HowleyBeck', 'BagleyBeck', 'GuiseleyBeck']
 #catchments = [ 'CollinghamBeck', 'FairburnIngs','FirgreenBeck', 'CockBeck_Aberford']
@@ -269,6 +270,7 @@ for catchment in catchments:
     mean_differences = mean_differences.append(mean_differences_catchment)
     
     mean_differences = mean_differences.reset_index(drop = True)
+    
 ##################################################################
 ##################################################################
 # Plotting:
@@ -279,17 +281,15 @@ for catchment in catchments:
     # Displaying their values at each duration
 ##################################################################
 ##################################################################
-# Create dictionary liking catchment names to a marker and color
 catchment_colors =['#e6194b', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#46f0f0', '#f032e6', 
 '#bcf60c', '#fabebe', '#008080', '#e6beff', '#9a6324', "#006FA6", '#800000', '#aaffc3', 
-'#808000', "#FFA0F2", '#000075', '#808080',  '#000000']
+'#808000', "#FFA0F2", '#000075', '#000000']
 mStyles = ["o","v","8", ">","s","p","P","*","h","X","D"] *2
 # Create dictionaries
 catchment_colors_dict = {catchments[i]: catchment_colors[i] for i in range(len(catchments))} 
 catchment_markers_dict = {catchments[i]: mStyles[i] for i in range(len(catchments))} 
 # Create seaborn palette
 my_pal = sns.set_palette(sns.color_palette(catchment_colors))
-
 
 # Normalise: 'Yes' or 'No'
 normalise = 'Yes'
@@ -369,6 +369,94 @@ for rurality in ['Urban', 'Rural']:
             plt.savefig(root_fp +"DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Runoff/{}_{}_{}.png".format(measure_title, rurality, seasonal_storm_profile),
                         bbox_inches='tight')
             plt.show()
+
+##################################################################
+##################################################################
+# Plotting:
+    # Peaks/runoff values
+    # All catchments, one plot
+    # One subplot for each RP
+    # With each subplot containing a line for each catchment
+    # Displaying their values at each duration
+##################################################################
+##################################################################
+# Normalise: 'Yes' or 'No'
+normalise = 'Yes'
+
+catchment_groups = {}
+catchment_groups["low"] = ['CarrBeck', 'GillBeck_Aire', 'GillBeck_Wharfe']
+catchment_groups['med'] = ['BalneBeck', 'HowleyBeck', 'BagleyBeck', 'GuiseleyBeck']
+catchment_groups['medhigh'] = [ 'CollinghamBeck', 'FairburnIngs','FirgreenBeck', 'CockBeck_Aberford']
+catchment_groups['high'] = [ 'BushyBeck','Holbeck','LinDyke', 'MeanwoodBeck', 'MillDyke',
+                            'OilMillBeck','OultonBeck', 'StankBeck', 'WykeBeck']
+
+rp =10
+fig = plt.figure(figsize=(35, 20)) 
+### Creating plot
+
+for group, catchments, subplot_num in zip(catchment_groups.keys(), catchment_groups.values(), range(1,5)):
+    print(group, catchments, subplot_num)
+    
+    # Make subplot for each Return Period
+    measure_df = peaks_all_catchments_allrps[str(rp) + '_Urban_Summer']
+        
+    # Set up the subplot
+    ax = fig.add_subplot(2,2,subplot_num)
+    # Add lines to that subplot from each catchment
+    for i in range(0,len(catchments)):
+        # Find the catchment name
+        catchment_name = catchments[i]
+        
+        #### Make the maximum value for this catchment a different colour
+        # Find the number of points
+        num_durations= len(measure_df)
+        # Find the color for this catchment
+        point_color = catchment_colors_dict[catchment_name]
+        # Repeat the colour the number of times as there is points
+        point_colors = [point_color]  * num_durations  
+
+        # Set the peak value to a different color (gold)
+        peak_val_idx = measure_df[catchment_name].argmax()        
+        critical_duration = measure_df['Duration'][peak_val_idx]
+        point_colors[peak_val_idx] = 'darkblue'
+
+        # If normalise is 'Yes', then normalise
+        if normalise == 'Yes':
+            measure_df_thiscatchment =  measure_df[catchment_name]/ measure_df[catchment_name].max() 
+        else:
+            measure_df_thiscatchment =  measure_df[catchment_name]            
+            
+        #### Plot (df lines and points)
+        ax.plot(measure_df['Duration'],
+         measure_df_thiscatchment,  linestyle = ':', color = point_color )     
+        ax.scatter(measure_df['Duration'],
+         measure_df_thiscatchment, marker = catchment_markers_dict[catchment_name], s =200, c= point_colors,
+         label=catchment_name)
+                
+    # Axis labels and title
+    ax.set_xlabel('Duration', fontsize=30)
+    ax.set_ylabel('Peak Flow ($m^3$/s) ', fontsize=30)
+    #ax.set_title("{} Year RP".format(rp), fontsize=30)
+    ax.tick_params(axis='both', which='major', labelsize=25)
+    ax.legend(fontsize = 20, markerscale = 2)
+
+    plt.xticks(rotation = 45)
+
+# Add one title
+plt.suptitle("Urban Peak Flow, $m^3$/s (Summer)", fontsize=40)
+
+# # Adjust height between plots
+fig.subplots_adjust(top=0.92)
+plt.subplots_adjust(hspace=0.25)    
+
+# Save and show plot
+plt.savefig(root_fp +"DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Runoff/UrbanSummerPeaks_grouped.PNG",
+            bbox_inches='tight')
+plt.show()
+
+catchments_info['group_num'] = [2, 2, 4, 1, 3, 3, 3,3,1,1,2,4,4,4,4,4,4,4,4,4]
+plt.scatter(catchments_info['group_num'], catchments_info['ALTBAR'])
+
             
 ##################################################################
 ##################################################################
@@ -500,6 +588,90 @@ for i in range(0,len(catchments)):
     plt.savefig(root_fp +"DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/IndividualCatchments/CriticalDurations/{}_CriticalDurations.png".format(catchment_name),
                 bbox_inches = 'tight')
     plt.show()  
+    
+    
+##################################################################
+##################################################################
+# Plotting:
+
+##################################################################
+##################################################################   
+rp = 10
+
+# Create figure
+fig = plt.figure(figsize=(35, 20)) 
+# Loop through catchments, creating a plot for each catchment        
+for catchment_num, subplot_num in zip(range(0,len(catchments)+1), range(1,len(catchments)+1)):
+    print(catchment_num, subplot_num)
+   
+    # Define catchment
+    catchment_name = catchments[catchment_num]
+    print(catchment_name)
+    
+    # Loop through measures
+    for measure in ['Peaks']:
+        # Loop through ruralities
+        for rurality in ['Urban', 'Rural']:
+            # Define different base colors for each ruraliy
+            if rurality == 'Urban':
+                colors = ['black']  * len(durations)   
+            elif rurality == 'Rural':
+                colors = ['teal']  * len(durations)    
+            # Loop through seasonal storm profiles
+            for seasonal_storm_profile in seasonal_storm_profiles:
+                # Define different marker styles for summer and winter
+                if seasonal_storm_profile == 'Summer':
+                    marker = '^'
+                else:
+                    marker= 'x'
+                ## Extract correct data (according to whether on peak loop or runoff loop)                 
+                if measure == 'Peaks':
+                    label = 'Peak flow ($m^3$/s)'
+                    values = peaks_all_catchments_allrps[str(rp) + '_' + rurality+ '_' + seasonal_storm_profile] 
+                elif measure == 'Runoff':
+                    label = 'Direct Runoff (ml)'
+                    values = runoff_all_catchments_allrps[str(rp) + '_' + rurality+ '_' + seasonal_storm_profile] 
+                # Create a copy of the current color scheme being used (depending on urban or rural)
+                current_colors = colors.copy()
+                # set the maximum value to gold
+                current_colors[values[catchment_name].argmax()] = 'gold'    
+                    # Set up plot
+                ax = fig.add_subplot(4,5,subplot_num)
+                # Add line to plot
+                ax.scatter(values['Duration'], values[catchment_name], marker = marker, label= rurality  + ' (' + seasonal_storm_profile + ')',
+                           color = current_colors, s= 70)
+                
+                if subplot_num in [16,17,18,19,20]:
+                    # Axis labels and title formatting
+                    ax.set_xlabel('Duration', fontsize=18)
+                if subplot_num in [1,6,11,16]:
+                    ax.set_ylabel(label, fontsize=18)
+                ax.set_title(catchment_name, fontsize=20)
+                ax.tick_params(axis='both', which='major', labelsize=15)
+                # Rotate X ticks
+                plt.xticks(rotation = 45)
+      
+        # Add overall figure title
+        plt.suptitle("{} year RP".format(rp), fontsize=34)
+        
+    # # Set up overall legend
+box = ax.get_position()
+ax.set_position([box.x0, box.y0 + box.height * 0.3,
+                  box.width, box.height * 0.8])
+handles, labels = ax.get_legend_handles_labels()
+labels= ['Model with urban component (Summer)', 'Model with urban component (Winter)',
+         'Model without urban component (Summer)', 'Model without urban component (Winter)']
+ax.legend(handles,labels, loc='best', bbox_to_anchor=(0.4, -0.3),
+          fancybox=True, shadow=True, ncol=2,  fontsize = 30, markerscale = 3)
+# Adjust height between plots
+fig.subplots_adjust(top=0.92)
+plt.subplots_adjust(hspace=0.35)    
+            
+# Save and show plot
+plt.savefig(root_fp +"DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/{}RP_comparingseason_rurality.png".format(rp),
+            bbox_inches = 'tight')
+plt.show()  
+        
 
 ##################################################################
 ##################################################################
@@ -592,12 +764,13 @@ for catchment_name in catchments:
     # Plotted against catchment descriptors
 ##################################################################
 ##################################################################     
-variable1s = ['DPSBAR', 'URBEXT2000', 'ALTBAR', 'BFIHOST', 'SAAR']
-variabl1_units =['Catchment Steepness (m per km)', 'Urban extent (%)', 'Altitude (m above sea level)', 
+variable1s = ['AREA', 'DPSBAR', 'URBEXT2000', 'ALTBAR', 'BFIHOST', 'SAAR']
+variabl1_units =['Area (km)','Catchment Steepness (m per km)', 'Urban extent (%)', 'Altitude (m above sea level)', 
                  'BFIHOST', 'SAAR (mm)']
 variable2s = ['UvR_Diff_Winter', 'UvR_Diff_Summer', 'SvW_Diff_Urban', 'SvW_Diff_Rural']
 variable2_units = ['Urban Rural Difference (Winter)', 'Urban Rural Difference (Summer)', 'Summer Winter Difference (Urban)', 
                   'Summer Winter Difference (Rural)']
+
 variable1_units_dict = dict(zip(variable1s, variabl1_units))
 variable2_units_dict = dict(zip(variable2s, variable2_units))
 
@@ -609,12 +782,14 @@ for variable1, variable1_unit in variable1_units_dict.items():
         df2 = pd.DataFrame({'Catchment':catchments_info['name'], 
             variable1 : catchments_info[variable1],
             variable2 :mean_differences[variable2]})
+        df2['colo']
 
         fig = plt.figure()
         ax = fig.add_subplot(1,1,1)
         ax.clear()
         ax = sns.scatterplot(data=df2, x=variable1, y=variable2, style = 'Catchment', 
                     markers = catchment_markers_dict, hue = 'Catchment', s= 100)
+        
         ax.set_xlabel(variable1_unit)
         ax.set_ylabel(variable2_unit)
         ax.tick_params(axis='both', which='major')
@@ -632,58 +807,63 @@ plt.rcParams['animation.ffmpeg_path'] = root_fp + 'DataAnalysis/Scripts/ffmpeg-2
 plt.rcParams['savefig.bbox'] = 'tight' 
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
-# Define variables
-variable1, variable2 = 'Summer_Urban', 'AREA'
-variable2_unit = 'Area (km)'
+# Define variable names to use
+variable1s = ['Summer_Rural']
+variables2s =  ['AREA', 'BFIHOST', 'URBEXT2000', 'LDP', 'DPSBAR', 'ALTBAR']
+variable2_units = ['Area (km)', 'BFIHOST', 'Urban Extent (%)', 'Longest drainage path (km)', 
+                   'Catchment Steepness (m per km)', 'ALtitude (m)']
 
-# Define number of frames
-frames = len(cds[variable1].iloc[:, 1:].columns)
-
-# Set up figure
-fig = plt.figure()
-def draw(frame):
-        print(frame)
-        # clear the previous figure
-        plt.clf()
-        # Get the critical durations for this summer/winter urban/rural combination
-        cds_seasonal = cds[variable1]    
-        
-        # find return period being useed in this frame
-        rp = cds_seasonal.iloc[:, 1:].columns[frame]
-        print(rp)
-        df2 = pd.DataFrame({'Catchment':catchments_info['name'],
-             'CriticalDuration' : cds_seasonal[rp],
-             variable2 :catchments_info[variable2]})
-        
-        ax = fig.add_subplot(1,1,1)
-        ax.clear()
-        ax = sns.scatterplot(data=df2, x='CriticalDuration', y=variable2, style = 'Catchment', 
-                    markers = catchment_markers_dict, hue = 'Catchment', s= 100,
-                    palette = my_pal)
-        ax.set_xlabel('Critical Duration (hrs)')
-        ax.set_ylabel(variable2_unit)
-        ax.tick_params(axis='both', which='major')
-        ax.legend_.remove()
-        
-        grid =ax.get_children()[0]
-        
-        plt.title(str(variable1) + ': ' + str(rp) + 'yr return period')
-        return grid
+for variable1 in variable1s:
+    for variable2, variable2_unit in zip(variables2s, variable2_units):
+        print(variable1, variable2, variable2_unit)
     
-def init():
-    return draw(0)
-
-def animate(frame):
-    return draw(frame)
-
-# Create animation
-ani = animation.FuncAnimation(fig, animate, frames, interval=1, save_count=100, blit=False, init_func=init,repeat=False)
-fp = root_fp +"DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/{}_{}yrRPrainfall".format(variable1, rp)
-ani.save(fp + '.mp4',writer=animation.FFMpegWriter(fps=1))
-
-# Convert to gif
-clip = (VideoFileClip(fp + '.mp4'))
-clip.write_gif(fp + '.gif')
-# Remove mp4
-os.remove(fp + '.mp4')
-
+        # Define number of frames
+        frames = len(cds[variable1].iloc[:, 1:].columns)
+        
+        # Set up figure
+        fig = plt.figure()
+        def draw(frame):
+                # clear the previous figure
+                plt.clf()
+                # Get the critical durations for this summer/winter urban/rural combination
+                cds_seasonal = cds[variable1]    
+                
+                # find return period being useed in this frame
+                rp = cds_seasonal.iloc[:, 1:].columns[frame]
+                print(rp)
+                df2 = pd.DataFrame({'Catchment':catchments_info['name'],
+                     'CriticalDuration' : cds_seasonal[rp],
+                     variable2 :catchments_info[variable2]})
+                
+                ax = fig.add_subplot(1,1,1)
+                ax.clear()
+                ax = sns.scatterplot(data=df2, x='CriticalDuration', y=variable2, style = 'Catchment', 
+                            markers = catchment_markers_dict, hue = 'Catchment', s= 100,
+                            palette = my_pal)
+                ax.set_xlabel('Critical Duration (hrs)')
+                ax.set_ylabel(variable2_unit)
+                ax.tick_params(axis='both', which='major')
+                ax.legend_.remove()
+                
+                grid =ax.get_children()[0]
+                
+                plt.title(str(variable1) + ': ' + str(rp) + 'yr return period')
+                return grid
+            
+        def init():
+            return draw(0)
+        
+        def animate(frame):
+            return draw(frame)
+        
+        # Create animation
+        ani = animation.FuncAnimation(fig, animate, frames, interval=1, save_count=100, blit=False, init_func=init,repeat=False)
+        fp = root_fp +"DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/{}vs{}_CriticalDurations".format(variable1,variable2, rp)
+        ani.save(fp + '.mp4',writer=animation.FFMpegWriter(fps=1))
+        
+        # Convert to gif
+        clip = (VideoFileClip(fp + '.mp4'))
+        clip.write_gif(fp + '.gif')
+        # Remove mp4
+        os.remove(fp + '.mp4')
+        
