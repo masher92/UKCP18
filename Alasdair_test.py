@@ -1,88 +1,158 @@
-'''
-This file creates ensemble summary NetCDFs using stats cubes created in UK_stats.py
-and UK_stats_wethours.py. 
-These are saved to file
-
-'''
-
+#############################################
+#############################################
+# Load in required packages
+#############################################
+#############################################
 import iris.coord_categorisation
 import iris
+import glob
 import numpy as np
 import os
 import sys
 import numpy.ma as ma
+import iris.plot as iplt
+import cartopy.crs as ccrs
 
-############################################
+#############################################
+#############################################
 # Define variables and set up environment
 #############################################
+#############################################
+# Define filepath within which data and scripts are found
 root_fp = "/nfs/a319/gy17m2a/"
-#root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
 os.chdir(root_fp)
 
 # Create path to files containing functions
-sys.path.insert(0, root_fp + 'Scripts/UKCP18/SpatialAnalyses')
-#from Spatial_plotting_functions import *
-#from Spatial_geometry_functions import *
+sys.path.insert(0, root_fp + 'Scripts/UKCP18/GlobalFunctions')
+from Spatial_plotting_functions import *
+from Spatial_geometry_functions import *
 
-# Set up variables
-ems = ['01', '04', '05', '06', '07', '08', '09','10','11','12', '13','15']
+# Define ensemble member numbers
+ems = ['01', '04', '05', '06', '07', '08','09', '10', '11','12','13','15']
+yrs_range = "1980_2001" 
 
-##################################################################
-# Load mask for UK
+#############################################
+#############################################
+# Cycle through ensemble members
+# For each ensemble member: 
+#       Read in all files and join into one cube
+#       Trim to the outline of the bounding box UK
+#       Cut so only hours in month of February remain
+#       Find the mean value for each grid square
+#############################################
+#############################################
+# Create a list
+cube_list = []     
+for em in ems:
+    print(em)
+    #############################################
+    # Data for each ensemble member is stored in monthly files
+    # Load in the data for all months for this ensemble member 
+    # Join them together to create one cube containing all hours of data
+    #############################################
+    filenames =[]
+    # Create filepath to correct folder using ensemble member and year
+    general_filename = 'datadir/UKCP18/2.2km/{}/{}/pr_rcp85_land-cpm_uk_2.2km_{}_1hr_*'.format(em, yrs_range, em)
+    # Find all files in directory which start with this string
+    for filename in glob.glob(general_filename):
+        filenames.append(filename)
+    print(len(filenames))
+       
+    monthly_cubes_list = iris.load(filenames,'lwe_precipitation_rate')
+    for cube in monthly_cubes_list:
+         for attr in ['creation_date', 'tracking_id', 'history']:
+             if attr in cube.attributes:
+                 del cube.attributes[attr]
+    
+    # Concatenate the cubes into one
+    concat_cube = monthly_cubes_list.concatenate_cube()
+    
+    #############################################
+    ## Trim to outline of UK
+    #############################################
+    concat_cube = trim_to_bbox_of_uk(concat_cube)
+    
+    ############################################
+    ## Cut to containing only hours of data within February
+    #############################################
+    # Create time constraint to keep only hours in February
+    time_constraint = iris.Constraint(time=lambda c: c.point.month == 2)
+    # Apply time constraint
+    feb=concat_cube.extract(time_constraint)
+
+    ###########################################
+    ## Find the mean value in February
+    #############################################
+    # Find mean
+    feb_mean = feb.aggregated_by(['month_number'], iris.analysis.MEAN)
+    # Remove time dimension
+    feb_mean = feb_mean[:,0,:,:]
+    
+    ###########################################
+    # Add the february mean results for this ensemble member to the list
+    #############################################
+    cube_list.append(feb_mean)
+
+#############################################################################
+#############################################################################  
+# Join together the cubes for all the ensemble members into one 
+#############################################################################
+#############################################################################
+# Convert list into cube list
+ir_cube_list = iris.cube.CubeList(cube_list)
+# Join all the cubes into the list together
+cubes = ir_cube_list.concatenate_cube()
+
+#############################################################################
+#############################################################################
+# Calculate the mean values across the 12 ensemble members
+#############################################################################
+#############################################################################
+em_mean = cubes.collapsed(['ensemble_member'], iris.analysis.MEAN)
+
+#############################################################################
+#############################################################################
+# Load necessary spatial data
+#############################################################################
+#############################################################################
+# These geodataframes are square
+northern_gdf = create_northern_outline({'init' :'epsg:3857'})
+wider_northern_gdf = create_wider_northern_outline({'init' :'epsg:3857'})
+
+# Load mask for wider northern region
 # This masks out cells outwith the wider northern region
-uk_mask = np.load('Outputs/RegionalMasks/uk_mask.npy')  
-# Reshape into shape
-uk_mask_reshaped = uk_mask.reshape(458, 383)
+wider_northern_mask = np.load('Outputs/RegionalMasks/wider_northern_region_mask.npy')
 
-##################################################################
-# Loop through stats:
-##################################################################
-# List of stats to loop through
-stat = 'jja_mean'
+# Load mask for UK
+uk_mask = np.load('Outputs/RegionalMasks/uk_mask.npy')  
+uk_mask = uk_mask.reshape(458, 383)
 
 #############################################################################  
-# For each stat, load in cubes containing this data for each of the ensemble members
-# And concatenate all the ensemble member statistic cubes into one. 
 #############################################################################
-for stat in stats:
-  # Load in files
-  filenames = []
-  for em in ems:
-      if hours == 'All':
-          filename= '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Model/Allhours/EM_Data/em_{}_{}.nc'.format(em, stat)
-      elif hours == 'Wet':
-          filename= '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Model/Wethours/EM_Data/em_{}_{}.nc'.format(em, stat)    
-      filenames.append(filename)
+# Plotting
+#############################################################################
+#############################################################################
+# Mask out data points outside UK
+em_mean.data = ma.masked_where(uk_mask == 0, em_mean.data)  
 
-  # Load 12 ensemble member files into a cube list
-  cubes_list = iris.load(filenames,'lwe_precipitation_rate')
-  # Concatenate the cubes into one
-  cubes = cubes_list.concatenate_cube()
-      
-  # Remove time dimension (only had one value)
-  if hours == 'All':
-      cubes = cubes[:,0,:,:]
-      
-  #############################################################################
-  # Calculate:
-  # The ensemble mean
-  # The ensemble spread (standard deviation)
-  #############################################################################
-  # Define the two different metrics
-  em_cube_stats = ["EM_mean", "EM_spread"]
-  # For each of the two different metrics
-  for em_cube_stat in em_cube_stats:
-      print(em_cube_stat)
-     # Collapse them to contain one mean value across 12 ensemble members
-      if em_cube_stat == "EM_mean":
-          stats_cube = cubes.collapsed(['ensemble_member'], iris.analysis.MEAN)
-      elif em_cube_stat == "EM_spread":
-          stats_cube = cubes.collapsed(['ensemble_member'], iris.analysis.STD_DEV)
+# Trim to smaller area
+em_mean = trim_to_bbox_of_region(em_mean, wider_northern_gdf)
 
-      # Mask out data points outside UK
-      stats_cube.data = ma.masked_where(uk_mask_reshaped == 0, stats_cube.data)  
-    
-      #############################################################################
-      # Save netCDF files
-      #############################################################################
-      iris.save(stats_cube, 'Outputs/RegionalRainfallStats/NetCDFs/Model/{}hours/EM_Summaries/{}_{}.nc'.format(hours, stat, em_cube_stat))
+# Mask the data so as to cover any cells not within the specified region 
+em_mean.data = ma.masked_where(wider_northern_mask == 0, em_mean.data)
+# Trim to the BBOX of Northern England
+# This ensures the plot shows only the bbox around northern england
+# but that all land values are plotted
+em_mean = trim_to_bbox_of_region(em_mean, northern_gdf)
+
+
+# Set up a plotting figurge with Web Mercator projection
+proj = ccrs.Mercator.GOOGLE
+fig = plt.figure(figsize=(20,20), dpi=200)
+ax = fig.add_subplot(122, projection = proj)
+mesh = iplt.pcolormesh(em_mean)
+# Add regional outlines,
+northern_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=2)
+cb1 = plt.colorbar(mesh, ax=ax, fraction=0.053, pad=0.03)
+cb1.ax.tick_params(labelsize=15)
+
