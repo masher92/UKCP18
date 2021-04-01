@@ -7,17 +7,9 @@ These are saved to file
 
 import iris.coord_categorisation
 import iris
-import glob
 import numpy as np
-from numba import jit
 import os
-import geopandas as gpd
-import time 
 import sys
-import iris.quickplot as qplt
-import cartopy.crs as ccrs
-import matplotlib 
-import iris.plot as iplt
 import numpy.ma as ma
 
 ############################################
@@ -29,12 +21,11 @@ os.chdir(root_fp)
 
 # Create path to files containing functions
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/SpatialAnalyses')
-from Spatial_plotting_functions import *
-from Spatial_geometry_functions import *
+#from Spatial_plotting_functions import *
+#from Spatial_geometry_functions import *
 
 # Set up variables
 ems = ['01', '04', '05', '06', '07', '08', '09','10','11','12', '13','15']
-yrs_range = "1980_2001" 
 hours = 'All' #['Wet', 'All']
 
 ##################################################################

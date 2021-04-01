@@ -28,8 +28,8 @@ from Spatial_plotting_functions import *
 from Spatial_geometry_functions import *
 
 # Define ensemble member numbers
-ems = ['01', '04', '05', '06', '07', '08','09', '10', '11','12','13','15']
-yrs_range = "1980_2001" 
+ems = ['12','13','15']
+yrs_range = "2060_2081" 
 
 #############################################
 #############################################
@@ -57,7 +57,9 @@ for em in ems:
     for filename in glob.glob(general_filename):
         filenames.append(filename)
     print(len(filenames))
-       
+    
+    #filenames.remove("datadir/UKCP18/2.2km/11/2060_2081/pr_rcp85_land-cpm_uk_2.2km_11_1hr_20690201-20690230.nc")
+    
     monthly_cubes_list = iris.load(filenames,'lwe_precipitation_rate')
     for cube in monthly_cubes_list:
          for attr in ['creation_date', 'tracking_id', 'history']:
@@ -99,9 +101,20 @@ for em in ems:
 #############################################################################
 #############################################################################
 # Convert list into cube list
-ir_cube_list = iris.cube.CubeList(cube_list)
+cube_list2 = copy.deepcopy(cube_list)
+#del cube_list2[8:12]
+del cube_list2[8:9]
+
+ir_cube_list = iris.cube.CubeList(cube_list2)
 # Join all the cubes into the list together
 cubes = ir_cube_list.concatenate_cube()
+
+
+for cube in ir_cube_list:
+    print(cube.coordinates)
+       for attr in ['creation_date', 'tracking_id', 'history']:
+           if attr in cube.attributes:
+               del cube.attributes[attr]
 
 #############################################################################
 #############################################################################
@@ -116,16 +129,20 @@ em_mean = cubes.collapsed(['ensemble_member'], iris.analysis.MEAN)
 #############################################################################
 #############################################################################
 # These geodataframes are square
-northern_gdf = create_northern_outline({'init' :'epsg:3857'})
-wider_northern_gdf = create_wider_northern_outline({'init' :'epsg:3857'})
+#northern_gdf = create_northern_outline({'init' :'epsg:3857'})
+#wider_northern_gdf = create_wider_northern_outline({'init' :'epsg:3857'})
 
 # Load mask for wider northern region
 # This masks out cells outwith the wider northern region
-wider_northern_mask = np.load('Outputs/RegionalMasks/wider_northern_region_mask.npy')
+#wider_northern_mask = np.load('Outputs/RegionalMasks/wider_northern_region_mask.npy')
 
 # Load mask for UK
-uk_mask = np.load('Outputs/RegionalMasks/uk_mask.npy')  
-uk_mask = uk_mask.reshape(458, 383)
+#uk_mask = np.load('Outputs/RegionalMasks/uk_mask.npy')  
+#uk_mask = uk_mask.reshape(458, 383)
+
+
+iris.save(em_mean ,"datadir/UKCP18/2.2km/feb_em_means_1980-2001.nc")
+iris.save(em_mean ,"datadir/UKCP18/2.2km/feb_em_means_2060-2081.nc")
 
 #############################################################################  
 #############################################################################
