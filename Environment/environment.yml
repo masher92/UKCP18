@@ -1,0 +1,22 @@
+name: ukcp18
+channels:
+  - defaults
+dependencies:
+  - iris
+  - spyder
+  - nc-time-axis
+  - seaborn
+  - statsmodels
+  - notebook
+  - basemap
+  - basemap-data-hires
+  - geopandas=0.6.1
+  - descartes
+  - contextily
+  - rasterio
+  - iris-sample-data
+  - cf_units
+  - cf-units
+  - folium
+prefix: C:\ProgramData\Anaconda3\envs\ukcp18
+
