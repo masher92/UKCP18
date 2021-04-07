@@ -1,3 +1,11 @@
+<<<<<<< HEAD
+=======
+Critical duration is also strongly linked to the topography. In lowlying areas, near to rivers, the critical duration is long because
+surface runoff drains into these areas from larger catchments. On
+hill slopes the critical duration is generally short because the
+greatest flood depth arises from high intensity rainfall. 
+
+>>>>>>> 6378658216c2fc50b486e875d0ac7e59b538447f
 # Leeds Urban Catchments
 
 This file contains analysis of 20 urban catchments within Leeds. 
