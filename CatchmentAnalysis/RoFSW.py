@@ -91,34 +91,129 @@ def clean_catchment_names (df):
     df.replace('MillDike', 'MillDyke', inplace = True)
     return df
 
+results_dict = {}
 for rp in RPs:
+    all_catchments_all_vars = pd.DataFrame()
     for var in variables:
         print(rp, var)
-        df = pd.read_csv("DataAnalysis/datadir/RoFSW/1in{}/{}/{}_ByCatchment.csv".format(rp, var, var))
+        # Read in
         df_by_var = pd.read_csv("DataAnalysis/datadir/RoFSW/1in{}/{}/{}_ByCatchment_By{}.csv".format(rp, var, var, var))
         # Clean up catchment names to match catchment descriptors
-        df = clean_catchment_names(df)
         df_by_var = clean_catchment_names(df_by_var)
-   
-       # Join with catchment desciptors
-        df_descriptors = pd.merge(catchments_info,df)
-        df_descriptors['FloodedCells_per_Km2'] = df_descriptors['count']/df_descriptors['AREA']
+        df_by_var =  pd.merge(df_by_var, catchments_info)
+
+        all_catchments = pd.DataFrame()
+        for catchment in catchments:
+            print(catchment)
+            # extract the data for just this catchment
+            this_catchment = df_by_var.loc[df_by_var['name'] == catchment]
+            # take just columns containing breakdown by varaible values
+            this_catchment = this_catchment[[var.lower(), 'sum', 'AREA']]
+            # Find sum per area
+            this_catchment['Cells_per_Km2'] = this_catchment['sum']/this_catchment['AREA']
+            # Transpose
+            this_catchment = this_catchment.T
+            # Reformat
+            this_catchment.columns = this_catchment.iloc[0]
+            this_catchment = this_catchment.rename(columns=this_catchment.iloc[0]).drop(this_catchment.index[0])
+            # Add a total column
+            this_catchment['Total'] = this_catchment[list(this_catchment)[0:]].sum(axis=1)
+            # Add variable name to column names
+            this_catchment.columns= [var + '_' + str(col)  for col in this_catchment.columns]
+            # Add catchment name as column
+            this_catchment.insert(0, 'name', catchment)
+            # Keep only cells per km2 column
+            this_catchment=this_catchment.iloc[[2]]
+
+            # Add to dataframe containing all the catchments data
+            all_catchments = all_catchments.append(this_catchment)
         
-        df_by_var_descriptors = pd.merge(catchments_info,df_by_var)
-        df_by_var_descriptors['FloodedCells_per_Km2'] = df_by_var_descriptors['sum']/df_by_var_descriptors['AREA']
+        #
+        all_catchments_all_vars = pd.concat([all_catchments_all_vars, all_catchments], axis = 1)
+    
+    # Reset index
+    all_catchments_all_vars.reset_index(inplace = True, drop= True)
+    # Delete duplicate 'name' columns
+    all_catchments_all_vars=all_catchments_all_vars.T.drop_duplicates().T
+            
+    # Read in dataframe containing extent, and join
+    extent = pd.read_csv("DataAnalysis/datadir/RoFSW/1in{}/Extent/Extent_ByCatchment.csv".format(rp, var, var, var))
+    extent = clean_catchment_names(extent)
+    # Join with catchment desciptors
+    extent = pd.merge(catchments_info[['name','AREA']],extent)
+    # Create column which is cells per km2
+    extent['Extent'] = extent['sum']/extent['AREA']
+    # select columns
+    extent = extent[['name', 'Extent']]
+    
+    # Join extent info
+    all_catchments_all_vars =  pd.merge(all_catchments_all_vars, extent)
+    
+    # Join with catchment desciptors
+    all_catchments_all_vars = pd.merge(catchments_info,all_catchments_all_vars)
+    
+    # replace na values with 0
+    all_catchments_all_vars.fillna(0)
+    all_catchments_all_vars = all_catchments_all_vars.replace(np.nan, 0)
 
-        #### Keep only columns needed
-        # (Sum = each area value x count)
-        # Test this by summarising by area category, but including area as a variable 
-        # to summarise by. This shows that the total sum is the sum of the count for each area
-        # x that area 
-        #df = 
-
-        filtered =df_descriptors.iloc[:, np.r_[0, 2:13, 18:27, 39:41, 56]]
-        filtered = filtered.rename(columns={"FloodedCells_per_Km2": "FC_perKM2"})
+    results_dict[str(rp)] = all_catchments_all_vars
 
 
+######################################################################################
+######################################################################################
+# Plotting 
+######################################################################################
+######################################################################################
+catchment_colors =['#e6194b', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#46f0f0', '#f032e6', 
+'#bcf60c', '#fabebe', '#008080', '#e6beff', '#9a6324', "#006FA6", '#800000', '#aaffc3', 
+'#808000', "#FFA0F2", '#000075', '#000000']
+mStyles = ["o","v","8", ">","s","p","P","*","h","X","D"] *2
+# Create dictionaries
+catchment_colors_dict = {catchments[i]: catchment_colors[i] for i in range(len(catchments))} 
+catchment_markers_dict = {catchments[i]: mStyles[i] for i in range(len(catchments))} 
+# Create seaborn palette
+my_pal = sns.set_palette(sns.color_palette(catchment_colors))
+      
+fig = plt.figure(figsize = (9,6))
+ax = fig.add_subplot(1,1,1)
+ax.clear()
+ax = sns.scatterplot(data=all_catchments_all_vars, x="Extent", y="Velocity_Total",
+                     style = 'name',  markers = catchment_markers_dict, hue = 'name', 
+                     s= 200, palette = my_pal)
+ax.legend_.remove()
 
+
+      
+fig = plt.figure(figsize = (9,6))
+ax = fig.add_subplot(1,1,1)
+ax.clear()
+ax = sns.scatterplot(data=all_catchments_all_vars, x="Extent", y="Depth_Total",
+                     style = 'name',  markers = catchment_markers_dict, hue = 'name', 
+                     s= 200, palette = my_pal)
+ax.legend_.remove()
+
+
+
+fig = plt.figure(figsize = (9,6))
+ax = fig.add_subplot(1,1,1)
+ax.clear()
+ax = sns.scatterplot(data=all_catchments_all_vars, x="Depth_Total", y="Hazard_Total",
+                     style = 'name',  markers = catchment_markers_dict, hue = 'name', 
+                     s= 200, palette = my_pal)
+ax.legend_.remove()
+
+
+
+sns.lineplot(data=all_catchments_all_vars, x="name", y="Extent")
+
+
+fig, ax = plt.subplots()
+ax.plot(all_catchments_all_vars['name'], all_catchments_all_vars['Extent'], label="Extent")
+ax.plot(all_catchments_all_vars['name'], all_catchments_all_vars['Velocity_Total'], label="Speed")
+ax.plot(all_catchments_all_vars['name'], all_catchments_all_vars['Depth_Total'], label="Depth")
+ax.plot(all_catchments_all_vars['name'], all_catchments_all_vars['Hazard_Total'], label="Hazard")
+ax.legend()
+plt.xticks(rotation = 90)
 
 
 
