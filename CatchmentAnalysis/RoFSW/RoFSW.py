@@ -7,6 +7,7 @@ import geopandas as gpd
 import seaborn as sns
 import matplotlib.pyplot as plt    
 import numpy as np
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 # Specify catchment name
 os.chdir("C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/FloodModelling/IndividualCatchments/")
@@ -72,13 +73,16 @@ for catchment_name in catchments:
  
 ######################################################################################
 ######################################################################################
-#
-#
+# For each return period create a dataframe, with each catchment as a row, and columns
+# containing the values for velocity, depth, hazard and extent
+# Store each dataframe in a dictionary
 ######################################################################################
 ######################################################################################
+# List return periods and variables to look at
 RPs = [30,100,1000]
 variables = ['Depth', 'Hazard', 'Velocity']
 
+# Function to clean the catchment names to match those used in the catchment descriptors
 def clean_catchment_names (df):
     df=df.rename(columns = {'L2_NAME':'name'})
     df.loc[df.OBJECTID == 13, 'name'] = "GillBeck_Wharfe"
@@ -91,9 +95,13 @@ def clean_catchment_names (df):
     df.replace('MillDike', 'MillDyke', inplace = True)
     return df
 
+# Create dictionary to store results for each return period
 results_dict = {}
+# Loop through return periods
 for rp in RPs:
+    # Crate dataframe to store results for this return period
     all_catchments_all_vars = pd.DataFrame()
+    # For each variable, read in the data
     for var in variables:
         print(rp, var)
         # Read in
@@ -123,12 +131,13 @@ for rp in RPs:
             # Add catchment name as column
             this_catchment.insert(0, 'name', catchment)
             # Keep only cells per km2 column
-            this_catchment=this_catchment.iloc[[2]]
+            #this_catchment=this_catchment.iloc[[2]]
+            this_catchment=this_catchment.iloc[[0]]
 
             # Add to dataframe containing all the catchments data
             all_catchments = all_catchments.append(this_catchment)
         
-        #
+        # Join to dataframe containing data for all the variables
         all_catchments_all_vars = pd.concat([all_catchments_all_vars, all_catchments], axis = 1)
     
     # Reset index
@@ -142,7 +151,8 @@ for rp in RPs:
     # Join with catchment desciptors
     extent = pd.merge(catchments_info[['name','AREA']],extent)
     # Create column which is cells per km2
-    extent['Extent'] = extent['sum']/extent['AREA']
+    extent['Extent'] = extent['sum']
+    #extent['Extent'] = extent['sum']/extent['AREA']
     # select columns
     extent = extent[['name', 'Extent']]
     
@@ -153,15 +163,25 @@ for rp in RPs:
     all_catchments_all_vars = pd.merge(catchments_info,all_catchments_all_vars)
     
     # replace na values with 0
-    all_catchments_all_vars.fillna(0)
     all_catchments_all_vars = all_catchments_all_vars.replace(np.nan, 0)
-
+    
+    # Convert all values to numeric
+    all_catchments_all_vars.iloc[:,2:] =all_catchments_all_vars.iloc[:,2:].apply(pd.to_numeric)
+    
+    # Add to results dictionary
     results_dict[str(rp)] = all_catchments_all_vars
 
 
+# filtered['FloodedCellsPerKm2'] = filtered['Velocity_Total']/filtered['AREA']
+# # Add a total area column (assuming each square is 4m2)
+# filtered['Total_Area_km2'] = (filtered['Velocity_Total'] * 4)/1000000
+# # Find flooded area as a propotion of total area
+# filtered['Prop_of_area_flooded'] = filtered['Total_Area_km2']/filtered['AREA'] *100
+# filtered.iloc[:,2:] =filtered.iloc[:,2:].apply(pd.to_numeric)
+
 ######################################################################################
 ######################################################################################
-# Plotting 
+# Plotting - relationship between extent, velocity and hazard
 ######################################################################################
 ######################################################################################
 catchment_colors =['#e6194b', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#46f0f0', '#f032e6', 
@@ -174,52 +194,260 @@ catchment_markers_dict = {catchments[i]: mStyles[i] for i in range(len(catchment
 # Create seaborn palette
 my_pal = sns.set_palette(sns.color_palette(catchment_colors))
       
-fig = plt.figure(figsize = (9,6))
-ax = fig.add_subplot(1,1,1)
-ax.clear()
-ax = sns.scatterplot(data=all_catchments_all_vars, x="Extent", y="Velocity_Total",
-                     style = 'name',  markers = catchment_markers_dict, hue = 'name', 
-                     s= 200, palette = my_pal)
-ax.legend_.remove()
-
-
-      
-fig = plt.figure(figsize = (9,6))
-ax = fig.add_subplot(1,1,1)
-ax.clear()
-ax = sns.scatterplot(data=all_catchments_all_vars, x="Extent", y="Depth_Total",
-                     style = 'name',  markers = catchment_markers_dict, hue = 'name', 
-                     s= 200, palette = my_pal)
-ax.legend_.remove()
-
-
-
-fig = plt.figure(figsize = (9,6))
-ax = fig.add_subplot(1,1,1)
-ax.clear()
-ax = sns.scatterplot(data=all_catchments_all_vars, x="Depth_Total", y="Hazard_Total",
-                     style = 'name',  markers = catchment_markers_dict, hue = 'name', 
-                     s= 200, palette = my_pal)
-ax.legend_.remove()
-
-
-
-sns.lineplot(data=all_catchments_all_vars, x="name", y="Extent")
-
-
 fig, ax = plt.subplots()
 ax.plot(all_catchments_all_vars['name'], all_catchments_all_vars['Extent'], label="Extent")
 ax.plot(all_catchments_all_vars['name'], all_catchments_all_vars['Velocity_Total'], label="Speed")
 ax.plot(all_catchments_all_vars['name'], all_catchments_all_vars['Depth_Total'], label="Depth")
 ax.plot(all_catchments_all_vars['name'], all_catchments_all_vars['Hazard_Total'], label="Hazard")
+ax.set_ylabel('Number of Cells')
 ax.legend()
 plt.xticks(rotation = 90)
 
 
+######################################################################################
+######################################################################################
+# Plotting - Spatial distribution of flooded cells, and cells with severe flooding
+######################################################################################
+######################################################################################
+cols= ['name', 'geometry', 'AREA', 'ALTBAR', 'BFIHOST','DPSBAR', 'FARL', 'LDP',
+       'PROPWET', 'SAAR','URBEXT2000', 'Easting', 'Northing', 'Depth_0.00 - 0.15', 'Depth_0.15 - 0.30',
+       'Depth_0.30 - 0.60', 'Depth_0.60 - 0.90', 'Depth_0.90 - 1.20',
+       'Depth_> 1.20', 'Depth_Total', 'Hazard_0.75 - 1.25',
+       'Hazard_0.50 - 0.75', 'Hazard_1.25 - 2.00', 'Hazard_> 2.00',
+       'Hazard_Total', 'Velocity_0.00 - 0.25', 'Velocity_0.25 - 0.50',
+       'Velocity_0.50 - 1.00', 'Velocity_1.00 - 2.00', 'Velocity_> 2.00',
+       'Velocity_Total', 'Extent']
 
+severe_vars = ['Depth_> 1.20','Velocity_> 2.00', 'Hazard_> 2.00']
+rps = ["30","100","1000"]
+
+# Create figure
+fig = plt.figure(figsize=(28,20)) 
+# Make subplot for each Return Period
+#for var, subplot_num in zip(severe_vars, range(1,13)):
+i=1
+for rp in rps:
+    all_catchments_all_vars = results_dict[rp]
+    filtered = all_catchments_all_vars[cols]
+    # Convert to number cells per km2
+    filtered.iloc[:,13:]=filtered.iloc[:,13:].div(filtered['AREA'], axis=0) 
+    
+    for var in severe_vars:
+         print(var, rp)
+         ax = fig.add_subplot(3,3,i)
+         divider = make_axes_locatable(ax)
+         # create `cax` for the colorbar
+         cax = divider.append_axes("right", size="5%", pad=-0.2)
+         filtered.plot(ax=ax, cax = cax, column= var,cmap='OrRd', 
+                             edgecolor = 'black', legend=True)
+         # manipulate the colorbar `cax`
+         cax.set_ylabel('Flooded cells per km2', rotation=90, size = 20)
+         cax.tick_params(labelsize=15)
+         ax.axis('off')
+         ax.set_title(rp + 'yr RP: ' + var, fontsize=20)
+         
+         i = i+1
+
+fig = plt.figure(figsize=(28,20)) 
+for rp, subplot_num in zip(rps, range(1,4)):
+    all_catchments_all_vars = results_dict[rp]
+    filtered = all_catchments_all_vars[cols]
+    # Convert to number cells per km2
+    filtered.iloc[:,13:]=filtered.iloc[:,13:].div(filtered['AREA'], axis=0) 
+    
+    print(var, rp)
+    ax = fig.add_subplot(1,3,subplot_num)
+    divider = make_axes_locatable(ax)
+    # create `cax` for the colorbar
+    cax = divider.append_axes("right", size="5%", pad=-0.2)
+    filtered.plot(ax=ax, cax = cax, column= 'Depth_Total',cmap='OrRd', 
+                        edgecolor = 'black', legend=True)
+    # manipulate the colorbar `cax`
+    cax.set_ylabel('Flooded cells per km2', rotation=90, size = 20)
+    cax.tick_params(labelsize=15)
+    ax.axis('off')
+    ax.set_title(rp + 'yr RP: ', fontsize=20)
+    
+    # Append with catchment names
+    #filtered.apply(lambda filtered: ax.annotate(s=filtered['name'], 
+    #                                                          xy= filtered.geometry.centroid.coords[0],
+    #                                                          ha='center', size= 18),axis=1)  
+
+# Save and show plot
+plt.savefig(root_fp +"DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/RoFSW/Figs/Flooding_AllRPs.png".format(rp),
+            bbox_inches='tight')
+
+
+######################################################################################
+######################################################################################
+# Plotting - relationship between flood extent and catchment descriptors
+######################################################################################
+######################################################################################
+
+# filter columns
+filtered = all_catchments_all_vars.iloc[:, np.r_[0:15, 18:27, 39:41, 47,52,58,59 ]]
+filtered = filtered.iloc[:, np.r_[0:4,6,8,9,13:16,22,24,25,28]]
+filtered['FloodedCellsPerKm2'] = filtered['Velocity_Total']/filtered['AREA']
+# Add a total area column (assuming each square is 4m2)
+filtered['Total_Area_km2'] = (filtered['Velocity_Total'] * 4)/1000000
+# Find flooded area as a propotion of total area
+filtered['Prop_of_area_flooded'] = filtered['Total_Area_km2']/filtered['AREA'] *100
+
+######################################################################################
+######################################################################################
+# Plotting - relationship between flood extent and catchment descriptors
+######################################################################################
+######################################################################################
+rp = "100"
+var = 'FloodedCellsPerKm2'
+cols =['name', 'geometry', 'AREA', 'ALTBAR', 'BFIHOST', 'DPSBAR', 'FARL',
+           'LDP', 'PROPWET', 'SAAR', 'URBEXT2000', 'Easting', 'Northing', 'Depth_Total']
+
+correlations_df = pd.DataFrame()
+for rp in ['30', '100', '1000']:
+    all_catchments_all_vars = results_dict[rp]
+    # filter columns
+    filtered = all_catchments_all_vars[cols]
+    # Convert to number cells per km2
+    filtered['FloodedCellsPerKm2']=filtered['Depth_Total'].div(filtered['AREA'], axis=0) 
+    # Find all correlations with total number flooded cells
+    corrs = filtered[filtered.columns[2:]].corr()['FloodedCellsPerKm2'][:]
+    corrs = corrs.reindex(corrs.abs().sort_values(ascending = False).index)
+    df = pd.DataFrame({'Variable': corrs.index, 'Correlation': round(corrs,2)})
+    df.reset_index(inplace = True, drop = True)
+    correlations_df = pd.concat([correlations_df, df], axis =1)
+
+
+fig = plt.figure(figsize = (9,6))
+ax = fig.add_subplot(1,1,1)
+ax.clear()
+ax = sns.scatterplot(data=filtered, x="Depth_Total", y='LDP',
+                     style = 'name',  markers = catchment_markers_dict, hue = 'name', 
+                     s= 200, palette = my_pal)
+ax.legend_.remove()
+
+
+
+
+######################################################################################
+######################################################################################
+# Plotting - relationship between flood extent and FEH13 rainfall
+######################################################################################
+######################################################################################
+correlations_df = pd.DataFrame()
+for rp in design_rainfall_by_rp.keys():
+
+    rainfall_10yrrp = design_rainfall_by_rp[rp]
+    rainfall_10yrrp = rainfall_10yrrp.T
+    # Reformat
+    rainfall_10yrrp.columns = rainfall_10yrrp.iloc[0]
+    rainfall_10yrrp = rainfall_10yrrp.rename(columns=rainfall_10yrrp.iloc[0]).drop(rainfall_10yrrp.index[0])
+    # rainfall_10yrrp = rainfall_10yrrp[[1,10,50,90]]
+    rainfall_10yrrp['name'] = rainfall_10yrrp.index
+    rainfall_10yrrp.reset_index(inplace = True, drop = True)
+    
+    rainfall_10yrrp= pd.concat([rainfall_10yrrp, filtered['Velocity_Total']], axis = 1)
+    
+    corrs = rainfall_10yrrp[rainfall_10yrrp.columns[1:]].corr()['Velocity_Total'][:]
+    corrs = corrs.reindex(corrs.abs().sort_values().index)
+    rp = [int(i) for i in rp.split() if i.isdigit()][0]
+    correlations_df[rp] = corrs
+
+
+correlations_df = correlations_df.drop(['Velocity_Total'], axis=0)
+correlations_df.abs().max()
+
+fig = plt.figure(figsize = (9,6))
+ax = fig.add_subplot(1,1,1)
+ax.clear()
+ax = sns.scatterplot(data=rainfall_10yrrp, x="Velocity_Total", y=0.5,
+                     style = 'name',  markers = catchment_markers_dict, hue = 'name', 
+                     s= 200, palette = my_pal)
+ax.legend_.remove()
+
+
+
+######################################################################################
+######################################################################################
+# Plotting - relationship between flood extent and ReFH2 runoff
+######################################################################################
+######################################################################################
+correlations_df = pd.DataFrame()
+for category in peaks_all_catchments_allrps.keys():
+
+    peaks = peaks_all_catchments_allrps[category]
+    peaks = peaks.T
+    # Reformat
+    peaks.columns = peaks.iloc[0]
+    peaks = peaks.rename(columns=peaks.iloc[0]).drop(peaks.index[0])
+    
+    peaks =peaks.apply(pd.to_numeric)
+    
+    peaks.insert(0,'name', peaks.index)
+    
+    peaks.reset_index(inplace = True, drop = True)
+    
+    peaks= pd.concat([peaks, filtered['Velocity_Total']], axis = 1)
+    
+    corrs = peaks[peaks.columns[1:]].corr()['Velocity_Total'][:]
+    corrs = corrs.reindex(corrs.abs().sort_values().index)
+   
+    correlations_df[category] = corrs
+
+
+fig = plt.figure(figsize = (9,6))
+ax = fig.add_subplot(1,1,1)
+ax.clear()
+ax = sns.scatterplot(data=peaks, x="Velocity_Total", y='33h',
+                     style = 'name',  markers = catchment_markers_dict, hue = 'name', 
+                     s= 200, palette = my_pal)
+ax.legend_.remove()
+
+
+### Crtitical durations
+correlations_df = pd.DataFrame()
+for category in cds.keys():
+
+    peaks = cds[category]
+    
+    
+    
+    peaks= pd.concat([peaks, filtered['Velocity_Total']], axis = 1)
+    
+    corrs = peaks[peaks.columns[1:]].corr()['Velocity_Total'][:]
+    corrs = corrs.reindex(corrs.abs().sort_values().index)
+   
+    correlations_df[category] = corrs
+
+
+
+fig = plt.figure(figsize = (9,6))
+ax = fig.add_subplot(1,1,1)
+ax.clear()
+ax = sns.scatterplot(data=peaks, x=75, y='Velocity_Total',
+                     style = 'Catchments',  markers = catchment_markers_dict, 
+                     hue = 'Catchments', s= 200, palette = my_pal)
+ax.legend_.remove()
+
+
+
+######################################################################################
+######################################################################################
+# Plotting 
+######################################################################################
+######################################################################################
 # https://python-for-multivariate-analysis.readthedocs.io/a_little_book_of_python_for_multivariate_analysis.html
-corrmat =filtered.corr()
+corrmat =all_catchments_all_vars_f.corr()
 sns.heatmap(corrmat, vmax=1., square=False).xaxis.tick_top()
+
+
+
+# Find all correlations with velocity
+corrs = all_catchments_all_vars_ff[all_catchments_all_vars_ff.columns[1:]].corr()['Depth_Total'][:]
+corrs = corrs.abs().sort_values(kind="quicksort")
+
+
+
 def hinton(matrix, max_weight=None, ax=None):
     """Draw Hinton diagram for visualizing a weight matrix."""
     ax = ax if ax is not None else plt.gca()
@@ -266,14 +494,10 @@ def mosthighlycorrelated(mydataframe, numtoreport):
     cormatrix.columns = ["FirstVariable", "SecondVariable", "Correlation"]
     return cormatrix.head(numtoreport)
 
-mosthighlycorrelated(filtered, 10)
-
-from sklearn.preprocessing import scale
-standardisedX = scale(filtered)
-standardisedX = pd.DataFrame(standardisedX, index=filtered.index, columns=filtered.columns)
+mosthighlycorrelated(all_catchments_all_vars_f, 10)
 
 
-correlation_mat = filtered.corr()
+correlation_mat = all_catchments_all_vars_f.corr()
 corr_pairs = correlation_mat.unstack()
 print(corr_pairs)
 sorted_pairs = corr_pairs.sort_values(kind="quicksort")

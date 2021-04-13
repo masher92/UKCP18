@@ -11,6 +11,8 @@ import warnings
 import seaborn as sns
 from moviepy.editor import *
 import geopandas as gpd
+import statsmodels.api as sm
+import statsmodels.formula.api as smf
 
 # Specify catchment name
 os.chdir("C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/FloodModelling/IndividualCatchments/")
@@ -127,6 +129,27 @@ for rp in rps:
     # Add to dictionary
     design_rainfall_by_rp[rp] = df
 
+masterDf = pd.DataFrame({'Duration (hours)':range(1,101, 10)})
+for rp in [2,5,20,50]:
+    this_rp = design_rainfall_by_rp[str(rp) + " year rainfall (mm)"]
+    maxs = []
+    mins = []
+    diffs = []
+    for duration in range(1,101, 10):
+        print(duration)
+        this_duration =  this_rp.loc[this_rp['Duration hours'] == duration].iloc[:,1:]
+        this_max = round(this_duration.max(axis=1).item(),1)
+        this_min = round(this_duration.min(axis=1).item(),1)
+        maxs.append(this_max)
+        mins.append(this_min)
+        diffs.append(round((this_max-this_min)/((this_max+this_min)/2) * 100,1))
+    df = pd.DataFrame({'Min (' + str(rp) + ')' : mins,
+                       'Max (' + str(rp) + ')' : maxs,
+                       '% Diff (' + str(rp) + ')' : diffs})   
+    masterDf = pd.concat([masterDf, df], axis =1)
+  
+
+      
 ######################################################################################
 ######################################################################################
 # Heat map plot     
@@ -258,7 +281,6 @@ variable_units_dict = dict(zip(variables, variable_units))
 
 # Loop
 for rp in rps:
-    
     rp_rainfalls = design_rainfall_by_rp[str(rp) + ' year rainfall (mm)']
     rp_rainfalls_t = rp_rainfalls.T  
     rp_rainfalls_t.rename(columns=rp_rainfalls_t.iloc[0], inplace = True)
@@ -317,6 +339,87 @@ for rp in rps:
         clip.write_gif(root_fp +"DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Rainfall/{}vs{}yrRPrainfall.gif".format(variable, rp))
         # Remove mp4
         os.remove(fp)
+
+
+########## multivariate analysis
+rp = 10
+rp_rainfalls = design_rainfall_by_rp[str(rp) + ' year rainfall (mm)']
+rp_rainfalls_t = rp_rainfalls.T  
+rp_rainfalls_t.rename(columns=rp_rainfalls_t.iloc[0], inplace = True)
+rp_rainfalls_t = rp_rainfalls_t[1:22]
+rp_rainfalls_t = rp_rainfalls_t.reset_index(drop = True)
+
+cols= ['name', 'AREA', 'ALTBAR', 'BFIHOST','DPSBAR', 'FARL', 'LDP',
+       'PROPWET', 'SAAR','URBEXT2000', 'Easting','Northing']
+
+filtered = catchments_info[cols]
+filtered['Precipitation'] = rp_rainfalls_t.iloc[:,2]
+
+
+##########################################
+test = pd.DataFrame({"Variable": [x for x in cols if x != 'name']})
+
+i=0
+for var1 in test['Variable']:
+    corrs = []
+    print(var1)
+    for var2 in test['Variable']:
+        print(var2)
+        if var1 == var2:
+            model = smf.ols("Precipitation~{}".format(var1), data=filtered).fit()
+            adj_r2 = round(model.rsquared_adj, 3)
+        else:
+            model = smf.ols("Precipitation~{}+{}".format(var1,var2), data=filtered).fit()
+            adj_r2 = round(model.rsquared_adj, 3)
+        print(adj_r2)
+        corrs.append(adj_r2)
+    df = pd.DataFrame({var1:corrs})
+    df.iloc[0:i] = np.nan
+    test  = pd.concat([test,df],axis=1 )
+    i=i+1
+
+# Whether all relations are significant
+test2 = correlations_df[1:]
+del test2['Correlation']
+test2.reset_index(inplace = True, drop =True)
+
+i=0
+for var1 in test2['Variable']:
+    corrs = []
+    print(var1)
+    for var2 in test2['Variable']:
+        print(var2)
+        if var1 == var2:
+            model = ols("Precipitation~{}".format(var1), data=filtered).fit()
+            sig = (model.pvalues[1:] < 0.05).any()
+        else:
+            model = ols("Precipitation~{}+{}".format(var1,var2), data=filtered).fit()
+            sig = (model.pvalues[1:] < 0.05).any()
+        corrs.append(sig)
+    df = pd.DataFrame({var1:corrs})
+    df.iloc[0:i] = np.nan
+    test2  = pd.concat([test2,df],axis=1 )
+    i=i+1
+
+correlations_df = pd.DataFrame()
+# Find all correlations with total number flooded cells
+corrs = filtered[filtered.columns[1:]].corr()['Precipitation'][:]
+corrs = corrs.reindex(corrs.abs().sort_values(ascending = False).index)
+df = pd.DataFrame({'Variable': corrs.index, 'Correlation': round(corrs,3)})
+df.reset_index(inplace = True, drop = True)
+correlations_df = pd.concat([correlations_df, df], axis =1)
+
+
+
+fig = plt.figure()
+ax = fig.add_subplot(1,1,1)
+ax = sns.scatterplot(data=filtered, x='Northing', y='Precipitation', style = 'name', 
+            markers = catchment_markers_dict, hue = 'name', s= 100, palette = my_pal)
+ax.legend_.remove()
+
+
+
+
 
 
 ################
