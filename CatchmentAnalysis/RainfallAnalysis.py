@@ -129,13 +129,14 @@ for rp in rps:
     # Add to dictionary
     design_rainfall_by_rp[rp] = df
 
-masterDf = pd.DataFrame({'Duration (hours)':range(1,101, 10)})
+#### Create dataframe with max, min and % difference for RP/duration combos
+masterDf = pd.DataFrame({'Duration (hours)':[0.25, 0.5, 0.75] + list(range(1,101,10))})
 for rp in [2,5,20,50]:
     this_rp = design_rainfall_by_rp[str(rp) + " year rainfall (mm)"]
     maxs = []
     mins = []
     diffs = []
-    for duration in range(1,101, 10):
+    for duration in [0.25, 0.5, 0.75] + list(range(1,101,10)):
         print(duration)
         this_duration =  this_rp.loc[this_rp['Duration hours'] == duration].iloc[:,1:]
         this_max = round(this_duration.max(axis=1).item(),1)
@@ -147,7 +148,6 @@ for rp in [2,5,20,50]:
                        'Max (' + str(rp) + ')' : maxs,
                        '% Diff (' + str(rp) + ')' : diffs})   
     masterDf = pd.concat([masterDf, df], axis =1)
-  
 
       
 ######################################################################################
