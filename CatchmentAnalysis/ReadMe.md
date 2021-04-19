@@ -140,6 +140,12 @@ SAAR is strongly postively related to altitude, and consequently negatively rela
 
 The FEH uses a depth-duration-frequency (DDF) model, based on complex statistical analysis of datasets of annual and seasonal maximum precipitation values, to estimate the annual maximum rainfall for events of particular durations and corresponding to certain return periods. FEH DDF design rainfall is supplied through the FEH web service.
 
+<p align="center">
+  <img src="Figs/AllCatchments/Rainfall//2yrRainfall_spatialplot.png" width="700" />  
+<img src="Figs/AllCatchments/Rainfall//10yrRainfall_spatialplot.png" width="700" />
+<img src="Figs/AllCatchments/Rainfall//100yrRainfall_spatialplot.png" width="700" />
+<p align="center">  <p align="center">
+
 In Figure 9, the annual maximum rainfall accumulations within the specified durations (between 0.25 and 96 hours, at 0.25h intervals) are shown for each return period, with a line for each catchment.
 
 <p align="center">
