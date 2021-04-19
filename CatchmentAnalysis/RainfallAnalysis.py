@@ -129,6 +129,53 @@ for rp in rps:
     # Add to dictionary
     design_rainfall_by_rp[rp] = df
 
+
+#####
+rp ="10 year rainfall (mm)"   
+test = design_rainfall_by_rp[rp]   
+
+test_t = test.T  
+test_t.rename(columns=test_t.iloc[0], inplace = True)
+test_t = test_t[1:]
+test_t.reset_index(inplace =True, drop = True)
+
+testing = pd.concat([catchments_info,test_t], axis =1)
+
+
+# Create figure
+fig, ax = plt.subplots(figsize=(14,12))
+divider = make_axes_locatable(ax)
+
+# create `cax` for the colorbar
+cax = divider.append_axes("right", size="5%", pad=-0.2)
+
+# plot the geodataframe specifying the axes `ax` and `cax` 
+testing.plot(ax=ax, cax = cax, column= 90.25,cmap='OrRd', edgecolor = 'black',
+             legend=True)
+
+# manipulate the colorbar `cax`
+cax.set_ylabel(variable, rotation=90, size = 20)
+# set `fontsize` on the colorbar `cax`
+maxv, minv = max(catchments_info[variable]), min(catchments_info[variable])
+if minv <1 :
+    cax.set_yticklabels(np.around(np.linspace(minv, maxv, 10),2), {'fontsize': 15})
+else:
+    cax.set_yticklabels(np.linspace(minv, maxv, 10, dtype=np.dtype(np.uint64)), {'fontsize': 15})
+ax.axis('off')
+
+
+
+
+
+
+
+
+
+######################################################################################
+######################################################################################
+#### Create dataframe with max, min and % difference for RP/duration combos
+######################################################################################
+######################################################################################
 #### Create dataframe with max, min and % difference for RP/duration combos
 masterDf = pd.DataFrame({'Duration (hours)':[0.25, 0.5, 0.75] + list(range(1,101,10))})
 for rp in [2,5,20,50]:
@@ -341,29 +388,42 @@ for rp in rps:
         os.remove(fp)
 
 
-########## multivariate analysis
-rp = 10
+####################################################################################
+####################################################################################
+        
+####################################################################################
+####################################################################################
+# Define return period for which to conduct analysis
+rp = 2
+duration = 10.0
+
+# Extract from catchments info dataframe the variables of interest
+cols= ['name', 'AREA', 'ALTBAR', 'BFIHOST','DPSBAR', 'FARL', 'LDP',
+       'PROPWET', 'SAAR','URBEXT2000', 'Easting','Northing']
+catchments_info_filtered = catchments_info[cols]
+
+# Extract dataframe containing rainfall for each duration for that return period
 rp_rainfalls = design_rainfall_by_rp[str(rp) + ' year rainfall (mm)']
 rp_rainfalls_t = rp_rainfalls.T  
 rp_rainfalls_t.rename(columns=rp_rainfalls_t.iloc[0], inplace = True)
 rp_rainfalls_t = rp_rainfalls_t[1:22]
 rp_rainfalls_t = rp_rainfalls_t.reset_index(drop = True)
 
-cols= ['name', 'AREA', 'ALTBAR', 'BFIHOST','DPSBAR', 'FARL', 'LDP',
-       'PROPWET', 'SAAR','URBEXT2000', 'Easting','Northing']
-
-filtered = catchments_info[cols]
-filtered['Precipitation'] = rp_rainfalls_t.iloc[:,2]
+# Add the rainfall values for the defined duration to the dataframe of catchments info
+catchments_info_filtered['Precipitation'] = rp_rainfalls_t[duration]
 
 
-##########################################
-test = pd.DataFrame({"Variable": [x for x in cols if x != 'name']})
+# Create dataframe to store correlations betweene each variable pair
+correlations = pd.DataFrame({"Variable": [x for x in cols if x != 'name']})
 
+# Add to dataframe, so that it contains:
+# The diagonal values (e.g. AREA vs AREA) as the R2 value for that variable and precip
+# The values between 2 values (e.g. AREA vs ALTBAR) the R2 value for both variables with precipitation
 i=0
-for var1 in test['Variable']:
+for var1 in correlations['Variable']:
     corrs = []
     print(var1)
-    for var2 in test['Variable']:
+    for var2 in correlations['Variable']:
         print(var2)
         if var1 == var2:
             model = smf.ols("Precipitation~{}".format(var1), data=filtered).fit()
@@ -375,47 +435,285 @@ for var1 in test['Variable']:
         corrs.append(adj_r2)
     df = pd.DataFrame({var1:corrs})
     df.iloc[0:i] = np.nan
-    test  = pd.concat([test,df],axis=1 )
+    correlations  = pd.concat([correlations,df],axis=1 )
     i=i+1
 
 # Whether all relations are significant
-test2 = correlations_df[1:]
-del test2['Correlation']
-test2.reset_index(inplace = True, drop =True)
+# test2 = correlations_df[1:]
+# del test2['Correlation']
+# test2.reset_index(inplace = True, drop =True)
 
-i=0
-for var1 in test2['Variable']:
-    corrs = []
-    print(var1)
-    for var2 in test2['Variable']:
-        print(var2)
-        if var1 == var2:
-            model = ols("Precipitation~{}".format(var1), data=filtered).fit()
-            sig = (model.pvalues[1:] < 0.05).any()
-        else:
-            model = ols("Precipitation~{}+{}".format(var1,var2), data=filtered).fit()
-            sig = (model.pvalues[1:] < 0.05).any()
-        corrs.append(sig)
-    df = pd.DataFrame({var1:corrs})
-    df.iloc[0:i] = np.nan
-    test2  = pd.concat([test2,df],axis=1 )
-    i=i+1
+# i=0
+# for var1 in test2['Variable']:
+#     corrs = []
+#     print(var1)
+#     for var2 in test2['Variable']:
+#         print(var2)
+#         if var1 == var2:
+#             model = ols("Precipitation~{}".format(var1), data=filtered).fit()
+#             sig = (model.pvalues[1:] < 0.05).any()
+#         else:
+#             model = ols("Precipitation~{}+{}".format(var1,var2), data=filtered).fit()
+#             sig = (model.pvalues[1:] < 0.05).any()
+#         corrs.append(sig)
+#     df = pd.DataFrame({var1:corrs})
+#     df.iloc[0:i] = np.nan
+#     test2  = pd.concat([test2,df],axis=1 )
+#     i=i+1
 
-correlations_df = pd.DataFrame()
-# Find all correlations with total number flooded cells
-corrs = filtered[filtered.columns[1:]].corr()['Precipitation'][:]
-corrs = corrs.reindex(corrs.abs().sort_values(ascending = False).index)
-df = pd.DataFrame({'Variable': corrs.index, 'Correlation': round(corrs,3)})
-df.reset_index(inplace = True, drop = True)
-correlations_df = pd.concat([correlations_df, df], axis =1)
+########################################################
+########################################################
+# Look at how correlations change over different durations
+########################################################
+########################################################
+max_variables_df = pd.DataFrame()
+max_values_df = pd.DataFrame()
+
+# Extract from catchments info dataframe the variables of interest
+cols= ['name', 'AREA', 'ALTBAR', 'BFIHOST','DPSBAR', 'FARL', 'LDP',
+       'PROPWET', 'SAAR','URBEXT2000', 'Easting','Northing']
+catchments_info_filtered = catchments_info[cols]
+
+for rp in rps:    
+    
+    ###########################
+    # Create dataframe containing the correlation between each variable and 
+    # precipitation for each duration 
+    ###########################
+    # Extract dataframe containing rainfall for each duration for that return period
+    rp_rainfalls = design_rainfall_by_rp[rp]
+    rp_rainfalls_t = rp_rainfalls.T  
+    rp_rainfalls_t.rename(columns=rp_rainfalls_t.iloc[0], inplace = True)
+    rp_rainfalls_t = rp_rainfalls_t[1:22]
+    rp_rainfalls_t = rp_rainfalls_t.reset_index(drop = True)
+
+    correlations_df_all_durations = pd.DataFrame({'Variable': catchments_info_filtered.columns[1:]})
+    for i in range(2,len(rp_rainfalls_t.columns)):
+        if i % 4 == 0:
+            i=i-1
+    
+            catchments_info_filtered['Precipitation'] = rp_rainfalls_t.iloc[:,i]
+            # Find all correlations with total number flooded cells
+            corrs = catchments_info_filtered[catchments_info_filtered.columns[1:]].corr()['Precipitation'][:]
+            #corrs = corrs.reindex(corrs.abs().sort_values(ascending = False).index)
+            df = pd.DataFrame({rp_rainfalls_t.columns[i]: round(corrs,3)})
+            df.reset_index(inplace = True, drop = True)
+            correlations_df_all_durations = pd.concat([correlations_df_all_durations, df], axis =1)
+        
+    correlations_df_all_durations = correlations_df_all_durations.drop([11])
+
+    ###########################
+    # Find the variable with highest correlation with precipitation at each duration
+    ###########################
+    max_variables  =[]
+    max_values = []
+    for col in correlations_df_all_durations.columns[1:]:
+        print(col)
+        max_value = correlations_df_all_durations[col][abs(correlations_df_all_durations[col]). idxmax()]
+        
+        max_variable = correlations_df_all_durations['Variable'][abs(correlations_df_all_durations[col]). idxmax()]
+        
+        max_values.append(max_value)
+        max_variables.append(max_variable)
+
+    max_variables_df_thisrp = pd.DataFrame({[int(s) for s in rp.split() if s.isdigit()][0]:max_variables})
+    max_variables_df= pd.concat([max_variables_df,max_variables_df_thisrp],axis=1)
+     
+    max_values_df_thisrp = pd.DataFrame({[int(s) for s in rp.split() if s.isdigit()][0]:max_values})
+    max_values_df= pd.concat([max_values_df,max_values_df_thisrp],axis=1)
+
+max_values_df.insert(0, 'Duration', correlations_df_all_durations.columns[1:])
+max_variables_df.insert(0, 'Duration', correlations_df_all_durations.columns[1:])
+
+
+################################################################################
+# Plot
+################################################################################
+# Convert to arrays
+maxs_df_arr = max_variables_df.iloc[:, 1:].to_numpy()
+x=1
+for variable in np.unique(maxs_df_arr) :
+    print(variable)
+    maxs_df_arr = np.where(maxs_df_arr==variable, x, maxs_df_arr) 
+    x = x+1 
+maxs_df_arr =maxs_df_arr.astype(int)
+
+# Create figure
+fig = plt.figure(figsize=(20, 13))
+ax = fig.add_subplot(1,1,1)
+cmap = 'rainbow'
+cmap = plt.get_cmap(cmap, np.max(maxs_df_arr)-np.min(maxs_df_arr)+1)
+# set limits .5 outside true range
+heatmap = plt.pcolor(maxs_df_arr,cmap=cmap,vmin = np.min(maxs_df_arr)-.5, vmax = np.max(maxs_df_arr)+.5)
+#tell the colorbar to tick at integers
+cax = plt.colorbar(heatmap, ticks=np.arange(np.min(maxs_df_arr),np.max(maxs_df_arr)+1), pad=0.02)
+cax.ax.tick_params(labelsize=25) 
+# Set ticks in center of cells
+ax.set_xticks(np.arange(maxs_df_arr.shape[1]) + 0.5, minor=False)
+ax.set_yticks(np.arange(0,len(max_variables_df),2), minor=False)
+
+ax.set_yticklabels(max_variables_df['Duration'].values.tolist()[::2])
+
+# Rotate the xlabels. Set both x and y labels to headers[1:]
+rp_names = ['2yr', '5yr','10yr', '20yr','30yr', '50yr','75yr', '100yr',
+       '150yr', '200yr','500yr', '1000yr','10000yr']
+ax.set_xticklabels(rp_names,rotation=90)
+durations = max_variables_df['Duration']
+
+ax.set_xlabel('Return period', fontsize=25)
+ax.set_ylabel('Duration (hrs)', fontsize=25)
+
+plt.xticks(rotation = 45)
+
+ax.tick_params(axis='both', which='major', labelsize=20)
 
 
 
+
+    
+
+
+
+###### For one RP
 fig = plt.figure()
 ax = fig.add_subplot(1,1,1)
-ax = sns.scatterplot(data=filtered, x='Northing', y='Precipitation', style = 'name', 
-            markers = catchment_markers_dict, hue = 'name', s= 100, palette = my_pal)
-ax.legend_.remove()
+for column in ['Northing', 'SAAR', 'URBEXT2000','AREA', 'Easting', 'BFIHOST', 'ALTBAR', 'DPSBAR', 'FARL']:
+    plt.plot(correlations_t.index, correlations_t[column], label = column)
+    plt.scatter(correlations_t.index, correlations_t[column], label = column, s= 5)    
+    plt.xlabel('Duration (hr)')
+    plt.ylabel('Correlation with rainfall for this duration')
+    ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+
+from matplotlib.pyplot import cm
+
+
+subplot_num=0
+fig = plt.figure(figsize=(35, 25))     
+for rp in rps.tolist()[:-1]:
+    print(rp)
+    # Extract dataframe containing rainfall for each duration for that return period
+    rp_rainfalls = design_rainfall_by_rp[rp]
+    rp_rainfalls_t = rp_rainfalls.T  
+    rp_rainfalls_t.rename(columns=rp_rainfalls_t.iloc[0], inplace = True)
+    rp_rainfalls_t = rp_rainfalls_t[1:22]
+    rp_rainfalls_t = rp_rainfalls_t.reset_index(drop = True)
+
+    correlations_df_all_durations = pd.DataFrame({'Variable': catchments_info_filtered.columns[1:]})
+    for i in range(2,len(rp_rainfalls_t.columns)):
+        if i % 4 == 0:
+            i=i-1
+    
+            catchments_info_filtered['Precipitation'] = rp_rainfalls_t.iloc[:,i]
+            # Find all correlations with total number flooded cells
+            corrs = catchments_info_filtered[catchments_info_filtered.columns[1:]].corr()['Precipitation'][:]
+            #corrs = corrs.reindex(corrs.abs().sort_values(ascending = False).index)
+            df = pd.DataFrame({rp_rainfalls_t.columns[i]: round(corrs,3)})
+            df.reset_index(inplace = True, drop = True)
+            correlations_df_all_durations = pd.concat([correlations_df_all_durations, df], axis =1)
+        
+    correlations_df_all_durations = correlations_df_all_durations.drop([11])
+    
+    correlations_t = correlations_df_all_durations.T
+    correlations_t.rename(columns=correlations_t.iloc[0], inplace = True)
+    correlations_t = correlations_t[1:]
+    
+    subplot_num=subplot_num+1
+    ax = fig.add_subplot(4,3,subplot_num)
+    n =  len(['Northing', 'SAAR', 'URBEXT2000','AREA', 'Easting', 'BFIHOST', 'ALTBAR', 'DPSBAR', 'FARL'])
+    color=iter(cm.Dark2(np.linspace(0,1,n)))
+    
+    for column in ['Northing', 'SAAR', 'URBEXT2000','AREA', 'Easting', 'BFIHOST', 'ALTBAR', 'DPSBAR', 'FARL']:
+        c=next(color)
+        #plt.scatter(correlations_t.index, correlations_t[column], label = column,s= 8)
+        plt.plot(correlations_t.index, correlations_t[column], label = column, c=c, linewidth =3)
+        plt.xlabel('Duration (hr)', fontsize = '20')
+        plt.ylabel('Correlation',  fontsize = '20')
+        ax.tick_params(axis='both', which='major', labelsize=20)
+        # Shrink current axis by 20%
+        #box = ax.get_position()
+        #ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
+        
+        # Put a legend to the right of the current axis
+        #ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+        
+        ax.set_title (str(rp) + ' Year Return Period', fontsize = '22')
+
+box = ax.get_position()
+ax.set_position([box.x0, box.y0 + box.height * 0.3,
+                  box.width, box.height * 0.8])
+handles, labels = ax.get_legend_handles_labels()
+ax.legend(loc='best', bbox_to_anchor=(0.5, -0.2),
+          fancybox=True, shadow=True, ncol=5,  fontsize = 30, markerscale = 10)
+
+# Adjust height between plots
+fig.subplots_adjust(top=0.92)
+# fig.subplots_adjust(right=0.92)
+plt.subplots_adjust(hspace=0.3)    
+
+
+#############
+
+cols= ['name', 'AREA', 'ALTBAR', 'BFIHOST','DPSBAR', 'FARL', 'LDP',
+       'PROPWET', 'SAAR','URBEXT2000', 'Easting','Northing']
+
+filtered = catchments_info[cols]
+
+rps = ['2 year rainfall (mm)', '5 year rainfall (mm)', '10 year rainfall (mm)',
+       '20 year rainfall (mm)', '30 year rainfall (mm)',
+       '50 year rainfall (mm)', '75 year rainfall (mm)',
+       '100 year rainfall (mm)', '150 year rainfall (mm)',
+       '200 year rainfall (mm)']
+
+subplot_num=0
+fig = plt.figure(figsize=(35, 25)) 
+for var in correlations_t.columns:
+    print(var)
+    subplot_num=subplot_num+1
+    ax = fig.add_subplot(4,3,subplot_num)
+    for rp in rps:
+        rp_rainfalls = design_rainfall_by_rp[rp]
+        rp_rainfalls_t = rp_rainfalls.T  
+        rp_rainfalls_t.rename(columns=rp_rainfalls_t.iloc[0], inplace = True)
+        rp_rainfalls_t = rp_rainfalls_t[1:22]
+        rp_rainfalls_t = rp_rainfalls_t.reset_index(drop = True)
+    
+        correlations_df_all_durations = pd.DataFrame({'Variable': filtered.columns[1:]})
+        for i in range(2,len(rp_rainfalls_t.columns)):
+            if i % 4 == 0:
+                i=i-1
+                filtered['Precipitation'] = rp_rainfalls_t.iloc[:,i]
+                # Find all correlations with total number flooded cells
+                corrs = filtered[filtered.columns[1:]].corr()['Precipitation'][:]
+                #corrs = corrs.reindex(corrs.abs().sort_values(ascending = False).index)
+                df = pd.DataFrame({rp_rainfalls_t.columns[i]: round(corrs,3)})
+                df.reset_index(inplace = True, drop = True)
+                correlations_df_all_durations = pd.concat([correlations_df_all_durations, df], axis =1)
+            
+        correlations_df_all_durations = correlations_df_all_durations.drop([11])
+        correlations_t = correlations_df_all_durations.T
+        correlations_t.rename(columns=correlations_t.iloc[0], inplace = True)
+        correlations_t = correlations_t[1:]
+        
+        plt.plot(correlations_t.index, correlations_t[var], label = rp, linewidth = 2)
+    
+    plt.xlabel('Duration (hr)', fontsize = '25')
+    plt.ylabel('Correlation', fontsize = '25')
+    ax.tick_params(axis='both', which='major', labelsize=25)
+    ax.set_title (var, fontsize = 25)
+
+box = ax.get_position()
+ax.set_position([box.x0, box.y0 + box.height * 0.3,
+                  box.width, box.height * 0.8])
+handles, labels = ax.get_legend_handles_labels()
+ax.legend(loc='best', bbox_to_anchor=(2.6, -0.2),
+          fancybox=True, shadow=True, ncol=5,  fontsize = 30, markerscale = 3)
+
+# Adjust height between plots
+fig.subplots_adjust(top=0.92)
+# fig.subplots_adjust(right=0.92)
+plt.subplots_adjust(hspace=0.35)    
+       
+
 
 
 
