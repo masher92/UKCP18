@@ -197,6 +197,13 @@ Catchment rainfall accumulations are influenced by the catchment's geographic lo
   <img src="Figs/AllCatchments/Rainfall/SAARvs10yrRPRainfall.gif" alt="animated"  width="350" />
 </p>
 
+#### Area
+<p align="center">
+  <img src="Figs/AllCatchments/Rainfall/AREAvs2yrRPRainfall.gif" alt="animated"  width="350" />
+  <img src="Figs/AllCatchments/Rainfall/AREAvs10yrRPRainfall.gif" alt="animated"  width="350" />
+</p>
+
+
 A similar pattern is found in the relationship between SAAR, mean catchment altitude, easting and northing, and FEH13 precipitation values at various durations. This follows, considering the strong positive relationship between altitude and SAAR (Figure 8) and altitude and easting and northing (Figure 3). This pattern is that at the shorter durations (~ <10 hrs) there is no clear relationships seen; however, during this time a clear relationship develops. 
 
 TO BE COMPLETED
