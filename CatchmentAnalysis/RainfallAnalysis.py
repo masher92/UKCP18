@@ -130,42 +130,107 @@ for rp in rps:
     design_rainfall_by_rp[rp] = df
 
 
-#####
-rp ="10 year rainfall (mm)"   
+##### For one RP
+rp ="200 year rainfall (mm)"   
 test = design_rainfall_by_rp[rp]   
 
 test_t = test.T  
 test_t.rename(columns=test_t.iloc[0], inplace = True)
 test_t = test_t[1:]
 test_t.reset_index(inplace =True, drop = True)
+# Normalise
+
+for col in test_t.columns:
+    print(col)
+    test_t[col] = test_t[col]/test_t[col].max() 
 
 testing = pd.concat([catchments_info,test_t], axis =1)
 
 
-# Create figure
-fig, ax = plt.subplots(figsize=(14,12))
-divider = make_axes_locatable(ax)
+##### Diff between RPS
+class MidpointNormalize(mpl.colors.Normalize):
+    """Normalise the colorbar."""
+    def __init__(self, vmin=None, vmax=None, midpoint=None, clip=False):
+        self.midpoint = midpoint
+        mpl.colors.Normalize.__init__(self, vmin, vmax, clip)
 
-# create `cax` for the colorbar
-cax = divider.append_axes("right", size="5%", pad=-0.2)
-
-# plot the geodataframe specifying the axes `ax` and `cax` 
-testing.plot(ax=ax, cax = cax, column= 90.25,cmap='OrRd', edgecolor = 'black',
-             legend=True)
-
-# manipulate the colorbar `cax`
-cax.set_ylabel(variable, rotation=90, size = 20)
-# set `fontsize` on the colorbar `cax`
-maxv, minv = max(catchments_info[variable]), min(catchments_info[variable])
-if minv <1 :
-    cax.set_yticklabels(np.around(np.linspace(minv, maxv, 10),2), {'fontsize': 15})
-else:
-    cax.set_yticklabels(np.linspace(minv, maxv, 10, dtype=np.dtype(np.uint64)), {'fontsize': 15})
-ax.axis('off')
+    def __call__(self, value, clip=None):
+        x, y = [self.vmin, self.midpoint, self.vmax], [0, 0.5, 1]
+        return np.ma.masked_array(np.interp(value, x, y), np.isnan(value))
 
 
+normalised_dfs = {}    
+rp1, rp2 = 2, 10
+for rp in [rp1, rp2]:    
+    
+    rp ="{} year rainfall (mm)".format(rp)   
+    test = design_rainfall_by_rp[rp]   
+    
+    test_t = test.T  
+    test_t.rename(columns=test_t.iloc[0], inplace = True)
+    test_t = test_t[1:]
+    test_t.reset_index(inplace =True, drop = True)
+   
+    # Normalise
+    for col in test_t.columns:
+        print(col)
+        test_t[col] = test_t[col]/test_t[col].max() 
+    
+    #testing = pd.concat([catchments_info,test_t], axis =1)
+    normalised_dfs[rp] = test_t
+    
+diff = normalised_dfs["{} year rainfall (mm)".format(rp1)]- normalised_dfs["{} year rainfall (mm)".format(rp2)]
+testing = pd.concat([catchments_info,diff], axis =1)
 
 
+the_max = -100000000000
+the_min = 1000000000000
+for duration in [0.25,0.75, 1,4,6,8, 10, 20,30, 40, 50, 60, 70, 80, 90]:
+    if testing[duration].max() > the_max:
+        the_max = testing[duration].max()
+    if testing[duration].min() < the_min:
+        the_min= testing[duration].min() 
+
+fig = plt.figure(figsize=(35, 20))   
+i = 1
+for duration in [0.25,0.75, 1,4,6,8, 10, 20,30, 40, 50, 60, 70, 80, 90]:
+    ax = fig.add_subplot(4,5,i)
+    # Create figure
+    divider = make_axes_locatable(ax)
+    
+    # create `cax` for the colorbar
+    cax = divider.append_axes("right", size="5%", pad=-0.2)
+    
+    # plot the geodataframe specifying the axes `ax` and `cax` 
+    testing.plot(ax=ax, cax = cax, column= duration,cmap='PRGn', 
+                 vmin=the_min, vmax=the_max, 
+                norm=MidpointNormalize(the_min, the_max, 0.),
+                 edgecolor = 'black',legend=True)
+    
+    # manipulate the colorbar `cax`
+    cax.set_ylabel('Precipitation', rotation=90, size = 20)
+    cax.tick_params(labelsize=15) 
+    
+    ax.axis('off')
+    ax.set_title(str(duration) + 'h', fontsize = 25)
+    
+    i=i+1
+
+# Adjust height between plots
+fig.subplots_adjust(top=0.92)
+
+# Add one title
+#plt.suptitle(rp, fontsize=40)
+plt.suptitle("Difference between {} and {} yr Return Periods".format(rp1, rp2), fontsize=40)
+
+# Save and show plot
+
+# Save and show plot
+plt.savefig(root_fp +"DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Rainfall/Diff{}and{}RP_Rainfall_spatialplot.png".format(rp1,rp2),
+            bbox_inches='tight')
+
+# plt.savefig(root_fp +"DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Rainfall/{}yrRainfall_spatialplot.png".format( [int(s) for s in rp.split() if s.isdigit()][0]),
+#             bbox_inches='tight')
 
 
 
