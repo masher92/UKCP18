@@ -199,7 +199,7 @@ Catchment rainfall accumulations are influenced by the catchment's geographic lo
 
 #### Area
 <p align="center">
-  <img src="Figs/AllCatchments/Rainfall/AREAvs2yrRPRainfall.gif" alt="animated"  width="350" />
+  <img src="Figs/AllCatchments/Rainfall/AREAvs2yrRPRainfall.gif" alt="animated"  width="350" /> 
   <img src="Figs/AllCatchments/Rainfall/AREAvs10yrRPRainfall.gif" alt="animated"  width="350" />
 </p>
 
