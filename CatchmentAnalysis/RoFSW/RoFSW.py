@@ -8,6 +8,8 @@ import seaborn as sns
 import matplotlib.pyplot as plt    
 import numpy as np
 from mpl_toolkits.axes_grid1 import make_axes_locatable
+from scipy.stats import pearsonr, spearmanr
+from scipy import stats
 
 # Specify catchment name
 os.chdir("C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/FloodModelling/IndividualCatchments/")
@@ -158,19 +160,14 @@ for rp in RPs:
     
     # Join extent info
     all_catchments_all_vars =  pd.merge(all_catchments_all_vars, extent)
-    
     # Join with catchment desciptors
     all_catchments_all_vars = pd.merge(catchments_info,all_catchments_all_vars)
-    
     # replace na values with 0
     all_catchments_all_vars = all_catchments_all_vars.replace(np.nan, 0)
-    
     # Convert all values to numeric
     all_catchments_all_vars.iloc[:,2:] =all_catchments_all_vars.iloc[:,2:].apply(pd.to_numeric)
-    
     # Add to results dictionary
     results_dict[str(rp)] = all_catchments_all_vars
-
 
 # filtered['FloodedCellsPerKm2'] = filtered['Velocity_Total']/filtered['AREA']
 # # Add a total area column (assuming each square is 4m2)
@@ -202,7 +199,6 @@ ax.plot(all_catchments_all_vars['name'], all_catchments_all_vars['Hazard_Total']
 ax.set_ylabel('Number of Cells')
 ax.legend()
 plt.xticks(rotation = 90)
-
 
 ######################################################################################
 ######################################################################################
@@ -283,7 +279,6 @@ plt.savefig(root_fp +"DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/RoFSW/Figs/F
 # Plotting - relationship between flood extent and catchment descriptors
 ######################################################################################
 ######################################################################################
-
 # filter columns
 filtered = all_catchments_all_vars.iloc[:, np.r_[0:15, 18:27, 39:41, 47,52,58,59 ]]
 filtered = filtered.iloc[:, np.r_[0:4,6,8,9,13:16,22,24,25,28]]
@@ -293,11 +288,6 @@ filtered['Total_Area_km2'] = (filtered['Velocity_Total'] * 4)/1000000
 # Find flooded area as a propotion of total area
 filtered['Prop_of_area_flooded'] = filtered['Total_Area_km2']/filtered['AREA'] *100
 
-######################################################################################
-######################################################################################
-# Plotting - relationship between flood extent and catchment descriptors
-######################################################################################
-######################################################################################
 rp = "100"
 var = 'FloodedCellsPerKm2'
 cols =['name', 'geometry', 'AREA', 'ALTBAR', 'BFIHOST', 'DPSBAR', 'FARL',
@@ -326,17 +316,52 @@ ax = sns.scatterplot(data=filtered, x="Depth_Total", y='LDP',
                      s= 200, palette = my_pal)
 ax.legend_.remove()
 
-
-
-
 ######################################################################################
 ######################################################################################
 # Plotting - relationship between flood extent and FEH13 rainfall
 ######################################################################################
 ######################################################################################
+# Import FEH13 rainfall
+# (Code from RainfallAnalysis.py)
+filename = glob.glob(root_fp + "DataAnalysis/FloodModelling/IndividualCatchments/BagleyBeck/DesignRainfall/*.csv")[0]
+rainfall = pd.read_csv(filename, index_col = False, skiprows = 9)
+rps = rainfall.columns[2:]
+
+# Make subplot for each Return Period
+for rp in rps:
+    design_rainfall_by_catchment = {}
+    for catchment_name in catchments:
+        # rain in rainfall data
+        filename = glob.glob(root_fp + "DataAnalysis/FloodModelling/IndividualCatchments/{}/DesignRainfall/*.csv".format(catchment_name))[0]
+        rainfall = pd.read_csv(filename, index_col = False, skiprows = 9)
+        design_rainfall_by_catchment[catchment_name] = rainfall
+        
+design_rainfall_by_rp = {}
+catchments_with_maxs = pd.DataFrame({'Duration hours': design_rainfall_by_catchment[catchment_name]['Duration hours']})
+catchments_with_mins = pd.DataFrame({'Duration hours': design_rainfall_by_catchment[catchment_name]['Duration hours']})
+
+for rp in rps:
+    df = pd.DataFrame({'Duration hours': design_rainfall_by_catchment[catchment_name]['Duration hours']})
+    for catchment_name in catchments:
+            catchment_df = pd.DataFrame({catchment_name: design_rainfall_by_catchment[catchment_name][rp]})
+            df[catchment_name] = catchment_df[catchment_name]
+    
+    # Add values to max/min dataframes
+    #df['Catchment_with_max_val'] = df.iloc[:, 1:].idxmax(axis=1)   
+    #df['Catchment_with_min_val'] = df.iloc[:, 1:].idxmin(axis=1)    
+    # Add value to dictionary
+    catchments_with_maxs[rp] = df.iloc[:, 1:].idxmax(axis=1)   
+    catchments_with_mins[rp] = df.iloc[:, 1:].idxmin(axis=1)   
+      
+    # Add to dictionary
+    design_rainfall_by_rp[rp] = df
+
+# Create dataframe to store correlation for each RP/duration combination 
+# between precipitation for that combination and the number of flooded cells
 correlations_df = pd.DataFrame()
 for rp in design_rainfall_by_rp.keys():
-
+    
+    # Create dataframe containing rainfall for this rp and the RoFSW flooded cells
     rainfall_10yrrp = design_rainfall_by_rp[rp]
     rainfall_10yrrp = rainfall_10yrrp.T
     # Reformat
@@ -345,26 +370,28 @@ for rp in design_rainfall_by_rp.keys():
     # rainfall_10yrrp = rainfall_10yrrp[[1,10,50,90]]
     rainfall_10yrrp['name'] = rainfall_10yrrp.index
     rainfall_10yrrp.reset_index(inplace = True, drop = True)
+    rainfall_10yrrp= pd.concat([rainfall_10yrrp, filtered['Depth_Total']], axis = 1)
     
-    rainfall_10yrrp= pd.concat([rainfall_10yrrp, filtered['Velocity_Total']], axis = 1)
-    
-    corrs = rainfall_10yrrp[rainfall_10yrrp.columns[1:]].corr()['Velocity_Total'][:]
+    # Find correlations between rainfall and the number of flooded cells
+    corrs = rainfall_10yrrp[rainfall_10yrrp.columns[1:]].corr()['Depth_Total'][:]
     corrs = corrs.reindex(corrs.abs().sort_values().index)
-    rp = [int(i) for i in rp.split() if i.isdigit()][0]
-    correlations_df[rp] = corrs
+    
+    # Add to dataframe
+    correlations_df[[int(i) for i in rp.split() if i.isdigit()][0]] = corrs
 
-
-correlations_df = correlations_df.drop(['Velocity_Total'], axis=0)
+# Remove row containing Depth
+correlations_df = correlations_df.drop(['Depth_Total'], axis=0)
+# Find the max correlation for each return period
 correlations_df.abs().max()
 
+# plot relationship between number of flooded cells and one duration for each catchment
 fig = plt.figure(figsize = (9,6))
 ax = fig.add_subplot(1,1,1)
 ax.clear()
-ax = sns.scatterplot(data=rainfall_10yrrp, x="Velocity_Total", y=0.5,
+ax = sns.scatterplot(data=rainfall_10yrrp, x="Depth_Total", y=0.5,
                      style = 'name',  markers = catchment_markers_dict, hue = 'name', 
                      s= 200, palette = my_pal)
 ax.legend_.remove()
-
 
 
 ######################################################################################
@@ -372,6 +399,7 @@ ax.legend_.remove()
 # Plotting - relationship between flood extent and ReFH2 runoff
 ######################################################################################
 ######################################################################################
+# Load peaks_all_catchments_allrps from RunoffAnalysis.py script 
 correlations_df = pd.DataFrame()
 for category in peaks_all_catchments_allrps.keys():
 
@@ -382,23 +410,17 @@ for category in peaks_all_catchments_allrps.keys():
     peaks = peaks.rename(columns=peaks.iloc[0]).drop(peaks.index[0])
     
     peaks =peaks.apply(pd.to_numeric)
-    
     peaks.insert(0,'name', peaks.index)
-    
     peaks.reset_index(inplace = True, drop = True)
-    
-    peaks= pd.concat([peaks, filtered['Velocity_Total']], axis = 1)
-    
-    corrs = peaks[peaks.columns[1:]].corr()['Velocity_Total'][:]
+    peaks= pd.concat([peaks, filtered['Depth_Total']], axis = 1)
+    corrs = peaks[peaks.columns[1:]].corr()['Depth_Total'][:]
     corrs = corrs.reindex(corrs.abs().sort_values().index)
-   
     correlations_df[category] = corrs
-
 
 fig = plt.figure(figsize = (9,6))
 ax = fig.add_subplot(1,1,1)
 ax.clear()
-ax = sns.scatterplot(data=peaks, x="Velocity_Total", y='33h',
+ax = sns.scatterplot(data=peaks, x="Depth_Total", y='33h',
                      style = 'name',  markers = catchment_markers_dict, hue = 'name', 
                      s= 200, palette = my_pal)
 ax.legend_.remove()
@@ -409,22 +431,16 @@ correlations_df = pd.DataFrame()
 for category in cds.keys():
 
     peaks = cds[category]
-    
-    
-    
-    peaks= pd.concat([peaks, filtered['Velocity_Total']], axis = 1)
-    
-    corrs = peaks[peaks.columns[1:]].corr()['Velocity_Total'][:]
+    peaks= pd.concat([peaks, filtered['Depth_Total']], axis = 1)
+    corrs = peaks[peaks.columns[1:]].corr()['Depth_Total'][:]
     corrs = corrs.reindex(corrs.abs().sort_values().index)
-   
     correlations_df[category] = corrs
-
 
 
 fig = plt.figure(figsize = (9,6))
 ax = fig.add_subplot(1,1,1)
 ax.clear()
-ax = sns.scatterplot(data=peaks, x=75, y='Velocity_Total',
+ax = sns.scatterplot(data=peaks, x=75, y='Depth_Total',
                      style = 'Catchments',  markers = catchment_markers_dict, 
                      hue = 'Catchments', s= 200, palette = my_pal)
 ax.legend_.remove()
@@ -433,116 +449,11 @@ ax.legend_.remove()
 
 ######################################################################################
 ######################################################################################
-# Plotting 
+# Check for normality 
 ######################################################################################
 ######################################################################################
-# https://python-for-multivariate-analysis.readthedocs.io/a_little_book_of_python_for_multivariate_analysis.html
-corrmat =all_catchments_all_vars_f.corr()
-sns.heatmap(corrmat, vmax=1., square=False).xaxis.tick_top()
-
-
-
-# Find all correlations with velocity
-corrs = all_catchments_all_vars_ff[all_catchments_all_vars_ff.columns[1:]].corr()['Depth_Total'][:]
-corrs = corrs.abs().sort_values(kind="quicksort")
-
-
-
-def hinton(matrix, max_weight=None, ax=None):
-    """Draw Hinton diagram for visualizing a weight matrix."""
-    ax = ax if ax is not None else plt.gca()
-
-    if not max_weight:
-        max_weight = 2**np.ceil(np.log(np.abs(matrix).max())/np.log(2))
-
-    ax.patch.set_facecolor('lightgray')
-    ax.set_aspect('equal', 'box')
-    ax.xaxis.set_major_locator(plt.NullLocator())
-    ax.yaxis.set_major_locator(plt.NullLocator())
-
-    for (x, y), w in np.ndenumerate(matrix):
-        color = 'red' if w > 0 else 'blue'
-        size = np.sqrt(np.abs(w))
-        rect = plt.Rectangle([x - size / 2, y - size / 2], size, size,
-                             facecolor=color, edgecolor=color)
-        ax.add_patch(rect)
-
-    nticks = matrix.shape[0]
-    ax.xaxis.tick_top()
-    ax.set_xticks(range(nticks))
-    ax.set_xticklabels(list(matrix.columns), rotation=90)
-    ax.set_yticks(range(nticks))
-    ax.set_yticklabels(matrix.columns)
-    ax.grid(False)
-
-    ax.autoscale_view()
-    ax.invert_yaxis()
-
-hinton(corrmat)
-
-
-def mosthighlycorrelated(mydataframe, numtoreport):
-    # find the correlations
-    cormatrix = mydataframe.corr()
-    # set the correlations on the diagonal or lower triangle to zero,
-    # so they will not be reported as the highest ones:
-    cormatrix *= np.tri(*cormatrix.values.shape, k=-1).T
-    # find the top n correlations
-    cormatrix = cormatrix.stack()
-    cormatrix = cormatrix.reindex(cormatrix.abs().sort_values(ascending=False).index).reset_index()
-    # assign human-friendly names
-    cormatrix.columns = ["FirstVariable", "SecondVariable", "Correlation"]
-    return cormatrix.head(numtoreport)
-
-mosthighlycorrelated(all_catchments_all_vars_f, 10)
-
-
-correlation_mat = all_catchments_all_vars_f.corr()
-corr_pairs = correlation_mat.unstack()
-print(corr_pairs)
-sorted_pairs = corr_pairs.sort_values(kind="quicksort")
-print(sorted_pairs)
-strong_pairs = sorted_pairs[abs(sorted_pairs) > 0.5]
-print(strong_pairs)
-
-
-######################################################################################
-######################################################################################
-# Plotting 
-######################################################################################
-######################################################################################
-catchment_colors =['#e6194b', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#46f0f0', '#f032e6', 
-'#bcf60c', '#fabebe', '#008080', '#e6beff', '#9a6324', "#006FA6", '#800000', '#aaffc3', 
-'#808000', "#FFA0F2", '#000075', '#000000']
-mStyles = ["o","v","8", ">","s","p","P","*","h","X","D"] *2
-# Create dictionaries
-catchment_colors_dict = {catchments[i]: catchment_colors[i] for i in range(len(catchments))} 
-catchment_markers_dict = {catchments[i]: mStyles[i] for i in range(len(catchments))} 
-# Create seaborn palette
-my_pal = sns.set_palette(sns.color_palette(catchment_colors))
-
-      
-fig = plt.figure(figsize = (9,6))
-ax = fig.add_subplot(1,1,1)
-ax.clear()
-ax = sns.scatterplot(data=filtered, x="BFIHOST", y="FC_perKM2",
-                     style = 'name',  markers = catchment_markers_dict, hue = 'name', 
-                     s= 200, palette = my_pal)
-ax.legend_.remove()
-
-#Find the covariance
-from scipy.stats import pearsonr, spearmanr
-from scipy import stats
-
-covariance = np.cov(inner_merged['FloodedCells_per_Km2'], inner_merged['BFIHOST'])
-# calculate Pearson's correlation
-corr, _ = pearsonr(inner_merged['FloodedCells_per_Km2'], inner_merged['BFIHOST'])
-print('Pearsons correlation: %.3f' % corr)
-corr, _ = spearmanr(inner_merged['FloodedCells_per_Km2'], inner_merged['BFIHOST'])
-print('Spearmans correlation: %.3f' % corr)
-
-# Check for normality
-k2, p = stats.normaltest( inner_merged['FloodedCells_per_Km2'])
+# 
+k2, p = stats.normaltest( filtered['FloodedCellsPerKm2'])
 alpha = 1e-3
 print("p = {:g}".format(p))
 p = 3.27207e-11
@@ -552,40 +463,4 @@ else:
     print("The null hypothesis cannot be rejected")
 
 
-
-inner_merged[['FloodedCells_per_Km2','BFIHOST', 'Easting']].corr()
-features1=['FloodedCells_per_Km2','BFIHOST','Easting']
-inner_merged[features1].corr()
-
-
-
-import math
-df = pd.DataFrame({
-    'IQ':[100,140,90,85,120,110,95], 
-    'GPA':[3.2,4.0,2.9,2.5,3.6,3.4,3.0],
-    'SALARY':[45e3,150e3,30e3,25e3,75e3,60e3,38e3]
-    })
-
-# Get pairwise correlation coefficients
-cor = df.corr()
-
-# Independent variables
-x = 'IQ'
-y = 'GPA'
-
-# Dependent variable
-z = 'SALARY'
-
-# Pairings
-xz = cor.loc[ x, z ]
-yz = cor.loc[ y, z ]
-xy = cor.loc[ x, y ]
-
-Rxyz = math.sqrt((abs(xz**2) + abs(yz**2) - 2*xz*yz*xy) / (1-abs(xy**2)) )
-R2 = Rxyz**2
-
-# Calculate adjusted R-squared
-n = len(df) # Number of rows
-k = 2       # Number of independent variables
-R2_adj = 1 - ( ((1-R2)*(n-1)) / (n-k-1) )
 

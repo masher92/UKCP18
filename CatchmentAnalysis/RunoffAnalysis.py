@@ -125,12 +125,6 @@ for seasonal_storm_profile in seasonal_storm_profiles:
         runoff_all_catchments_allrps[str(rp) + '_Rural_' + seasonal_storm_profile] = rural_runoff_all_catchments    
  
     
-    
-    
-    
-    
-    
-    
 ##################################################################       
 ##################################################################
 # Find critical durations for peak using both winter and summer seasonal storm
