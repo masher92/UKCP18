@@ -67,9 +67,9 @@ The number of flooded cells per km2 of catchment area is calculated for each RP.
 Tried to calculate the area of catchment exposed to surface water flood risk as a proportion of the total area. This was based on each cell having an area of 4m2. But this gave a figure of 11.8% for Bagley Beck, for a 30 year RP, which seems unrealistic.
 
 <p align="center">
-  <img src="Figs/1in30_Spatial_FloodedCells.PNG" width="250"  />  
-  <img src="Figs/1in100_Spatial_FloodedCells.PNG" width="250"  />  
-  <img src="Figs/1in1000_Spatial_FloodedCells.PNG" width="250"  />      
+  <img src="Figs/1in30_Spatial_FloodedCells.png" width="250"  />  
+  <img src="Figs/1in100_Spatial_FloodedCells.png" width="250"  />  
+  <img src="Figs/1in1000_Spatial_FloodedCells.png" width="250"  />      
 <p align="center">  <p align="center">
 
 
