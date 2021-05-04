@@ -73,6 +73,14 @@ for catchment_name in catchments:
     catchment_info['name'] = catchment_name
     catchments_info = pd.concat([catchments_info,catchment_info])
  
+catchments_info.reset_index(drop = True, inplace = True)
+
+# Extract from catchments info dataframe the variables of interest
+cols= ['geometry' ,'name', 'AREA', 'ALTBAR', 'BFIHOST','DPSBAR', 'FARL', 'LDP',
+       'PROPWET', 'SAAR','URBEXT2000', 'Easting','Northing']
+catchments_info_filtered = catchments_info[cols]
+
+#########################################################    
 ######################################################################################
 ######################################################################################
 # For each return period create a dataframe, with each catchment as a row, and columns
@@ -83,18 +91,36 @@ for catchment_name in catchments:
 # List return periods and variables to look at
 RPs = [30,100,1000]
 variables = ['Depth', 'Hazard', 'Velocity']
+variables = ['Hazard']
 
 # Function to clean the catchment names to match those used in the catchment descriptors
 def clean_catchment_names (df):
-    df=df.rename(columns = {'L2_NAME':'name'})
-    df.loc[df.OBJECTID == 13, 'name'] = "GillBeck_Wharfe"
-    df.loc[df.OBJECTID == 14, 'name'] = "GillBeck_Aire"
-    df['name'] = df['name'].str.replace(' ', '')
-    df.replace('CockBeckAberford', 'CockBeck_Aberford', inplace = True)
-    df.replace('StankBeck/Eccup', 'StankBeck', inplace = True)
-    df.replace('LadyBeck', 'MeanwoodBeck', inplace = True)
-    df.replace('HolBeck', 'Holbeck', inplace = True)
-    df.replace('MillDike', 'MillDyke', inplace = True)
+    # df=df.rename(columns = {'L2_NAME':'name'})
+    # df.loc[df.OBJECTID == 13, 'name'] = "GillBeck_Wharfe"
+    # df.loc[df.OBJECTID == 14, 'name'] = "GillBeck_Aire"
+    # df['name'] = df['name'].str.replace(' ', '')
+    # df.replace('CockBeckAberford', 'CockBeck_Aberford', inplace = True)
+    # df.replace('StankBeck/Eccup', 'StankBeck', inplace = True)
+    # df.replace('LadyBeck', 'MeanwoodBeck', inplace = True)
+    # df.replace('HolBeck', 'Holbeck', inplace = True)
+    # df.replace('MillDike', 'MillDyke', inplace = True)
+    
+    # df=df.rename(columns = {'L2_NAME':'name'})
+    # df.loc[df.OBJECTID == 13, 'name'] = "GillBeck_Wharfe"
+    # df.loc[df.OBJECTID == 14, 'name'] = "GillBeck_Aire"
+    # df['name'] = df['name'].str.replace(' ', '')
+    
+    catchment_names_new = sorted(catchments_info_filtered['name'])
+    catchment_names_orig= sorted(df_by_var['name'].unique())
+    
+    # For correct catchment names    
+    for i in range(0,len(catchments_info_filtered['name'])):
+        print(i)
+        catchment_name_original  = catchment_names_orig[i]
+        catchment_name_new =catchment_names_new[i]
+        print(catchment_name_original)
+        print(catchment_name_new)
+        df.replace(catchment_name_original, catchment_name_new, inplace = True) 
     return df
 
 # Create dictionary to store results for each return period
@@ -107,10 +133,10 @@ for rp in RPs:
     for var in variables:
         print(rp, var)
         # Read in
-        df_by_var = pd.read_csv("DataAnalysis/datadir/RoFSW/1in{}/{}/{}_ByCatchment_By{}.csv".format(rp, var, var, var))
+        df_by_var = pd.read_csv("DataAnalysis/datadir/RoFSW/1in{}_FEHCatchments/{}/{}_ByCatchment_By{}.csv".format(rp, var, var, var))
         # Clean up catchment names to match catchment descriptors
         df_by_var = clean_catchment_names(df_by_var)
-        df_by_var =  pd.merge(df_by_var, catchments_info)
+        df_by_var =  pd.merge(df_by_var, catchments_info, how= 'left')
 
         all_catchments = pd.DataFrame()
         for catchment in catchments:
@@ -124,7 +150,6 @@ for rp in RPs:
             # Transpose
             this_catchment = this_catchment.T
             # Reformat
-            this_catchment.columns = this_catchment.iloc[0]
             this_catchment = this_catchment.rename(columns=this_catchment.iloc[0]).drop(this_catchment.index[0])
             # Add a total column
             this_catchment['Total'] = this_catchment[list(this_catchment)[0:]].sum(axis=1)
@@ -132,8 +157,8 @@ for rp in RPs:
             this_catchment.columns= [var + '_' + str(col)  for col in this_catchment.columns]
             # Add catchment name as column
             this_catchment.insert(0, 'name', catchment)
-            # Keep only cells per km2 column
-            #this_catchment=this_catchment.iloc[[2]]
+            # Keep only SUM column
+            #this_catchment=this_catchment.iloc[[2]] #cellsperareacolumn
             this_catchment=this_catchment.iloc[[0]]
 
             # Add to dataframe containing all the catchments data
@@ -145,21 +170,21 @@ for rp in RPs:
     # Reset index
     all_catchments_all_vars.reset_index(inplace = True, drop= True)
     # Delete duplicate 'name' columns
-    all_catchments_all_vars=all_catchments_all_vars.T.drop_duplicates().T
+    #all_catchments_all_vars=all_catchments_all_vars.T.drop_duplicates().T
             
-    # Read in dataframe containing extent, and join
-    extent = pd.read_csv("DataAnalysis/datadir/RoFSW/1in{}/Extent/Extent_ByCatchment.csv".format(rp, var, var, var))
-    extent = clean_catchment_names(extent)
-    # Join with catchment desciptors
-    extent = pd.merge(catchments_info[['name','AREA']],extent)
-    # Create column which is cells per km2
-    extent['Extent'] = extent['sum']
-    #extent['Extent'] = extent['sum']/extent['AREA']
-    # select columns
-    extent = extent[['name', 'Extent']]
-    
+    # # Read in dataframe containing extent, and join
+    # extent = pd.read_csv("DataAnalysis/datadir/RoFSW/1in{}/Extent/Extent_ByCatchment.csv".format(rp, var, var, var))
+    # extent = clean_catchment_names(extent)
+    # # Join with catchment desciptors
+    # extent = pd.merge(catchments_info[['name','AREA']],extent)
+    # # Create column which is cells per km2
+    # extent['Extent'] = extent['sum']
+    # #extent['Extent'] = extent['sum']/extent['AREA']
+    # # select columns
+    # extent = extent[['name', 'Extent']]
     # Join extent info
-    all_catchments_all_vars =  pd.merge(all_catchments_all_vars, extent)
+    #all_catchments_all_vars =  pd.merge(all_catchments_all_vars, extent)
+   
     # Join with catchment desciptors
     all_catchments_all_vars = pd.merge(catchments_info,all_catchments_all_vars)
     # replace na values with 0
@@ -167,7 +192,7 @@ for rp in RPs:
     # Convert all values to numeric
     all_catchments_all_vars.iloc[:,2:] =all_catchments_all_vars.iloc[:,2:].apply(pd.to_numeric)
     # Add to results dictionary
-    results_dict[str(rp)] = all_catchments_all_vars
+    results_dict[rp] = all_catchments_all_vars
 
 # filtered['FloodedCellsPerKm2'] = filtered['Velocity_Total']/filtered['AREA']
 # # Add a total area column (assuming each square is 4m2)
@@ -215,7 +240,7 @@ cols= ['name', 'geometry', 'AREA', 'ALTBAR', 'BFIHOST','DPSBAR', 'FARL', 'LDP',
        'Velocity_Total', 'Extent']
 
 severe_vars = ['Depth_> 1.20','Velocity_> 2.00', 'Hazard_> 2.00']
-rps = ["30","100","1000"]
+rps = [30,100,1000]
 
 # Create figure
 fig = plt.figure(figsize=(28,20)) 
@@ -240,10 +265,11 @@ for rp in rps:
          cax.set_ylabel('Flooded cells per km2', rotation=90, size = 20)
          cax.tick_params(labelsize=15)
          ax.axis('off')
-         ax.set_title(rp + 'yr RP: ' + var, fontsize=20)
+         ax.set_title(str(rp) + 'yr RP: ' + var, fontsize=20)
          
          i = i+1
 
+### FLooded cells per km2
 fig = plt.figure(figsize=(28,20)) 
 for rp, subplot_num in zip(rps, range(1,4)):
     all_catchments_all_vars = results_dict[rp]
@@ -274,20 +300,117 @@ plt.savefig(root_fp +"DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/RoFSW/Figs/F
             bbox_inches='tight')
 
 
+
+############ Just for Hazard
+hazard_vars= ['Hazard_0.75 - 1.25','Hazard_0.50 - 0.75', 'Hazard_1.25 - 2.00', 'Hazard_> 2.00',
+       'Hazard_Total']
+
+# Create figure
+fig = plt.figure(figsize=(40,25)) 
+# Make subplot for each Return Period
+#for var, subplot_num in zip(severe_vars, range(1,13)):
+i=1
+for rp in RPs:
+    all_catchments_all_vars = results_dict[rp]
+    hazard = all_catchments_all_vars[hazard_vars]
+    # Join to catchments info
+    hazard = pd.concat([catchments_info_filtered, hazard], axis=1)
+    
+    # Convert to number cells per km2
+    hazard.iloc[:,13:]=hazard.iloc[:,13:].div(hazard['AREA'], axis=0) 
+
+    # Get just the 4 hazard categories
+    hazard_cats = hazard.copy().iloc[:,13:17]
+    # Define the weights
+    weights = pd.Series([0.5, 0.25, 0.75, 1], index=['Hazard_0.75 - 1.25', 'Hazard_0.50 - 0.75',
+    #weights = pd.Series([0.25, 0.5, 1, 2], index=['Hazard_0.75 - 1.25', 'Hazard_0.50 - 0.75',
+     'Hazard_1.25 - 2.00', 'Hazard_> 2.00'])
+    # Add a column to the initial df containing the weighted syms
+    hazard['weighted_sum']  = (hazard_cats * weights).sum(1)
+        
+    for var in hazard_vars + ['weighted_sum']:
+         print(var, rp)
+         ax = fig.add_subplot(4,6,i)
+         divider = make_axes_locatable(ax)
+         # create `cax` for the colorbar
+         cax = divider.append_axes("left", size="2%", pad=-0.2)
+         hazard.plot(ax=ax, cax = cax, column= var,cmap='OrRd', 
+                             edgecolor = 'black', legend=True)
+         # manipulate the colorbar `cax`
+         cax.set_ylabel('Flooded cells per km2', rotation=90, size = 20)
+         cax.tick_params(labelsize=15)
+         cax.remove()
+         ax.axis('off')
+         ax.set_title(str(rp) + 'yr RP: ' + var, fontsize=20)
+
+         i = i+1
+
+# Adjust height between plots
+fig.subplots_adjust(top=0.92)
+# fig.subplots_adjust(right=0.92)
+plt.subplots_adjust(hspace=0.05, wspace=0.0)   
+
+
+
+rp = 30
+# Get the results for this RP
+all_catchments_all_vars = results_dict[rp]
+# Get just the hazard variables
+hazard = all_catchments_all_vars[hazard_vars]
+# Join to catchments info
+hazard = pd.concat([catchments_info_filtered, hazard], axis=1)
+# Convert to number cells per km2
+hazard.iloc[:,13:17]=hazard.iloc[:,13:].div(hazard['AREA'], axis=0) 
+
+# Get just the 4 hazard categories
+hazard_cats = hazard.copy().iloc[:,13:17]
+# Define the weights
+weights = pd.Series([0.5, 0.25, 0.75, 1], index=['Hazard_0.75 - 1.25', 'Hazard_0.50 - 0.75',
+#weights = pd.Series([0.25, 0.5, 1, 2], index=['Hazard_0.75 - 1.25', 'Hazard_0.50 - 0.75',
+ 'Hazard_1.25 - 2.00', 'Hazard_> 2.00'])
+# Add a column to the initial df containing the weighted syms
+hazard['weighted_sum']  = (hazard_cats * weights).sum(1)
+
+# PLot
+fig = plt.figure() 
+ax = fig.add_subplot(1,1,1)
+divider = make_axes_locatable(ax)
+# create `cax` for the colorbar
+cax = divider.append_axes("right", size="2%", pad=-0.1)
+hazard.plot(ax=ax, cax = cax, column= 'weighted_sum2',cmap='OrRd', 
+                    edgecolor = 'black', legend=True)
+# manipulate the colorbar `cax`
+cax.set_ylabel('Flooded cells per km2', rotation=90, size = 20)
+cax.tick_params(labelsize=15)
+cax.remove()
+ax.axis('off')
+
+
+
 ######################################################################################
 ######################################################################################
 # Plotting - relationship between flood extent and catchment descriptors
 ######################################################################################
 ######################################################################################
-# filter columns
-filtered = all_catchments_all_vars.iloc[:, np.r_[0:15, 18:27, 39:41, 47,52,58,59 ]]
-filtered = filtered.iloc[:, np.r_[0:4,6,8,9,13:16,22,24,25,28]]
-filtered['FloodedCellsPerKm2'] = filtered['Velocity_Total']/filtered['AREA']
-# Add a total area column (assuming each square is 4m2)
-filtered['Total_Area_km2'] = (filtered['Velocity_Total'] * 4)/1000000
-# Find flooded area as a propotion of total area
-filtered['Prop_of_area_flooded'] = filtered['Total_Area_km2']/filtered['AREA'] *100
+cols= ['name', 'geometry', 'AREA', 'ALTBAR', 'BFIHOST','DPSBAR', 'FARL', 'LDP',
+       'PROPWET', 'SAAR','URBEXT2000', 'Easting', 'Northing', 'Hazard_0.75 - 1.25',
+       'Hazard_0.50 - 0.75', 'Hazard_1.25 - 2.00', 'Hazard_> 2.00',
+       'Hazard_Total']
 
+# Just keep Hazard
+hazard = all_catchments_all_vars[ cols]
+# Normalise by area
+hazard.iloc[:,13:]=hazard.iloc[:,13:].div(hazard['AREA'], axis=0) 
+
+# filtered['FloodedCellsPerKm2'] = filtered['Velocity_Total']/filtered['AREA']
+# # Add a total area column (assuming each square is 4m2)
+# filtered['Total_Area_km2'] = (filtered['Velocity_Total'] * 4)/1000000
+# # Find flooded area as a propotion of total area
+# filtered['Prop_of_area_flooded'] = filtered['Total_Area_km2']/filtered['AREA'] *100
+
+
+############## Find correlations with total hazard cells
+# as opposed to different hazard levels
 rp = "100"
 var = 'FloodedCellsPerKm2'
 cols =['name', 'geometry', 'AREA', 'ALTBAR', 'BFIHOST', 'DPSBAR', 'FARL',
@@ -297,11 +420,12 @@ correlations_df = pd.DataFrame()
 for rp in ['30', '100', '1000']:
     all_catchments_all_vars = results_dict[rp]
     # filter columns
-    filtered = all_catchments_all_vars[cols]
-    # Convert to number cells per km2
-    filtered['FloodedCellsPerKm2']=filtered['Depth_Total'].div(filtered['AREA'], axis=0) 
+    # Just keep Hazard
+    hazard = all_catchments_all_vars[ cols]
+    # Normalise by area
+    hazard.iloc[:,13:]=hazard.iloc[:,13:].div(hazard['AREA'], axis=0) 
     # Find all correlations with total number flooded cells
-    corrs = filtered[filtered.columns[2:]].corr()['FloodedCellsPerKm2'][:]
+    corrs = hazard[hazard.columns[2:]].corr()['FloodedCellsPerKm2'][:]
     corrs = corrs.reindex(corrs.abs().sort_values(ascending = False).index)
     df = pd.DataFrame({'Variable': corrs.index, 'Correlation': round(corrs,2)})
     df.reset_index(inplace = True, drop = True)
@@ -311,10 +435,42 @@ for rp in ['30', '100', '1000']:
 fig = plt.figure(figsize = (9,6))
 ax = fig.add_subplot(1,1,1)
 ax.clear()
-ax = sns.scatterplot(data=filtered, x="Depth_Total", y='LDP',
+ax = sns.scatterplot(data=hazard, x="Hazard_0.75 - 1.25", y='BFIHOST',
                      style = 'name',  markers = catchment_markers_dict, hue = 'name', 
                      s= 200, palette = my_pal)
 ax.legend_.remove()
+
+
+# Fit OLS regression models and store adjusted r2 values                                                         
+ # Create dataframe to store the adjusted R2 values
+r2s_df = pd.DataFrame({'Variables' : rp_rainfall_plus_catchmentdescritptors.columns[0:-9]})
+pos_or_neg_df = pd.DataFrame({'Variables' : rp_rainfall_plus_catchmentdescritptors.columns[0:-9]})
+
+# Loop through combinations of predictor and response variables
+for predictor_variable in ['Northing', 'Easting', 'Northing + Easting', 'ALTBAR', 'DPSBAR', 'SAAR', 'AREA', 'BFIHOST',
+       'FARL', 'URBEXT2000']:
+    values = []
+    pos_or_neg = []
+    for response_variable in rp_rainfall_plus_catchmentdescritptors.columns[0:-9]:
+        model = smf.ols("Q({})~{}".format(response_variable, predictor_variable) , data=rp_rainfall_plus_catchmentdescritptors).fit()
+        values.append(round(model.rsquared_adj, 2))
+    r2s_df =pd.concat([r2s_df,pd.DataFrame({predictor_variable : values})], axis=1)
+    pos_or_neg_df =pd.concat([pos_or_neg_df,pd.DataFrame({predictor_variable : pos_or_neg})], axis=1)    
+
+# Filter to only keep some durations
+r2s_df =  r2s_df.loc[r2s_df['Variables'].isin([0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2,5,10,20,30,40,50.0, 60.0, 70.0, 80.0])]
+
+
+
+
+
+
+
+
+
+
+
+
 
 ######################################################################################
 ######################################################################################
