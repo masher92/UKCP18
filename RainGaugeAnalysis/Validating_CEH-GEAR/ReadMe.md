@@ -1,3 +1,9 @@
+Newcastle_readtxtfiles.py : The rain gauge data has been provided in text files. This script goes through each of these text files and checks whether it is within the leeds-at-centre region (using provided lat/long) and, if so, saves the data to a csv file.
+Newcastle_findnearestgrid.py : 
+
+
+
+
 ## Validating CEH-GEAR1hr gridded observations using quality-controlled gauge data
 
 ### Gauges in Leeds (leeds-at-centre) region
