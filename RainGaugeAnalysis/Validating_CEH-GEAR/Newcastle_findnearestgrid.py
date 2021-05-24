@@ -75,16 +75,20 @@ concat_cube = trim_to_bbox_of_region_obs(concat_cube, leeds_at_centre_gdf)
 iplt.pcolormesh(concat_cube[12])
 
 #############################################################################
-## Rename grid latitude and longitude
-# This was to make compatible with functions designed for model, but decided
-# to make custom functions isntead
 #############################################################################
-#### Rename to be grid_latitude and grid_longitude
-# y_coord = concat_cube.dim_coords[1]
-# y_coord.rename('grid_latitude')
+## Load in UKCP18 data and concatenate into one cube
+#############################################################################
+#############################################################################
+yrs_range = "1980_2001" 
+ems = ['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
 
-# x_coord= concat_cube.dim_coords[2] 
-# x_coord.rename('grid_longitude')
+for em in ems:
+    print(em)
+    # Load cube trimmed to Leeds at centre region
+
+# Test plotting
+iplt.pcolormesh(concat_cube[12])
+
 
 #############################################################################
 # Loop through every text file in the directory
@@ -96,6 +100,11 @@ filenames= []
 lats = []
 lons = []
 prop_nas = {}
+
+# for filename in glob.glob("datadir/GaugeData/Newcastle/leeds-at-centre_csvs/*"):
+#     print(filename)
+
+
 for filename in glob.glob("datadir/GaugeData/Newcastle/E*"):
     with open(filename) as myfile:
         # read in the lines of text at the top of the file
@@ -115,56 +124,56 @@ for filename in glob.glob("datadir/GaugeData/Newcastle/E*"):
             print('yes')
             print(station_name)
            
-            ############################################################################
-            # Create a csv containing the data and the dates
-            ############################################################################
-            #Read in data entries containing precipitation values
-            data=np.loadtxt(filename, skiprows = 21)
+            # ############################################################################
+            # # Create a csv containing the data and the dates
+            # ############################################################################
+            # #Read in data entries containing precipitation values
+            # data=np.loadtxt(filename, skiprows = 21)
             
-            # Store start and end dates
-            startdate = firstNlines[7][16:26]
-            enddate = firstNlines[8][14:24]
+            # # Store start and end dates
+            # startdate = firstNlines[7][16:26]
+            # enddate = firstNlines[8][14:24]
 
-            # Convert to datetimes
-            d1 = datetime(int(startdate[0:4]), int(startdate[4:6]), int(startdate[6:8]), int(startdate[8:10]))
-            d2 = datetime(int(enddate[0:4]), int(enddate[4:6]), int(enddate[6:8]), int(enddate[8:10]))
+            # # Convert to datetimes
+            # d1 = datetime(int(startdate[0:4]), int(startdate[4:6]), int(startdate[6:8]), int(startdate[8:10]))
+            # d2 = datetime(int(enddate[0:4]), int(enddate[4:6]), int(enddate[6:8]), int(enddate[8:10]))
             
-            # Find all hours between these dates
-            time_range = pd.date_range(d1, d2, freq='H')    
+            # # Find all hours between these dates
+            # time_range = pd.date_range(d1, d2, freq='H')    
             
-            # Check if there are the correct number
-            n_lines = firstNlines[10][19:-1]
-            if int(n_lines) != len(time_range):
-                print('Incorrect number of lines')
+            # # Check if there are the correct number
+            # n_lines = firstNlines[10][19:-1]
+            # if int(n_lines) != len(time_range):
+            #     print('Incorrect number of lines')
             
-            # Create dataframe containing precipitation values as times
-            precip_df = pd.DataFrame({'Datetime': time_range,
-                                      'Precipitation (mm/hr)': data})
+            # # Create dataframe containing precipitation values as times
+            # precip_df = pd.DataFrame({'Datetime': time_range,
+            #                           'Precipitation (mm/hr)': data})
             
-            # Save to file
-            precip_df.to_csv("datadir/GaugeData/Newcastle/leeds-at-centre_csvs/{}.csv".format(station_name),
-                              index = False)
+            # # Save to file
+            # precip_df.to_csv("datadir/GaugeData/Newcastle/leeds-at-centre_csvs/{}.csv".format(station_name),
+            #                   index = False)
 
             # #############################################################################
             # # Create a csv containing the data and the dates for the CEH-GEAR grid cell which
             # # the gauge is located within
             # #############################################################################
-            # # Create time series cube at this location, and return the associated         
-            result = create_concat_cube_one_location_obs(concat_cube, lat, lon)
+            # # # Create time series cube at this location, and return the associated         
+            # result = create_concat_cube_one_location_obs(concat_cube, lat, lon)
             
-            # # Split out results
-            time_series_cube, closest_lat, closest_long, closest_point_idx = result[0], result[1], result[2], result[3]
+            # # # Split out results
+            # time_series_cube, closest_lat, closest_long, closest_point_idx = result[0], result[1], result[2], result[3]
 
-            # Save the cube
-            iris.save(time_series_cube, 
-            "Outputs/TimeSeries/CEH-GEAR/Gauge_GridCells/TimeSeries_cubes/{}.nc".format(station_name))
+            # # Save the cube
+            # iris.save(time_series_cube, 
+            # "Outputs/TimeSeries/CEH-GEAR/Gauge_GridCells/TimeSeries_cubes/{}.nc".format(station_name))
 
-            ## Create dataframe with timeseries
-            ts_df = pd.DataFrame({'Date_formatted': time_series_cube.coord('time').units.num2date(time_series_cube.coord('time').points),
-                              'Precipitation (mm/hr)': np.array(time_series_cube.lazy_data())})
+            # ## Create dataframe with timeseries
+            # ts_df = pd.DataFrame({'Date_formatted': time_series_cube.coord('time').units.num2date(time_series_cube.coord('time').points),
+            #                   'Precipitation (mm/hr)': np.array(time_series_cube.lazy_data())})
             
-            # Save to file
-            ts_df.to_csv("Outputs/TimeSeries/CEH-GEAR/Gauge_GridCells/TimeSeries_csv/{}.csv".format(station_name))
+            # # Save to file
+            # ts_df.to_csv("Outputs/TimeSeries/CEH-GEAR/Gauge_GridCells/TimeSeries_csv/{}.csv".format(station_name))
              
             #############################################################################
             ## Check that the data has been extracted for the correct location

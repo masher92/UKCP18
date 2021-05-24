@@ -47,7 +47,7 @@ uk_gdf = create_uk_outline({'init' :'epsg:3857'})
 for em in ems:
     print(em)
     # Create directory to store outputs in
-    ddir = "Outputs/Timeseries_UKCP18/leeds-at-centre/{}/".format(em)
+    ddir = "Outputs/TimeSeries/UKCP18/leeds-at-centre/{}/".format(em)
     if not os.path.isdir(ddir):
         os.mkdir(ddir)
     
@@ -76,7 +76,11 @@ for em in ems:
     ################################################################
     # Cut the cube to the extent of GDF surrounding Leeds  
     ################################################################
-    model_cube = trim_to_bbox_of_region_obs(model_cube, leeds_at_centre_gdf)
+    model_cube = trim_to_bbox_of_region(model_cube, leeds_at_centre_gdf)
+    # Test plotting - one timeslice
+    iplt.pcolormesh(model_cube[12])
+    # Save trimmed netCDF to file    
+    iris.save(model_cube, "Outputs/TimeSeries/UKCP18/leeds-at-centre/{}/leeds-at-centre.nc".format(em))
     
     ################################################################
     # Once across all ensemble members, save a numpy array storing
