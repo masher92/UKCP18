@@ -123,3 +123,6 @@ Results suggest that as the duration gets longer the correlation with RoFSW floo
 I.e. the longer the duration, the greater the correlation between peak flow for that duration and the extent of RoFSW flood extent.
 
 But would maybe expect that there would be a greater correlation for shorter duration events?
+  
+Problems:
+Normalising by area: discriminates against bigger catchments, if the flood risk is concentrated in one area?
