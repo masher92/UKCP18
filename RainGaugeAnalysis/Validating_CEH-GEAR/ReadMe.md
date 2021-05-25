@@ -3,7 +3,7 @@
 ### Gauges in Leeds (leeds-at-centre) region
 There are 42 quality-controlled gauges within the Leeds (leeds-at-centre) region. 
 
-<p align="left">
+<p align="centre">
 <img src="Figs/CheckingLocations/Location_leeds-at-centre_Gauges.png" width="500"  title="Location of all gauges in Leeds region" />
 </p>
 
@@ -13,15 +13,17 @@ For the 6 rain gauges within the Leeds city boundary, the CEH-GEAR1hr grid cell 
 #### Bramham Logger - 01-01-1990 00:00:00 - 31-12-2014 23:00:00 
 <p align="left">
 <img src="Figs/CheckingLocations/CEH-GEAR/bramham_logger.png" width="500"  title="Original 1km grid" />
-<img src="Figs/CheckingLocations/UKCP18/bramham_logger_01.png" width="500"  title="Original 1km grid" />
+<img src="Figs/CheckingLocations/UKCP18/bramham_logger_01.png" width="500"  title="Original 1km grid" /></p>
 
 JJA    
-  
+<p align="left">
 <img src="Figs/PDF_GaugevsGridCell/otley_s.wks_logger_all_Overlapping_Combined.png" width="220"  title="Original 1km grid" />
  <img src="Figs/PDF_GaugevsGridCell/otley_s.wks_logger_all_NotOverlapping_Combined.png" width="220"  title="Original 1km grid" />     
 <img src="Figs/PDF_GaugevsGridCell/otley_s.wks_logger_all_Overlapping_NotCombined.png" width="220"  title="Original 1km grid" />  
-<img src="Figs/PDF_GaugevsGridCell/otley_s.wks_logger_all_NotOverlapping_NotCombined.png" width="220"  title="Original 1km grid" />  
-  
+<img src="Figs/PDF_GaugevsGridCell/otley_s.wks_logger_all_NotOverlapping_NotCombined.png" width="220"  title="Original 1km grid" />  </p>  
+
+JJA 
+<p align="left">
 <img src="Figs/PDF_GaugevsGridCell/otley_s.wks_logger_jja_Overlapping_Combined.png" width="220"  title="Original 1km grid" />
  <img src="Figs/PDF_GaugevsGridCell/otley_s.wks_logger_jja_NotOverlapping_Combined.png" width="220"  title="Original 1km grid" />    
 <img src="Figs/PDF_GaugevsGridCell/otley_s.wks_logger_jja_Overlapping_NotCombined.png" width="220"  title="Original 1km grid" />  
