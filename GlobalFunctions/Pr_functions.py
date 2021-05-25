@@ -5,6 +5,31 @@ from scipy import spatial
 from timeit import default_timer as timer
 from iris.pandas import as_cube, as_series, as_data_frame 
 
+def create_grid_highlighted_cell (concat_cube, closest_point_idx):
+    
+    # Create cube containing hour's worth of data
+    hour_uk_cube = concat_cube[0,:,:]
+        
+    # Recreate data so that only the cell containing the lat, long location 
+    # has a data value
+    # Create data of the same shape as the cube and set all the values to 0
+    test_data = np.full((hour_uk_cube.shape),0,dtype = int)
+    # Reshape to be 1D
+    test_data_rs = test_data.reshape(-1)
+    # Set the grid cell closest to the lat/long to 1
+    test_data_rs[closest_point_idx] = 1
+    # Reshape to the original shape
+    test_data = test_data_rs.reshape(test_data.shape)
+    # Mask out all values that aren't 1
+    test_data = ma.masked_where(test_data<1,test_data)
+    
+    # Set the dummy data back on the cube
+    hour_uk_cube.data = test_data
+    
+    return (hour_uk_cube)
+
+
+
 def define_loc_of_interest(cube, lon, lat):
     #############################################
     # Define a sample point at which we are interested in extracting the precipitation timeseries.
@@ -25,7 +50,7 @@ def define_loc_of_interest(cube, lon, lat):
 
 def create_concat_cube_one_location_m3 (concat_cube, sample_point):
      # Reduce the dimensions (remove ensemble member dimension)
-     concat_cube = concat_cube[0, :]
+     #concat_cube = concat_cube[0, :]
          
      # Create a list of all the tuple pairs of latitude and longitudes
      locations = list(itertools.product(concat_cube.coord('grid_latitude').points, concat_cube.coord('grid_longitude').points))

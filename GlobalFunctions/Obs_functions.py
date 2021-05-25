@@ -36,7 +36,7 @@ def create_concat_cube_one_location_obs (concat_cube, lat, lon):
 
 
 
-def create_grid_highlighted_cell (concat_cube, closest_point_idx):
+def create_grid_highlighted_cell_obs (concat_cube, closest_point_idx):
     
     # Create cube containing hour's worth of data
     hour_uk_cube = concat_cube[0,:,:]

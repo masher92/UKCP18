@@ -19,14 +19,14 @@ root_fp = "/nfs/a319/gy17m2a/"
 os.chdir(root_fp)
 
 # Create path to files containing functions
-sys.path.insert(0, root_fp + 'Scripts/UKCP18/SpatialAnalyses')
+sys.path.insert(0, root_fp + 'Scripts/UKCP18/GlobalFunctions')
 from Spatial_plotting_functions import *
 from Spatial_geometry_functions import *
 
 # Define variables and set up environment
 #############################################
 yrs_range = "1980_2001" 
-ems = ['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
+ems = ['04', '05', '06', '07', '08', '09', '10', '11', '12', '13']
 
 ##################################################################
 # Load necessary spatial data
@@ -68,6 +68,7 @@ for em in ems:
                  del cube.attributes[attr]
     
     # Concatenate the cubes into one
+    print('concatenatng cube')
     model_cube = monthly_cubes_list.concatenate_cube()      
                          
     # Remove ensemble member dimension
@@ -76,67 +77,69 @@ for em in ems:
     ################################################################
     # Cut the cube to the extent of GDF surrounding Leeds  
     ################################################################
+    print('trimming cube')
     model_cube = trim_to_bbox_of_region(model_cube, leeds_at_centre_gdf)
     # Test plotting - one timeslice
-    iplt.pcolormesh(model_cube[12])
+    iplt.pcolormesh(model_cube[120])
     # Save trimmed netCDF to file    
+    print('saving cube')
     iris.save(model_cube, "Outputs/TimeSeries/UKCP18/leeds-at-centre/{}/leeds-at-centre.nc".format(em))
     
-    ################################################################
-    # Once across all ensemble members, save a numpy array storing
-    # the timestamps to which the data refer
-    ################################################################          
-    if em == '01':
-        times = model_cube.coord('yyyymmddhh').points
-        # Convert to datetime - doesnt work due to 30 days in Feb
-        #times = [datetime.datetime.strptime(x, "%Y%m%d%H") for x in times]
-        np.save("Outputs/Timeseries_UKCP18/leeds-at-centre/timestamps.npy", times) 
+    # ################################################################
+    # # Once across all ensemble members, save a numpy array storing
+    # # the timestamps to which the data refer
+    # ################################################################          
+    # if em == '01':
+    #     times = model_cube.coord('yyyymmddhh').points
+    #     # Convert to datetime - doesnt work due to 30 days in Feb
+    #     #times = [datetime.datetime.strptime(x, "%Y%m%d%H") for x in times]
+    #     np.save("Outputs/Timeseries_UKCP18/leeds-at-centre/timestamps.npy", times) 
     
-    ################################################################
-    # Create a numpy array containing all the precipitation values from across
-    # all 20 years of data and all positions in the cube
-    ################################################################
-    # Define length of variables defining spatial positions
-    lat_length= model_cube.shape[1]
-    lon_length= model_cube.shape[2]
-    print("Defined length of coordinate dimensions")
-    print(lat_length, lon_length)        
+    # ################################################################
+    # # Create a numpy array containing all the precipitation values from across
+    # # all 20 years of data and all positions in the cube
+    # ################################################################
+    # # Define length of variables defining spatial positions
+    # lat_length= model_cube.shape[1]
+    # lon_length= model_cube.shape[2]
+    # print("Defined length of coordinate dimensions")
+    # print(lat_length, lon_length)        
         
-    # # Load data
-    print("Loading data")
-    data = model_cube.data
-    print("Loaded data")
+    # # # Load data
+    # print("Loading data")
+    # data = model_cube.data
+    # print("Loaded data")
     
-    # Create an empty array to fill with data
-    all_the_data = np.array([])
+    # # Create an empty array to fill with data
+    # all_the_data = np.array([])
     
-    print("entering loop through coordinates")
-    total = 0
-    for i in range(0,lat_length):
-        for j in range(0,lon_length):
-            # Print the position
-            print(i,j)
-            # Define the filename
-            filename = ddir + "{}_{}.npy".format(i,j)
-            # If a file of this name already exists saved, then read in this file
-            if os.path.isfile (filename):
-                print("File exists")
-                data_slice = np.load(filename)
-            # IF file of this name does not exist, then create by slicing data
-            else:
-                print("File does not exist")                
-                # Take slice from loaded data
-                data_slice = data[:,i,j]
-                # Remove mask
-                data_slice = data_slice.data
-                # Save to file
-                np.save(filename, data_slice) 
-            total = total + data_slice.shape[0]
+    # print("entering loop through coordinates")
+    # total = 0
+    # for i in range(0,lat_length):
+    #     for j in range(0,lon_length):
+    #         # Print the position
+    #         print(i,j)
+    #         # Define the filename
+    #         filename = ddir + "{}_{}.npy".format(i,j)
+    #         # If a file of this name already exists saved, then read in this file
+    #         if os.path.isfile (filename):
+    #             print("File exists")
+    #             data_slice = np.load(filename)
+    #         # IF file of this name does not exist, then create by slicing data
+    #         else:
+    #             print("File does not exist")                
+    #             # Take slice from loaded data
+    #             data_slice = data[:,i,j]
+    #             # Remove mask
+    #             data_slice = data_slice.data
+    #             # Save to file
+    #             np.save(filename, data_slice) 
+    #         total = total + data_slice.shape[0]
 
-            # Add the slice to the array containing all the data from all the locations
-            all_the_data = np.append(all_the_data,data_slice)
+    #         # Add the slice to the array containing all the data from all the locations
+    #         all_the_data = np.append(all_the_data,data_slice)
     
-    ### Save as numpy array
-    print("saving data")
-    np.save(ddir + "leeds-at-centre.npy", all_the_data)   
-    print("saved data")
+    # ### Save as numpy array
+    # print("saving data")
+    # np.save(ddir + "leeds-at-centre.npy", all_the_data)   
+    # print("saved data")
