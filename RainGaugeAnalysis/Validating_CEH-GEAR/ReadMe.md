@@ -20,10 +20,10 @@ For the 6 rain gauges within the Leeds city boundary, the CEH-GEAR1hr grid cell 
 <img src="Figs/PDF_GaugevsGridCell/otley_s.wks_logger_all_Overlapping_NotCombined.png" width="220"  title="Original 1km grid" />  
 <img src="Figs/PDF_GaugevsGridCell/otley_s.wks_logger_all_NotOverlapping_NotCombined.png" width="220"  title="Original 1km grid" />    
   
-<img src="Figs/PDF_GaugevsGridCell/otley_s.wks_logger_jja_Overlapping_Combined.png" width="250"  title="Original 1km grid" />
- <img src="Figs/PDF_GaugevsGridCell/otley_s.wks_logger_jja_NotOverlapping_Combined.png" width="250"  title="Original 1km grid" />    
-<img src="Figs/PDF_GaugevsGridCell/otley_s.wks_logger_jja_Overlapping_NotCombined.png" width="250"  title="Original 1km grid" />  
-<img src="Figs/PDF_GaugevsGridCell/otley_s.wks_logger_jja_NotOverlapping_NotCombined.png" width="250"  title="Original 1km grid" />  </p>
+<img src="Figs/PDF_GaugevsGridCell/otley_s.wks_logger_jja_Overlapping_Combined.png" width="220"  title="Original 1km grid" />
+ <img src="Figs/PDF_GaugevsGridCell/otley_s.wks_logger_jja_NotOverlapping_Combined.png" width="220"  title="Original 1km grid" />    
+<img src="Figs/PDF_GaugevsGridCell/otley_s.wks_logger_jja_Overlapping_NotCombined.png" width="220"  title="Original 1km grid" />  
+<img src="Figs/PDF_GaugevsGridCell/otley_s.wks_logger_jja_NotOverlapping_NotCombined.png" width="220"  title="Original 1km grid" />  </p>
 
 
 # Overlapping, combined 
