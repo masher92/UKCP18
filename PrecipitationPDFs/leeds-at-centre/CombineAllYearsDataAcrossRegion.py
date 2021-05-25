@@ -26,7 +26,7 @@ from Spatial_geometry_functions import *
 # Define variables and set up environment
 #############################################
 yrs_range = "1980_2001" 
-ems = ['04', '05', '06', '07', '08', '09', '10', '11', '12', '13']
+ems = ['13']
 
 ##################################################################
 # Load necessary spatial data

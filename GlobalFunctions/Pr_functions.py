@@ -4,6 +4,8 @@ import itertools
 from scipy import spatial
 from timeit import default_timer as timer
 from iris.pandas import as_cube, as_series, as_data_frame 
+import numpy as np
+import numpy.ma as ma
 
 def create_grid_highlighted_cell (concat_cube, closest_point_idx):
     
@@ -27,7 +29,6 @@ def create_grid_highlighted_cell (concat_cube, closest_point_idx):
     hour_uk_cube.data = test_data
     
     return (hour_uk_cube)
-
 
 
 def define_loc_of_interest(cube, lon, lat):
