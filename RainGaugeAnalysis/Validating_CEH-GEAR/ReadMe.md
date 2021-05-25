@@ -1,9 +1,3 @@
-Newcastle_readtxtfiles.py : The rain gauge data has been provided in text files. This script goes through each of these text files and checks whether it is within the leeds-at-centre region (using provided lat/long) and, if so, saves the data to a csv file.
-Newcastle_findnearestgrid.py : 
-
-
-
-
 ## Validating CEH-GEAR1hr gridded observations using quality-controlled gauge data
 
 ### Gauges in Leeds (leeds-at-centre) region
@@ -18,7 +12,8 @@ For the 6 rain gauges within the Leeds city boundary, the CEH-GEAR1hr grid cell 
 
 #### Bramham Logger - 01-01-1990 00:00:00 - 31-12-2014 23:00:00 
 <p align="left">
-<img src="Figs/CheckingLocations/bramham_logger.png" width="500"  title="Original 1km grid" />
+<img src="Figs/CheckingLocations/CEH-GEAR/bramham_logger.png" width="500"  title="Original 1km grid" />
+<img src="Figs/CheckingLocations/UKCP18/bramham_logger_01.png" width="500"  title="Original 1km grid" />
 <img src="Figs/PDF_GaugevsGridCell/bramham_logger.png" width="500"  title="Original 1km grid" />
 </p>
 
