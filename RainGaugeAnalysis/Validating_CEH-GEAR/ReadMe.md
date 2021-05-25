@@ -4,7 +4,7 @@
 There are 42 quality-controlled gauges within the Leeds (leeds-at-centre) region. 
 
 <p align="left">
-<img src="Figs/CheckingLocations/Location_leeds-at-centre_Gauges.PNG" width="500"  title="Location of all gauges in Leeds region" />
+<img src="Figs/CheckingLocations/Location_leeds-at-centre_Gauges.png" width="500"  title="Location of all gauges in Leeds region" />
 </p>
 
 ### Gauges within Leeds city boundaries
