@@ -14,8 +14,8 @@ For the 6 rain gauges within the Leeds city boundary, the CEH-GEAR1hr grid cell 
 <p align="left">
 <img src="Figs/CheckingLocations/CEH-GEAR/bramham_logger.png" width="200"  title="Original 1km grid" />
 <img src="Figs/CheckingLocations/UKCP18/bramham_logger_01.png" width="200"  title="Original 1km grid" />
-<img src="Figs/PDF_GaugevsGridCell/otley_s.wks_logger_jja_Overlapping_NotCombined.png.png" width="500"  title="Original 1km grid" />
-<img src="Figs/PDF_GaugevsGridCell/otley_s.wks_logger_all_Overlapping_NotCombined.png.png" width="500"  title="Original 1km grid" />  
+<img src="Figs/PDF_GaugevsGridCell/otley_s.wks_logger_jja_Overlapping_NotCombined.png" width="500"  title="Original 1km grid" />
+<img src="Figs/PDF_GaugevsGridCell/otley_s.wks_logger_all_Overlapping_NotCombined.png" width="500"  title="Original 1km grid" />  
   
 </p>
 
