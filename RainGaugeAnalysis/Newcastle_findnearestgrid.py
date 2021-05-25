@@ -159,12 +159,12 @@ for filename in glob.glob("datadir/GaugeData/Newcastle/E*"):
             #"Outputs/TimeSeries/CEH-GEAR/Gauge_GridCells/TimeSeries_cubes/{}.nc".format(station_name))
 
             # Create dataframe with timeseries
-            ts_df = pd.DataFrame({'Date_formatted': obs_cube_thisloc.coord('time').units.num2date(obs_cube_thisloc.coord('time').points),
-                              'Precipitation (mm/hr)': np.array(obs_cube_thisloc.lazy_data())})
+            #ts_df = pd.DataFrame({'Date_formatted': obs_cube_thisloc.coord('time').units.num2date(obs_cube_thisloc.coord('time').points),
+            #                  'Precipitation (mm/hr)': np.array(obs_cube_thisloc.lazy_data())})
             
             # Save to file
-            ts_df.to_csv("Outputs/TimeSeries/CEH-GEAR/Gauge_GridCells/TimeSeries_csv/{}.csv".format(station_name),
-            index= False)
+            #ts_df.to_csv("Outputs/TimeSeries/CEH-GEAR/Gauge_GridCells/TimeSeries_csv/{}.csv".format(station_name),
+            #index= False)
              
             #############################################################################
             #############################################################################
@@ -196,7 +196,7 @@ for filename in glob.glob("datadir/GaugeData/Newcastle/E*"):
             cmap = mpl.colors.ListedColormap(['yellow'])
             
             fig, ax = plt.subplots(figsize=(30,30))
-            extent = tilemapbase.extent_from_frame(leeds_at_centre_gdf)
+            extent = tilemapbase.extent_from_frame(leeds_gdf)
             plot = plotter = tilemapbase.Plotter(extent, tilemapbase.tiles.build_OSM(), width=500)
             plot =plotter.plot(ax)
             # Add edgecolor = 'grey' for lines
@@ -226,24 +226,24 @@ for filename in glob.glob("datadir/GaugeData/Newcastle/E*"):
                 # Split out results
                 time_series_cube, closest_lat, closest_long, closest_point_idx = result_model[0], result_model[1], result_model[2], result_model[3]
                 
-                # Check centre location of grid cell it used (in lat, lon)
-                cs = em_cube[0].coord_system() # coordinate system of original cube
-                lon_calc, lat_calc = iris.analysis.cartography.unrotate_pole(np.array(closest_long), np.array(closest_lat), cs.grid_north_pole_longitude, cs.grid_north_pole_latitude)
-                print(lat_calc, lon_calc)
+                # # Check centre location of grid cell it used (in lat, lon)
+                # cs = em_cube[0].coord_system() # coordinate system of original cube
+                # lon_calc, lat_calc = iris.analysis.cartography.unrotate_pole(np.array(closest_long), np.array(closest_lat), cs.grid_north_pole_longitude, cs.grid_north_pole_latitude)
+                # print(lat_calc, lon_calc)
     
-                # Save the cube
-                print('Saving cube')
-                iris.save(time_series_cube, 
-                "Outputs/TimeSeries/UKCP18/Gauge_GridCells/TimeSeries_cubes/{}_{}.nc".format(station_name, em))
+                # # Save the cube
+                # print('Saving cube')
+                # iris.save(time_series_cube, 
+                # "Outputs/TimeSeries/UKCP18/Gauge_GridCells/TimeSeries_cubes/{}_{}.nc".format(station_name, em))
     
-                ## Create dataframe with timeseries
-                print("Creating DF")
-                ts_df = pd.DataFrame({'Date_formatted': time_series_cube.coord('time').units.num2date(time_series_cube.coord('time').points),
-                                  'Precipitation (mm/hr)': np.array(time_series_cube.lazy_data())})
-                print('saving DF')
-                # Save to file
-                ts_df.to_csv("Outputs/TimeSeries/UKCP18/Gauge_GridCells/TimeSeries_csv/{}_{}.csv".format(station_name, em),
-                             index= False)
+                # ## Create dataframe with timeseries
+                # print("Creating DF")
+                # ts_df = pd.DataFrame({'Date_formatted': time_series_cube.coord('time').units.num2date(time_series_cube.coord('time').points),
+                #                   'Precipitation (mm/hr)': np.array(time_series_cube.lazy_data())})
+                # print('saving DF')
+                # # Save to file
+                # ts_df.to_csv("Outputs/TimeSeries/UKCP18/Gauge_GridCells/TimeSeries_csv/{}_{}.csv".format(station_name, em),
+                #              index= False)
                  
                 #############################################################################
                 ## Check that the data has been extracted for the correct location
@@ -275,7 +275,7 @@ for filename in glob.glob("datadir/GaugeData/Newcastle/E*"):
                     cmap = mpl.colors.ListedColormap(['yellow'])
                     
                     fig, ax = plt.subplots(figsize=(30,30))
-                    extent = tilemapbase.extent_from_frame(leeds_at_centre_gdf)
+                    extent = tilemapbase.extent_from_frame(leeds_gdf)
                     plot = plotter = tilemapbase.Plotter(extent, tilemapbase.tiles.build_OSM(), width=500)
                     plot =plotter.plot(ax)
                     # Add edgecolor = 'grey' for lines
