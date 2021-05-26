@@ -12,8 +12,8 @@ For the 6 rain gauges within the Leeds city boundary, the CEH-GEAR1hr grid cell 
 
 #### Bramham Logger - 01-01-1990 00:00:00 - 31-12-2014 23:00:00 
 <p align="left">
-<img src="Figs/CheckingLocations/CEH-GEAR/bramham_logger.png" width="500"  title="Original 1km grid" />
-<img src="Figs/CheckingLocations/UKCP18/bramham_logger_01.png" width="500"  title="Original 1km grid" /></p>
+<img src="Figs/CheckingLocations/CEH-GEAR/bramham_logger.png" width="200"  title="Original 1km grid" />
+<img src="Figs/CheckingLocations/UKCP18/bramham_logger_01.png" width="200"  title="Original 1km grid" /></p>
 
 All months  
 <p align="left">
@@ -34,8 +34,8 @@ NA values in CEH-GEAR grid cell data: 9
 
 #### Knostrop Logger - 01-01-1990 00:00:00 - 31-12-2014 23:00:00
 <p align="left">
-<img src="Figs/CheckingLocations/CEH-GEAR/knostrop_logger.png" width="500"  title="Original 1km grid" />
-<img src="Figs/CheckingLocations/UKCP18/knostrop_logger_01.png" width="500"  title="Original 1km grid" /></p>
+<img src="Figs/CheckingLocations/CEH-GEAR/knostrop_logger.png" width="200"  title="Original 1km grid" />
+<img src="Figs/CheckingLocations/UKCP18/knostrop_logger_01.png" width="200"  title="Original 1km grid" /></p>
 
 All months  
 <p align="left">
@@ -56,8 +56,8 @@ NA values in CEH-GEAR grid cell data: 9
 
 #### Eccup Logger - 01-01-1990 00:00:00 - 31-12-2014 23:00:00
 <p align="left">
-<img src="Figs/CheckingLocations/CEH-GEAR/eccup_logger.png" width="500"  title="Original 1km grid" />
-<img src="Figs/CheckingLocations/UKCP18/eccup_logger_01.png" width="500"  title="Original 1km grid" /></p>
+<img src="Figs/CheckingLocations/CEH-GEAR/eccup_logger.png" width="200"  title="Original 1km grid" />
+<img src="Figs/CheckingLocations/UKCP18/eccup_logger_01.png" width="200"  title="Original 1km grid" /></p>
 
 All months  
 <p align="left">
@@ -78,8 +78,8 @@ NA values in CEH-GEAR grid cell data: 9
   
 #### Farnley Hall Logger - 01-01-1990 00:00:00 - 31-12-2014 23:00:00
 <p align="left">
-<img src="Figs/CheckingLocations/CEH-GEAR/farnley_hall_logger.png" width="500"  title="Original 1km grid" />
-<img src="Figs/CheckingLocations/UKCP18/farnley_hall_logger_01.png" width="500"  title="Original 1km grid" /></p>
+<img src="Figs/CheckingLocations/CEH-GEAR/farnley_hall_logger.png" width="200"  title="Original 1km grid" />
+<img src="Figs/CheckingLocations/UKCP18/farnley_hall_logger_01.png" width="200"  title="Original 1km grid" /></p>
 
 All months  
 <p align="left">
@@ -100,8 +100,8 @@ NA values in CEH-GEAR grid cell data: 9
 
 #### Headingley Logger - 25-01-1996 10:00:00 - 31-12-2014 23:00:00
 <p align="left">
-<img src="Figs/CheckingLocations/CEH-GEAR/headingley_logger.png" width="500"  title="Original 1km grid" />
-<img src="Figs/CheckingLocations/UKCP18/headingley_logger_01.png" width="500"  title="Original 1km grid" /></p>
+<img src="Figs/CheckingLocations/CEH-GEAR/headingley_logger.png" width="200"  title="Original 1km grid" />
+<img src="Figs/CheckingLocations/UKCP18/headingley_logger_01.png" width="200"  title="Original 1km grid" /></p>
 
 All months  
 <p align="left">
@@ -122,8 +122,8 @@ NA values in CEH-GEAR grid cell data: 0 (because these first 9 dates are already
 
 #### Otley s.wks Logger - 01-01-1990 00:00:00 - 31-12-2014 23:00:00 
 <p align="left">
-<img src="Figs/CheckingLocations/CEH-GEAR/otley_s.wks_logger.png" width="500"  title="Original 1km grid" />
-<img src="Figs/CheckingLocations/UKCP18/otley_s.wks_logger_01.png" width="500"  title="Original 1km grid" /></p>
+<img src="Figs/CheckingLocations/CEH-GEAR/otley_s.wks_logger.png" width="200"  title="Original 1km grid" />
+<img src="Figs/CheckingLocations/UKCP18/otley_s.wks_logger_01.png" width="200"  title="Original 1km grid" /></p>
 
 All months  
 <p align="left">
