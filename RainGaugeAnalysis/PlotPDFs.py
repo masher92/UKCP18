@@ -19,7 +19,6 @@ from PDF_plotting_functions import *
 station_names = ['headingley_logger', 'eccup_logger', 'bramham_logger', 'farnley_hall_logger', 'knostrop_logger',
                'otley_s.wks_logger']
 
-
 ems = ['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
 
 #############################################
@@ -28,6 +27,10 @@ ems = ['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
 for overlapping_time_period in ['Overlapping', 'NotOverlapping']:
     for combined_em in ['Combined', 'NotCombined']:
         for jja_value in ['jja', 'all']:
+
+            # overlapping_time_period =  'NotOverlapping'
+            # combined_em = 'Combined'
+            # jja_value = 'jja'
                 
             # 'Not_Overlapping
             overlapping_time_periods= overlapping_time_period
@@ -35,9 +38,6 @@ for overlapping_time_period in ['Overlapping', 'NotOverlapping']:
             combined_ems = combined_em
             # 'jja', 'all'
             just_jja = jja_value
-            
-            # Create a dictionary to store the timeseries for all of the stations
-            precip_ts = {}
             
             # Loop through the stations, read in gauge and corresponding CEH-GEAR grid cell 
             # data, cut to include only the dates for which they overlap and plot PDFs
@@ -56,9 +56,9 @@ for overlapping_time_period in ['Overlapping', 'NotOverlapping']:
                 filename_gauge= root_dir + 'datadir/GaugeData/Newcastle/leeds-at-centre_csvs/{}.csv'.format(station_name)
                 df_gauge = pd.read_csv(filename_gauge, index_col=None, header=0)
                 # Create a formatted date column
-                df_gauge['Datetime'] = pd.to_datetime(df_gauge['Datetime'])
+                df_gauge['Datetime'] = pd.to_datetime(df_gauge['Datetime'], dayfirst = False)
                    
-                #### Read in UKCP18 data]
+                #### Read in UKCP18 data
                 em_csvs = {}
                 for em in ems:
                     filename_ukcp18= root_dir + 'Outputs/TimeSeries/UKCP18/Gauge_GridCells/TimeSeries_csv/{}_{}.csv'.format(station_name, em)
@@ -66,41 +66,40 @@ for overlapping_time_period in ['Overlapping', 'NotOverlapping']:
                     # Create a formatted date column
                     em_csvs[em] = df_ukcp18
                 
-                #### Cut gauge and CEH-GEAR to only include the overlapping time period
-                # Find earliest and latest datetime for which there is data in either gauge or CEH-GEAR
-                earliesttime = df_gauge['Datetime'].min() if df_gauge['Datetime'].min() > df_cehgear['Datetime'].min() else df_cehgear['Datetime'].min()
-                latesttime = df_gauge['Datetime'].max() if df_gauge['Datetime'].max() < df_cehgear['Datetime'].max() else df_cehgear['Datetime'].max()
-                # Override with latestime from UKCP18       
-                latesttime = pd.to_datetime(df_ukcp18['Date_formatted'].max(), dayfirst = False)
-                
-                # Filter to only be between these times
+                ##### If overlapping_time_period == 'Overlapping' then 
                 if overlapping_time_period == 'Overlapping':
+                    # Cut gauge and CEH-GEAR to only include the overlapping time period
+                    # Find earliest and latest datetime for which there is data in either gauge or CEH-GEAR
+                    earliesttime = df_gauge['Datetime'].min() if df_gauge['Datetime'].min() > df_cehgear['Datetime'].min() else df_cehgear['Datetime'].min()
+                    latesttime = df_gauge['Datetime'].max() if df_gauge['Datetime'].max() < df_cehgear['Datetime'].max() else df_cehgear['Datetime'].max()
+                    # Override with latestime from UKCP18       
+                    latesttime = pd.to_datetime(df_ukcp18['Date_formatted'].max(), dayfirst = False)
+                    
+                    # Filter to only be between these times
                     df_cehgear = df_cehgear[(df_cehgear['Datetime'] > earliesttime)& (df_cehgear['Datetime']< latesttime)]
                     df_gauge = df_gauge[(df_gauge['Datetime'] > earliesttime)& (df_gauge['Datetime']< latesttime)]
                     
-                # Go through each ensemble member and filter
-                # And add to dictionary    
-                for em in ems:
-                    df_ukcp18 = em_csvs[em]
-                    if overlapping_time_period == 'Overlapping':
+                    # Check if gauge and CEH-GEAR data set are the same length
+                    # if len(df_gauge) == len(df_cehgear):
+                        #     print("Same length")
+                    # UKCP18 will not be same length as it uses 12 months * 30 days = 360 days total
+                    
+                    # Go through each ensemble member and filter
+                    # And add to dictionary    
+                    for em in ems:
+                        df_ukcp18 = em_csvs[em]
                         df_ukcp18 = df_ukcp18[78480:] # manually calculated as index of dates bigger than earliest date
                         em_csvs[em] = df_ukcp18
                 
-                # Cut to JJA
+                ##### If just_jja == 'jja' then keep only data in 6,7,8th months
                 if just_jja == 'jja':
                     df_gauge = df_gauge[df_gauge['Datetime'].dt.month.isin([6,7,8])]
                     df_cehgear= df_cehgear[df_cehgear['Datetime'].dt.month.isin([6,7,8])]
                     for em in ems:
                         df_ukcp18 = em_csvs[em]
-                        to_drop = ['-06-', '-07-', '-08-']
+                        to_drop = ['-01-', '-02-', '-03-', '-04-', '-05-', '-09-', '-10-', '-11-', '-12-']
                         df_ukcp18 = df_ukcp18[~df_ukcp18['Date_formatted'].str.contains('|'.join(to_drop))]
                         em_csvs[em] = df_ukcp18
-                
-                
-                # Check if gauge and CEH-GEAR data set are the same length
-                if len(df_gauge) == len(df_cehgear):
-                    print("Same length")
-                # UKCP18 will not be same length as it uses 12 months * 30 days = 360 days total
                 
                 #### Remove -999 values and na values
                 print('NA values in Gauge: ' + str(len(df_gauge[df_gauge['Precipitation (mm/hr)'] == -999])))
@@ -109,20 +108,16 @@ for overlapping_time_period in ['Overlapping', 'NotOverlapping']:
                 df_gauge = df_gauge[df_gauge['Precipitation (mm/hr)'] != -999]
                 df_cehgear.dropna(inplace = True)
                     
-                # Join all ems together
+                # Add ems to the gauge_ts dictionary
+                # If combined_ems = 'Combined' then add only one where they're all combined
                 for em in ems:
                     df_ukcp18 = em_csvs[em]
                     if combined_ems == 'Combined':
                         joined_ems = pd.concat(em_csvs.values(),ignore_index = True)
                         gauge_ts[station_name + '_UKCP18Data'] = joined_ems
                     elif combined_ems == 'NotCombined':
-                        precip_ts[station_name + '_UKCP18Data' + em] = df_ukcp18
                         gauge_ts[station_name + '_UKCP18Data' + em] = df_ukcp18
-                
-                # Add to dictionary for all stations
-                precip_ts[station_name + '_GaugeData'] = df_gauge
-                precip_ts[station_name + '_GridData'] = df_cehgear
-                
+
                 # Add to dictionary for this station
                 gauge_ts[station_name + '_GaugeData'] = df_gauge
                 gauge_ts[station_name + '_GridData'] = df_cehgear
@@ -160,12 +155,8 @@ for overlapping_time_period in ['Overlapping', 'NotOverlapping']:
                                                   patches, True, xlim, x_axis, y_axis) 
                 
                 # Save
-                plt.savefig("Scripts/UKCP18/RainGaugeAnalysis/Validating_CEH-GEAR/Figs/PDF_GaugevsGridCell/{}_{}_{}_{}.png".format(station_name, just_jja, overlapping_time_period, combined_ems))
+                plt.savefig("Scripts/UKCP18/RainGaugeAnalysis/Figs/PDF_GaugevsGridCell/{}_{}_{}_{}.png".format(station_name, just_jja, overlapping_time_period, combined_ems))
                 
-                
-        
-    
-
 
     #########################################################################
     # Further analysis
