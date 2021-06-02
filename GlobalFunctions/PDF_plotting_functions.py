@@ -277,6 +277,122 @@ def log_discrete_histogram_lesslegend(results_dict, cols_dict, bin_nos, precip_v
     return numbers_in_each_bin
     
 
+
+def log_discrete_with_inset(results_dict, cols_dict, bin_nos, precip_variable, patches, del_zeroes,xlim):
+    
+    # Create bin edges based on data in all of the dataframes, i.e. use the same bin edges for all dataframes
+    min_value = find_min_max_dict_values(results_dict, precip_variable)[0]
+    max_value = find_min_max_dict_values(results_dict, precip_variable)[1]
+
+    # Maybe min value shoudl be set at 0.05 to make the spacings at the right place
+    min_value = 0.05
+    discretisation=0.2
+    bins_if_log_spaced = bin_nos
+    
+    # Find edges of bins 
+    bin_edges_planned =log_discrete_bins(min_value,max_value,bins_if_log_spaced,discretisation)
+    #print ("Based on " + str(bins_if_log_spaced) + " log spaced bins, " + str(len(bin_edges)) + " bins created with " + str(min_value) + str (max_value))
+   
+    # dataframe to store numbers in each bin
+    numbers_in_each_bin = pd.DataFrame()
+    
+    
+    fig, ax1 = plt.subplots()
+    left, bottom, width, height = [0.57, 0.56, 0.3, 0.3]
+    ax2=fig.add_axes([left, bottom, width, height])
+    
+    for key, df in results_dict.items():
+        print(key)
+        print(df['Precipitation (mm/hr)'].max())
+        print(df['Precipitation (mm/hr)'].min())        
+        # Define the colour to use for this entry
+        # Create a patch for this colour to be used in creating the legend
+        # And add to list of patches for use in legend
+        #col = cols_dict[key]
+        #patch = mpatches.Patch(color=col, label=key)
+        #patches.append(patch)
+        
+        # Find the density in each biin  
+        freqs, bin_edges = np.histogram(df[precip_variable], bins= bin_edges_planned, density=True)
+        # Find the numbers of precipitation measurements in each bin  
+        freqs_numbers, bin_edges = np.histogram(df[precip_variable], bins= bin_edges_planned, density=False)
+        
+        n_bins = str(len(bin_edges))
+        
+        # Find the centre point of each bin for plotting
+        bin_centres =  0.5*(bin_edges[1:] + bin_edges[:-1])    
+
+        if len(numbers_in_each_bin) ==0:
+            numbers_in_each_bin['BinCentres'] = bin_centres
+        numbers_in_each_bin[key] = freqs_numbers
+        
+        # Delete those with a value of 0
+        if del_zeroes == True:
+            indexes = np.where(freqs == 0)[0]
+            freqs = np.delete(freqs, indexes)
+            bin_centres= np.delete(bin_centres,indexes)        
+
+        # Draw the plot
+        ax1.plot(bin_centres, freqs ,linewidth = 1, color = cols_dict[key])
+                
+        ax1.legend(handles=patches, loc = 'lower left', bbox_to_anchor = (0.15,0.73))
+        ax1.set_xlabel(precip_variable)
+        ax1.set_ylabel('Probability density')
+        if xlim != False:
+            ax1.xlim(0,xlim)
+        #ax1.set_title(n_bins + " bins")
+        ax1.set_xscale('linear')
+        ax1.set_yscale('log')
+        
+    # Inset axis
+    #ax2.plot(range(6), color = 'green')                   
+    #patches= []
+    for key, df in gauge_ts.items():
+        print(key)
+        col = cols_dict[key]
+        #patch = mpatches.Patch(color=col, label=key)
+        #patches.append(patch)
+        
+        low_precips = df[(df["Precipitation (mm/hr)"] >0) & (df["Precipitation (mm/hr)"] <2)]
+        
+        # Specifying like this because gauge data is only at 0.2 intervals, so below this doesnt make sense
+        bin_edges = np.arange(0.01,2.01,0.2)
+        
+        # Create a histogram and save the bin edges and the values in each bin
+        values, bin_edges = np.histogram(low_precips["Precipitation (mm/hr)"], bins=bin_edges, density=True)
+        # Calculate the bin central positions
+        bin_centres =  0.5*(bin_edges[1:] + bin_edges[:-1])
+        # Draw the plot
+        ax2.plot(bin_centres, values,linewidth = 1, color = cols_dict[key])
+        #plt.plot(bin_centres, values, color='black', marker='o',markersize =1, linewidth=0.5, markerfacecolor = 'red')
+        #plt.hist(wethours['Precipitation (mm/hr)'], bins = bin_no, density = True, color = 'white', edgecolor = 'black', linewidth= 0.5)
+       
+    #plt.legend(handles=patches)
+    #ax2.set_xlabel(precip_variable)
+    #ax2.set_ylabel('Probability density')
+    #ax2.set_title(str(bin_nos) + " bins")
+    ax2.set_xscale('linear')
+    ax2.set_yscale('linear')
+   
+    return numbers_in_each_bin
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
      
 ## Holloway method manually applied
 # # Find the numbers of precipitation measurements in each bin   

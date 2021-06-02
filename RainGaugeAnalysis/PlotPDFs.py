@@ -24,23 +24,27 @@ ems = ['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
 #############################################
 # Read in data
 #############################################
-
 include_ukcp18 = True
 
 for overlapping_time_period in ['Overlapping', 'NotOverlapping']:
     for combined_em in ['Combined', 'NotCombined']:
+        # Include statement so if UKCP18 isnt included it doesnt waste time regenerating results
+        if include_ukcp18 == False and combined_em in ['Combined', 'NotCombined']:
+               pass
         for jja_value in ['jja', 'all']:
-
+            
             # overlapping_time_period =  'Overlapping'
             # combined_em = 'Combined'
             # jja_value = 'jja'
-                
+            
             # 'Not_Overlapping
             overlapping_time_periods= overlapping_time_period
             # 'Combined', 'NotCombined'
             combined_ems = combined_em
             # 'jja', 'all'
             just_jja = jja_value
+            
+            print(overlapping_time_periods, just_jja)
             
             # Loop through the stations, read in gauge and corresponding CEH-GEAR grid cell 
             # data, cut to include only the dates for which they overlap and plot PDFs
@@ -156,16 +160,23 @@ for overlapping_time_period in ['Overlapping', 'NotOverlapping']:
                     patches.append(patch)
                 
                 # Plot
-                numbers_in_each_bin = log_discrete_histogram_lesslegend(gauge_ts, cols_dict, bin_nos, "Precipitation (mm/hr)", 
-                                                  patches, True, xlim, x_axis, y_axis) 
+                #numbers_in_each_bin = log_discrete_histogram_lesslegend(gauge_ts, cols_dict, bin_nos, "Precipitation (mm/hr)", 
+                #                                  patches, True, xlim, x_axis, y_axis) 
                 
                 # INset plot with low precip values on linear scale
-                equal_spaced_histogram_low_precips(gauge_ts, cols_dict, bin_nos, "Precipitation (mm/hr)", x_axis_scaling = 'linear', y_axis_scaling = 'linear')
+                #equal_spaced_histogram_low_precips(gauge_ts, cols_dict, bin_nos, "Precipitation (mm/hr)", x_axis_scaling = 'linear', y_axis_scaling = 'linear')
+                #
                 
+                numbers_in_each_bin = log_discrete_with_inset(gauge_ts, cols_dict, bin_nos, "Precipitation (mm/hr)", 
+                                                  patches, True, xlim) 
                 
                 # Save
-                plt.savefig("Scripts/UKCP18/RainGaugeAnalysis/Figs/PDF_GaugevsGridCell/{}_{}_{}_{}.png".format(station_name, just_jja, overlapping_time_period, combined_ems))
+                if include_ukcp18 == True:
+                    plt.savefig("Scripts/UKCP18/RainGaugeAnalysis/Figs/PDF_GaugevsGridCellvsUKCP18/{}_{}_{}_{}.png".format(station_name, just_jja, overlapping_time_period, combined_ems))
+                else:
+                    plt.savefig("Scripts/UKCP18/RainGaugeAnalysis/Figs/PDF_GaugevsGridCell/{}_{}_{}.png".format(station_name, just_jja, overlapping_time_period))
                 
+
 
     #########################################################################
     # Further analysis
