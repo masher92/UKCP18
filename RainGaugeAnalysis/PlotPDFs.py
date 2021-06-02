@@ -24,11 +24,14 @@ ems = ['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
 #############################################
 # Read in data
 #############################################
+
+include_ukcp18 = True
+
 for overlapping_time_period in ['Overlapping', 'NotOverlapping']:
     for combined_em in ['Combined', 'NotCombined']:
         for jja_value in ['jja', 'all']:
 
-            # overlapping_time_period =  'NotOverlapping'
+            # overlapping_time_period =  'Overlapping'
             # combined_em = 'Combined'
             # jja_value = 'jja'
                 
@@ -110,13 +113,14 @@ for overlapping_time_period in ['Overlapping', 'NotOverlapping']:
                     
                 # Add ems to the gauge_ts dictionary
                 # If combined_ems = 'Combined' then add only one where they're all combined
-                for em in ems:
-                    df_ukcp18 = em_csvs[em]
-                    if combined_ems == 'Combined':
-                        joined_ems = pd.concat(em_csvs.values(),ignore_index = True)
-                        gauge_ts[station_name + '_UKCP18Data'] = joined_ems
-                    elif combined_ems == 'NotCombined':
-                        gauge_ts[station_name + '_UKCP18Data' + em] = df_ukcp18
+                if include_ukcp18 == True:
+                    for em in ems:
+                        df_ukcp18 = em_csvs[em]
+                        if combined_ems == 'Combined':
+                            joined_ems = pd.concat(em_csvs.values(),ignore_index = True)
+                            gauge_ts[station_name + '_UKCP18Data'] = joined_ems
+                        elif combined_ems == 'NotCombined':
+                            gauge_ts[station_name + '_UKCP18Data' + em] = df_ukcp18
 
                 # Add to dictionary for this station
                 gauge_ts[station_name + '_GaugeData'] = df_gauge
@@ -137,7 +141,7 @@ for overlapping_time_period in ['Overlapping', 'NotOverlapping']:
                 # Set plotting parameters
                 x_axis = 'linear'
                 y_axis = 'log'
-                bin_nos = 25 #(10 gives 12, 30 gives 29, 45 gives 41 bins)
+                bin_nos = 20 #(10 gives 12, 30 gives 29, 45 gives 41 bins)
                 xlim = False # False lets plot define aprpopriate xlims
                 bins_if_log_spaced= bin_nos
                 
@@ -147,12 +151,17 @@ for overlapping_time_period in ['Overlapping', 'NotOverlapping']:
                 patches.append(patch)
                 patch = mpatches.Patch(color='green', label='CEH-GEAR Data')
                 patches.append(patch)
-                patch = mpatches.Patch(color='grey', label='UKCP18 Data')
-                patches.append(patch)
+                if include_ukcp18 == True:
+                    patch = mpatches.Patch(color='grey', label='UKCP18 Data')
+                    patches.append(patch)
                 
                 # Plot
-                log_discrete_histogram_lesslegend(gauge_ts, cols_dict, bin_nos, "Precipitation (mm/hr)", 
+                numbers_in_each_bin = log_discrete_histogram_lesslegend(gauge_ts, cols_dict, bin_nos, "Precipitation (mm/hr)", 
                                                   patches, True, xlim, x_axis, y_axis) 
+                
+                # INset plot with low precip values on linear scale
+                equal_spaced_histogram_low_precips(gauge_ts, cols_dict, bin_nos, "Precipitation (mm/hr)", x_axis_scaling = 'linear', y_axis_scaling = 'linear')
+                
                 
                 # Save
                 plt.savefig("Scripts/UKCP18/RainGaugeAnalysis/Figs/PDF_GaugevsGridCell/{}_{}_{}_{}.png".format(station_name, just_jja, overlapping_time_period, combined_ems))
@@ -161,54 +170,87 @@ for overlapping_time_period in ['Overlapping', 'NotOverlapping']:
     #########################################################################
     # Further analysis
     #########################################################################
-    # Reset indexes
-    df_gauge.reset_index(drop = True, inplace = True)
+    station_names = ['headingley_logger', 'eccup_logger', 'bramham_logger', 'farnley_hall_logger', 'knostrop_logger',
+               'otley_s.wks_logger']
     
-    #### Find top 20 values in Gauge data
-    top20_gauge = df_gauge.nlargest(20, 'Precipitation (mm/hr)')
-    # Join on date, so as to find the equivalent vlaues in the CEH-GEAR data at these times
-    top20_gauge_cehgear = pd.merge(top20_gauge, df_cehgear, on = 'Datetime')
-    # Remove extra date column
-    top20_gauge_cehgear = top20_gauge_cehgear.drop(['Date_formatted'], axis =1)  
-    # Rename columns
-    top20_gauge_cehgear = top20_gauge_cehgear.rename(columns =
-                         {'Precipitation (mm/hr)_x': 'Gauge',
-                           'Precipitation (mm/hr)_y': 'CEH-GEAR'})
+    for station_name in station_names:
     
-    #### For the highest values in the gauge data find the values on either side
-    #### of this for both the gauge and CEH-GEAR (to check whether its just that
-    #### peaks are not being found in exactly the same moment)
-    ## Find timestamp of one of the highest values
-    datetime_of_highvalue = top20_gauge.iloc[3][0]
-    # Find index of row with that value in original dataframe
-    idx = df_gauge.index[df_gauge['Datetime'] == datetime_of_highvalue][0]
-    # Extract rows from dataframe with that index, and two above and two below
-    surrounding_datetimes = df_gauge.iloc[[idx-2,idx-1, idx, idx+1, idx +2]]
-    # Merge to get CEH-GEAR values at those datetimes
-    surrounding_datetimes = pd.merge(surrounding_datetimes, df_cehgear, on = 'Datetime')
-    surrounding_datetimes = surrounding_datetimes.drop(['Date_formatted'], axis =1)
-    surrounding_datetimes = surrounding_datetimes.rename(columns = {'Precipitation (mm/hr)_x': 'Gauge',
-                           'Precipitation (mm/hr)_y': 'CEH-GEAR'})
+        #### Read in CEH-GEAR data from grid cell within which the gauge is found
+        filename_cehgear= root_dir + 'Outputs/TimeSeries/CEH-GEAR/Gauge_GridCells/TimeSeries_csv/{}.csv'.format(station_name)
+        df_cehgear = pd.read_csv(filename_cehgear, index_col=None, header=0)
+        # Create a formatted date column
+        df_cehgear['Datetime'] = pd.to_datetime(df_cehgear['Date_formatted'], dayfirst = True)
+        
+        #### Read in the gauge data
+        filename_gauge= root_dir + 'datadir/GaugeData/Newcastle/leeds-at-centre_csvs/{}.csv'.format(station_name)
+        df_gauge = pd.read_csv(filename_gauge, index_col=None, header=0)
+        # Create a formatted date column
+        df_gauge['Datetime'] = pd.to_datetime(df_gauge['Datetime'], dayfirst = False)
     
-
-
-###############################################################################
-# Plots using all stations
-###############################################################################
-cols_dict = {'headingley_logger_GaugeData' : 'firebrick',
-             'headingley_logger_GridData' : 'green',
-             'eccup_logger_GaugeData' : 'firebrick',
-             'eccup_logger_GridData' : 'green',
-             'bramham_logger_GaugeData' : 'firebrick',
-             'bramham_logger_GridData' : 'green',
-             'farnley_hall_logger_GaugeData' : 'firebrick',
-             'farnley_hall_logger_GridData' : 'green',
-             'knostrop_logger_GaugeData' : 'firebrick',
-             'knostrop_logger_GridData' : 'green'}
-
-x_axis = 'linear'
-y_axis = 'log'
-bin_nos = 10 #(10 gives 12, 30 gives 29, 45 gives 41 bins)
-xlim = False
-bins_if_log_spaced= bin_nos
+        ##### Filter to overlapping time period
+        earliesttime = df_gauge['Datetime'].min() if df_gauge['Datetime'].min() > df_cehgear['Datetime'].min() else df_cehgear['Datetime'].min()
+        latesttime = df_gauge['Datetime'].max() if df_gauge['Datetime'].max() < df_cehgear['Datetime'].max() else df_cehgear['Datetime'].max()
+        # Override with latestime from UKCP18       
+        latesttime = pd.to_datetime(df_ukcp18['Date_formatted'].max(), dayfirst = False)
+        
+        ##### Filter to only be between these times
+        df_cehgear = df_cehgear[(df_cehgear['Datetime'] > earliesttime)& (df_cehgear['Datetime']< latesttime)]
+        df_gauge = df_gauge[(df_gauge['Datetime'] > earliesttime)& (df_gauge['Datetime']< latesttime)]
+        
+        # Reset indexes
+        df_gauge.reset_index(drop = True, inplace = True)
+        
+        #### Find top 20 values in Gauge data
+        top20_cehgear = df_cehgear.nlargest(30, 'Precipitation (mm/hr)')
+        top20_gauge = df_gauge.nlargest(30, 'Precipitation (mm/hr)')
+        
+        plt.plot(top20_gauge['Precipitation (mm/hr)'], list(range(0, 30)), 'ro-', label = 'Gauge')
+        plt.plot(top20_cehgear['Precipitation (mm/hr)'], list(range(0, 30)), 'bo-', label = 'CEH-GEAR')
+        plt.legend()   
+        plt.gca().xaxis.set_major_locator(plt.NullLocator())
+            
+        # Save
+        plt.savefig("Scripts/UKCP18/RainGaugeAnalysis/Figs/Top30_GaugevsGridCell/{}.png".format(station_name))
+        plt.clf()                    
+    
+        ##### Try removing one vlaue from CEH-GEAR to put them in line
+        ######
+        # Trying to realign the dates!!!
+        ######
+        precips = df_cehgear['Precipitation (mm/hr)']
+        precips = precips.iloc[1:]
+        precips = pd.concat([precips, pd.Series([np.nan])])
+        precips = precips.reset_index(drop = True)
+        df_cehgear.reset_index(drop = True, inplace = True)
+        df_cehgear['Precipitation (mm/hr)'] = precips
+    
+        # Join on date, so as to find the equivalent values in the CEH-GEAR data at these times
+        top20_gauge_cehgear = pd.merge(top20_gauge, df_cehgear, on = 'Datetime')
+        top20_cehgear_gauge = pd.merge(top20_cehgear, df_gauge, on = 'Datetime')
+        
+        # Remove extra date column
+        top20_gauge_cehgear = top20_gauge_cehgear.drop(['Date_formatted'], axis =1)  
+        top20_cehgear_gauge = top20_cehgear_gauge.drop(['Date_formatted'], axis =1)  
+        
+        # Rename columns
+        top20_gauge_cehgear = top20_gauge_cehgear.rename(columns =
+                             {'Precipitation (mm/hr)_x': 'Gauge',
+                               'Precipitation (mm/hr)_y': 'CEH-GEAR'})
+        
+        ##### JJUST DOES EACH OF THE TOP TEN VALUES ONE BY ONE - EDIT NUMBER ON 1ST LINE
+        #### For the highest values in the gauge data find the values on either side
+        #### of this for both the gauge and CEH-GEAR (to check whether its just that
+        #### peaks are not being found in exactly the same moment)
+        ## Find timestamp of one of the highest values
+        datetime_of_highvalue = top20_gauge.iloc[0][0]
+        # Find index of row with that value in original dataframe
+        idx = df_gauge.index[df_gauge['Datetime'] == datetime_of_highvalue][0]
+        # Extract rows from dataframe with that index, and two above and two below
+        surrounding_datetimes = df_gauge.iloc[[idx-2,idx-1, idx, idx+1, idx +2]]
+        # Merge to get CEH-GEAR values at those datetimes
+        surrounding_datetimes = pd.merge(surrounding_datetimes, df_cehgear, on = 'Datetime')
+        surrounding_datetimes = surrounding_datetimes.drop(['Date_formatted'], axis =1)
+        surrounding_datetimes = surrounding_datetimes.rename(columns = {'Precipitation (mm/hr)_x': 'Gauge',
+                               'Precipitation (mm/hr)_y': 'CEH-GEAR'})
+    
 

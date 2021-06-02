@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from matplotlib.ticker import ScalarFormatter
+import pandas as pd
 
 ########################################################
 # Pre-processing functions
@@ -43,7 +44,7 @@ def log_discrete_bins(min_value,max_value,bins_if_log_spaced,discretisation):
 ### Plotting functions
 ########################################################
 
-def equal_spaced_histogram (results_dict, cols_dict, bin_nos, precip_variable, x_axis_scaling = 'linear', y_axis_scaling = 'linear'):
+def equal_spaced_histogram_low_precips (results_dict, cols_dict, bin_nos, precip_variable, x_axis_scaling = 'linear', y_axis_scaling = 'linear'):
    
     patches= []
     for key, df in results_dict.items():
@@ -52,8 +53,13 @@ def equal_spaced_histogram (results_dict, cols_dict, bin_nos, precip_variable, x
         patch = mpatches.Patch(color=col, label=key)
         patches.append(patch)
         
+        low_precips = df[(df[precip_variable] >0) & (df[precip_variable] <2)]
+        
+        # Specifying like this because gauge data is only at 0.2 intervals, so below this doesnt make sense
+        bin_edges = np.arange(0.01,2.01,0.2)
+        
         # Create a histogram and save the bin edges and the values in each bin
-        values, bin_edges = np.histogram(df[precip_variable], bins=bin_nos, density=True)
+        values, bin_edges = np.histogram(low_precips[precip_variable], bins=bin_edges, density=True)
         # Calculate the bin central positions
         bin_centres =  0.5*(bin_edges[1:] + bin_edges[:-1])
         # Draw the plot
@@ -205,13 +211,16 @@ def log_discrete_histogram_lesslegend(results_dict, cols_dict, bin_nos, precip_v
 
     # Maybe min value shoudl be set at 0.05 to make the spacings at the right place
     min_value = 0.05
-    discretisation=0.1
+    discretisation=0.2
     bins_if_log_spaced = bin_nos
     
     # Find edges of bins 
     bin_edges_planned =log_discrete_bins(min_value,max_value,bins_if_log_spaced,discretisation)
     #print ("Based on " + str(bins_if_log_spaced) + " log spaced bins, " + str(len(bin_edges)) + " bins created with " + str(min_value) + str (max_value))
    
+    # dataframe to store numbers in each bin
+    numbers_in_each_bin = pd.DataFrame()
+    
     fig, ax = plt.subplots()
     for key, df in results_dict.items():
         print(key)
@@ -224,13 +233,19 @@ def log_discrete_histogram_lesslegend(results_dict, cols_dict, bin_nos, precip_v
         #patch = mpatches.Patch(color=col, label=key)
         #patches.append(patch)
         
-        # Find the numbers of precipitation measurements in each bin   
+        # Find the density in each biin  
         freqs, bin_edges = np.histogram(df[precip_variable], bins= bin_edges_planned, density=True)
+        # Find the numbers of precipitation measurements in each bin  
+        freqs_numbers, bin_edges = np.histogram(df[precip_variable], bins= bin_edges_planned, density=False)
         
         n_bins = str(len(bin_edges))
         
         # Find the centre point of each bin for plotting
         bin_centres =  0.5*(bin_edges[1:] + bin_edges[:-1])    
+
+        if len(numbers_in_each_bin) ==0:
+            numbers_in_each_bin['BinCentres'] = bin_centres
+        numbers_in_each_bin[key] = freqs_numbers
         
         # Delete those with a value of 0
         if del_zeroes == True:
@@ -249,6 +264,7 @@ def log_discrete_histogram_lesslegend(results_dict, cols_dict, bin_nos, precip_v
     plt.title(n_bins + " bins")
     plt.xscale(x_axis_scaling)
     plt.yscale(y_axis_scaling)
+    #plt.show()
     #formatter = FormatStrFormatter('%.3f')
     #ax.yaxis.set_major_formatter(formatter)
         
@@ -257,6 +273,8 @@ def log_discrete_histogram_lesslegend(results_dict, cols_dict, bin_nos, precip_v
     #     formatter = ScalarFormatter()
     #     formatter.set_scientific(False)
     #     ax.yaxis.set_major_formatter(formatter)
+    
+    return numbers_in_each_bin
     
 
      
