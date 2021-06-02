@@ -19,8 +19,8 @@ All months
 <p align="left">
 <img src="Figs/PDF_GaugevsGridCellvsUKCP18/bramham_logger_all_Overlapping_Combined.png" width="220"  title="Original 1km grid" />
  <img src="Figs/PDF_GaugevsGridCellvsUKCP18/bramham_logger_all_NotOverlapping_Combined.png" width="220"  title="Original 1km grid" />     
-[//]: # <img src="Figs/PDF_GaugevsGridCellvsUKCP18/bramham_logger_all_Overlapping_NotCombined.png" width="220"  title="Original 1km grid" />  
-[//]: # <img src="Figs/PDF_GaugevsGridCellvsUKCP18/bramham_logger_all_NotOverlapping_NotCombined.png" width="220"  title="Original 1km grid" />  </p>  
+[//]: # <img src="Figs/PDF_GaugevsGridCellvsUKCP18/bramham_logger_all_Overlapping_NotCombined.png" width="220"  title="Original 1km grid" />    
+[//]: # <img src="Figs/PDF_GaugevsGridCellvsUKCP18/bramham_logger_all_NotOverlapping_NotCombined.png" width="220"  title="Original 1km grid" />  </p>    
 
 JJA 
 <p align="left">
