@@ -17,17 +17,17 @@ For the 6 rain gauges within the Leeds city boundary, the CEH-GEAR1hr grid cell 
 
 All months  
 <p align="left">
-<img src="Figs/PDF_GaugevsGridCell/bramham_logger_all_Overlapping_Combined.png" width="220"  title="Original 1km grid" />
- <img src="Figs/PDF_GaugevsGridCell/bramham_logger_all_NotOverlapping_Combined.png" width="220"  title="Original 1km grid" />     
-<img src="Figs/PDF_GaugevsGridCell/bramham_logger_all_Overlapping_NotCombined.png" width="220"  title="Original 1km grid" />  
-<img src="Figs/PDF_GaugevsGridCell/bramham_logger_all_NotOverlapping_NotCombined.png" width="220"  title="Original 1km grid" />  </p>  
+<img src="Figs/PDF_GaugevsGridCellvsUKCP18/bramham_logger_all_Overlapping_Combined.png" width="220"  title="Original 1km grid" />
+ <img src="Figs/PDF_GaugevsGridCellvsUKCP18/bramham_logger_all_NotOverlapping_Combined.png" width="220"  title="Original 1km grid" />     
+<img src="Figs/PDF_GaugevsGridCellvsUKCP18/bramham_logger_all_Overlapping_NotCombined.png" width="220"  title="Original 1km grid" />  
+<img src="Figs/PDF_GaugevsGridCellvsUKCP18/bramham_logger_all_NotOverlapping_NotCombined.png" width="220"  title="Original 1km grid" />  </p>  
 
 JJA 
 <p align="left">
-<img src="Figs/PDF_GaugevsGridCell/bramham_logger_jja_Overlapping_Combined.png" width="220"  title="Original 1km grid" />
- <img src="Figs/PDF_GaugevsGridCell/bramham_logger_jja_NotOverlapping_Combined.png" width="220"  title="Original 1km grid" />    
-<img src="Figs/PDF_GaugevsGridCell/bramham_logger_jja_Overlapping_NotCombined.png" width="220"  title="Original 1km grid" />  
-<img src="Figs/PDF_GaugevsGridCell/bramham_logger_jja_NotOverlapping_NotCombined.png" width="220"  title="Original 1km grid" />  </p>
+<img src="Figs/PDF_GaugevsGridCellvsUKCP18/bramham_logger_jja_Overlapping_Combined.png" width="220"  title="Original 1km grid" />
+ <img src="Figs/PDF_GaugevsGridCellvsUKCP18/bramham_logger_jja_NotOverlapping_Combined.png" width="220"  title="Original 1km grid" />    
+<img src="Figs/PDF_GaugevsGridCellvsUKCP18/bramham_logger_jja_Overlapping_NotCombined.png" width="220"  title="Original 1km grid" />  
+<img src="Figs/PDF_GaugevsGridCellvsUKCP18/bramham_logger_jja_NotOverlapping_NotCombined.png" width="220"  title="Original 1km grid" />  </p>
 
 NA values in gauge data: 3253
 NA values in CEH-GEAR grid cell data: 9
@@ -39,17 +39,17 @@ NA values in CEH-GEAR grid cell data: 9
 
 All months  
 <p align="left">
-<img src="Figs/PDF_GaugevsGridCell/knostrop_logger_all_Overlapping_Combined.png" width="220"  title="Original 1km grid" />
- <img src="Figs/PDF_GaugevsGridCell/knostrop_logger_all_NotOverlapping_Combined.png" width="220"  title="Original 1km grid" />     
-<img src="Figs/PDF_GaugevsGridCell/knostrop_logger_all_Overlapping_NotCombined.png" width="220"  title="Original 1km grid" />  
-<img src="Figs/PDF_GaugevsGridCell/knostrop_logger_all_NotOverlapping_NotCombined.png" width="220"  title="Original 1km grid" />  </p>  
+<img src="Figs/PDF_GaugevsGridCellvsUKCP18/knostrop_logger_all_Overlapping_Combined.png" width="220"  title="Original 1km grid" />
+ <img src="Figs/PDF_GaugevsGridCellvsUKCP18/knostrop_logger_all_NotOverlapping_Combined.png" width="220"  title="Original 1km grid" />     
+<img src="Figs/PDF_GaugevsGridCellvsUKCP18/knostrop_logger_all_Overlapping_NotCombined.png" width="220"  title="Original 1km grid" />  
+<img src="Figs/PDF_GaugevsGridCellvsUKCP18/knostrop_logger_all_NotOverlapping_NotCombined.png" width="220"  title="Original 1km grid" />  </p>  
 
 JJA 
 <p align="left">
-<img src="Figs/PDF_GaugevsGridCell/knostrop_logger_jja_Overlapping_Combined.png" width="220"  title="Original 1km grid" />
- <img src="Figs/PDF_GaugevsGridCell/knostrop_logger_jja_NotOverlapping_Combined.png" width="220"  title="Original 1km grid" />    
-<img src="Figs/PDF_GaugevsGridCell/knostrop_logger_jja_Overlapping_NotCombined.png" width="220"  title="Original 1km grid" />  
-<img src="Figs/PDF_GaugevsGridCell/knostrop_logger_jja_NotOverlapping_NotCombined.png" width="220"  title="Original 1km grid" />  </p>
+<img src="Figs/PDF_GaugevsGridCellvsUKCP18/knostrop_logger_jja_Overlapping_Combined.png" width="220"  title="Original 1km grid" />
+ <img src="Figs/PDF_GaugevsGridCellvsUKCP18/knostrop_logger_jja_NotOverlapping_Combined.png" width="220"  title="Original 1km grid" />    
+<img src="Figs/PDF_GaugevsGridCellvsUKCP18/knostrop_logger_jja_Overlapping_NotCombined.png" width="220"  title="Original 1km grid" />  
+<img src="Figs/PDF_GaugevsGridCellvsUKCP18/knostrop_logger_jja_NotOverlapping_NotCombined.png" width="220"  title="Original 1km grid" />  </p>
 
 NA values in gauge data: 14583
 NA values in CEH-GEAR grid cell data: 9
@@ -61,17 +61,17 @@ NA values in CEH-GEAR grid cell data: 9
 
 All months  
 <p align="left">
-<img src="Figs/PDF_GaugevsGridCell/eccup_logger_all_Overlapping_Combined.png" width="220"  title="Original 1km grid" />
- <img src="Figs/PDF_GaugevsGridCell/eccup_logger_all_NotOverlapping_Combined.png" width="220"  title="Original 1km grid" />     
-<img src="Figs/PDF_GaugevsGridCell/eccup_logger_all_Overlapping_NotCombined.png" width="220"  title="Original 1km grid" />  
-<img src="Figs/PDF_GaugevsGridCell/eccup_logger_all_NotOverlapping_NotCombined.png" width="220"  title="Original 1km grid" />  </p>  
+<img src="Figs/PDF_GaugevsGridCellvsUKCP18/eccup_logger_all_Overlapping_Combined.png" width="220"  title="Original 1km grid" />
+ <img src="Figs/PDF_GaugevsGridCellvsUKCP18/eccup_logger_all_NotOverlapping_Combined.png" width="220"  title="Original 1km grid" />     
+<img src="Figs/PDF_GaugevsGridCellvsUKCP18/eccup_logger_all_Overlapping_NotCombined.png" width="220"  title="Original 1km grid" />  
+<img src="Figs/PDF_GaugevsGridCellvsUKCP18/eccup_logger_all_NotOverlapping_NotCombined.png" width="220"  title="Original 1km grid" />  </p>  
 
 JJA 
 <p align="left">
-<img src="Figs/PDF_GaugevsGridCell/eccup_logger_jja_Overlapping_Combined.png" width="220"  title="Original 1km grid" />
- <img src="Figs/PDF_GaugevsGridCell/eccup_logger_jja_NotOverlapping_Combined.png" width="220"  title="Original 1km grid" />    
-<img src="Figs/PDF_GaugevsGridCell/eccup_logger_jja_Overlapping_NotCombined.png" width="220"  title="Original 1km grid" />  
-<img src="Figs/PDF_GaugevsGridCell/eccup_logger_jja_NotOverlapping_NotCombined.png" width="220"  title="Original 1km grid" />  </p>
+<img src="Figs/PDF_GaugevsGridCellvsUKCP18/eccup_logger_jja_Overlapping_Combined.png" width="220"  title="Original 1km grid" />
+ <img src="Figs/PDF_GaugevsGridCellvsUKCP18/eccup_logger_jja_NotOverlapping_Combined.png" width="220"  title="Original 1km grid" />    
+<img src="Figs/PDF_GaugevsGridCellvsUKCP18/eccup_logger_jja_Overlapping_NotCombined.png" width="220"  title="Original 1km grid" />  
+<img src="Figs/PDF_GaugevsGridCellvsUKCP18/eccup_logger_jja_NotOverlapping_NotCombined.png" width="220"  title="Original 1km grid" />  </p>
 
 NA values in gauge data: 3480
 NA values in CEH-GEAR grid cell data: 9
@@ -83,17 +83,17 @@ NA values in CEH-GEAR grid cell data: 9
 
 All months  
 <p align="left">
-<img src="Figs/PDF_GaugevsGridCell/farnley_hall_logger_all_Overlapping_Combined.png" width="220"  title="Original 1km grid" />
- <img src="Figs/PDF_GaugevsGridCell/farnley_hall_logger_all_NotOverlapping_Combined.png" width="220"  title="Original 1km grid" />     
-<img src="Figs/PDF_GaugevsGridCell/farnley_hall_logger_all_Overlapping_NotCombined.png" width="220"  title="Original 1km grid" />  
-<img src="Figs/PDF_GaugevsGridCell/farnley_hall_logger_all_NotOverlapping_NotCombined.png" width="220"  title="Original 1km grid" />  </p>  
+<img src="Figs/PDF_GaugevsGridCellvsUKCP18/farnley_hall_logger_all_Overlapping_Combined.png" width="220"  title="Original 1km grid" />
+ <img src="Figs/PDF_GaugevsGridCellvsUKCP18/farnley_hall_logger_all_NotOverlapping_Combined.png" width="220"  title="Original 1km grid" />     
+<img src="Figs/PDF_GaugevsGridCellvsUKCP18/farnley_hall_logger_all_Overlapping_NotCombined.png" width="220"  title="Original 1km grid" />  
+<img src="Figs/PDF_GaugevsGridCellvsUKCP18/farnley_hall_logger_all_NotOverlapping_NotCombined.png" width="220"  title="Original 1km grid" />  </p>  
 
 JJA 
 <p align="left">
-<img src="Figs/PDF_GaugevsGridCell/farnley_hall_logger_jja_Overlapping_Combined.png" width="220"  title="Original 1km grid" />
- <img src="Figs/PDF_GaugevsGridCell/farnley_hall_logger_jja_NotOverlapping_Combined.png" width="220"  title="Original 1km grid" />    
-<img src="Figs/PDF_GaugevsGridCell/farnley_hall_logger_jja_Overlapping_NotCombined.png" width="220"  title="Original 1km grid" />  
-<img src="Figs/PDF_GaugevsGridCell/farnley_hall_logger_jja_NotOverlapping_NotCombined.png" width="220"  title="Original 1km grid" />  </p>
+<img src="Figs/PDF_GaugevsGridCellvsUKCP18/farnley_hall_logger_jja_Overlapping_Combined.png" width="220"  title="Original 1km grid" />
+ <img src="Figs/PDF_GaugevsGridCellvsUKCP18/farnley_hall_logger_jja_NotOverlapping_Combined.png" width="220"  title="Original 1km grid" />    
+<img src="Figs/PDF_GaugevsGridCellvsUKCP18/farnley_hall_logger_jja_Overlapping_NotCombined.png" width="220"  title="Original 1km grid" />  
+<img src="Figs/PDF_GaugevsGridCellvsUKCP18/farnley_hall_logger_jja_NotOverlapping_NotCombined.png" width="220"  title="Original 1km grid" />  </p>
 
 NA values in gauge data: 1436
 NA values in CEH-GEAR grid cell data: 9
@@ -105,17 +105,17 @@ NA values in CEH-GEAR grid cell data: 9
 
 All months  
 <p align="left">
-<img src="Figs/PDF_GaugevsGridCell/headingley_logger_all_Overlapping_Combined.png" width="220"  title="Original 1km grid" />
- <img src="Figs/PDF_GaugevsGridCell/headingley_logger_all_NotOverlapping_Combined.png" width="220"  title="Original 1km grid" />     
-<img src="Figs/PDF_GaugevsGridCell/headingley_logger_all_Overlapping_NotCombined.png" width="220"  title="Original 1km grid" />  
-<img src="Figs/PDF_GaugevsGridCell/headingley_logger_all_NotOverlapping_NotCombined.png" width="220"  title="Original 1km grid" />  </p>  
+<img src="Figs/PDF_GaugevsGridCellvsUKCP18/headingley_logger_all_Overlapping_Combined.png" width="220"  title="Original 1km grid" />
+ <img src="Figs/PDF_GaugevsGridCellvsUKCP18/headingley_logger_all_NotOverlapping_Combined.png" width="220"  title="Original 1km grid" />     
+<img src="Figs/PDF_GaugevsGridCellvsUKCP18/headingley_logger_all_Overlapping_NotCombined.png" width="220"  title="Original 1km grid" />  
+<img src="Figs/PDF_GaugevsGridCellvsUKCP18/headingley_logger_all_NotOverlapping_NotCombined.png" width="220"  title="Original 1km grid" />  </p>  
 
 JJA 
 <p align="left">
-<img src="Figs/PDF_GaugevsGridCell/headingley_logger_jja_Overlapping_Combined.png" width="220"  title="Original 1km grid" />
- <img src="Figs/PDF_GaugevsGridCell/headingley_logger_jja_NotOverlapping_Combined.png" width="220"  title="Original 1km grid" />    
-<img src="Figs/PDF_GaugevsGridCell/headingley_logger_jja_Overlapping_NotCombined.png" width="220"  title="Original 1km grid" />  
-<img src="Figs/PDF_GaugevsGridCell/headingley_logger_jja_NotOverlapping_NotCombined.png" width="220"  title="Original 1km grid" />  </p>
+<img src="Figs/PDF_GaugevsGridCellvsUKCP18/headingley_logger_jja_Overlapping_Combined.png" width="220"  title="Original 1km grid" />
+ <img src="Figs/PDF_GaugevsGridCellvsUKCP18/headingley_logger_jja_NotOverlapping_Combined.png" width="220"  title="Original 1km grid" />    
+<img src="Figs/PDF_GaugevsGridCellvsUKCP18/headingley_logger_jja_Overlapping_NotCombined.png" width="220"  title="Original 1km grid" />  
+<img src="Figs/PDF_GaugevsGridCellvsUKCP18/headingley_logger_jja_NotOverlapping_NotCombined.png" width="220"  title="Original 1km grid" />  </p>
 
 NA values in gauge data: 1078
 NA values in CEH-GEAR grid cell data: 0 (because these first 9 dates are already removed in trimming to same time period as gauge)
@@ -127,17 +127,17 @@ NA values in CEH-GEAR grid cell data: 0 (because these first 9 dates are already
 
 All months  
 <p align="left">
-<img src="Figs/PDF_GaugevsGridCell/otley_s.wks_logger_all_Overlapping_Combined.png" width="220"  title="Original 1km grid" />
- <img src="Figs/PDF_GaugevsGridCell/otley_s.wks_logger_all_NotOverlapping_Combined.png" width="220"  title="Original 1km grid" />     
-<img src="Figs/PDF_GaugevsGridCell/otley_s.wks_logger_all_Overlapping_NotCombined.png" width="220"  title="Original 1km grid" />  
-<img src="Figs/PDF_GaugevsGridCell/otley_s.wks_logger_all_NotOverlapping_NotCombined.png" width="220"  title="Original 1km grid" />  </p>  
+<img src="Figs/PDF_GaugevsGridCellvsUKCP18/otley_s.wks_logger_all_Overlapping_Combined.png" width="220"  title="Original 1km grid" />
+ <img src="Figs/PDF_GaugevsGridCellvsUKCP18/otley_s.wks_logger_all_NotOverlapping_Combined.png" width="220"  title="Original 1km grid" />     
+<img src="Figs/PDF_GaugevsGridCellvsUKCP18/otley_s.wks_logger_all_Overlapping_NotCombined.png" width="220"  title="Original 1km grid" />  
+<img src="Figs/PDF_GaugevsGridCellvsUKCP18/otley_s.wks_logger_all_NotOverlapping_NotCombined.png" width="220"  title="Original 1km grid" />  </p>  
 
 JJA 
 <p align="left">
-<img src="Figs/PDF_GaugevsGridCell/otley_s.wks_logger_jja_Overlapping_Combined.png" width="220"  title="Original 1km grid" />
- <img src="Figs/PDF_GaugevsGridCell/otley_s.wks_logger_jja_NotOverlapping_Combined.png" width="220"  title="Original 1km grid" />    
-<img src="Figs/PDF_GaugevsGridCell/otley_s.wks_logger_jja_Overlapping_NotCombined.png" width="220"  title="Original 1km grid" />  
-<img src="Figs/PDF_GaugevsGridCell/otley_s.wks_logger_jja_NotOverlapping_NotCombined.png" width="220"  title="Original 1km grid" />  </p>
+<img src="Figs/PDF_GaugevsGridCellvsUKCP18/otley_s.wks_logger_jja_Overlapping_Combined.png" width="220"  title="Original 1km grid" />
+ <img src="Figs/PDF_GaugevsGridCellvsUKCP18/otley_s.wks_logger_jja_NotOverlapping_Combined.png" width="220"  title="Original 1km grid" />    
+<img src="Figs/PDF_GaugevsGridCellvsUKCP18/otley_s.wks_logger_jja_Overlapping_NotCombined.png" width="220"  title="Original 1km grid" />  
+<img src="Figs/PDF_GaugevsGridCellvsUKCP18/otley_s.wks_logger_jja_NotOverlapping_NotCombined.png" width="220"  title="Original 1km grid" />  </p>
 
 NA values in gauge data: 13483
 NA values in CEH-GEAR grid cell data: 9
