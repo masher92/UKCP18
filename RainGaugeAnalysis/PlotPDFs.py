@@ -65,10 +65,11 @@ for overlapping_time_period in ['Overlapping', 'NotOverlapping']:
                 # Create a formatted date column
                 df_gauge['Datetime'] = pd.to_datetime(df_gauge['Datetime'], dayfirst = False)
                    
+                
                 #### Read in UKCP18 data
                 em_csvs = {}
                 for em in ems:
-                    filename_ukcp18= root_dir + 'Outputs/TimeSeries/UKCP18/Gauge_GridCells/TimeSeries_csv/{}_{}.csv'.format(station_name, em)
+                    filename_ukcp18= root_dir + 'Outputs/TimeSeries/UKCP18/Baseline/Gauge_GridCells/TimeSeries_csv/{}_{}.csv'.format(station_name, em)
                     df_ukcp18 = pd.read_csv(filename_ukcp18, index_col=None, header=0)
                     # Create a formatted date column
                     em_csvs[em] = df_ukcp18
@@ -217,8 +218,9 @@ for overlapping_time_period in ['Overlapping', 'NotOverlapping']:
         
         plt.plot(top20_gauge['Precipitation (mm/hr)'], list(range(0, 30)), 'ro-', label = 'Gauge')
         plt.plot(top20_cehgear['Precipitation (mm/hr)'], list(range(0, 30)), 'bo-', label = 'CEH-GEAR')
+        plt.xlabel('Precipitation (mm/hr)')
         plt.legend()   
-        plt.gca().xaxis.set_major_locator(plt.NullLocator())
+        plt.gca().yaxis.set_major_locator(plt.NullLocator())
             
         # Save
         plt.savefig("Scripts/UKCP18/RainGaugeAnalysis/Figs/Top30_GaugevsGridCell/{}.png".format(station_name))
@@ -253,7 +255,7 @@ for overlapping_time_period in ['Overlapping', 'NotOverlapping']:
         #### of this for both the gauge and CEH-GEAR (to check whether its just that
         #### peaks are not being found in exactly the same moment)
         ## Find timestamp of one of the highest values
-        datetime_of_highvalue = top20_gauge.iloc[0][0]
+        datetime_of_highvalue = top20_gauge.iloc[4][0]
         # Find index of row with that value in original dataframe
         idx = df_gauge.index[df_gauge['Datetime'] == datetime_of_highvalue][0]
         # Extract rows from dataframe with that index, and two above and two below

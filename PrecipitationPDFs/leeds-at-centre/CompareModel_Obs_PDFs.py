@@ -66,7 +66,7 @@ leeds_gdf = create_leeds_outline({'init' :'epsg:27700'})
 ################################################################
 
 # Load in timestamps that relate to one cell's worth of data
-model_times = np.load('Outputs/TimeSeries/UKCP18/leeds-at-centre/timestamps.npy')
+model_times = np.load('Outputs/TimeSeries/UKCP18/{}/leeds-at-centre/timestamps.npy'.format(timeperiod))
 
 # Set value as NA for values not in required date range
 for i in range(0,78480):
@@ -89,7 +89,7 @@ for em in ems:
     print(em)
     
     # Load in 20 years of model data for the whole of leeds
-    leeds_data = np.load("Outputs/TimeSeries/UKCP18/leeds-at-centre/{}/leeds-at-centre.npy".format(em))
+    leeds_data = np.load("Outputs/TimeSeries/UKCP18/{}/leeds-at-centre/{}/leeds-at-centre.npy".format(timeperiod, em))
     # Join to corresponding dates/times
     leeds_data_withtimes = pd.DataFrame({"Date" : model_times_allcells,
                                    'Precipitation (mm/hr)' :leeds_data})
