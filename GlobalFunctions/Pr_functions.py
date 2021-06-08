@@ -6,6 +6,7 @@ from timeit import default_timer as timer
 from iris.pandas import as_cube, as_series, as_data_frame 
 import numpy as np
 import numpy.ma as ma
+import pandas as pd
 
 def create_grid_highlighted_cell (concat_cube, closest_point_idx):
     
@@ -47,6 +48,99 @@ def define_loc_of_interest(cube, lon, lat):
     # Store the sample point of interest as a tuples (with their coordinate name) in a list
     sample_points = [('grid_latitude', target_xy[1]), ('grid_longitude', target_xy[0])]
     return(sample_points)
+
+def find_position (concat_cube, em, sample_point, station_name):
+     lat_length = concat_cube.shape[1]
+     lon_length = concat_cube.shape[2]    
+    
+     # Create a list of all the tuple pairs of latitude and longitudes
+     locations = list(itertools.product(concat_cube.coord('grid_latitude').points, concat_cube.coord('grid_longitude').points))
+    
+     # Correct them so that 360 merges back into one
+     corrected_locations = []
+     for location in locations:
+         if location[0] >360:
+             new_lat = location[0] -360
+         else: 
+             new_lat = location[0]
+         if location[1] >360:
+             new_long = location[1] -360     
+         else:
+             new_long = location[1]
+         new_location = new_lat, new_long 
+         corrected_locations.append(new_location)
+              
+     # Create a list of all the tuple positions
+     indexs_lst = []
+     for i in range(0,lat_length):
+        for j in range(0,lon_length):
+            # Print the position
+            #print(i,j)
+            indexs_lst.append((i,j))
+          
+     # Find the index of the nearest neighbour of the sample point in the list of locations present in concat_cube
+     tree = spatial.KDTree(corrected_locations)
+     closest_point_idx = tree.query([(sample_point[0][1], sample_point[1][1])])[1][0]
+     
+     # Extract the lat and long values of this point using the index
+     filename = 'Outputs/TimeSeries/UKCP18/Baseline/leeds-at-centre/{}/{}_{}.npy'.format(em, indexs_lst[closest_point_idx][0],indexs_lst[closest_point_idx][1])
+     data_slice = np.load(filename)
+     
+     # Get the times
+     times = np.load('Outputs/TimeSeries/UKCP18/Baseline/leeds-at-centre/timestamps.npy')
+         
+     # Create dataframe
+     df = pd.DataFrame({'Times': times, 'Precipitation (mm/hr)':data_slice})
+     
+     ######## Check plotting 
+     hour_uk_cube = concat_cube[0,:,:]
+        
+     # Recreate data so that only the cell containing the lat, long location 
+     # has a data value
+     # Create data of the same shape as the cube and set all the values to 0
+     test_data = np.full((hour_uk_cube.shape),0,dtype = int)
+     #    
+     test_data[indexs_lst[closest_point_idx][0],indexs_lst[closest_point_idx][1]] = 1
+     # Mask out all values that aren't 1
+     test_data = ma.masked_where(test_data<1,test_data)
+    
+     # Set the dummy data back on the cube
+     hour_uk_cube.data = test_data
+
+     # Create cube with all values masked out except from cell at closest_point_idx
+    
+     # Find cornerpoint coordinates (for use in plotting)
+     lats_cornerpoints = find_cornerpoint_coordinates(hour_uk_cube)[0]
+     lons_cornerpoints = find_cornerpoint_coordinates(hour_uk_cube)[1]
+    
+     # Trim the data timeslice to be the same dimensions as the corner coordinates
+     hour_uk_cube = hour_uk_cube[1:,1:]
+     test_data = hour_uk_cube.data
+
+     # Create location in web mercator for plotting
+     print('Creating plot')
+     lon_wm,lat_wm = transform(Proj(init = 'epsg:4326') , Proj(init = 'epsg:3857') , lon, lat)
+    
+     # Create a colormap
+     cmap = mpl.colors.ListedColormap(['yellow'])
+    
+     fig, ax = plt.subplots(figsize=(30,30))
+     extent = tilemapbase.extent_from_frame(leeds_at_centre_gdf)
+     plot = plotter = tilemapbase.Plotter(extent, tilemapbase.tiles.build_OSM(), width=500)
+     plot =plotter.plot(ax)
+     # # Add edgecolor = 'grey' for lines
+     plot =ax.pcolormesh(lons_cornerpoints, lats_cornerpoints, test_data,
+           linewidths=0.4, alpha = 1, cmap = cmap, edgecolors = 'grey')
+     plot = ax.xaxis.set_major_formatter(plt.NullFormatter())
+     plot = ax.yaxis.set_major_formatter(plt.NullFormatter())
+     plot =leeds_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=2)
+     plot =leeds_at_centre_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=2)
+     plt.plot(lon_wm, lat_wm,  'o', color='black', markersize = 10)     
+     plt.savefig('Scripts/UKCP18/RainGaugeAnalysis/Figs/CheckingLocations/UKCP18/{}.png'.format(station_name),
+                 bbox_inches = 'tight')
+     plt.show()
+ 
+     return (df)    
 
 
 def create_concat_cube_one_location_m3 (concat_cube, sample_point):

@@ -149,52 +149,21 @@ numbers_in_each_bin = log_discrete_with_inset_array(all_dict, cols_dict, bin_nos
 ##############################################################################
 ##############################################################################
 # Create a dataframe containing the data from across all ensemble members
-for timeperiod in ['Baseline', 'Future_near']:
+for timeperiod in ['Baseline', 'Future_near', 'Future_far']:
     # Define frames
     frames = []
     for em in ems:
-        frames.append(all_dict['EM{}_{}'.format(em, timeperiod))
-    
-    
-    frames = [all_dict['EM01_{}'.format(timeperiod)], all_dict['EM04_{}'.format(timeperiod)],
-    all_dict['EM05_{}'.format(timeperiod)], all_dict['EM06_{}'.format(timeperiod)], all_dict['EM07_{}'.format(timeperiod)],
-    all_dict['EM08_{}'.format(timeperiod)], all_dict['EM09_{}'.format(timeperiod)], all_dict['EM10_{}'.format(timeperiod)],
-    all_dict['EM11_{}'.format(timeperiod)], all_dict['EM12_{}'.format(timeperiod)], all_dict['EM13_{}'.format(timeperiod)],
-    all_dict['EM15_{}'.format(timeperiod)]]
+        frames.append(all_dict['EM{}_{}'.format(em, timeperiod)])
     # join them
     #leeds_all_ems = pd.concat(frames)
     leeds_all_ems = np.concatenate(frames)
     
-    # And dictionaries containing both baseline and future
-    if timeperiod == 'Baseline':
-        # keys_to_remove = ('EM01_{}'.format(timeperiod), 'EM04_{}'.format(timeperiod), 'EM05_{}'.format(timeperiod), 
-        #                   'EM06_{}'.format(timeperiod), 'EM07_{}'.format(timeperiod),'EM08_{}'.format(timeperiod) ,
-        #                   'EM09_{}'.format(timeperiod), 'EM10_{}'.format(timeperiod), 'EM11_{}'.format(timeperiod),
-        #                   'EM12_{}'.format(timeperiod), 'EM13_{}'.format(timeperiod), 'EM15_{}'.format(timeperiod))
-        # for key in keys_to_remove:
-        #     if key in all_dict:
-        #         del all_dict[key]
-        all_dict['Combined_ems_Baseline']   = leeds_all_ems        
-    elif timeperiod == 'Future_near':
-        # keys_to_remove = ('EM01_{}'.format(timeperiod), 'EM04_{}'.format(timeperiod), 'EM05_{}'.format(timeperiod), 
-        #                   'EM06_{}'.format(timeperiod), 'EM07_{}'.format(timeperiod),'EM08_{}'.format(timeperiod) ,
-        #                   'EM09_{}'.format(timeperiod), 'EM10_{}'.format(timeperiod), 'EM11_{}'.format(timeperiod),
-        #                   'EM12_{}'.format(timeperiod), 'EM13_{}'.format(timeperiod), 'EM15_{}'.format(timeperiod))
-        # for key in keys_to_remove:
-        #     if key in all_dict:
-        #         del all_dict[key]
-        all_dict['Combined_ems_Future_near'] = leeds_all_ems
-        
+    all_dict['Combined_ems_{}'.format(timeperiod)]  = leeds_all_ems  
 
 # Create dictionary to specify colours
 cols_dict = {'Combined_ems_Baseline' : 'firebrick',
-             'Combined_ems_Future_near' : 'green'}
-# Create patches for creating legend
-patches= []
-patch = mpatches.Patch(color='firebrick', label='1980-2001')
-patches.append(patch)
-patch = mpatches.Patch(color='green', label='2020-2041')
-patches.append(patch)
+             'Combined_ems_Future_near' : 'green',
+             'Combined_ems_Future_far' : 'blue'}
 
 # Define plotting parameters
 x_axis = 'linear'
@@ -206,11 +175,11 @@ bins_if_log_spaced= bin_nos
 # Create a dictionary containing just the df containing the data from across 
 # all the ensemble members combined 
 just_combined_dict = all_dict.copy()
-keys_to_remove = ('EM01_Baseline', 'EM01_Future_near', 'EM04_Baseline', 'EM04_Future_near', 'EM05_Baseline', 
-                  'EM05_Future_near','EM06_Baseline', 'EM06_Future_near', 'EM07_Baseline', 'EM07_Future_near', 
-                  'EM08_Baseline', 'EM08_Future_near', 'EM09_Baseline', 'EM09_Future_near', 'EM10_Baseline', 
-                  'EM10_Future_near', 'EM11_Baseline', 'EM11_Future_near', 'EM12_Baseline', 'EM12_Future_near', 
-                  'EM13_Baseline', 'EM13_Future_near','EM15_Baseline', 'EM15_Future_near')
+
+keys_to_remove = []
+for timeperiod in ['Baseline', 'Future_near', 'Future_far']:
+    for em in ems:
+        keys_to_remove.append('EM{}_{}'.format(em, timeperiod))
 for key in keys_to_remove:
     if key in just_combined_dict:
         del just_combined_dict[key]
@@ -218,6 +187,9 @@ for key in keys_to_remove:
 # Plot
 log_discrete_histogram_lesslegend_array(just_combined_dict, cols_dict, bin_nos, "Precipitation (mm/hr)", 
                                   patches, True, xlim, x_axis, y_axis) 
+
+numbers_in_each_bin = log_discrete_with_inset_array(just_combined_dict, cols_dict, bin_nos, "Precipitation (mm/hr)", 
+                                                  patches, True, xlim = False) 
 
 
 # # ##########################################################################

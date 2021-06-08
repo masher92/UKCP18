@@ -65,6 +65,36 @@ for overlapping_time_period in ['Overlapping', 'NotOverlapping']:
                 # Create a formatted date column
                 df_gauge['Datetime'] = pd.to_datetime(df_gauge['Datetime'], dayfirst = False)
                    
+                #### Remove -999 values and na values
+                print('NA values in Gauge: ' + str(len(df_gauge[df_gauge['Precipitation (mm/hr)'] == -999])))
+                print('NA values in CEH-GEAR: ' + str(df_cehgear['Precipitation (mm/hr)'].isna().sum()))
+                
+                df_gauge = df_gauge[df_gauge['Precipitation (mm/hr)'] != -999]
+                df_cehgear.dropna(inplace = True)
+                
+                print(len(df_gauge))
+                print(len(df_cehgear))
+                
+                over_10_gauge = df_gauge[df_gauge['Precipitation (mm/hr)'] >10]
+                over_10_grid = df_cehgear[df_cehgear['Precipitation (mm/hr)'] >10]
+                
+                print('values over 10')
+                print(len(over_10_gauge))
+                print(len(over_10_grid))               
+                
+                over_15_gauge = df_gauge[df_gauge['Precipitation (mm/hr)'] >15]
+                over_15_grid = df_cehgear[df_cehgear['Precipitation (mm/hr)'] >15]
+                
+                print('values over 20')
+                print(len(over_15_gauge))
+                print(len(over_15_grid))               
+                
+                over_20_gauge = df_gauge[df_gauge['Precipitation (mm/hr)'] >20]
+                over_20_grid = df_cehgear[df_cehgear['Precipitation (mm/hr)'] >20]
+                
+                print('values over 20')
+                print(len(over_20_gauge))
+                print(len(over_20_grid))               
                 
                 #### Read in UKCP18 data
                 em_csvs = {}
@@ -80,12 +110,16 @@ for overlapping_time_period in ['Overlapping', 'NotOverlapping']:
                     # Find earliest and latest datetime for which there is data in either gauge or CEH-GEAR
                     earliesttime = df_gauge['Datetime'].min() if df_gauge['Datetime'].min() > df_cehgear['Datetime'].min() else df_cehgear['Datetime'].min()
                     latesttime = df_gauge['Datetime'].max() if df_gauge['Datetime'].max() < df_cehgear['Datetime'].max() else df_cehgear['Datetime'].max()
-                    # Override with latestime from UKCP18       
-                    latesttime = pd.to_datetime(df_ukcp18['Date_formatted'].max(), dayfirst = False)
+                    # Override with latestime from UKCP18     
+                    if include_ukcp18 ==True:
+                        latesttime = pd.to_datetime(df_ukcp18['Date_formatted'].max(), dayfirst = False)
                     
                     # Filter to only be between these times
-                    df_cehgear = df_cehgear[(df_cehgear['Datetime'] > earliesttime)& (df_cehgear['Datetime']< latesttime)]
+                    df_cehgear = df_cehgear[(df_cehgear['Datetime'] >= earliesttime)& (df_cehgear['Datetime']<= latesttime)]
                     df_gauge = df_gauge[(df_gauge['Datetime'] > earliesttime)& (df_gauge['Datetime']< latesttime)]
+                    
+                    print(len(df_gauge))
+                    print(len(df_cehgear))
                     
                     # Check if gauge and CEH-GEAR data set are the same length
                     # if len(df_gauge) == len(df_cehgear):
@@ -109,13 +143,6 @@ for overlapping_time_period in ['Overlapping', 'NotOverlapping']:
                         df_ukcp18 = df_ukcp18[~df_ukcp18['Date_formatted'].str.contains('|'.join(to_drop))]
                         em_csvs[em] = df_ukcp18
                 
-                #### Remove -999 values and na values
-                print('NA values in Gauge: ' + str(len(df_gauge[df_gauge['Precipitation (mm/hr)'] == -999])))
-                print('NA values in CEH-GEAR: ' + str(df_cehgear['Precipitation (mm/hr)'].isna().sum()))
-                
-                df_gauge = df_gauge[df_gauge['Precipitation (mm/hr)'] != -999]
-                df_cehgear.dropna(inplace = True)
-                    
                 # Add ems to the gauge_ts dictionary
                 # If combined_ems = 'Combined' then add only one where they're all combined
                 if include_ukcp18 == True:
