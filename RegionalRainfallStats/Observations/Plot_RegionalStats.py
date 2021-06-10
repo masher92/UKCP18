@@ -28,6 +28,7 @@ from Spatial_geometry_functions import *
 region = 'leeds-at-centre' #['Northern', 'leeds-at-centre', 'UK']
 # Stats to plot
 stats = ['jja_max', 'jja_mean', 'jja_p95', 'jja_p97', 'jja_p99', 'jja_p99.5', 'jja_p99.75', 'jja_p99.9']
+stats=['jja_p99']
 
 ##################################################################
 # Load necessary spatial data
@@ -80,6 +81,10 @@ for stat in stats:
     # Plot
     mesh = iplt.pcolormesh(obs_cube, cmap = precip_colormap)
     
+    for lat, lon in zip(lats, lons):
+        lon_wm,lat_wm = transform(Proj(init = 'epsg:4326') , Proj(init = 'epsg:3857') , lon, lat)
+        plt.plot(lon_wm, lat_wm,   'o', color='black', markersize = 20) 
+    
     # Add regional outlines, depending on which region is being plotted
     # And define extent of colorbars
     if region == 'Northern':
@@ -92,7 +97,7 @@ for stat in stats:
     elif region == 'UK':
          plt.gca().coastlines(linewidth =3)
          colorbar_axes = plt.gcf().add_axes([0.76, 0.15, 0.015, 0.7])
-
+    
     colorbar = plt.colorbar(mesh, colorbar_axes, orientation='vertical',  boundaries = contour_levels)  
     colorbar.set_label('mm/hr', size = 20)
     colorbar.ax.tick_params(labelsize=28)

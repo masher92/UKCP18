@@ -7,6 +7,35 @@ from iris.pandas import as_cube, as_series, as_data_frame
 import numpy as np
 import numpy.ma as ma
 import pandas as pd
+import sys
+import os
+import matplotlib
+
+# Set up path to root directory
+root_fp = '/nfs/a319/gy17m2a/'
+#root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis"
+os.chdir(root_fp)
+# Create path to files containing functions
+sys.path.insert(0, root_fp + 'Scripts/UKCP18/GlobalFunctions')
+from Spatial_plotting_functions import *
+from Spatial_geometry_functions import *
+
+#############################################################################
+#############################################################################
+# Load in spatial data
+# As geodataframes for plotting
+# As shapely geometries for checking whether lat/long points are witihn the areas
+#############################################################################
+#############################################################################
+# This is the outline of Leeds
+leeds_gdf = create_leeds_outline({'init' :'epsg:3857'})
+# This is a square area surrounding Leeds
+leeds_at_centre_gdf = create_leeds_at_centre_outline({'init' :'epsg:3857'})
+
+# Create outlines as shapely geometries
+leeds_at_centre_poly = Polygon(create_leeds_at_centre_outline({'init' :'epsg:4326'})['geometry'].iloc[0])
+leeds_poly = Polygon(create_leeds_outline({'init' :'epsg:4326'})['geometry'].iloc[0])
+
 
 def create_grid_highlighted_cell (concat_cube, closest_point_idx):
     
@@ -49,7 +78,11 @@ def define_loc_of_interest(cube, lon, lat):
     sample_points = [('grid_latitude', target_xy[1]), ('grid_longitude', target_xy[0])]
     return(sample_points)
 
-def find_position (concat_cube, em, sample_point, station_name):
+def find_position (concat_cube, em, lon, lat, station_name):
+    
+     # Define a sample point in the correct projection
+     sample_point = define_loc_of_interest(concat_cube, lon, lat)  
+    
      lat_length = concat_cube.shape[1]
      lon_length = concat_cube.shape[2]    
     
@@ -119,28 +152,30 @@ def find_position (concat_cube, em, sample_point, station_name):
 
      # Create location in web mercator for plotting
      print('Creating plot')
-     lon_wm,lat_wm = transform(Proj(init = 'epsg:4326') , Proj(init = 'epsg:3857') , lon, lat)
-    
-     # Create a colormap
-     cmap = mpl.colors.ListedColormap(['yellow'])
-    
-     fig, ax = plt.subplots(figsize=(30,30))
-     extent = tilemapbase.extent_from_frame(leeds_at_centre_gdf)
-     plot = plotter = tilemapbase.Plotter(extent, tilemapbase.tiles.build_OSM(), width=500)
-     plot =plotter.plot(ax)
-     # # Add edgecolor = 'grey' for lines
-     plot =ax.pcolormesh(lons_cornerpoints, lats_cornerpoints, test_data,
-           linewidths=0.4, alpha = 1, cmap = cmap, edgecolors = 'grey')
-     plot = ax.xaxis.set_major_formatter(plt.NullFormatter())
-     plot = ax.yaxis.set_major_formatter(plt.NullFormatter())
-     plot =leeds_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=2)
-     plot =leeds_at_centre_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=2)
-     plt.plot(lon_wm, lat_wm,  'o', color='black', markersize = 10)     
-     plt.savefig('Scripts/UKCP18/RainGaugeAnalysis/Figs/CheckingLocations/UKCP18/{}.png'.format(station_name),
-                 bbox_inches = 'tight')
-     plt.show()
+     if em == '01':
+         #lon, lat = sample_point[1][1], sample_point[0][1]
+         lon_wm,lat_wm = transform(Proj(init = 'epsg:4326') , Proj(init = 'epsg:3857') , lon, lat)
+        
+         # Create a colormap
+         cmap = matplotlib.colors.ListedColormap(['yellow'])
+        
+         fig, ax = plt.subplots(figsize=(30,30))
+         extent = tilemapbase.extent_from_frame(leeds_at_centre_gdf)
+         plot = plotter = tilemapbase.Plotter(extent, tilemapbase.tiles.build_OSM(), width=500)
+         plot =plotter.plot(ax)
+         # # Add edgecolor = 'grey' for lines
+         plot =ax.pcolormesh(lons_cornerpoints, lats_cornerpoints, test_data,
+               linewidths=0.4, alpha = 1, cmap = cmap, edgecolors = 'grey')
+         plot = ax.xaxis.set_major_formatter(plt.NullFormatter())
+         plot = ax.yaxis.set_major_formatter(plt.NullFormatter())
+         plot =leeds_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=2)
+         plot =leeds_at_centre_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=2)
+         plt.plot(lon_wm, lat_wm,  'o', color='black', markersize = 10)     
+         plt.savefig('Scripts/UKCP18/RainGaugeAnalysis/Figs/CheckingLocations/UKCP18/{}.png'.format(station_name),
+                     bbox_inches = 'tight')
+         plt.show()
  
-     return (df)    
+     return (df,closest_point_idx)    
 
 
 def create_concat_cube_one_location_m3 (concat_cube, sample_point):

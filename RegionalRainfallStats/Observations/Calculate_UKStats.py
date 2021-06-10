@@ -106,9 +106,20 @@ iris.coord_categorisation.add_season_year(jja,'time', name = "season_year")
 #############################################
 #jja_mean = jja.aggregated_by(['clim_season'], iris.analysis.MEAN)
 #jja_max = jja.aggregated_by(['clim_season'], iris.analysis.MAX)
-jja_percentiles = jja.aggregated_by(['clim_season'], iris.analysis.PERCENTILE, percent=[95])
+jja_percentiles = obs_cube.aggregated_by(['clim_season'], iris.analysis.PERCENTILE, percent=[99])
+
+result = obs_cube.collapsed('time', iris.analysis.PERCENTILE, PERCENT = [99])
+
 
 #iplt.pcolormesh(jja_mean[0])
+
+###########################################
+
+###########################################
+obs_cube = trim_to_bbox_of_region_obs(jja, leeds_at_centre_gdf)
+
+print(obs_cube)
+
 
 ###########################################
 ## Save to file

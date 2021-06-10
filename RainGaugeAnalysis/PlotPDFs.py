@@ -75,27 +75,6 @@ for overlapping_time_period in ['Overlapping', 'NotOverlapping']:
                 print(len(df_gauge))
                 print(len(df_cehgear))
                 
-                over_10_gauge = df_gauge[df_gauge['Precipitation (mm/hr)'] >10]
-                over_10_grid = df_cehgear[df_cehgear['Precipitation (mm/hr)'] >10]
-                
-                print('values over 10')
-                print(len(over_10_gauge))
-                print(len(over_10_grid))               
-                
-                over_15_gauge = df_gauge[df_gauge['Precipitation (mm/hr)'] >15]
-                over_15_grid = df_cehgear[df_cehgear['Precipitation (mm/hr)'] >15]
-                
-                print('values over 20')
-                print(len(over_15_gauge))
-                print(len(over_15_grid))               
-                
-                over_20_gauge = df_gauge[df_gauge['Precipitation (mm/hr)'] >20]
-                over_20_grid = df_cehgear[df_cehgear['Precipitation (mm/hr)'] >20]
-                
-                print('values over 20')
-                print(len(over_20_gauge))
-                print(len(over_20_grid))               
-                
                 #### Read in UKCP18 data
                 em_csvs = {}
                 for em in ems:
@@ -112,15 +91,15 @@ for overlapping_time_period in ['Overlapping', 'NotOverlapping']:
                     latesttime = df_gauge['Datetime'].max() if df_gauge['Datetime'].max() < df_cehgear['Datetime'].max() else df_cehgear['Datetime'].max()
                     # Override with latestime from UKCP18     
                     if include_ukcp18 ==True:
-                        latesttime = pd.to_datetime(df_ukcp18['Date_formatted'].max(), dayfirst = False)
+                        latesttime_ukcp18 = pd.to_datetime(df_ukcp18['Date_formatted'].max())
+                        latesttime = latesttime if latesttime < latesttime_ukcp18 else latesttime_ukcp18
+                        earliesttime_ukcp18 = pd.to_datetime(df_ukcp18['Date_formatted'].min())
+                        earliesttime = earliesttime if earliesttime > earliesttime_ukcp18 else earliesttime_ukcp18
                     
                     # Filter to only be between these times
                     df_cehgear = df_cehgear[(df_cehgear['Datetime'] >= earliesttime)& (df_cehgear['Datetime']<= latesttime)]
                     df_gauge = df_gauge[(df_gauge['Datetime'] > earliesttime)& (df_gauge['Datetime']< latesttime)]
-                    
-                    print(len(df_gauge))
-                    print(len(df_cehgear))
-                    
+
                     # Check if gauge and CEH-GEAR data set are the same length
                     # if len(df_gauge) == len(df_cehgear):
                         #     print("Same length")

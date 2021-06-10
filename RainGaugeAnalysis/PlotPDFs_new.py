@@ -17,7 +17,6 @@ import matplotlib.patches as mpatches
 
 # Set up path to root directory
 root_fp = '/nfs/a319/gy17m2a/'
-#root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis"
 os.chdir(root_fp)
 
 # Create path to files containing functions
@@ -32,6 +31,8 @@ warnings.simplefilter(action='ignore', category = FutureWarning)
 warnings.simplefilter(action='ignore', category = DeprecationWarning)
 
 ems = ['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
+
+include_ukcp18 = False
 
 #############################################################################
 #############################################################################
@@ -58,10 +59,16 @@ leeds_poly = Polygon(create_leeds_outline({'init' :'epsg:4326'})['geometry'].ilo
 #############################################################################
 #############################################################################
 i=0
+# Create dictionary, which will have station name as key and dictionaries for 
+# gauge, CEH-GEAR, UKCP18 ensembles as values
 dict_all_stations = {}
+# Create a list to store the names of stations within leeds region, for which 
+# we are extracting data
 station_names= []
+# Not sure whatI am using these for
 grid_closest_point_idxs = []
 ukcp18_closest_point_idxs = []
+# TO store lats and lons of gaues within Leeds, to plot all on one plot
 lats = []
 lons = []
 for filename in glob.glob("datadir/GaugeData/Newcastle/E*"):
@@ -77,17 +84,17 @@ for filename in glob.glob("datadir/GaugeData/Newcastle/E*"):
         # Check if point is within leeds-at-centre geometry
         this_point = Point(lon, lat)
         res = this_point.within(leeds_at_centre_poly)
-        res_old=this_point.within(leeds_poly)
-    
+        res_in_leeds = this_point.within(leeds_poly)
         # If the point is within leeds-at-centre geometry 
         if res ==True :
             print(i)
             print(station_name)
+            # Add station name and lats/lons to list
             station_names.append(station_name)
-            print(lat,lon)
             lats.append(lat)
             lons.append(lon)
             
+            # Create dictionary to store results for this station
             dict_this_station = {}
            
             ############################################################################
@@ -151,26 +158,26 @@ for filename in glob.glob("datadir/GaugeData/Newcastle/E*"):
             cehgear_df.dropna(inplace = True)
             
             #############################################################################
-            # Create a csv containing the data and the dates for the CEH-GEAR grid cell which
+            # Create a csv containing the data and the dates for the UKCP18 grid cell which
             # the gauge is located within
             #############################################################################
-            print('Loading UKCP18 data')
-            for em in ems:
-                print(em)
-                filename = "Outputs/TimeSeries/UKCP18/Baseline/leeds-at-centre/{}/leeds-at-centre.nc".format(em)
-                em_cube = iris.load(filename, 'lwe_precipitation_rate')[0]
+            # print('Loading UKCP18 data')
+            # for em in ems:
+            #     print(em)
+            #     filename = "Outputs/TimeSeries/UKCP18/Baseline/leeds-at-centre/{}/leeds-at-centre.nc".format(em)
+            #     em_cube = iris.load(filename, 'lwe_precipitation_rate')[0]
                 
-                # Get the data values at this location
-                ukcp18_df, closest_point_idx_ukcp18 = find_position(em_cube, em, lon, lat, station_name)
-                ukcp18_closest_point_idxs.append(closest_point_idx_ukcp18)
+            #     # Get the data values at this location
+            #     ukcp18_df, closest_point_idx_ukcp18 = find_position(em_cube, em, lon, lat, station_name)
+            #     ukcp18_closest_point_idxs.append(closest_point_idx_ukcp18)
 
-                # add data to dictionary
-                dict_this_station["UKCP18_{}".format(em)] = ukcp18_df
+            #     # add data to dictionary
+            #     dict_this_station["UKCP18_{}".format(em)] = ukcp18_df
             
             # Add data to dicionary
             dict_this_station["Gauge"] = gauge_df
             dict_this_station["CEH-GEAR"] = cehgear_df
-            `
+            
             #### add to overall dictionary
             dict_all_stations[station_name] = dict_this_station
            
@@ -178,113 +185,172 @@ for filename in glob.glob("datadir/GaugeData/Newcastle/E*"):
             i = i+1 
 
 #######################################################################
-gauges_dict ={}
-for station_name in station_names:
-    this_dict = dict_all_stations[station_name]
-    gauge_df = this_dict['Gauge']
+#######################################################################
+# This section is to plot a PDF with a line for each gauge's data
+# Wanted to look at how much differentation there was between gauges
+#######################################################################
+#######################################################################
+# gauges_dict ={}
+# # Loop through dicitonary for each station and store the earliest an latesttime found throughout
+# for station_name in station_names:
+#     this_dict = dict_all_stations[station_name]
+#     gauge_df = this_dict['Gauge']
     
-    # Trim to same time period
-    if "earliesttime" not in locals():
-        earliesttime = gauge_df['Datetime'].min() 
-    earliesttime = gauge_df['Datetime'].min() if gauge_df['Datetime'].min() > earliesttime else earliesttime
-    if 'latesttime' not in locals():
-        latesttime = gauge_df['Datetime'].max() 
-    latesttime = gauge_df['Datetime'].max() if gauge_df['Datetime'].max() < latesttime else latesttime 
+#     # Trim to same time period
+#     if "earliesttime" not in locals():
+#         earliesttime = gauge_df['Datetime'].min() 
+#     earliesttime = gauge_df['Datetime'].min() if gauge_df['Datetime'].min() > earliesttime else earliesttime
+#     if 'latesttime' not in locals():
+#         latesttime = gauge_df['Datetime'].max() 
+#     latesttime = gauge_df['Datetime'].max() if gauge_df['Datetime'].max() < latesttime else latesttime 
        
-    gauges_dict[station_name] = gauge_df
-    
-for station_name in station_names:
-    this_dict = dict_all_stations[station_name]  
-    gauge_df = this_dict['Gauge']
-    gauge_df = gauge_df[(gauge_df['Datetime'] > earliesttime)& (gauge_df['Datetime']< latesttime)]
-    gauges_dict[station_name] = gauge_df
+#     gauges_dict[station_name] = gauge_df
+
+#  # Loop through again ad trim to only be within this overlapping period
+# for station_name in station_names:
+#     this_dict = dict_all_stations[station_name]  
+#     gauge_df = this_dict['Gauge']
+#     gauge_df = gauge_df[(gauge_df['Datetime'] > earliesttime)& (gauge_df['Datetime']< latesttime)]
+#     gauges_dict[station_name] = gauge_df
   
-# Define a dictionary of colours
-cols_dict = {}
-for station_name in station_names:
-    cols_dict[station_name] = 'blue'
+# # Define a dictionary of colours
+# cols_dict = {}
+# for station_name in station_names:
+#     cols_dict[station_name] = 'blue'
              
-# Set plotting parameters
-x_axis = 'linear'
-y_axis = 'log'
-bin_nos = 20 #(10 gives 12, 30 gives 29, 45 gives 41 bins)
-xlim = False # False lets plot define aprpopriate xlims
-bins_if_log_spaced= bin_nos
+# # Set plotting parameters
+# x_axis = 'linear'
+# y_axis = 'log'
+# bin_nos = 20 #(10 gives 12, 30 gives 29, 45 gives 41 bins)
+# xlim = False # False lets plot define aprpopriate xlims
+# bins_if_log_spaced= bin_nos
 
-# Create patches, used for labelling
-patches= []
+# # Create patches, used for labelling
+# patches= []
                
-numbers_in_each_bin = log_discrete_with_inset(gauges_dict, cols_dict, bin_nos, "Precipitation (mm/hr)", 
-                                  patches, True, xlim)     
+# numbers_in_each_bin = log_discrete_with_inset(gauges_dict, cols_dict, bin_nos, "Precipitation (mm/hr)", 
+#                                   patches, True, xlim)     
   
     
-##############################################################
-
+############################################################################################################################
+############################################################################################################################
+#
+############################################################################################################################
+############################################################################################################################
 earliest_times = []
 latest_times = []
 
 for station_name in station_names:
+    print(station_name)
+    ############################################
+    # Get dataframes for this station
+    ############################################
+    # Get the dictionary for this station
     this_dict = dict_all_stations[station_name]
+    # Get dataframe for this gauge, the CEH-GEAR grid cell, and one ensemble member from UKCP18 grid cell
     gauge_df = this_dict['Gauge']
-    ceh_gear_df = this_dict['CEH-GEAR']
-    df_ukcp18 = this_dict['UKCP18_01']    
+    cehgear_df = this_dict['CEH-GEAR']
+    #df_ukcp18 = this_dict['UKCP18_01']    
    
-
-    # earliesttime = gauge_df['Datetime'].min() 
-    # latesttime = gauge_df['Datetime'].max() 
-    # print(earliesttime)
-    
-    # earliest_times.append(earliesttime)
-    # latest_times.append(latesttime)
-    
+    ############################################
     # Trim to same time period
+    ############################################
+    # Find the earliest time and latesttime found in both gaguge and CEH-GEAR
     earliesttime = gauge_df['Datetime'].min() if gauge_df['Datetime'].min() > cehgear_df['Datetime'].min() else cehgear_df['Datetime'].min()
-    latesttime = gauge_df['Datetime'].max() if gauge_df['Datetime'].max() < cehgear_df['Datetime'].max() else cehgear_df['Datetime'].max()
+    latesttime = gauge_df['Datetime'].max() if gauge_df['Datetime'].max() < cehgear_df['Times'].max() else cehgear_df['Times'].max()
     
-    # Override with latestime from UKCP18     
-    if include_ukcp18 ==True:
-        latesttime_ukcp18 = pd.to_datetime(df_ukcp18['Times'].max(), format = '%Y%m%d%H')
-        latesttime = latesttime if latesttime < latesttime_ukcp18 else latesttime_ukcp18
-        earliesttime_ukcp18 = pd.to_datetime(df_ukcp18['Times'].min(), format = '%Y%m%d%H')
-        earliesttime = earliesttime if earliesttime > earliesttime_ukcp18 else earliesttime_ukcp18
+    # Override with latestime and earliest times from UKCP18     
+    # if include_ukcp18 ==True:
+    #     latesttime_ukcp18 = pd.to_datetime(df_ukcp18['Times'].max(), format = '%Y%m%d%H')
+    #     latesttime = latesttime if latesttime < latesttime_ukcp18 else latesttime_ukcp18
+    #     earliesttime_ukcp18 = pd.to_datetime(df_ukcp18['Times'].min(), format = '%Y%m%d%H')
+    #     earliesttime = earliesttime if earliesttime > earliesttime_ukcp18 else earliesttime_ukcp18
             
-    # Filter to only be between these times
-    cehgear_df = cehgear_df[(cehgear_df['Datetime'] >= earliesttime)& (cehgear_df['Datetime']<= latesttime)]
-    gauge_df = gauge_df[(gauge_df['Datetime'] > earliesttime)& (gauge_df['Datetime']< latesttime)]
-    
-    # Add data to dicionary
-    this_dict["Gauge_overlapping"] = gauge_df
+    # Filter to only be between these times - Gauge and CEH-GEAR
+    cehgear_df = cehgear_df[(cehgear_df['Times'] >= earliesttime)& (cehgear_df['Times']<= latesttime)]
     this_dict["CEH-GEAR_overlapping"] = cehgear_df
+    gauge_df = gauge_df[(gauge_df['Datetime'] > earliesttime)& (gauge_df['Datetime']< latesttime)]
+    this_dict["Gauge_overlapping"] = gauge_df
     
+    # Filter to only be between these times - UKCP18
     if include_ukcp18 ==True:
       frames =[]
+      frames_overlapping = []
       for em in ems:
         this_em = this_dict['UKCP18_{}'.format(em)]
-        this_em = this_em[(this_em['Times'] >= datetime.strftime(earliesttime, format = '%Y%m%d%H'))& (this_em['Times']<= datetime.strftime(latesttime, format = '%Y%m%d%H'))]
         frames.append(this_em)
+        this_em = this_em[(this_em['Times'] >= datetime.strftime(earliesttime, format = '%Y%m%d%H'))& (this_em['Times']<= datetime.strftime(latesttime, format = '%Y%m%d%H'))]
+        frames_overlapping.append(this_em)
+        this_dict['UKCP18_{}_overlapping'.format(em)] = this_em
       this_dict['UKCP18_combined'] = pd.concat(frames)      
-        
-    # earliesttime = gauge_df['Datetime'].min() 
-    # latesttime = gauge_df['Datetime'].max() 
-    # earliest_times_filtered.append(earliesttime)
-    # latest_times_filtered.append(latesttime)
+      this_dict['UKCP18_combined_overlapping'] = pd.concat(frames_overlapping)      
+      
+      # Re add to main dictionary
+      dict_all_stations[station_name] = this_dict
+
+
+############################################################################
+############################################################################
+#
+############################################################################
+############################################################################
+for station_name in ['headingley_logger', 'eccup_logger', 'bramham_logger', 'farnley_hall_logger', 'knostrop_logger',
+               'otley_s.wks_logger']:
+    print(station_name)
+    this_dict = dict_all_stations[station_name]
+    gauge_ts = {}
+    gauge_ts[station_name + '_GaugeData'] = this_dict['Gauge']
+    gauge_ts[station_name + '_GridData'] =  this_dict['CEH-GEAR']
     
+    # Define a dictionary of colours
+    cols_dict = {station_name + '_GaugeData' : 'firebrick',
+                 station_name + '_GridData'  : 'green'}
+                 
+    # Set plotting parameters
+    x_axis = 'linear'
+    y_axis = 'log'
+    bin_nos = 20 #(10 gives 12, 30 gives 29, 45 gives 41 bins)
+    xlim = False # False lets plot define aprpopriate xlims
+    bins_if_log_spaced= bin_nos
     
-    print(earliesttime)
+    # Create patches, used for labelling
+    patches= []
+    patch = mpatches.Patch(color='firebrick', label='Gauge Data')
+    patches.append(patch)
+    patch = mpatches.Patch(color='green', label='CEH-GEAR Data')
+    patches.append(patch)
     
-# test = pd.DataFrame({'Station': station_names,
-#                       'From':earliest_times,
-#                       'To': latest_times})
-# test.to_csv('Scripts/UKCP18/gauge_times.csv')
- 
-    
+    numbers_in_each_bin = log_discrete_with_inset(gauge_ts, cols_dict, bin_nos, "Precipitation (mm/hr)", 
+                                      patches, True, xlim) 
+
+    plt.savefig("Scripts/UKCP18/RainGaugeAnalysis/Figs/PDF_GaugevsGridCell/{}_all_overlapping.png".format(station_name))
+
+# find number of data points over various thresholds
+df = pd.DataFrame(columns = ['Station name', 'Gauge','Grid','Gauge','Grid','Gauge','Grid'])
+for station_name in station_names:
+    this_dict = dict_all_stations[station_name]
+    # Get dataframe for this gauge, the CEH-GEAR grid cell, and one ensemble member from UKCP18 grid cell
+    gauge_df = this_dict['Gauge_overlapping']
+    ceh_gear_df = this_dict['CEH-GEAR_overlapping']
+    i_ls = [station_name]
+    for i in [10,15,20]:
+        for x in ['Gauge', 'Grid']:        
+            if x == 'Gauge':
+                i_ls.append(len(gauge_df[gauge_df['Precipitation (mm/hr)'] >i]))
+            else:
+                i_ls.append(len(ceh_gear_df[ceh_gear_df['Precipitation (mm/hr)'] >i]))
+    df.loc[len(df)] = i_ls
+
 # Plotting 
-ukcp18_frames = 
+ukcp18_frames = []
 gauge_frames = []
 gauge_overlapping_frames = []
 grid_frames = []
 grid_overlapping_frames = []
 for station_name in station_names:    
+    print('Max Gauge: ' + str(dict_all_stations[station_name]['Gauge']["Precipitation (mm/hr)"].max()))
+    print('Max CEH-GEAR: ' + str(dict_all_stations[station_name]['CEH-GEAR']["Precipitation (mm/hr)"].max()))
+
     gauge_frames.append(dict_all_stations[station_name]['Gauge'] )
     grid_frames.append(dict_all_stations[station_name]['CEH-GEAR'] )
     gauge_overlapping_frames.append(dict_all_stations[station_name]['Gauge_overlapping'] )
@@ -295,21 +361,33 @@ all_gauges_overlapping = pd.concat(gauge_overlapping_frames)
 all_grids = pd.concat(grid_frames)   
 all_grids_overlapping = pd.concat(grid_overlapping_frames)    
 
-combined_dict = {'Gauge':all_gauges_overlapping,
-                  'CEH-GEAR': all_grids_overlapping}
+combined_dict = {'Gauge':all_gauges,
+                  'CEH-GEAR': all_grids}
+
+# find number of data points over various thresholds
+df = pd.DataFrame(columns = ['Station name', 'Gauge','Grid','Gauge','Grid','Gauge','Grid'])
+gauge_df = combined_dict['Gauge']
+ceh_gear_df = combined_dict['CEH-GEAR']
+for time_period in ['Full time period', 'Overlapping']:
+    i_ls = [time_period]
+    for i in [10,15,20]:
+        for x in ['Gauge', 'Grid']:        
+            if x == 'Gauge' and time_period == 'Full time period':
+                i_ls.append(len(all_gauges[all_gauges['Precipitation (mm/hr)'] >i]))
+            elif x == 'Gauge' and time_period == 'Overlapping':
+                  i_ls.append(len(all_gauges_overlapping[all_gauges_overlapping['Precipitation (mm/hr)'] >i]))
+            elif x == 'Grid' and time_period == 'Full time period':
+                i_ls.append(len(all_grids[all_grids['Precipitation (mm/hr)'] >i]))
+            elif x == 'Grid' and time_period == 'Overlapping': 
+                i_ls.append(len(all_grids_overlapping[all_grids_overlapping['Precipitation (mm/hr)'] >i]))
+    df.loc[len(df)] = i_ls
+
 
 #########################################################################
 # Plotting
 #########################################################################
 # Define a dictionary of colours
-cols_dict = {'Gauge' : 'firebrick',
-             'CEH-GEAR'  : 'green'}
-
-if combined_ems == 'Combined':
-    cols_dict[station_name + '_UKCP18Data'] = 'grey'
-else:
-    for em in ems:
-       cols_dict[station_name + '_UKCP18Data{}'.format(em)] = 'grey'
+cols_dict = {'Gauge' : 'firebrick', 'CEH-GEAR'  : 'green'}
              
 # Set plotting parameters
 x_axis = 'linear'
@@ -331,13 +409,11 @@ patches.append(patch)
 numbers_in_each_bin = log_discrete_with_inset(combined_dict, cols_dict, bin_nos, "Precipitation (mm/hr)", 
                                   patches, True, xlim) 
 
-# Save
-if include_ukcp18 == True:
-    plt.savefig("Scripts/UKCP18/RainGaugeAnalysis/Figs/PDF_GaugevsGridCellvsUKCP18/{}_{}_{}_{}.png".format(station_name, just_jja, overlapping_time_period, combined_ems))
-else:
-    plt.savefig("Scripts/UKCP18/RainGaugeAnalysis/Figs/PDF_GaugevsGridCell/{}_{}_{}.png".format(station_name, just_jja, overlapping_time_period))
-
-
+# # Save
+# if include_ukcp18 == True:
+#     plt.savefig("Scripts/UKCP18/RainGaugeAnalysis/Figs/PDF_GaugevsGridCellvsUKCP18/{}_{}_{}_{}.png".format(station_name, just_jja, overlapping_time_period, combined_ems))
+# else:
+#     plt.savefig("Scripts/UKCP18/RainGaugeAnalysis/Figs/PDF_GaugevsGridCell/{}_{}_{}.png".format(station_name, just_jja, overlapping_time_period))
 
 
 ######## Check plotting 

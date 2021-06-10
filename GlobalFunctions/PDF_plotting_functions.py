@@ -479,8 +479,6 @@ def log_discrete_with_inset(results_dict, cols_dict, bin_nos, precip_variable, p
     
     for key, df in results_dict.items():
         print(key)
-        print(df['Precipitation (mm/hr)'].max())
-        print(df['Precipitation (mm/hr)'].min())        
         # Define the colour to use for this entry
         # Create a patch for this colour to be used in creating the legend
         # And add to list of patches for use in legend
@@ -524,7 +522,7 @@ def log_discrete_with_inset(results_dict, cols_dict, bin_nos, precip_variable, p
     #ax2.plot(range(6), color = 'green')                   
     #patches= []
     for key, df in results_dict.items():
-        print(key)
+        #print(key)
         col = cols_dict[key]
         #patch = mpatches.Patch(color=col, label=key)
         #patches.append(patch)
