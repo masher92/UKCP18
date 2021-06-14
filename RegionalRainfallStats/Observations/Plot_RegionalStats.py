@@ -50,8 +50,7 @@ for stat in stats:
     print(stat)
     
     # Load in netcdf files containing the stats data over the whole UK
-    obs_cube = iris.load('/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Observations/{}.nc'.format(stat))[0][0]
-
+    obs_cube = iris.load('/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Observations/leeds-at-centre/{}.nc'.format(stat))[0]
     # Trim to smaller area
     if region == 'Northern':
          obs_cube = trim_to_bbox_of_region_obs(obs_cube, northern_gdf)
@@ -80,10 +79,6 @@ for stat in stats:
     ax = fig.add_subplot(projection=proj)
     # Plot
     mesh = iplt.pcolormesh(obs_cube, cmap = precip_colormap)
-    
-    for lat, lon in zip(lats, lons):
-        lon_wm,lat_wm = transform(Proj(init = 'epsg:4326') , Proj(init = 'epsg:3857') , lon, lat)
-        plt.plot(lon_wm, lat_wm,   'o', color='black', markersize = 20) 
     
     # Add regional outlines, depending on which region is being plotted
     # And define extent of colorbars

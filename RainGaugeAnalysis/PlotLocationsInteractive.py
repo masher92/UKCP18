@@ -10,7 +10,7 @@ from shapely.geometry import Point, Polygon
 import folium
 
 # Set up path to root directory
-root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
+root_fp = '/nfs/a319/gy17m2a/'
 os.chdir(root_fp)
 
 # Create path to files containing functions
@@ -121,14 +121,29 @@ template = """
 lats = []
 lons = []
 station_names = []
-for filename in glob.glob("datadir/GaugeData/Newcastle/*"):
+for filename in glob.glob("datadir/GaugeData/Newcastle/E*"):
     with open(filename) as myfile:
+        # read in the lines of text at the top of the file
         firstNlines=myfile.readlines()[0:21]
-        station_names.append(firstNlines[3][23:-1])
-        lats.append(float(firstNlines[5][10:-1]))
-        lons.append(float(firstNlines[6][11:-1]))
-
-locations_df = pd.DataFrame({'ID':'Placeholder',
+        
+        # Extract the lat, lon and station name
+        station_name = firstNlines[3][23:-1]
+        lat = float(firstNlines[5][10:-1])
+        lon = float(firstNlines[6][11:-1])
+        
+        # Check if point is within leeds-at-centre geometry
+        this_point = Point(lon, lat)
+        res = this_point.within(leeds_at_centre_poly)
+        res_in_leeds = this_point.within(leeds_poly)
+        # If the point is within leeds-at-centre geometry 
+        if res ==True :
+            # Add station name and lats/lons to list
+            lats.append(lat)
+            lons.append(lon)
+            station_names.append(station_name)
+            
+            
+locations_df = pd.DataFrame({'ID':station_names,
                              'Latitude': lats,
                              'Longitude': lons})
 

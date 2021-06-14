@@ -33,6 +33,7 @@ os.chdir(root_fp)
 # Create path to files containing functions
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/GlobalFunctions')
 from Spatial_plotting_functions import *
+from Spatial_geometry_functions import *
 
 #############################################
 ## Load in the data
@@ -53,6 +54,17 @@ concat_cube = monthly_cubes_list.concatenate_cube()
 
 # Test plotting
 #iplt.pcolormesh(concat_cube[12])
+
+##################################################################
+# Load necessary spatial data
+##################################################################
+# These geodataframes are square
+northern_gdf = create_northern_outline({'init' :'epsg:3857'})
+wider_northern_gdf = create_wider_northern_outline({'init' :'epsg:3857'})
+# This is the outlins of Leeds
+leeds_gdf = create_leeds_outline({'init' :'epsg:3857'})
+# This is a square area surrounding Leeds
+leeds_at_centre_gdf = create_leeds_at_centre_outline({'init' :'epsg:3857'})
 
 #############################################
 ## Trim to outline of UK
@@ -104,22 +116,15 @@ iris.coord_categorisation.add_season_year(jja,'time', name = "season_year")
 ###########################################
 # Find Max, mean, percentiles
 #############################################
+jja = trim_to_bbox_of_region_obs(jja, leeds_at_centre_gdf)
+
 #jja_mean = jja.aggregated_by(['clim_season'], iris.analysis.MEAN)
 #jja_max = jja.aggregated_by(['clim_season'], iris.analysis.MAX)
-jja_percentiles = obs_cube.aggregated_by(['clim_season'], iris.analysis.PERCENTILE, percent=[99])
+jja_max = jja.collapsed('time', iris.analysis.MAX)
+jja_mean = jja.collapsed('time', iris.analysis.MEAN)
+jja_percentiles = jja.collapsed('time', iris.analysis.PERCENTILE, percent = [95, 97,99,99.5, 99.75, 99.9])
 
-result = obs_cube.collapsed('time', iris.analysis.PERCENTILE, PERCENT = [99])
-
-
-#iplt.pcolormesh(jja_mean[0])
-
-###########################################
-
-###########################################
-obs_cube = trim_to_bbox_of_region_obs(jja, leeds_at_centre_gdf)
-
-print(obs_cube)
-
+iplt.pcolormesh(p95)
 
 ###########################################
 ## Save to file
@@ -130,17 +135,19 @@ print(obs_cube)
 #print("JJA mean saved")
 # Save percentiles seperately
 p95 = jja_percentiles[0,:,:,:]
-iris.save(p95, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Observations/{}/jja_p95.nc'.format(regridding_method))
+iris.save(p95, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Observations/leeds-at-centre/jja_p95.nc')
 p97 = jja_percentiles[1,:,:,:]
-iris.save(p97, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Observations/{}/jja_p97.nc'.format(regridding_method))
+iris.save(p97, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Observations/leeds-at-centre/jja_p97.nc')
 p99 = jja_percentiles[2,:,:,:]
-iris.save(p99, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Observations/{}/jja_p99.nc'.format(regridding_method))
+iris.save(p99, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Observations/leeds-at-centre/jja_p99.nc')
 p99_5 = jja_percentiles[3,:,:,:]
-iris.save(p99_5, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Observations/{}/jja_p99.5.nc'.format(regridding_method))
+iris.save(p99_5, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Observations/leeds-at-centre/jja_p99.5.nc')
 p99_75 = jja_percentiles[4,:,:,:]
-iris.save(p99_75, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Observations/{}/jja_p99.75.nc'.format(regridding_method))
+iris.save(p99_75, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Observations/leeds-at-centre/jja_p99.75.nc')
 p99_9 = jja_percentiles[5,:,:,:]
-iris.save(p99_9, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Observations/{}/jja_p99.9.nc'.format(regridding_method))
-
-#####
-test = iris.load('/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Observations/jja_mean.nc')
+iris.save(p99_9, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Observations/leeds-at-centre/jja_p99.9.nc')
+#
+iris.save(jja_max, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Observations/leeds-at-centre/jja_max.nc')
+print("JJA max saved")
+iris.save(jja_mean, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Observations/leeds-at-centre/jja_mean.nc')
+print("JJA mean saved")

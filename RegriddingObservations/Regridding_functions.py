@@ -27,7 +27,7 @@ from iris.cube import Cube
 
 root_fp = "/nfs/a319/gy17m2a/"
 os.chdir(root_fp)
-sys.path.insert(0, root_fp + 'Scripts/UKCP18/SpatialAnalyses')
+sys.path.insert(0, root_fp + 'Scripts/UKCP18/GlobalFunctions')
 from Spatial_geometry_functions import create_leeds_outline, create_leeds_at_centre_outline
 
 # Create otuline of Leeds itself

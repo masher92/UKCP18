@@ -38,12 +38,12 @@ for filename in glob.glob("datadir/CEH-GEAR/*"):
     filename_regrid_nn = filename.replace("datadir/CEH-GEAR/", "Outputs/RegriddingObservations/CEH-GEAR_regridded_2.2km/NearestNeighbour/rg_")
     
     # If files don't already exist, then create
-    #if not os.path.isfile(filename_regrid_nn):
-    if 1 == 1:
+    if not os.path.isfile(filename_regrid_nn):
+    #if 1 == 1:
       # Open dataset with Xarray
-      #xr_ds=xr.open_dataset(filename)
+      xr_ds=xr.open_dataset(filename)
       # Convert to cube in the correct format and save
-      #cube=make_bng_cube(xr_ds,'rainfall_amount')
+      cube=make_bng_cube(xr_ds,'rainfall_amount')
       cube = iris.save(filename_reformat, 'rainfall_amount')[0]
       #### Regrid observaitons onto model grid
       # Lienar interpolation
