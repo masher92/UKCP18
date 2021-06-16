@@ -168,7 +168,7 @@ cols_dict = {'Combined_ems_Baseline' : 'firebrick',
 # Define plotting parameters
 x_axis = 'linear'
 y_axis = 'log'
-bin_nos = 30 #(10 gives 12, 30 gives 29, 45 gives 41 bins)
+bin_nos = 20 #(10 gives 12, 30 gives 29, 45 gives 41 bins)
 xlim = 250
 bins_if_log_spaced= bin_nos
 
