@@ -39,6 +39,8 @@ from Spatial_geometry_functions import *
 # Define ensemble member numbers
 ems = ['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
 
+timeperiod = 'Baseline'
+
 ################################################################
 # Create the spatial datafiles needed
 ################################################################   
@@ -66,15 +68,20 @@ leeds_gdf = create_leeds_outline({'init' :'epsg:27700'})
 ################################################################
 
 # Load in timestamps that relate to one cell's worth of data
-model_times = np.load('Outputs/TimeSeries/UKCP18/{}/leeds-at-centre/timestamps.npy'.format(timeperiod))
+model_times_2_2km = np.load('Outputs/TimeSeries/UKCP18/2.2km/Baseline/leeds-at-centre/timestamps.npy'.format(timeperiod))
+model_times_12km = np.load('Outputs/TimeSeries/UKCP18/12km/Baseline/leeds-at-centre/timestamps.npy'.format(timeperiod))
 
 # Set value as NA for values not in required date range
 for i in range(0,78480):
     print(i)
-    model_times[i] = '0'
+    model_times_2_2km[i] = '0'
+for i in range(0,2909):
+    print(i)
+    model_times_12km[i] = '0'
 
 # Repeat this 1221 times to be the same length as the precip data for whole of Leeds 
-model_times_allcells = np.tile(model_times, 1221)    
+model_times_2_2km_allcells = np.tile(model_times_2_2km, 1221)    
+model_times_12km_allcells = np.tile(model_times_12km, 36)  
 
 ################################################################
 # Loop through ensemble members and load in data for whole of leeds and trim
@@ -85,34 +92,51 @@ leeds_data_dict = {}
 leeds_data_dict_overlapping = {}
 
 # Loop through ensemble members
-for em in ems:
-    print(em)
+for resolution in ['2.2km', '12km']:
+    if resolution == '2.2km':
+        model_times = model_times_2_2km_allcells
+    elif resolution == '12km':
+        model_times = model_times_12km_allcells
+        
+    for em in ems:
+        print(em)
+        
+        # Load in 20 years of model data for the whole of leeds
+        leeds_data = np.load("Outputs/TimeSeries/UKCP18/{}/{}/leeds-at-centre/{}/leeds-at-centre.npy".format(resolution, timeperiod, em))
     
-    # Load in 20 years of model data for the whole of leeds
-    leeds_data = np.load("Outputs/TimeSeries/UKCP18/{}/leeds-at-centre/{}/leeds-at-centre.npy".format(timeperiod, em))
-    # Join to corresponding dates/times
-    leeds_data_withtimes = pd.DataFrame({"Date" : model_times_allcells,
+        # Join to corresponding dates/times
+        leeds_data_withtimes = pd.DataFrame({"Date" : model_times,
                                    'Precipitation (mm/hr)' :leeds_data})
+        
+        # Add to dictionary
+        leeds_data_dict['EM{}_{}'.format(em, resolution)] = leeds_data_withtimes
     
-    leeds_data_dict['EM{}'.format(em)] = leeds_data_withtimes
-
-    # Keep only data from overlapping times 
-    leeds_data_overlapping = leeds_data_withtimes.loc[leeds_data_withtimes['Date'] != '0']
-    
-    # Add data to dictionary
-    leeds_data_dict_overlapping['EM{}'.format(em)] = leeds_data_overlapping
-
+        # Keep only data from overlapping times 
+        leeds_data_overlapping = leeds_data_withtimes.loc[leeds_data_withtimes['Date'] != '0']
+        
+        # Add data to dictionary
+        leeds_data_dict_overlapping['EM{}_{}'.format(em, resolution)] = leeds_data_overlapping
 
 # Create a dataframe containing the data from across all ensemble members
 for dict in [leeds_data_dict, leeds_data_dict_overlapping]:
-
-    frames = [dict['EM01'], dict['EM04'], dict['EM05'], dict['EM06'],
-              dict['EM07'], dict['EM08'], dict['EM09'], dict['EM10']
-              , dict['EM11'], dict['EM12'], dict['EM13'], dict['EM15']] 
-    leeds_all_ems = pd.concat(frames)
+    for resolution in ['12km', '2.2km']:
+        frames = [dict['EM01_{}'.format(resolution)], dict['EM04_{}'.format(resolution)], dict['EM05_{}'.format(resolution)], dict['EM06_{}'.format(resolution)],
+                  dict['EM07_{}'.format(resolution)], dict['EM08_{}'.format(resolution)], dict['EM09_{}'.format(resolution)], dict['EM10_{}'.format(resolution)]
+                  , dict['EM11_{}'.format(resolution)], dict['EM12_{}'.format(resolution)], dict['EM13_{}'.format(resolution)], dict['EM15_{}'.format(resolution)]] 
+        leeds_all_ems = pd.concat(frames)
     
-    # Add this to the dictionary
-    dict['Combined EMs'] = leeds_all_ems
+        # Add this to the dictionary
+        dict['Combined EMs_{}'.format(resolution)] = leeds_all_ems
+
+# Combined ensemble members
+combined_ems_obs_dict= leeds_data_dict.copy()
+for resolution in ['12km', '2.2km']:
+    keys_to_remove =("EM01_{}".format(resolution), "EM04_{}".format(resolution), "EM05_{}".format(resolution), "EM06_{}".format(resolution), "EM07_{}".format(resolution), "EM08_{}".format(resolution),
+                     "EM09_{}".format(resolution), "EM10_{}".format(resolution), "EM11_{}".format(resolution), "EM12_{}".format(resolution), "EM13_{}".format(resolution), "EM15_{}".format(resolution))
+    for key in keys_to_remove:
+        if key in combined_ems_obs_dict:
+            del combined_ems_obs_dict[key]
+
 
 ################################################################
 # Trim observations data to also only include data from the overlapping time period
@@ -144,9 +168,9 @@ observations = pd.DataFrame({"Precipitation (mm/hr)" : observations,
 leeds_data_dict['Observations'] = observations
 leeds_data_dict['Observations Regridded'] = observations_regridded
     
-# Remove data not in the overlapping time period
-observations_regridded_overlapping = observations_regridded[(observations_regridded['Date'] >= '1990-01-01 00:00:00') 
-                                                & (observations_regridded['Date'] <= '2000-11-30 23:00:00 ')]
+# Remove data not in the overlapping time period#
+#observations_regridded_overlapping = observations_regridded[(observations_regridded['Date'] >= '1990-01-01 00:00:00') 
+#                                                & (observations_regridded['Date'] <= '2000-11-30 23:00:00 ')]
 
 observations_overlapping = observations[(observations['Date'] >= '1990-01-01 00:00:00') 
                                                 & (observations['Date']<= '2000-11-30 23:00:00 ')]
@@ -195,12 +219,22 @@ for key in keys_to_remove:
 ##############################################################################
 # Plotting
 ##############################################################################
+combined_ems_obs_dict= leeds_data_dict.copy()
+keys_to_remove =("EM01", "EM04", "EM05", "EM06", "EM07", "EM08",
+                 "EM09", "EM10", "EM11", "EM12", "EM13", "EM15")
+for key in keys_to_remove:
+    if key in combined_ems_obs_dict:
+        del combined_ems_obs_dict[key]
+
+####### Add both native and regridded observations data to dictionary
+combined_ems_obs_dict['Observations'] = observations
+combined_ems_obs_dict['Observations Regridded'] = observations_regridded
+
+
 cols_dict = {'Observations' : 'firebrick',
              'Observations Regridded' : 'green',
-             'Combined EMs' : 'navy',
-             'EM01': "navy", 'EM04': 'navy', 'EM05': 'navy','EM06': 'navy',
-             'EM07': 'navy','EM08': 'navy','EM09': 'navy',  'EM10': 'navy',
-             'EM11': 'navy','EM12': 'navy','EM13': 'navy','EM15': 'navy'}
+             'Combined EMs_12km' : 'navy',
+ 'Combined EMs_2.2km' : 'orange'}
 
 x_axis = 'linear'
 y_axis = 'log'
@@ -213,12 +247,14 @@ bins_if_log_spaced= bin_nos
 patches= []#=
 #patch = mpatches.Patch(color='navy', label='Model')
 #patches.append(patch)
-log_discrete_histogram_lesslegend(just_ems_dict, cols_dict, bin_nos, "Precipitation (mm/hr)", 
+log_discrete_histogram_lesslegend(combined_ems_obs_dict, cols_dict, bin_nos, "Precipitation (mm/hr)", 
                                   patches, True, xlim, x_axis, y_axis) 
 
 ####### Combined ensemble members + Obs
 patches= []
-patch = mpatches.Patch(color='navy', label='Model')
+patch = mpatches.Patch(color='orange', label='Model (2.2km)')
+patches.append(patch)
+patch = mpatches.Patch(color='navy', label='Model (12km)')
 patches.append(patch)
 patch = mpatches.Patch(color='green', label='Observations Regridded')
 patches.append(patch)
