@@ -223,6 +223,18 @@ mo_gauges= pd.DataFrame({'ID' : ["Bingley No.2","Bradford",
                          'Longitude' : [-1.867,  -1.774,  -1.394, -1.668]})
 
 
+
+mo_gauges= pd.DataFrame({'ID' : ["Huddersfield Oakes","Leeds weather centre"], 
+                         'Latitude' : [53.656, 53.801], 
+                         'Longitude' : [-1.831,  -1.561]})
+
+
+
+mo_gauges= pd.DataFrame({'ID' : ["Huddersfield Oakes","Leeds weather centre"], 
+                         'Latitude' : [53.656, 53.801], 
+                         'Longitude' : [-1.831,  -1.561]})
+
+
 # Locations of spots marked on distance to gauge plot as containing a gauge
 # but not found in Newcastle/MO gauges (manually defined locations based on
 # distance to gauge plot)
@@ -240,7 +252,7 @@ defined_gauges = reproject_wm (defined_gauges)
 ###############################################################################
 ###############################################################################
 ##### Plotting  
-stat = 'jja_max'
+stat = 'jja_p99'
 # Load in netcdf files containing the stats data over the whole UK
 obs_cube = iris.load('/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Observations/leeds-at-centre/{}.nc'.format(stat))[0]
 obs_cube = trim_to_bbox_of_region_obs(obs_cube, leeds_at_centre_gdf)  
@@ -268,21 +280,12 @@ plt.plot(defined_gauges['Long_wm'], defined_gauges['Lat_wm'], 'o', color='yellow
 
   
 
-
-
 ##############################
 stations_to_include = ['knostrop_logger', 'silsden_res_logger', 'skipton_council_logg', 'Trawden_Auto',
                        'gorple_logger', 'great_walden_edge_no.2_tbr', 'Kitcliffe_LOG', 'Broadhead_Noddle_LOG',
                        'Greenfield_S.Wks_LOG', 'roecliffe_logger']
 
 
-
-
-mo_gauges= pd.DataFrame({'ID' : ["Huddersfield Oakes","Leeds weather centre"], 
-                         'Latitude' : [53.656, 53.801], 
-                         'Longitude' : [-1.831,  -1.561]})
-
-    
 # Find min and max vlues in data and set up contour levels
 local_min = np.nanmin(obs_cube.data)
 local_max = np.nanmax(obs_cube.data)     
