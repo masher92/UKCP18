@@ -209,7 +209,7 @@ plt.plot(defined_gauges['Long_wm'], defined_gauges['Lat_wm'], 'o', color='yellow
 ###############################################################################
 ###############################################################################
 ##### Plotting  
-stat = 'jja_max'
+stat = 'jja_p99.9'
 # Load in netcdf files containing the stats data over the whole UK
 obs_cube = iris.load('/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Observations/leeds-at-centre/{}.nc'.format(stat))[0]
 obs_cube = trim_to_bbox_of_region_obs(obs_cube, leeds_at_centre_gdf)  
@@ -221,7 +221,7 @@ proj = ccrs.Mercator.GOOGLE
 # Create axis using this WM projection
 ax = fig.add_subplot(projection=proj)
 # Plot
-mesh = iplt.pcolormesh(obs_cube, cmap = 'Blues')
+mesh = iplt.pcolormesh(jja_max, cmap = 'Blues')
 # add leeds outline
 leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=4)
 # Add gauges
@@ -235,7 +235,11 @@ for lat, lon in zip(lats, lons):
 plt.plot(mo_gauges['Long_wm'], mo_gauges['Lat_wm'], 'o', color='red', markersize =20)
 plt.plot(defined_gauges['Long_wm'], defined_gauges['Lat_wm'], 'o', color='yellow', markersize =20)
 
-  
+
+
+
+
+
 
 ##############################
 stations_to_include = ['knostrop_logger', 'silsden_res_logger', 'skipton_council_logg', 'Trawden_Auto',

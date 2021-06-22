@@ -234,7 +234,7 @@ for filename in glob.glob("datadir/GaugeData/Newcastle/E*"):
     
 ############################################################################################################################
 ############################################################################################################################
-#
+# For each gauge, trim the gauge data and the CEH-GEAR data to only cover the overlapping time period
 ############################################################################################################################
 ############################################################################################################################
 earliest_times = []
@@ -291,16 +291,17 @@ for station_name in station_names:
 
 ############################################################################
 ############################################################################
-#
+# Plots for individual gauges
 ############################################################################
 ############################################################################
-for station_name in ['headingley_logger', 'eccup_logger', 'bramham_logger', 'farnley_hall_logger', 'knostrop_logger',
-               'otley_s.wks_logger']:
+overlapping =''  #[''. '_overlapping']
+
+for station_name in station_names:
     print(station_name)
     this_dict = dict_all_stations[station_name]
     gauge_ts = {}
-    gauge_ts[station_name + '_GaugeData'] = this_dict['Gauge']
-    gauge_ts[station_name + '_GridData'] =  this_dict['CEH-GEAR']
+    gauge_ts[station_name + '_GaugeData'] = this_dict['Gauge{}'.format(overlapping)]
+    gauge_ts[station_name + '_GridData'] =  this_dict['CEH-GEAR{}'.format(overlapping)]
     
     # Define a dictionary of colours
     cols_dict = {station_name + '_GaugeData' : 'firebrick',
@@ -322,8 +323,16 @@ for station_name in ['headingley_logger', 'eccup_logger', 'bramham_logger', 'far
     
     numbers_in_each_bin = log_discrete_with_inset(gauge_ts, cols_dict, bin_nos, "Precipitation (mm/hr)", 
                                       patches, True, xlim) 
+    if overlapping == 'overlapping':
+        plt.savefig("Scripts/UKCP18/RainGaugeAnalysis/Figs/PDF_GaugevsGridCell/{}_all_overlapping.png".format(station_name))
+    else:
+         plt.savefig("Scripts/UKCP18/RainGaugeAnalysis/Figs/PDF_GaugevsGridCell/{}_all.png".format(station_name))
+          
 
-    plt.savefig("Scripts/UKCP18/RainGaugeAnalysis/Figs/PDF_GaugevsGridCell/{}_all_overlapping.png".format(station_name))
+
+
+
+
 
 # find number of data points over various thresholds
 df = pd.DataFrame(columns = ['Station name', 'Gauge','Grid','Gauge','Grid','Gauge','Grid'])

@@ -46,6 +46,7 @@ for filename in glob.glob(general_filename):
     #print(filename)
     filenames.append(filename)
     print(len(filenames))
+    
 # Load all cubes into list
 monthly_cubes_list = iris.load(filenames,'rainfall_amount')
 
@@ -113,6 +114,7 @@ jja = concat_cube.extract(iris.Constraint(clim_season = 'jja'))
 # Add season year
 iris.coord_categorisation.add_season_year(jja,'time', name = "season_year") 
 
+
 ###########################################
 # Find Max, mean, percentiles
 #############################################
@@ -124,7 +126,7 @@ jja_max = jja.collapsed('time', iris.analysis.MAX)
 jja_mean = jja.collapsed('time', iris.analysis.MEAN)
 jja_percentiles = jja.collapsed('time', iris.analysis.PERCENTILE, percent = [95, 97,99,99.5, 99.75, 99.9])
 
-iplt.pcolormesh(p95)
+iplt.pcolormesh(jja_max)
 
 ###########################################
 ## Save to file

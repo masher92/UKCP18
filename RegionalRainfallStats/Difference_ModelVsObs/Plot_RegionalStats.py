@@ -28,11 +28,11 @@ from Spatial_geometry_functions import *
 # Region over which to plot
 region = 'leeds-at-centre' #['Northern', 'leeds-at-centre', 'UK']
 
+stats = ['jja_max', 'jja_p99']
 
 ##################################################################
 # Load necessary spatial data
 ##################################################################
-
 # This is the outlins of Leeds
 leeds_gdf = create_leeds_outline({'init' :'epsg:3857'})
 # This is a square area surrounding Leeds
