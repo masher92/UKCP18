@@ -54,7 +54,7 @@ leeds_poly = Polygon(create_leeds_outline({'init' :'epsg:4326'})['geometry'].ilo
 #############################################################################
 #############################################################################
 # Define file path to one CEH-GEAR file
-filename = "datadir/CEH-GEAR/CEH-GEAR-1hr_199001.nc"
+filename = "datadir/CEH-GEAR/CEH-GEAR-1hr_201001.nc"
 
 # Define variable which indiciates the minimum distancxe to a rain gauge
 variable = 'min_dist'
@@ -109,7 +109,8 @@ distance_to_gauge = trim_to_bbox_of_region_obs(distance_to_gauge, leeds_at_centr
 stations_to_exclude = ['knostrop_logger', 'silsden_res_logger', 'skipton_council_logg', 'Trawden_Auto',
                        'gorple_logger', 'great_walden_edge_no.2_tbr', 'Kitcliffe_LOG', 'Broadhead_Noddle_LOG',
                        'Greenfield_S.Wks_LOG', 'roecliffe_logger']
-stations_to_exclude = []
+
+
 lats,lons, station_names = [], [],[]
 for filename in glob.glob("datadir/GaugeData/Newcastle/E*"):
     with open(filename) as myfile:
@@ -125,84 +126,13 @@ for filename in glob.glob("datadir/GaugeData/Newcastle/E*"):
         this_point = Point(lon, lat)
         res = this_point.within(leeds_at_centre_poly)
         res_in_leeds = this_point.within(leeds_poly)
-        # If the point is within leeds-at-centre geometry 
-        if res ==True and station_name not in stations_to_exclude:
+        # If the point is within leeds-at-centre geometry
+#        if res ==True and station_name not in stations_to_exclude:        
+        if res ==True:
             # Add station name and lats/lons to list
             lats.append(lat)
             lons.append(lon)
             station_names.append(station_name)
-
-###############################################################################
-###############################################################################
-# Animation: testing gauges incldued in each timestep (using distance to gauge parameter)
-###############################################################################
-###############################################################################
-frames = distance_to_gauge.shape[0]   # Number of frames
-
-# Create a figure
-fig = plt.figure(figsize = (20,30))
-def draw(frame):
-    # Clear the previous figure
-    plt.clf()
-    grid = distance_to_gauge[frame]
-    
-    ax = fig.add_subplot(projection=proj)
-    
-    mesh = iplt.pcolormesh(grid, cmap = precip_colormap)
-    leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=4)
-
-    for lat, lon in zip(lats, lons):
-        lon_wm,lat_wm = transform(Proj(init = 'epsg:4326') , Proj(init = 'epsg:3857') , lon, lat)
-        plt.plot(lon_wm, lat_wm,   'o', color='black', markersize = 20) 
-
-    datetime = grid.coord('time').units.num2date(grid.coord('time').points[0]) 
-    plt.title(str(datetime), fontsize = 30)
-    return mesh
-    
-def init():
-    return draw(0)
-
-def animate(frame):
-    return draw(frame)
-
-# Not sure what, if anything, this does
-from matplotlib import rc, animation
-rc('animation', html='html5')
-
-ani = animation.FuncAnimation(fig, animate, frames, interval=10, save_count=50, blit=False, init_func=init,repeat=False)
-ani.save('Outputs/RainGaugeAnalysis/DistancetoGauge.mp4', writer=animation.FFMpegWriter(fps=8))
-
-###############################################################################
-###############################################################################
-# Plot distance to gauges with all the Newcastle gauges on (to compare)
-###############################################################################
-###############################################################################
-# Get one timeslcie
-distance_to_gauge_onetimeslice = distance_to_gauge[200,:,:]
-print(distance_to_gauge_onetimeslice)
-
-# plot with stations overlain 
-# Define figure size
-fig = plt.figure(figsize = (20,30))
-
-precip_colormap = create_precip_cmap()   
-# Set up projection system
-proj = ccrs.Mercator.GOOGLE
-    
-# Create axis using this WM projection
-ax = fig.add_subplot(projection=proj)
-# Plot
-mesh = iplt.pcolormesh(distance_to_gauge_onetimeslice, cmap = precip_colormap)
-
-for lat, lon in zip(lats, lons):
-        this_point = Point(lon, lat)
-        res_in_leeds = this_point.within(leeds_at_centre_poly)
-        # If the point is within leeds-at-centre geometry 
-        if res_in_leeds ==True :
-            lon_wm,lat_wm = transform(Proj(init = 'epsg:4326') , Proj(init = 'epsg:3857') , lon, lat)
-            plt.plot(lon_wm, lat_wm,   'o', color='black', markersize = 20) 
-
-leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=4)
 
 
 ###############################################################################
@@ -222,29 +152,56 @@ mo_gauges= pd.DataFrame({'ID' : ["Bingley No.2","Bradford",
                          'Latitude' : [53.811, 53.814, 53.628,  53.612], 
                          'Longitude' : [-1.867,  -1.774,  -1.394, -1.668]})
 
-
-
-mo_gauges= pd.DataFrame({'ID' : ["Huddersfield Oakes","Leeds weather centre"], 
-                         'Latitude' : [53.656, 53.801], 
-                         'Longitude' : [-1.831,  -1.561]})
-
-
-
-mo_gauges= pd.DataFrame({'ID' : ["Huddersfield Oakes","Leeds weather centre"], 
-                         'Latitude' : [53.656, 53.801], 
-                         'Longitude' : [-1.831,  -1.561]})
+mo_gauges= pd.DataFrame({'ID' : ["Bingley No.2","Huddersfield Oakes","Bradford", 
+                                             "Emley moor", "Leeds weather centre",
+                                             "Ryhill","Bramham", "Emley Moor No.2" ], 
+                         'Latitude' : [53.811, 53.656, 53.814, 53.613, 53.801, 53.628, 53.869, 53.612], 
+                         'Longitude' : [-1.867, -1.831, -1.774, -1.665, -1.561, -1.394, -1.319, -1.668]})
 
 
 # Locations of spots marked on distance to gauge plot as containing a gauge
 # but not found in Newcastle/MO gauges (manually defined locations based on
 # distance to gauge plot)
-defined_gauges= pd.DataFrame({'ID' : ["no1", "no2", "no3", "no4", "no5"], 
-                         'Latitude' : [54.04, 54.07, 54.125, 54.13, 53.58], 
-                         'Longitude' : [-1.260, -1.78, -1.66, -1.43, -0.89]})
+defined_gauges= pd.DataFrame({'ID' : ["no1", "no2", "no3", "no4", "no5", "no6"], 
+                         'Latitude' : [54.04, 54.07, 54.125, 54.13, 53.58, 53.835], 
+                         'Longitude' : [-1.260, -1.78, -1.66, -1.43, -0.89, -1.2]})
 
 # Convert to WM
 mo_gauges = reproject_wm (mo_gauges)
 defined_gauges = reproject_wm (defined_gauges)
+
+
+###############################################################################
+###############################################################################
+# Plot distance to gauges with all the Newcastle gauges on (to compare)
+###############################################################################
+###############################################################################
+# Get one timeslcie
+distance_to_gauge_onetimeslice = distance_to_gauge[0,:,:]
+print(distance_to_gauge_onetimeslice)
+
+precip_colormap = create_precip_cmap()   
+
+# Define figure size
+fig = plt.figure(figsize = (20,30))
+# Set up projection system
+proj = ccrs.Mercator.GOOGLE
+# Create axis using this WM projection
+ax = fig.add_subplot(projection=proj)
+# Plot
+mesh = iplt.pcolormesh(distance_to_gauge_onetimeslice, cmap = precip_colormap)
+# add leeds outline
+leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=4)
+# Add gauges
+for lat, lon in zip(lats, lons):
+        this_point = Point(lon, lat)
+        res_in_leeds = this_point.within(leeds_at_centre_poly)
+        # If the point is within leeds-at-centre geometry 
+        if res_in_leeds ==True :
+            lon_wm,lat_wm = transform(Proj(init = 'epsg:4326') , Proj(init = 'epsg:3857') , lon, lat)
+            plt.plot(lon_wm, lat_wm,   'o', color='black', markersize = 20) 
+plt.plot(mo_gauges['Long_wm'], mo_gauges['Lat_wm'], 'o', color='red', markersize =20)
+plt.plot(defined_gauges['Long_wm'], defined_gauges['Lat_wm'], 'o', color='yellow', markersize =20)
 
 ###############################################################################
 ###############################################################################
@@ -252,7 +209,7 @@ defined_gauges = reproject_wm (defined_gauges)
 ###############################################################################
 ###############################################################################
 ##### Plotting  
-stat = 'jja_p99'
+stat = 'jja_max'
 # Load in netcdf files containing the stats data over the whole UK
 obs_cube = iris.load('/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Observations/leeds-at-centre/{}.nc'.format(stat))[0]
 obs_cube = trim_to_bbox_of_region_obs(obs_cube, leeds_at_centre_gdf)  
@@ -317,5 +274,46 @@ leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=4)
 
 plt.plot(mo_gauges['Long_wm'], mo_gauges['Lat_wm'], 'o', color='red', markersize =20)
 
+
+
+# ###############################################################################
+# ###############################################################################
+# # Animation: testing gauges incldued in each timestep (using distance to gauge parameter)
+# ###############################################################################
+# ###############################################################################
+# frames = distance_to_gauge.shape[0]   # Number of frames
+
+# # Create a figure
+# fig = plt.figure(figsize = (20,30))
+# def draw(frame):
+#     # Clear the previous figure
+#     plt.clf()
+#     grid = distance_to_gauge[frame]
+    
+#     ax = fig.add_subplot(projection=proj)
+    
+#     mesh = iplt.pcolormesh(grid, cmap = precip_colormap)
+#     leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=4)
+
+#     for lat, lon in zip(lats, lons):
+#         lon_wm,lat_wm = transform(Proj(init = 'epsg:4326') , Proj(init = 'epsg:3857') , lon, lat)
+#         plt.plot(lon_wm, lat_wm,   'o', color='black', markersize = 20) 
+
+#     datetime = grid.coord('time').units.num2date(grid.coord('time').points[0]) 
+#     plt.title(str(datetime), fontsize = 30)
+#     return mesh
+    
+# def init():
+#     return draw(0)
+
+# def animate(frame):
+#     return draw(frame)
+
+# # Not sure what, if anything, this does
+# from matplotlib import rc, animation
+# rc('animation', html='html5')
+
+# ani = animation.FuncAnimation(fig, animate, frames, interval=10, save_count=50, blit=False, init_func=init,repeat=False)
+# ani.save('Outputs/RainGaugeAnalysis/DistancetoGauge.mp4', writer=animation.FFMpegWriter(fps=8))
 
 
