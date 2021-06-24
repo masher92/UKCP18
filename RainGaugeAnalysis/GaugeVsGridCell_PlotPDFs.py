@@ -1,3 +1,16 @@
+'''
+This script:
+    Finds rain gauges within leeds-at-centre region
+    Finds the CEH-GEAR grid cell which they are located within
+    Plots a PDF of hourly precipitation intensities from the gauge vs from the grid cell
+        Optional: also include data from UKCP18 grid cells
+        
+    Later in the script there is also code to combine the data from all the gauges
+    and all the grid cells within which they are found
+    And plot one PDF of the combined data
+
+'''
+
 #############################################################################
 # Set up environment
 #############################################################################
@@ -30,9 +43,10 @@ from PDF_plotting_functions import *
 warnings.simplefilter(action='ignore', category = FutureWarning)
 warnings.simplefilter(action='ignore', category = DeprecationWarning)
 
-ems = ['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
-
+# Define whether to include UKCP18 data in the plot
 include_ukcp18 = False
+# Ensemble numbers
+ems = ['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
 
 #############################################################################
 #############################################################################
@@ -52,25 +66,28 @@ leeds_poly = Polygon(create_leeds_outline({'init' :'epsg:4326'})['geometry'].ilo
 
 #############################################################################
 #############################################################################
-# Loop through every text file in the directory
-# Check if its lat-long coordinates are within the leeds-at-centre area
-# If so, then find the date times that correspond to the precipitation values
-# and save as a CSV.
+# Loop through every text file in the directory of EA rain gauge data
+# Check if each gauge's lat-long coordinates are within the leeds-at-centre area
+# If it is:
+
 #############################################################################
 #############################################################################
+# Create counter
 i=0
+
 # Create dictionary, which will have station name as key and dictionaries for 
 # gauge, CEH-GEAR, UKCP18 ensembles as values
 dict_all_stations = {}
-# Create a list to store the names of stations within leeds region, for which 
-# we are extracting data
+
+# Create lists to store station names, lat and long for all gauges within leeds region
 station_names= []
-# Not sure whatI am using these for
-grid_closest_point_idxs = []
-ukcp18_closest_point_idxs = []
-# TO store lats and lons of gaues within Leeds, to plot all on one plot
 lats = []
 lons = []
+
+# Create list to store all the indexs of grid cells closest to the gauges
+closest_point_idx_grids = []
+
+# Loop through each file
 for filename in glob.glob("datadir/GaugeData/Newcastle/E*"):
     with open(filename) as myfile:
         # read in the lines of text at the top of the file
@@ -131,10 +148,6 @@ for filename in glob.glob("datadir/GaugeData/Newcastle/E*"):
             # Create a formatted date column
             gauge_df['Datetime'] = pd.to_datetime(gauge_df['Datetime'], dayfirst = False)
           
-            # # Save to file
-            # precip_df.to_csv("datadir/GaugeData/Newcastle/leeds-at-centre_csvs/{}.csv".format(station_name),
-            #                   index = False)
-            
             #############################################################################
             # Create a csv containing the data and the dates for the CEH-GEAR grid cell which
             # the gauge is located within
@@ -148,8 +161,7 @@ for filename in glob.glob("datadir/GaugeData/Newcastle/E*"):
             # Get the data values at this location
             # think the obs cube is only for finding position - hence why its one timeslice
             cehgear_df, closest_point_idx_grid = find_position_obs(obs_cube, lat, lon, station_name)
-            # Add 
-            grid_closest_point_idxs.append(closest_point_idx_grid)
+            closest_point_idx_grids.append(closest_point_idx_grid)
             
             # Create a formatted date column
             cehgear_df['Datetime'] = pd.to_datetime(cehgear_df['Times'], dayfirst = True)
@@ -170,7 +182,6 @@ for filename in glob.glob("datadir/GaugeData/Newcastle/E*"):
                 
             #     # Get the data values at this location
             #     ukcp18_df, closest_point_idx_ukcp18 = find_position(em_cube, em, lon, lat, station_name)
-            #     ukcp18_closest_point_idxs.append(closest_point_idx_ukcp18)
 
             #     # add data to dictionary
             #     dict_this_station["UKCP18_{}".format(em)] = ukcp18_df
@@ -238,9 +249,7 @@ for filename in glob.glob("datadir/GaugeData/Newcastle/E*"):
 # For each gauge, trim the gauge data and the CEH-GEAR data to only cover the overlapping time period
 ############################################################################################################################
 ############################################################################################################################
-earliest_times = []
-latest_times = []
-
+# Loop through gauges
 for station_name in station_names:
     print(station_name)
     ############################################
@@ -297,9 +306,12 @@ for station_name in station_names:
 ############################################################################
 overlapping = '_overlapping'  #[''. '_overlapping']
 
+# Loop through stations
 for station_name in station_names:
     print(station_name)
+    # Extract data for this gauge
     this_dict = dict_all_stations[station_name]
+    # Extract just the dataframes for overlapping period or not overlapping period
     gauge_ts = {}
     gauge_ts[station_name + '_GaugeData'] = this_dict['Gauge{}'.format(overlapping)]
     gauge_ts[station_name + '_GridData'] =  this_dict['CEH-GEAR{}'.format(overlapping)]
@@ -322,14 +334,16 @@ for station_name in station_names:
     patch = mpatches.Patch(color='green', label='CEH-GEAR Data')
     patches.append(patch)
     
+    # Plot
     numbers_in_each_bin = log_discrete_with_inset(gauge_ts, cols_dict, bin_nos, "Precipitation (mm/hr)", 
                                       patches, True, xlim) 
     if overlapping == '_overlapping':
         plt.savefig("Scripts/UKCP18/RainGaugeAnalysis/Figs/PDF_GaugevsGridCell/{}_all_overlapping.png".format(station_name))
     else:
          plt.savefig("Scripts/UKCP18/RainGaugeAnalysis/Figs/PDF_GaugevsGridCell/{}_all.png".format(station_name))
-          
-# find number of data points over various thresholds
+
+##############################################################################         
+# Find number of data points over various thresholds
 df = pd.DataFrame(columns = ['Station name', 'Gauge','Grid','Gauge','Grid','Gauge','Grid'])
 for station_name in station_names:
     this_dict = dict_all_stations[station_name]
@@ -345,7 +359,12 @@ for station_name in station_names:
                 i_ls.append(len(ceh_gear_df[ceh_gear_df['Precipitation (mm/hr)'] >i]))
     df.loc[len(df)] = i_ls
 
-# Plotting 
+############################################################################
+############################################################################
+# Plots for gauges combined
+############################################################################
+############################################################################
+#### Create dictionary containing combined data across all rain gauges/grid cells
 ukcp18_frames = []
 gauge_frames = []
 gauge_overlapping_frames = []
@@ -365,31 +384,10 @@ all_gauges_overlapping = pd.concat(gauge_overlapping_frames)
 all_grids = pd.concat(grid_frames)   
 all_grids_overlapping = pd.concat(grid_overlapping_frames)    
 
-combined_dict = {'Gauge':all_gauges,
-                  'CEH-GEAR': all_grids}
+combined_dict = {'Gauge':all_gauges_overlapping,
+                  'CEH-GEAR': all_grids_overlapping}
 
-# find number of data points over various thresholds
-df = pd.DataFrame(columns = ['Station name', 'Gauge','Grid','Gauge','Grid','Gauge','Grid'])
-gauge_df = combined_dict['Gauge']
-ceh_gear_df = combined_dict['CEH-GEAR']
-for time_period in ['Full time period', 'Overlapping']:
-    i_ls = [time_period]
-    for i in [10,15,20]:
-        for x in ['Gauge', 'Grid']:        
-            if x == 'Gauge' and time_period == 'Full time period':
-                i_ls.append(len(all_gauges[all_gauges['Precipitation (mm/hr)'] >i]))
-            elif x == 'Gauge' and time_period == 'Overlapping':
-                  i_ls.append(len(all_gauges_overlapping[all_gauges_overlapping['Precipitation (mm/hr)'] >i]))
-            elif x == 'Grid' and time_period == 'Full time period':
-                i_ls.append(len(all_grids[all_grids['Precipitation (mm/hr)'] >i]))
-            elif x == 'Grid' and time_period == 'Overlapping': 
-                i_ls.append(len(all_grids_overlapping[all_grids_overlapping['Precipitation (mm/hr)'] >i]))
-    df.loc[len(df)] = i_ls
-
-
-#########################################################################
-# Plotting
-#########################################################################
+#### Plotting
 # Define a dictionary of colours
 cols_dict = {'Gauge' : 'firebrick', 'CEH-GEAR'  : 'green'}
              
@@ -420,7 +418,11 @@ numbers_in_each_bin = log_discrete_with_inset(combined_dict, cols_dict, bin_nos,
 #     plt.savefig("Scripts/UKCP18/RainGaugeAnalysis/Figs/PDF_GaugevsGridCell/{}_{}_{}.png".format(station_name, just_jja, overlapping_time_period))
 
 
-######## Check plotting 
+###################################################################################
+###################################################################################
+# Plot showing locations of all gauges, and grid cells that they are within
+###################################################################################
+###################################################################################
 # Get cube containing one hour worth of data
 hour_uk_cube = obs_cube[0,:,:]
 
@@ -435,7 +437,7 @@ for i in range(0,hour_uk_cube.shape[0]):
 # Set all the values to 0
 test_data = np.full((hour_uk_cube.shape),0,dtype = int)
 # Set the values at the index position fond above to 1
-for closest_point_idx in closest_point_idxs:
+for closest_point_idx in grid_closest_point_idxs:
     test_data[indexs_lst[closest_point_idx][0],indexs_lst[closest_point_idx][1]] = 1
 # Mask out all values that aren't 1
 test_data = ma.masked_where(test_data<1,test_data)
@@ -456,7 +458,7 @@ print('Creating plot')
 
 
 # Create a colormap
-cmap = matplotlib.colors.ListedColormap(['yellow'])
+cmap = matplotlib.colors.ListedColormap(['red'])
 
 fig, ax = plt.subplots(figsize=(30,30))
 extent = tilemapbase.extent_from_frame(leeds_at_centre_gdf)
@@ -476,3 +478,24 @@ plt.savefig('Scripts/UKCP18/RainGaugeAnalysis/Figs/CheckingLocations/CEH-GEAR/Al
             bbox_inches = 'tight')
 plt.show()
     
+##############################################################################
+# Find number of data points over various thresholds
+df = pd.DataFrame(columns = ['Station name', 'Gauge','Grid','Gauge','Grid','Gauge','Grid'])
+gauge_df = combined_dict['Gauge']
+ceh_gear_df = combined_dict['CEH-GEAR']
+for time_period in ['Full time period', 'Overlapping']:
+    i_ls = [time_period]
+    for i in [10,15,20]:
+        for x in ['Gauge', 'Grid']:        
+            if x == 'Gauge' and time_period == 'Full time period':
+                i_ls.append(len(all_gauges[all_gauges['Precipitation (mm/hr)'] >i]))
+            elif x == 'Gauge' and time_period == 'Overlapping':
+                  i_ls.append(len(all_gauges_overlapping[all_gauges_overlapping['Precipitation (mm/hr)'] >i]))
+            elif x == 'Grid' and time_period == 'Full time period':
+                i_ls.append(len(all_grids[all_grids['Precipitation (mm/hr)'] >i]))
+            elif x == 'Grid' and time_period == 'Overlapping': 
+                i_ls.append(len(all_grids_overlapping[all_grids_overlapping['Precipitation (mm/hr)'] >i]))
+    df.loc[len(df)] = i_ls
+##############################################################################
+
+

@@ -1,3 +1,21 @@
+'''
+This script:
+    Reads in a CEH-GEAR cube and reformats it to BNG
+    Plots its 'dist' parameter to infer locations of gauges
+    Overlays locations of EA and MO gauges and compares this
+    Defines some extra locations where there seems to be gauges from this dist
+        parameter, that aren't included in EA or MO
+        
+    NB: In "Load in CEH-GEAR data" section, only one month's worth of data is loaded
+    The 'dist' parameter changes with each hour of data
+    So at each timeslice a different selection of gauges are used to construct it
+    If wanted to look into this more closely could use the animation section 
+    at bottom
+'''
+
+#############################################################################
+# Set up environment
+#############################################################################
 import iris.coord_categorisation
 import iris
 import numpy as np
@@ -24,7 +42,7 @@ sys.path.insert(0, root_fp + 'Scripts/UKCP18/GlobalFunctions')
 from Spatial_plotting_functions import *
 from Spatial_geometry_functions import *
 
-
+## Function for reprojecting from WGS84 to Web Mercator
 def reproject_wm (gauges_df):
     gauges_long_wm, gauges_lat_wm = transform(Proj(init='epsg:4326'),Proj(init='epsg:3785'),
                                             np.array(gauges_df['Longitude']), np.array(gauges_df['Latitude'])) 
@@ -105,12 +123,6 @@ distance_to_gauge = trim_to_bbox_of_region_obs(distance_to_gauge, leeds_at_centr
 # Read in locations of Newcastle gauges (EA)
 ###############################################################################
 ###############################################################################
-# Newcastle gauges to remove (as not included)
-stations_to_exclude = ['knostrop_logger', 'silsden_res_logger', 'skipton_council_logg', 'Trawden_Auto',
-                       'gorple_logger', 'great_walden_edge_no.2_tbr', 'Kitcliffe_LOG', 'Broadhead_Noddle_LOG',
-                       'Greenfield_S.Wks_LOG', 'roecliffe_logger']
-
-
 lats,lons, station_names = [], [],[]
 for filename in glob.glob("datadir/GaugeData/Newcastle/E*"):
     with open(filename) as myfile:
@@ -127,31 +139,22 @@ for filename in glob.glob("datadir/GaugeData/Newcastle/E*"):
         res = this_point.within(leeds_at_centre_poly)
         res_in_leeds = this_point.within(leeds_poly)
         # If the point is within leeds-at-centre geometry
-#        if res ==True and station_name not in stations_to_exclude:        
         if res ==True:
             # Add station name and lats/lons to list
             lats.append(lat)
             lons.append(lon)
             station_names.append(station_name)
 
-
 ###############################################################################
 ###############################################################################
-# Include Met Office gauges
-# And remove gauges not shown up on distance to gauge plot
+# Read in locations of Met Office Gauges
+# And define locations where there appears to be gauges from plotting the dist_to_gauge 
+# paramater
+# NB: I did this using just one timeslice, so its possible there might be more
+# of these
 ###############################################################################
 ###############################################################################
-# Find index of stations to remove
-# index = station_names.index('knostrop_logger')
-# # remove form lats/lons
-# del lats[-index], lons[-index]
-
-# Extra MO gauges to add
-mo_gauges= pd.DataFrame({'ID' : ["Bingley No.2","Bradford", 
-                                  "Ryhill","Emley Moor No.2" ], 
-                         'Latitude' : [53.811, 53.814, 53.628,  53.612], 
-                         'Longitude' : [-1.867,  -1.774,  -1.394, -1.668]})
-
+# Met Office Gauges
 mo_gauges= pd.DataFrame({'ID' : ["Bingley No.2","Huddersfield Oakes","Bradford", 
                                              "Emley moor", "Leeds weather centre",
                                              "Ryhill","Bramham", "Emley Moor No.2" ], 
@@ -221,7 +224,7 @@ proj = ccrs.Mercator.GOOGLE
 # Create axis using this WM projection
 ax = fig.add_subplot(projection=proj)
 # Plot
-mesh = iplt.pcolormesh(jja_max, cmap = 'Blues')
+mesh = iplt.pcolormesh(obs_cube, cmap = 'Blues')
 # add leeds outline
 leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=4)
 # Add gauges
@@ -234,51 +237,6 @@ for lat, lon in zip(lats, lons):
             plt.plot(lon_wm, lat_wm,   'o', color='black', markersize = 20) 
 plt.plot(mo_gauges['Long_wm'], mo_gauges['Lat_wm'], 'o', color='red', markersize =20)
 plt.plot(defined_gauges['Long_wm'], defined_gauges['Lat_wm'], 'o', color='yellow', markersize =20)
-
-
-
-
-
-
-
-##############################
-stations_to_include = ['knostrop_logger', 'silsden_res_logger', 'skipton_council_logg', 'Trawden_Auto',
-                       'gorple_logger', 'great_walden_edge_no.2_tbr', 'Kitcliffe_LOG', 'Broadhead_Noddle_LOG',
-                       'Greenfield_S.Wks_LOG', 'roecliffe_logger']
-
-
-# Find min and max vlues in data and set up contour levels
-local_min = np.nanmin(obs_cube.data)
-local_max = np.nanmax(obs_cube.data)     
-contour_levels = np.linspace(local_min, local_max, 11,endpoint = True)     
-
-  
-# Define figure size
-fig = plt.figure(figsize = (20,30))
-
-# Set up projection system
-proj = ccrs.Mercator.GOOGLE
-    
-# Create axis using this WM projection
-ax = fig.add_subplot(projection=proj)
-# Plot
-mesh = iplt.pcolormesh(obs_cube, cmap = precip_colormap)
-
-for lat, lon in zip(lats, lons):
-        this_point = Point(lon, lat)
-        res_in_leeds = this_point.within(leeds_at_centre_poly)
-        # If the point is within leeds-at-centre geometry 
-        #if 1 == 1:
-        if res_in_leeds ==True :
-            lon_wm,lat_wm = transform(Proj(init = 'epsg:4326') , Proj(init = 'epsg:3857') , lon, lat)
-            plt.plot(lon_wm, lat_wm,   'o', color='black', markersize = 20) 
-
-
-leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=4)
-
-plt.plot(mo_gauges['Long_wm'], mo_gauges['Lat_wm'], 'o', color='red', markersize =20)
-
-
 
 # ###############################################################################
 # ###############################################################################

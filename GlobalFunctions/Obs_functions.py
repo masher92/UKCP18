@@ -123,7 +123,7 @@ def find_position_obs (concat_cube, lat, lon, station_name):
     lon_wm,lat_wm = transform(Proj(init = 'epsg:4326') , Proj(init = 'epsg:3857') , lon, lat)
     
     # Create a colormap
-    cmap = matplotlib.colors.ListedColormap(['yellow'])
+    cmap = matplotlib.colors.ListedColormap(['red'])
     
     fig, ax = plt.subplots(figsize=(30,30))
     extent = tilemapbase.extent_from_frame(leeds_at_centre_gdf)

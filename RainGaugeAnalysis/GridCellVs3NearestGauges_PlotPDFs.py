@@ -64,8 +64,8 @@ obs_cube = trim_to_bbox_of_region_obs(obs_cube, leeds_at_centre_gdf)
 # Define lat, long of random point
 ###################################################################################
 ###################################################################################
-random_point_lats = [54.083,53.71, 53.868, 54.13, 53.585, 53.59]
-random_point_lons = [-1.7784, -0.977, -1.11, -2.18, -0.998]
+random_point_lats = [54.083,53.71, 53.868, 54.13, 53.585, 53.59, 53.74, 53.97, 54.11, 53.849]
+random_point_lons = [-1.7784, -0.977, -1.11, -2.18, -0.998, -1.85, -2.017, -1.82, -1.05, -1.434]
 plot_num=0
 for lat, lon in zip(random_point_lats, random_point_lons):
     print(lat, lon)
@@ -202,25 +202,25 @@ for lat, lon in zip(random_point_lats, random_point_lons):
     ############################################################################################################################
     ############################################################################################################################
     # Find earliest/latest time in the CEH-GEAR data
-    earliest_time =  cehgear_df['Times'].min() 
-    latest_time = cehgear_df['Times'].max() 
+    # earliest_time =  cehgear_df['Times'].min() 
+    # latest_time = cehgear_df['Times'].max() 
            
-    # Check if earliest/latest time in any of the gauge data is earlier/later
-    for closest_point_idx in closest_point_idxs:
-        station_name= station_names[closest_point_idx]
-        # Find earliest and latest time amongst gauges
-        earliest_time =  dict_this_station[station_name]['Datetime'].min() if dict_this_station[station_name]['Datetime'].min() > earliest_time else earliest_time
-        latest_time  =  dict_this_station[station_name]['Datetime'].max() if dict_this_station[station_name]['Datetime'].max() < latest_time  else latest_time 
+    # # Check if earliest/latest time in any of the gauge data is earlier/later
+    # for closest_point_idx in closest_point_idxs:
+    #     station_name= station_names[closest_point_idx]
+    #     # Find earliest and latest time amongst gauges
+    #     earliest_time =  dict_this_station[station_name]['Datetime'].min() if dict_this_station[station_name]['Datetime'].min() > earliest_time else earliest_time
+    #     latest_time  =  dict_this_station[station_name]['Datetime'].max() if dict_this_station[station_name]['Datetime'].max() < latest_time  else latest_time 
      
-    # Filter to only be between these times - Gauge and CEH-GEAR
-    cehgear_df = cehgear_df[(cehgear_df['Times'] >= earliest_time)& (cehgear_df['Times']<= latest_time)]
-    dict_this_station['CEH-GEAR'] = cehgear_df
+    # # Filter to only be between these times - Gauge and CEH-GEAR
+    # cehgear_df = cehgear_df[(cehgear_df['Times'] >= earliest_time)& (cehgear_df['Times']<= latest_time)]
+    # dict_this_station['CEH-GEAR'] = cehgear_df
     
-    for closest_point_idx in closest_point_idxs:
-        station_name= station_names[closest_point_idx]
-        gauge_df =dict_this_station[station_name]
-        gauge_df = gauge_df[(gauge_df['Datetime'] > earliest_time)& (gauge_df['Datetime']< latest_time)]
-        dict_this_station[station_name] = gauge_df
+    # for closest_point_idx in closest_point_idxs:
+    #     station_name= station_names[closest_point_idx]
+    #     gauge_df =dict_this_station[station_name]
+    #     gauge_df = gauge_df[(gauge_df['Datetime'] > earliest_time)& (gauge_df['Datetime']< latest_time)]
+    #     dict_this_station[station_name] = gauge_df
     
     
     ############################################################################
@@ -251,7 +251,7 @@ for lat, lon in zip(random_point_lats, random_point_lons):
     
     numbers_in_each_bin = log_discrete_with_inset(dict_this_station, cols_dict, bin_nos, "Precipitation (mm/hr)", 
                                       patches, True, xlim) 
-    plt.savefig('Scripts/UKCP18/RainGaugeAnalysis/Figs/PDF_AwayFromGauges/{}.png'.format(plot_num),
+    plt.savefig('Scripts/UKCP18/RainGaugeAnalysis/Figs/PDF_AwayFromGauges/{}_notoverlapping.png'.format(plot_num),
                 bbox_inches = 'tight')
     
     # Increase counter
