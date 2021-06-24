@@ -294,8 +294,8 @@ def trim_to_bbox_of_region_obs (obs_cube, gdf):
     minmax = lambda x: (np.min(x), np.max(x))
     
     #### Find the lats and lons of the cube in BNG
-    lats_1d = obs_cube.coord('grid_latitude').points
-    lons_1d = obs_cube.coord('grid_longitude').points
+    lats_1d = obs_cube.coord('projection_y_coordinate').points
+    lons_1d = obs_cube.coord('projection_x_coordinate').points
     
     # Convert to 2D
     lons_2d, lats_2d = np.meshgrid(lons_1d, lats_1d)

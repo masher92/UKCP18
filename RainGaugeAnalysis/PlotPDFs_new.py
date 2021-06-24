@@ -140,12 +140,13 @@ for filename in glob.glob("datadir/GaugeData/Newcastle/E*"):
             # the gauge is located within
             #############################################################################
             print('Loading CEH-GEAR data')
-            filename = 'Outputs/RegriddingObservations/CEH-GEAR_reformatted/rf_CEH-GEAR-1hr_201412.nc'
+            filename = 'Outputs/RegriddingObservations/CEH-GEAR_reformatted/rf_CEH-GEAR-1hr_201411.nc'
             obs_cube = iris.load(filename,'rainfall_amount')[0]
             # Trim concatenated cube to outline of leeds-at-centre geodataframe
             obs_cube = trim_to_bbox_of_region_obs(obs_cube, leeds_at_centre_gdf)
 
             # Get the data values at this location
+            # think the obs cube is only for finding position - hence why its one timeslice
             cehgear_df, closest_point_idx_grid = find_position_obs(obs_cube, lat, lon, station_name)
             # Add 
             grid_closest_point_idxs.append(closest_point_idx_grid)
@@ -294,7 +295,7 @@ for station_name in station_names:
 # Plots for individual gauges
 ############################################################################
 ############################################################################
-overlapping =''  #[''. '_overlapping']
+overlapping = '_overlapping'  #[''. '_overlapping']
 
 for station_name in station_names:
     print(station_name)
@@ -323,17 +324,11 @@ for station_name in station_names:
     
     numbers_in_each_bin = log_discrete_with_inset(gauge_ts, cols_dict, bin_nos, "Precipitation (mm/hr)", 
                                       patches, True, xlim) 
-    if overlapping == 'overlapping':
+    if overlapping == '_overlapping':
         plt.savefig("Scripts/UKCP18/RainGaugeAnalysis/Figs/PDF_GaugevsGridCell/{}_all_overlapping.png".format(station_name))
     else:
          plt.savefig("Scripts/UKCP18/RainGaugeAnalysis/Figs/PDF_GaugevsGridCell/{}_all.png".format(station_name))
           
-
-
-
-
-
-
 # find number of data points over various thresholds
 df = pd.DataFrame(columns = ['Station name', 'Gauge','Grid','Gauge','Grid','Gauge','Grid'])
 for station_name in station_names:

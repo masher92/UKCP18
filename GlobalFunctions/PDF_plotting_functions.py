@@ -508,8 +508,9 @@ def log_discrete_with_inset(results_dict, cols_dict, bin_nos, precip_variable, p
 
         # Draw the plot
         ax1.plot(bin_centres, freqs ,linewidth = 1, color = cols_dict[key])
-                
-        ax1.legend(handles=patches, loc = 'lower left', bbox_to_anchor = (0.15,0.73))
+
+        ax1.legend(handles=patches, loc = 'lower left', bbox_to_anchor = (0.18,0.7), prop = {"size":8})                
+        #ax1.legend(handles=patches, loc = 'lower left', bbox_to_anchor = (0.15,0.73))
         ax1.set_xlabel(precip_variable)
         ax1.set_ylabel('Probability density')
         if xlim != False:
