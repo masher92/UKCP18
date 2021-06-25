@@ -1,3 +1,5 @@
+### Does it matter that 12km model is daily rather than hourly?
+
 import numpy.ma as ma
 import iris.coord_categorisation
 import iris
@@ -66,12 +68,15 @@ leeds_gdf = create_leeds_outline({'init' :'epsg:27700'})
 # in the date column are then deleted to leave only the precip values within the
 # overlapping time period
 ################################################################
-
 # Load in timestamps that relate to one cell's worth of data
+model_times_2_2km_regridded = np.load('Outputs/TimeSeries/UKCP18/2.2km_regridded_12km/Baseline/leeds-at-centre/timestamps.npy'.format(timeperiod))
 model_times_2_2km = np.load('Outputs/TimeSeries/UKCP18/2.2km/Baseline/leeds-at-centre/timestamps.npy'.format(timeperiod))
 model_times_12km = np.load('Outputs/TimeSeries/UKCP18/12km/Baseline/leeds-at-centre/timestamps.npy'.format(timeperiod))
 
 # Set value as NA for values not in required date range
+for i in range(0,78480):
+    print(i)
+    model_times_2_2km_regridded[i] = '0'
 for i in range(0,78480):
     print(i)
     model_times_2_2km[i] = '0'
@@ -80,6 +85,7 @@ for i in range(0,2909):
     model_times_12km[i] = '0'
 
 # Repeat this 1221 times to be the same length as the precip data for whole of Leeds 
+model_times_2_2km_regridded_allcells = np.tile(model_times_2_2km_regridded, 1221)    
 model_times_2_2km_allcells = np.tile(model_times_2_2km, 1221)    
 model_times_12km_allcells = np.tile(model_times_12km, 36)  
 
@@ -92,9 +98,11 @@ leeds_data_dict = {}
 leeds_data_dict_overlapping = {}
 
 # Loop through ensemble members
-for resolution in ['2.2km', '12km']:
+for resolution in ['2.2km', '12km', '2.2km_regridded_12km']:
     if resolution == '2.2km':
         model_times = model_times_2_2km_allcells
+    elif resolution == '2.2km_regridded_12km':
+         model_times = model_times_2_2km_regridded_allcells      
     elif resolution == '12km':
         model_times = model_times_12km_allcells
         
@@ -119,7 +127,7 @@ for resolution in ['2.2km', '12km']:
 
 # Create a dataframe containing the data from across all ensemble members
 for dict in [leeds_data_dict, leeds_data_dict_overlapping]:
-    for resolution in ['12km', '2.2km']:
+    for resolution in ['12km', '2.2km', '2km_regridded_12km']:
         frames = [dict['EM01_{}'.format(resolution)], dict['EM04_{}'.format(resolution)], dict['EM05_{}'.format(resolution)], dict['EM06_{}'.format(resolution)],
                   dict['EM07_{}'.format(resolution)], dict['EM08_{}'.format(resolution)], dict['EM09_{}'.format(resolution)], dict['EM10_{}'.format(resolution)]
                   , dict['EM11_{}'.format(resolution)], dict['EM12_{}'.format(resolution)], dict['EM13_{}'.format(resolution)], dict['EM15_{}'.format(resolution)]] 
@@ -142,13 +150,13 @@ for resolution in ['12km', '2.2km']:
 # Trim observations data to also only include data from the overlapping time period
 ################################################################
 # Observations dates data
-obs_times = np.load("Outputs/TimeSeries/CEH-GEAR_regridded/NearestNeighbour/leeds-at-centre/timestamps.npy", allow_pickle = True)
+obs_times = np.load("Outputs/TimeSeries/CEH-GEAR/12km/NearestNeighbour/leeds-at-centre/timestamps.npy", allow_pickle = True)
 
 ####### Regridded data
 # Repeat time data 1221 times to be the same length as the precip data for whole of Leeds 
 obs_times_allcells_regridded = np.tile(obs_times, 1221)    
 # Load in regridded precip data
-observations_regridded = np.load("Outputs/TimeSeries/CEH-GEAR_regridded/NearestNeighbour/leeds-at-centre/leeds-at-centre.npy")
+observations_regridded = np.load("Outputs/TimeSeries/CEH-GEAR/12km/NearestNeighbour/leeds-at-centre/leeds-at-centre.npy")
 
 # Join dates data and precip data
 observations_regridded = pd.DataFrame({"Precipitation (mm/hr)" : observations_regridded,
@@ -157,7 +165,7 @@ observations_regridded = pd.DataFrame({"Precipitation (mm/hr)" : observations_re
 # Repeat this 6083 times to be the same length as the precip data for whole of Leeds  (73 cells x 83 cells)
 obs_times_allcells = np.tile(obs_times, 6059) 
 # Load in native precip data
-observations = np.load("Outputs/TimeSeries/CEH-GEAR/leeds-at-centre/leeds-at-centre.npy")
+observations = np.load("Outputs/TimeSeries/CEH-GEAR/1km/leeds-at-centre/leeds-at-centre.npy")
 
 # Join dates data and precip data
 observations = pd.DataFrame({"Precipitation (mm/hr)" : observations,
