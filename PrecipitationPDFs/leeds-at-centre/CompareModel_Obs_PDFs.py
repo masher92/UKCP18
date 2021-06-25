@@ -33,7 +33,7 @@ os.chdir(root_fp)
 # Create path to files containing functions
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/GlobalFunctions')
 from PDF_plotting_functions import *
-sys.path.insert(0, root_fp + 'Scripts/UKCP18/RegriddingObservations')
+sys.path.insert(0, root_fp + 'Scripts/UKCP18/Regridding')
 from Regridding_functions import *
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/GlobalFunctions')
 from Spatial_geometry_functions import *
