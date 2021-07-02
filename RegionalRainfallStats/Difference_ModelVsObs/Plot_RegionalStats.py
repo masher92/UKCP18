@@ -11,7 +11,9 @@ import iris.quickplot as qplt
 import iris.plot as iplt
 import cartopy.crs as ccrs
 from matplotlib import colors
+import glob as glob
 warnings.simplefilter(action = 'ignore', category = FutureWarning)
+warnings.simplefilter(action = 'ignore', category = DeprecationWarning)
 
 # Set up path to root directory
 root_fp = "/nfs/a319/gy17m2a/"
@@ -27,8 +29,7 @@ from Spatial_geometry_functions import *
 #############################################
 # Region over which to plot
 region = 'leeds-at-centre' #['Northern', 'leeds-at-centre', 'UK']
-
-stats = ['jja_max', 'jja_p99']
+stats = ['jja_max', 'jja_mean', 'jja_p95', 'jja_p97', 'jja_p99', 'jja_p99.5', 'jja_p99.75', 'jja_p99.9']
 
 ##################################################################
 # Load necessary spatial data
@@ -37,6 +38,62 @@ stats = ['jja_max', 'jja_p99']
 leeds_gdf = create_leeds_outline({'init' :'epsg:3857'})
 # This is a square area surrounding Leeds
 leeds_at_centre_gdf = create_leeds_at_centre_outline({'init' :'epsg:3857'})
+# Create outlines as shapely geometries
+leeds_at_centre_poly = Polygon(create_leeds_at_centre_outline({'init' :'epsg:4326'})['geometry'].iloc[0])
+
+##################################################################
+# Location of rain gauges - to add to plots
+##################################################################
+def reproject_wm (gauges_df):
+    gauges_long_wm, gauges_lat_wm = transform(Proj(init='epsg:4326'),Proj(init='epsg:3785'),
+                                            np.array(gauges_df['Longitude']), np.array(gauges_df['Latitude'])) 
+    gauges_df['Long_wm'] = gauges_long_wm
+    gauges_df['Lat_wm'] = gauges_lat_wm
+    return gauges_df
+
+
+lats,lons, station_names = [], [],[]
+for filename in glob.glob("datadir/GaugeData/Newcastle/E*"):
+    with open(filename) as myfile:
+        # read in the lines of text at the top of the file
+        firstNlines=myfile.readlines()[0:21]
+        
+        # Extract the lat, lon and station name
+        station_name = firstNlines[3][23:-1]
+        lat = float(firstNlines[5][10:-1])
+        lon = float(firstNlines[6][11:-1])
+        
+        # Check if point is within leeds-at-centre geometry
+        this_point = Point(lon, lat)
+        res = this_point.within(leeds_at_centre_poly)
+        #sres_in_leeds = this_point.within(leeds_poly)
+        # If the point is within leeds-at-centre geometry
+        if res ==True:
+            # Add station name and lats/lons to list
+            lats.append(lat)
+            lons.append(lon)
+            station_names.append(station_name)
+
+# Met Office Gauges
+mo_gauges= pd.DataFrame({'ID' : ["Bingley No.2","Huddersfield Oakes","Bradford", 
+                                             "Emley moor", "Leeds weather centre",
+                                             "Ryhill","Bramham", "Emley Moor No.2" ], 
+                         'Latitude' : [53.811, 53.656, 53.814, 53.613, 53.801, 53.628, 53.869, 53.612], 
+                         'Longitude' : [-1.867, -1.831, -1.774, -1.665, -1.561, -1.394, -1.319, -1.668]})
+
+
+# Locations of spots marked on distance to gauge plot as containing a gauge
+# but not found in Newcastle/MO gauges (manually defined locations based on
+# distance to gauge plot)
+defined_gauges= pd.DataFrame({'ID' : ["no1", "no2", "no3", "no4", "no5", "no6"], 
+                         'Latitude' : [54.04, 54.07, 54.125, 54.13, 53.58, 53.835], 
+                         'Longitude' : [-1.260, -1.78, -1.66, -1.43, -0.89, -1.2]})
+
+# Convert to WM
+mo_gauges = reproject_wm (mo_gauges)
+defined_gauges = reproject_wm (defined_gauges)
+
+
 
 ##################################################################
 # Trimming to region
@@ -58,13 +115,17 @@ for stat in stats:
     # Find the percentage difference
     diff_cube = (diff_cube/obs_cube) * 100
     
+    # Find absoloute difference    
     #diff_cube = iris.analysis.maths.abs(diff_cube)
-    
+
+    ### Trim 
     # Trim to smaller area
     if region == 'Northern':
-         diff_cube = trim_to_bbox_of_region_obs(diff_cube, northern_gdf)
+         diff_cube = trim_to_bbox_of_region_regriddedobs(diff_cube, northern_gdf)
     elif region == 'leeds-at-centre':
-         diff_cube = trim_to_bbox_of_region_obs(diff_cube, leeds_at_centre_gdf)
+         diff_cube = trim_to_bbox_of_region_regriddedobs(diff_cube, leeds_at_centre_gdf)
+    
+    print(diff_cube)
     
     # Find min and max vlues in data and set up contour levels
     local_min = np.nanmin(diff_cube.data)
@@ -107,6 +168,17 @@ for stat in stats:
     # Plot
     mesh = iplt.pcolormesh(diff_cube, cmap = diverging_cmap, norm=norm)
                           # norm = MidpointNormalize(midpoint=0))
+    for lat, lon in zip(lats, lons):
+            this_point = Point(lon, lat)
+            res_in_leeds = this_point.within(leeds_at_centre_poly)
+            # If the point is within leeds-at-centre geometry 
+            if res_in_leeds ==True :
+                lon_wm,lat_wm = transform(Proj(init = 'epsg:4326') , Proj(init = 'epsg:3857') , lon, lat)
+                plt.plot(lon_wm, lat_wm,   'o', color='black', markersize = 20) 
+    plt.plot(mo_gauges['Long_wm'], mo_gauges['Lat_wm'], 'o', color='red', markersize =20)
+    plt.plot(defined_gauges['Long_wm'], defined_gauges['Lat_wm'], 'o', color='yellow', markersize =20)
+    
+    
     
     # Add regional outlines, depending on which region is being plotted
     # And define extent of colorbars
@@ -126,10 +198,21 @@ for stat in stats:
     colorbar.ax.tick_params(labelsize=28)
     colorbar.ax.set_yticklabels(["{:.{}f}".format(i, 2) for i in colorbar.get_ticks()])    
     
+    # Add gauges
+    for lat, lon in zip(lats, lons):
+            this_point = Point(lon, lat)
+            res_in_leeds = this_point.within(leeds_at_centre_poly)
+            # If the point is within leeds-at-centre geometry 
+            if res_in_leeds ==True :
+                lon_wm,lat_wm = transform(Proj(init = 'epsg:4326') , Proj(init = 'epsg:3857') , lon, lat)
+                plt.plot(lon_wm, lat_wm,   'o', color='black', markersize = 20) 
+    plt.plot(mo_gauges['Long_wm'], mo_gauges['Lat_wm'], 'o', color='red', markersize =20)
+    plt.plot(defined_gauges['Long_wm'], defined_gauges['Lat_wm'], 'o', color='yellow', markersize =20)
+    
     # Set plot title
     ax.set_title(stat, fontsize = 50)
     # Save to file
-    filename = "Outputs/RegionalRainfallStats/Plots/Difference_ModelVsObs/{}/percentage_diff_{}.png".format(region, stat)
+    filename = "Scripts/UKCP18/RegionalRainfallStats/Difference_ModelVsObs/Figs/{}/percentage_diff_{}_withgauges.png".format(region, stat)
     
     # Save plot        
     plt.savefig(filename, bbox_inches = 'tight')

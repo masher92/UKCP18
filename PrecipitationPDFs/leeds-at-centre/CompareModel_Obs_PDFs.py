@@ -85,7 +85,7 @@ for i in range(0,2909):
     model_times_12km[i] = '0'
 
 # Repeat this 1221 times to be the same length as the precip data for whole of Leeds 
-model_times_2_2km_regridded_allcells = np.tile(model_times_2_2km_regridded, 1221)    
+model_times_2_2km_regridded_allcells = np.tile(model_times_2_2km_regridded, 36)    
 model_times_2_2km_allcells = np.tile(model_times_2_2km, 1221)    
 model_times_12km_allcells = np.tile(model_times_12km, 36)  
 
