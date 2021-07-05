@@ -1,3 +1,5 @@
+Main summary is here: https://www.overleaf.com/project/60b8e3e035af8467fa7f7c8d 
+
 ## Validating CEH-GEAR1hr gridded observations using quality-controlled gauge data
 
 ### Gauges in Leeds (leeds-at-centre) region
