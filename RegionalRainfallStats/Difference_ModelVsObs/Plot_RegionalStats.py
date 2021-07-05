@@ -118,15 +118,12 @@ for stat in stats:
     # Find absoloute difference    
     #diff_cube = iris.analysis.maths.abs(diff_cube)
 
-    ### Trim 
     # Trim to smaller area
     if region == 'Northern':
          diff_cube = trim_to_bbox_of_region_regriddedobs(diff_cube, northern_gdf)
     elif region == 'leeds-at-centre':
          diff_cube = trim_to_bbox_of_region_regriddedobs(diff_cube, leeds_at_centre_gdf)
-    
-    print(diff_cube)
-    
+
     # Find min and max vlues in data and set up contour levels
     local_min = np.nanmin(diff_cube.data)
     local_max = np.nanmax(diff_cube.data)  
@@ -143,8 +140,6 @@ for stat in stats:
     precip_colormap = create_precip_cmap()
     # Create a divergine colormap
     diverging_cmap = matplotlib.cm.RdBu_r
-    #diverging_cmap.set_under(color="white")
-    #diverging_cmap.set_bad(color="white", alpha = 1.)
 
     # Normalise data with a defined centre point (in this case 0)
     if local_min < 0:

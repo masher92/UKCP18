@@ -76,7 +76,7 @@ def find_position_obs (concat_cube, lat, lon, station_name):
     
     # Find the index of the nearest neighbour of the sample point in the list of locations present in concat_cube
     tree = spatial.KDTree(locations)
-    closest_point_idx = tree.query([(sample_point[0][1], sample_point[1][1])])[1][0]
+    closest_point_idx = tree.query([(sample_point[0][1], sample_point[1][1])], k =1)[1][0]
     
     # Create a list of all the tuple positions
     indexs_lst = []
@@ -142,8 +142,6 @@ def find_position_obs (concat_cube, lat, lon, station_name):
     plt.show()
  
     return (df, closest_point_idx)    
-
-
 
 
 def create_grid_highlighted_cell_obs (concat_cube, closest_point_idx):

@@ -40,7 +40,7 @@ from Spatial_geometry_functions import *
 #############################################
 filenames =[]
 # Create filepath to correct folder using ensemble member and year
-general_filename = 'Outputs/RegriddingObservations/CEH-GEAR_reformatted/rf_*'
+general_filename = 'datadir/CEH-GEAR/CEH-GEAR_reformatted/rf_*'
 # Find all files in directory which start with this string
 for filename in glob.glob(general_filename):
     #print(filename)
@@ -118,7 +118,7 @@ iris.coord_categorisation.add_season_year(jja,'time', name = "season_year")
 ###########################################
 # Find Max, mean, percentiles
 #############################################
-jja = trim_to_bbox_of_region_obs(jja, leeds_at_centre_gdf)
+jja = trim_to_bbox_of_region_obs(concat_cube, leeds_at_centre_gdf)
 
 #jja_mean = jja.aggregated_by(['clim_season'], iris.analysis.MEAN)
 #jja_max = jja.aggregated_by(['clim_season'], iris.analysis.MAX)

@@ -1,3 +1,6 @@
+### Finding diff between NN and linear interpolation is not working -- not yet implemented erro
+
+
 import iris.coord_categorisation
 import iris
 import numpy as np
@@ -17,7 +20,7 @@ root_fp = "/nfs/a319/gy17m2a/"
 os.chdir(root_fp)
 
 # Create path to files containing functions
-sys.path.insert(0, root_fp + 'Scripts/UKCP18/SpatialAnalyses')
+sys.path.insert(0, root_fp + 'Scripts/UKCP18/GlobalFunctions')
 from Spatial_plotting_functions import *
 from Spatial_geometry_functions import *
 
@@ -115,12 +118,12 @@ for stat in stats:
         
         # Save to file
         if key == 'LinearRegridding':
-            filename = "Outputs/RegionalRainfallStats/Plots/RegriddedObservations/LinearRegridding/{}/{}.png".format(region, stat)
+            filename = "Scripts/UKCP18/RegionalRainfallStats/RegriddedObservations/Figs/LinearRegridding/{}/{}.png".format(region, stat)
         elif key == 'NearestNeighbour':
-              filename = "Outputs/RegionalRainfallStats/Plots/RegriddedObservations/NearestNeighbour/{}/{}.png".format(region, stat)          
+            filename = "Scripts/UKCP18/RegionalRainfallStats/RegriddedObservations/Figs/NearestNeighbour/{}/{}.png".format(region, stat)       
         elif key == 'Regridding_Difference':
-             filename = "Outputs/RegionalRainfallStats/Plots/RegriddedObservations/Regridding_Difference/{}/{}.png".format(region, stat)
-        
+            filename = "Scripts/UKCP18/RegionalRainfallStats/RegriddedObservations/Figs/Regridding_Difference/{}/{}.png".format(region, stat)
+            
         # Save plot        
         plt.savefig(filename, bbox_inches = 'tight')
         plt.clf()
