@@ -23,7 +23,7 @@ sys.path.insert(0, root_fp + 'Scripts/UKCP18/GlobalFunctions')
 from Spatial_plotting_functions import *
 from Spatial_geometry_functions import *
 
-resolution =  '12km' # ['1km', '2.2km', '12km']
+resolution =  '2.2km' # ['1km', '2.2km', '12km']
 
 ##################################################################
 # Load necessary spatial data
@@ -77,7 +77,7 @@ obs_cube = trim_to_bbox_of_region_obs(obs_cube, leeds_at_centre_gdf)
 
 # Save trimmed netCDF to file    
 print('saving cube')
-iris.save(obs_cube, "Outputs/TimeSeries/CEH-GEAR/{}/leeds-at-centre/leeds-at-centre.nc".format(resolution)) 
+#iris.save(obs_cube, "Outputs/TimeSeries/CEH-GEAR/{}/leeds-at-centre/leeds-at-centre.nc".format(resolution)) 
 
 # ################################################################
 # # Once across all ensemble members, save a numpy array storing
@@ -85,6 +85,11 @@ iris.save(obs_cube, "Outputs/TimeSeries/CEH-GEAR/{}/leeds-at-centre/leeds-at-cen
 # ################################################################  
 print(obs_cube)        
 times = obs_cube.coord('time').points
+
+# Convert to datetimes
+times = [datetime.fromtimestamp(x).strftime("%x %X") for x in times]
+times= [datetime.strptime(x, '%m/%d/%y %H:%M:%S') for x in times]
+
 # Convert to datetime - doesnt work due to 30 days in Feb
 #times = [datetime.datetime.strptime(x, "%Y%m%d%H") for x in times]
 np.save("Outputs/TimeSeries/CEH-GEAR/{}/leeds-at-centre/timestamps.npy".format(resolution), times) 
