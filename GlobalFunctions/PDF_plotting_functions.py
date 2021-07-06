@@ -288,16 +288,13 @@ def log_discrete_histogram_lesslegend_array(results_dict, cols_dict, bin_nos, pr
     
     return numbers_in_each_bin
 
-
-
-
     
 def log_discrete_histogram_lesslegend(results_dict, cols_dict, bin_nos, precip_variable, patches, del_zeroes,
                                       xlim, x_axis_scaling = 'linear', y_axis_scaling = 'linear'):
     
     # Create bin edges based on data in all of the dataframes, i.e. use the same bin edges for all dataframes
-    min_value = find_min_max_dict_values_array(results_dict)[0]
-    max_value = find_min_max_dict_values_array(results_dict)[1]
+    min_value = find_min_max_dict_values(results_dict, precip_variable)[0]
+    max_value = find_min_max_dict_values(results_dict, precip_variable)[1]
     
     # Maybe min value shoudl be set at 0.05 to make the spacings at the right place
     min_value = 0.05
