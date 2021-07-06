@@ -35,7 +35,10 @@ leeds_at_centre_gdf = create_leeds_at_centre_outline({'init' :'epsg:3857'})
 # Trimming to region
 ##################################################################
 # Create directory to store outputs in
-ddir = "Outputs/TimeSeries/CEH-GEAR/{}/leeds-at-centre/".format(resolution)
+if resolution =='1km':
+  ddir = "Outputs/TimeSeries/CEH-GEAR/{}/leeds-at-centre/".format(resolution)
+elif:
+  ddir = "Outputs/TimeSeries/CEH-GEAR/{}/NearestNeighbour/leeds-at-centre/".format(resolution)
 if not os.path.isdir(ddir):
     os.makedirs(ddir)
 
@@ -92,7 +95,8 @@ times= [datetime.strptime(x, '%m/%d/%y %H:%M:%S') for x in times]
 
 # Convert to datetime - doesnt work due to 30 days in Feb
 #times = [datetime.datetime.strptime(x, "%Y%m%d%H") for x in times]
-np.save("Outputs/TimeSeries/CEH-GEAR/{}/leeds-at-centre/timestamps.npy".format(resolution), times) 
+np.save(ddir + "timestamps.npy", times) 
+
 
 # ################################################################
 # # Create a numpy array containing all the precipitation values from across
