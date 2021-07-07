@@ -68,7 +68,7 @@ print('Creating plot')
 # Create a colormap
 cmap = matplotlib.colors.ListedColormap(['yellow'])
 
-fig, ax = plt.subplots(figsize=(30,30))
+fig, ax = plt.subplots(figsize=(45,30))
 extent = tilemapbase.extent_from_frame(leeds_at_centre_gdf)
 plot = plotter = tilemapbase.Plotter(extent, tilemapbase.tiles.build_OSM(), width=500)
 plot =plotter.plot(ax)
