@@ -346,7 +346,7 @@ def log_discrete_histogram_lesslegend(results_dict, cols_dict, bin_nos, precip_v
     plt.ylabel('Probability density')
     if xlim != False:
         plt.xlim(0,xlim)
-    plt.title(n_bins + " bins")
+    #plt.title(n_bins + " bins")
     plt.xscale(x_axis_scaling)
     plt.yscale(y_axis_scaling)
     #plt.show()

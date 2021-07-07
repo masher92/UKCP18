@@ -88,12 +88,6 @@ for i in range(0,2909):
 for i in range(0,78480):
     model_times_2_2km[i] = '0'
 
-# Repeat this 1221 times to be the same length as the precip data for whole of Leeds
-# THis is to do with the number of cells (so for 12km and 2.2km_regridded_12km it is 36)
-model_times_2_2km = np.tile(model_times_2_2km, 1221)
-model_times_2_2km_regridded= np.tile(model_times_2_2km_regridded, 36)
-model_times_12km = np.tile(model_times_12km, 36)
-#
 # ################################################################
 # # Loop through ensemble members and load in data for whole of leeds and trim
 # # to contain only data from the overlapping time period
@@ -104,12 +98,14 @@ leeds_data_dict_overlapping = {}
 
 # Loop through ensemble members
 for resolution in ['2.2km', '12km', '2.2km_regridded_12km']:
+    # Repeat this 1221 times to be the same length as the precip data for whole of Leeds
+    # This is to do with the number of cells (so for 12km and 2.2km_regridded_12km it is 36)
     if resolution == '2.2km':
-        model_times = model_times_2_2km
+        model_times = np.tile(model_times_2_2km, 1221)
     elif resolution == '2.2km_regridded_12km':
-         model_times = model_times_2_2km_regridded
+         model_times = np.tile(model_times_2_2km_regridded, 36)
     elif resolution == '12km':
-        model_times = model_times_12km
+        model_times = np.tile(model_times_12km, 36)
 
     for em in ems:
         print(em)
@@ -141,7 +137,7 @@ for dict in [leeds_data_dict, leeds_data_dict_overlapping]:
                   , dict['EM11_{}'.format(resolution)], dict['EM12_{}'.format(resolution)], dict['EM13_{}'.format(resolution)], dict['EM15_{}'.format(resolution)]]
 
         # Add the concat of all these frames to the dictionary
-        dict['Combined EMs_{}'.format(resolution)] = pd.concat(frames)
+        dict['Model {}'.format(resolution)] = pd.concat(frames)
         
         # Delete the individual ensemble member dataframes
         keys_to_remove =("EM01_{}".format(resolution), "EM04_{}".format(resolution), "EM05_{}".format(resolution), "EM06_{}".format(resolution), "EM07_{}".format(resolution), "EM08_{}".format(resolution),
@@ -150,156 +146,140 @@ for dict in [leeds_data_dict, leeds_data_dict_overlapping]:
             if key in dict:
                 del dict[key]
 
-
-################################################################
-################################################################
-# Trim observations data to also only include data from the overlapping time period
-################################################################
-################################################################
-# Observations dates data
-obs_times = np.load("Outputs/TimeSeries/CEH-GEAR/12km/NearestNeighbour/leeds-at-centre/timestamps.npy", allow_pickle = True)
-
-####### Regridded 12km
-# Load in regridded precip data
-observations_regridded_12km = np.load("Outputs/TimeSeries/CEH-GEAR/12km/NearestNeighbour/leeds-at-centre/leeds-at-centre.npy")
-# Join dates data and precip data
-# Repeat time data 1221 times to be the same length as the precip data for whole of Leeds
-observations_regridded_12km = pd.DataFrame({"Precipitation (mm/hr)" : observations_regridded_12km,
-                                       'Date' : np.tile(np.load("Outputs/TimeSeries/CEH-GEAR/12km/NearestNeighbour/leeds-at-centre/timestamps.npy", allow_pickle = True), 36)})
-
-####### Regridded 2.2km
-# Load in regridded precip data
-observations_regridded_2_2km = np.load("Outputs/TimeSeries/CEH-GEAR/2.2km/NearestNeighbour/leeds-at-centre/leeds-at-centre.npy")
-# Join dates data and precip data
-# Repeat time data 1221 times to be the same length as the precip data for whole of Leeds
-observations_regridded_2_2km = pd.DataFrame({"Precipitation (mm/hr)" : observations_regridded_2_2km,
-                                       'Date' : np.tile(np.load("Outputs/TimeSeries/CEH-GEAR/12km/NearestNeighbour/leeds-at-centre/timestamps.npy", allow_pickle = True), 1221)})
-
-####### Orignal data
-# Load in native precip data
-observations = np.load("Outputs/TimeSeries/CEH-GEAR/1km/leeds-at-centre/leeds-at-centre.npy")
-# Join dates data and precip data
-# repeat times 6083 times to be the same length as the precip data for whole of Leeds  (73 cells x 83 cells)
-observations = pd.DataFrame({"Precipitation (mm/hr)" : observations,
-                                       'Date' : np.tile(np.load("Outputs/TimeSeries/CEH-GEAR/12km/NearestNeighbour/leeds-at-centre/timestamps.npy", allow_pickle = True), 6059)})
-
 ################################################################
 ################################################################
 ####### Add both native and regridded observations data to dictionary
 ################################################################
 ################################################################
 print("Making dicts")
-# leeds_data_dict['Observations'] = observations
-# leeds_data_dict['Observations Regridded_12km'] = observations_regridded_12km
-# leeds_data_dict['Observations Regridded_2.2km'] = observations_regridded_2_2km
+# Repeat times 6083 times to be the same length as the precip data for whole of Leeds  (73 cells x 83 cells)
+leeds_data_dict['Observations'] =  pd.DataFrame({"Precipitation (mm/hr)" :  np.load("Outputs/TimeSeries/CEH-GEAR/1km/leeds-at-centre/leeds-at-centre.npy"),
+                                       'Date' : np.tile(np.load("Outputs/TimeSeries/CEH-GEAR/12km/NearestNeighbour/leeds-at-centre/timestamps.npy", allow_pickle = True), 6059)})
+# Repeat time data 1221 times to be the same length as the precip data for whole of Leeds
+leeds_data_dict['Observations Regridded_12km'] =  pd.DataFrame({"Precipitation (mm/hr)" : np.load("Outputs/TimeSeries/CEH-GEAR/12km/NearestNeighbour/leeds-at-centre/leeds-at-centre.npy"),
+                                       'Date' : np.tile(np.load("Outputs/TimeSeries/CEH-GEAR/12km/NearestNeighbour/leeds-at-centre/timestamps.npy", allow_pickle = True), 36)})
+# Repeat time data 1221 times to be the same length as the precip data for whole of Leeds
+leeds_data_dict['Observations Regridded_2.2km'] = pd.DataFrame({"Precipitation (mm/hr)" :  np.load("Outputs/TimeSeries/CEH-GEAR/2.2km/NearestNeighbour/leeds-at-centre/leeds-at-centre.npy"),
+                                       'Date' : np.tile(np.load("Outputs/TimeSeries/CEH-GEAR/12km/NearestNeighbour/leeds-at-centre/timestamps.npy", allow_pickle = True), 1221)})
 
-# # Remove data not in the overlapping time period#
-observations_regridded_2_2km_overlapping = observations_regridded_2_2km[(observations_regridded_2_2km['Date'] >= '1990-01-01 00:00:00')
+####### Add both native and regridded observations data to dictionary
+leeds_data_dict_overlapping['Observations'] =  observations[(observations['Date'] >= '1990-01-01 00:00:00')
+                                                & (observations['Date']<= '2000-11-30 23:00:00 ')]
+leeds_data_dict_overlapping['Observations Regridded_2.2km'] =  observations_regridded_2_2km[(observations_regridded_2_2km['Date'] >= '1990-01-01 00:00:00')
                                                 & (observations_regridded_2_2km['Date'] <= '2000-11-30 23:00:00 ')]
+leeds_data_dict_overlapping['Observations Regridded_12km'] = observations_regridded_12km[(observations_regridded_12km['Date'] >= '1990-01-01 00:00:00')
+                                                & (observations_regridded_12km['Date'] <= '2000-11-30 23:00:00 ')]
 
-# observations_regridded_12km_overlapping = observations_regridded_12km[(observations_regridded_12km['Date'] >= '1990-01-01 00:00:00')
-#                                                 & (observations_regridded_12km['Date'] <= '2000-11-30 23:00:00 ')]
-#
-# observations_overlapping = observations[(observations['Date'] >= '1990-01-01 00:00:00')
-#                                                 & (observations['Date']<= '2000-11-30 23:00:00 ')]
-#
-# ####### Add both native and regridded observations data to dictionary
-# leeds_data_dict_overlapping['Observations'] = observations_overlapping
-# leeds_data_dict_overlapping['Observations Regridded_2.2km'] = observations_regridded_2_2km_overlapping
-# leeds_data_dict_overlapping['Observations Regridded_12km'] = observations_regridded_12km_overlapping
 
 ##############################################################################
-##############################################################################
-# Create dictionaries
-##############################################################################
-##############################################################################
-# Model AND Observations data, Full time period, All ensemble members
-# Combined ensemble members
-# combined_ems_obs_dict= leeds_data_dict.copy()
-# for reso
-# keys_to_remove =("EM01", "EM04", "EM05", "EM06", "EM07", "EM08",
-#                  "EM09", "EM10", "EM11", "EM12", "EM13", "EM15")
-# for key in keys_to_remove:
-#     if key in combined_ems_obs_dict:
-#         del combined_ems_obs_dict[key]
-
-############# Overlappping time period
-# # Combined ensemble members
-# combined_ems_obs_dict_overlapping = leeds_data_dict_overlapping.copy()
-# keys_to_remove =("EM01", "EM04", "EM05", "EM06", "EM07", "EM08",
-#                  "EM09", "EM10", "EM11", "EM12", "EM13", "EM15")
-# for key in keys_to_remove:
-#     if key in combined_ems_obs_dict_overlapping:
-#         del combined_ems_obs_dict_overlapping[key]
-
 
 ##############################################################################
 # Plotting
 ##############################################################################
-####### Add both native and regridded observations data to dictionary
-
-del dict
-del leeds_data
-del leeds_data_overlaping
-del leeds_all_ems
-del leeds_data_overlapping
-del leeds_data_withtimes
-del model_times_2_2km_regridded
-del model_times_2_2km_regridded_allcells
-del model_times_2_2km_allcells
-del obs_times_allcells
-del obs_times_allcells_regridded_2_2km
-del observations
-del obs_times
-del observations_regridded_2_2km
-del observations_regridded_12km
-del model_times
-del obs_times_allcells_regridded_12km
-del combined_ems_2_2km
-
-just_12kms = combined_ems_obs_dict.copy()
-del just_12kms['Observations Regridded_2.2km']
-del just_12kms['Combined EMs_2.2km']
-del just_12kms['Observations']
-
-
-combined_ems_obs_dict['Observations'] = observations
-combined_ems_obs_dict['Observations Regridded_12km'] = observations_regridded_12km
-combined_ems_obs_dict['Observations Regridded_2.2km'] = observations_regridded_2_2km
-
-cols_dict = {'Observations' : 'lawngreen',
-             'Observations Regridded_2.2km' : 'limegreen',
-             'Observations Regridded_12km' : 'darkgreen',
-             'Combined EMs_12km' : 'navy',
-             'Combined EMs_2.2km' : 'slateblue',
-             'Combined EMs_2.2km_regridded_12km': 'firebrick'}
-
 x_axis = 'linear'
 y_axis = 'log'
 bin_nos = 20 #(10 gives 12, 30 gives 29, 45 gives 41 bins)
 xlim = 250
 bins_if_log_spaced= bin_nos
 
-#################### Full time period
-####### Just ensemble members
-patches= []#=
-####### Combined ensemble members + Obs
+##############################################################
+# All resolutions
+##############################################################
+for dict, overlapping_status in zip([leeds_data_dict, leeds_data_dict_overlapping], ["","_Overlapping"]):
+    print(dict.keys(), overlapping_status)
+    cols_dict = {'Observations' : 'darkgoldenrod',
+                 'Observations Regridded_2.2km' : 'tomato',
+                 'Observations Regridded_12km' : 'darkred',
+                 'Combined EMs_12km' : 'navy',
+                 'Combined EMs_2.2km' : 'slateblue',
+                 'Combined EMs_2.2km_regridded_12km': 'teal'}
+    # Create patches
+    patches= []
+    for key, val in cols_dict.items():
+        patch = mpatches.Patch(color= val, label= key)
+        patches.append(patch)
+
+    # Create plot
+    log_discrete_histogram_lesslegend(dict, cols_dict, bin_nos, "Precipitation (mm/hr)",
+                                      patches, True, xlim, x_axis, y_axis)
+    #Save 
+    plt.savefig("Scripts/UKCP18/PrecipitationPDFs/leeds-at-centre/PDFs/FullTimePeriod_RCMvsCPMvsObs/All{}.png".format(overlapping_status))
+
+
+####### Plot just Model, to see effect of regridding
+just_model = leeds_data_dict.copy()
+del just_model['Observations Regridded_2.2km'], just_model['Observations'], just_model['Observations Regridded_12km']
+
+cols_dict = {'Combined EMs_12km' : 'navy',
+             'Combined EMs_2.2km' : 'slateblue',
+             'Combined EMs_2.2km_regridded_12km': 'teal'}
+# Create patches
 patches= []
-patch = mpatches.Patch(color='slateblue', label='Model (2.2km)')
-patches.append(patch)
-patch = mpatches.Patch(color='navy', label='Model (12km)')
-patches.append(patch)
-patch = mpatches.Patch(color='rebeccapurple', label='Model (Regridded 12km)')
-patches.append(patch)
-patch = mpatches.Patch(color='limegreen', label='Observations Regridded 2.2km')
-patches.append(patch)
-patch = mpatches.Patch(color='darkgreen', label='Observations Regridded 12km')
-patches.append(patch)
-patch = mpatches.Patch(color='lawngreen', label='Observations Original 1km')
-patches.append(patch)
+for key, val in cols_dict.items():
+    patch = mpatches.Patch(color= val, label= key)
+    patches.append(patch)
 
-log_discrete_histogram_lesslegend(combined_ems_obs_dict, cols_dict, bin_nos, "Precipitation (mm/hr)",
-                                  patches, True, xlim, x_axis, y_axis)
-plt.savefig("Scripts/UKCP18/PrecipitationPDFs/leeds-at-centre/PDFs/FullTimePeriod_RCMvsCPMvsObs/All.png")
+# Create plot
+log_discrete_histogram_lesslegend(just_model, cols_dict, bin_nos, "Precipitation (mm/hr)",
+                                  patches, True, False, x_axis, y_axis)
+plt.savefig("Scripts/UKCP18/PrecipitationPDFs/leeds-at-centre/PDFs/FullTimePeriod_RCMvsCPMvsObs/JustModel.png")
 
 
+###############################################################
+####### Plot just Obs, to see effect of regridding
+just_obs = leeds_data_dict.copy()
+del just_obs['Combined EMs_12km'], just_obs['Combined EMs_2.2km'], just_obs['Combined EMs_2.2km_regridded_12km']
+
+cols_dict = {'Observations' : 'darkgoldenrod',
+                 'Observations Regridded_2.2km' : 'tomato',
+                 'Observations Regridded_12km' : 'darkred'}
+# Create patches
+patches= []
+for key, val in cols_dict.items():
+    patch = mpatches.Patch(color= val, label= key)
+    patches.append(patch)
+
+# Create plot
+log_discrete_histogram_lesslegend(just_obs, cols_dict, bin_nos, "Precipitation (mm/hr)",
+                                  patches, True, False, x_axis, y_axis)
+plt.savefig("Scripts/UKCP18/PrecipitationPDFs/leeds-at-centre/PDFs/FullTimePeriod_RCMvsCPMvsObs/JustObs.png")
+
+
+###############################################################
+####### Plot just 12km
+just_12km = leeds_data_dict.copy()
+del just_12km['Combined EMs_2.2km'], just_12km['Observations Regridded_2.2km'], just_12km['Observations']
+
+cols_dict = {'Observations Regridded_12km' : 'darkred',
+             'Combined EMs_12km' : 'navy',
+             'Combined EMs_2.2km_regridded_12km': 'teal'}
+
+# Create patches
+patches= []
+for key, val in cols_dict.items():
+    patch = mpatches.Patch(color= val, label= key)
+    patches.append(patch)
+
+# Create plot
+log_discrete_histogram_lesslegend(just_12km, cols_dict, bin_nos, "Precipitation (mm/hr)",
+                                  patches, True, False, x_axis, y_axis)
+plt.savefig("Scripts/UKCP18/PrecipitationPDFs/leeds-at-centre/PDFs/FullTimePeriod_RCMvsCPMvsObs/Just12kms.png")
+
+##################### Better legend
+just_12km = leeds_data_dict.copy()
+del just_12km['Combined EMs_2.2km'], just_12km['Observations Regridded_2.2km'], just_12km['Observations']
+
+cols_dict = {'Observations Regridded_12km' : 'darkred',
+             'Combined EMs_12km' : 'navy',
+             'Combined EMs_2.2km_regridded_12km': 'teal'}
+
+# Create patches
+patches= []    
+patches.append(mpatches.Patch(color= 'darkred', label= 'CEH-GEAR'))
+patches.append(mpatches.Patch(color= 'navy', label= 'UKCP18 12km'))
+patches.append(mpatches.Patch(color= 'teal', label= 'UKCP18 2.2km'))
+
+# Create plot
+log_discrete_histogram_lesslegend(just_12km, cols_dict, bin_nos, "Precipitation (mm/hr)",
+                                  patches, True, False, x_axis, y_axis)
+plt.savefig("Scripts/UKCP18/PrecipitationPDFs/leeds-at-centre/PDFs/FullTimePeriod_RCMvsCPMvsObs/Just12kms.png")

@@ -48,9 +48,9 @@ for em in ems:
     
     filenames =[]
     # Create filepath to correct folder using ensemble member and year
-    if resolution == '12km':
-        general_filename = 'datadir/UKCP18/12km/{}/{}/pr_rcp85_land-cpm_uk_2.2km_{}_1hr_*'.format(em, yrs_range, em)
-    elif resolution == '2km':
+    if resolution == '2.2km':
+        general_filename = 'datadir/UKCP18/2.2km/{}/{}/pr_rcp85_land-cpm_uk_2.2km_{}_1hr_*'.format(em, yrs_range, em)
+    elif resolution == '12km':
           general_filename = 'datadir/UKCP18/12km/{}/pr_rcp85_land-rcm_uk_12km_{}_day_*'.format(em, em)
     elif resolution == '2.2km_regridded_12km':
           general_filename = 'datadir/UKCP18/2.2km_regridded_12km/{}/NearestNeighbour/{}/rg_pr_rcp85_land-cpm_uk_2.2km_{}_1hr_*'.format(em, yrs_range, em)
