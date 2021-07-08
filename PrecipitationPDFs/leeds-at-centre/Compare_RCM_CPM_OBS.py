@@ -111,11 +111,9 @@ for resolution in ['2.2km', '12km', '2.2km_regridded_12km']:
         print(em)
 
         # Load in 20 years of model data for the whole of leeds
-        leeds_data = np.load("Outputs/TimeSeries/UKCP18/{}/{}/leeds-at-centre/{}/leeds-at-centre.npy".format(resolution, timeperiod, em))
-
         # Join to corresponding dates/times
         leeds_data = pd.DataFrame({"Date" : model_times,
-                                   'Precipitation (mm/hr)' :leeds_data})
+                                   'Precipitation (mm/hr)' :np.load("Outputs/TimeSeries/UKCP18/{}/{}/leeds-at-centre/{}/leeds-at-centre.npy".format(resolution, timeperiod, em))})
 
         # Add to dictionary
         leeds_data_dict['EM{}_{}'.format(em, resolution)] = leeds_data
@@ -163,13 +161,12 @@ leeds_data_dict['Observations Regridded_2.2km'] = pd.DataFrame({"Precipitation (
                                        'Date' : np.tile(np.load("Outputs/TimeSeries/CEH-GEAR/12km/NearestNeighbour/leeds-at-centre/timestamps.npy", allow_pickle = True), 1221)})
 
 ####### Add both native and regridded observations data to dictionary
-leeds_data_dict_overlapping['Observations'] =  observations[(observations['Date'] >= '1990-01-01 00:00:00')
-                                                & (observations['Date']<= '2000-11-30 23:00:00 ')]
-leeds_data_dict_overlapping['Observations Regridded_2.2km'] =  observations_regridded_2_2km[(observations_regridded_2_2km['Date'] >= '1990-01-01 00:00:00')
-                                                & (observations_regridded_2_2km['Date'] <= '2000-11-30 23:00:00 ')]
-leeds_data_dict_overlapping['Observations Regridded_12km'] = observations_regridded_12km[(observations_regridded_12km['Date'] >= '1990-01-01 00:00:00')
-                                                & (observations_regridded_12km['Date'] <= '2000-11-30 23:00:00 ')]
-
+leeds_data_dict_overlapping['Observations'] =  leeds_data_dict['Observations'][(leeds_data_dict['Observations']['Date'] >= '1990-01-01 00:00:00')
+                                                & (leeds_data_dict['Observations']['Date']<= '2000-11-30 23:00:00 ')]
+leeds_data_dict_overlapping['Observations Regridded_12km'] = leeds_data_dict['Observations Regridded_12km'][(leeds_data_dict['Observations Regridded_12km']['Date'] >= '1990-01-01 00:00:00')
+                                                & (leeds_data_dict['Observations Regridded_12km']['Date'] <= '2000-11-30 23:00:00 ')]
+leeds_data_dict_overlapping['Observations Regridded_2.2km'] =  leeds_data_dict['Observations Regridded_2.2km'][(leeds_data_dict['Observations Regridded_2.2km']['Date'] >= '1990-01-01 00:00:00')
+                                                & (leeds_data_dict['Observations Regridded_2.2km']['Date'] <= '2000-11-30 23:00:00 ')]
 
 ##############################################################################
 
@@ -190,9 +187,9 @@ for dict, overlapping_status in zip([leeds_data_dict, leeds_data_dict_overlappin
     cols_dict = {'Observations' : 'darkgoldenrod',
                  'Observations Regridded_2.2km' : 'tomato',
                  'Observations Regridded_12km' : 'darkred',
-                 'Combined EMs_12km' : 'navy',
-                 'Combined EMs_2.2km' : 'slateblue',
-                 'Combined EMs_2.2km_regridded_12km': 'teal'}
+                 'Model _12km' : 'navy',
+                 'Model 2.2km' : 'slateblue',
+                 'Model 2.2km_regridded_12km': 'teal'}
     # Create patches
     patches= []
     for key, val in cols_dict.items():
@@ -204,6 +201,22 @@ for dict, overlapping_status in zip([leeds_data_dict, leeds_data_dict_overlappin
                                       patches, True, xlim, x_axis, y_axis)
     #Save 
     plt.savefig("Scripts/UKCP18/PrecipitationPDFs/leeds-at-centre/PDFs/FullTimePeriod_RCMvsCPMvsObs/All{}.png".format(overlapping_status))
+
+####### Plot - compring 2.2km model and 2.2km regridded observation
+just_2_2kms = leeds_data_dict.copy()
+del just_2_2kms['Model 12km'], just_2_2kms['Observations'], just_2_2kms['Observations Regridded_12km'], just_2_2kms['Model 2.2km_regridded_12km']
+cols_dict = {'Observations Regridded_2.2km' : 'tomato',
+             'Model 2.2km' : 'slateblue'}
+# Create patches
+patches= []
+for key, val in cols_dict.items():
+    patch = mpatches.Patch(color= val, label= key)
+    patches.append(patch)
+
+# Create plot
+log_discrete_histogram_lesslegend(just_2_2kms, cols_dict, bin_nos, "Precipitation (mm/hr)",
+                                  patches, True, False, x_axis, y_axis)
+plt.savefig("Scripts/UKCP18/PrecipitationPDFs/leeds-at-centre/PDFs/FullTimePeriod_RCMvsCPMvsObs/ModelVsObs_2.2km.png")
 
 
 ####### Plot just Model, to see effect of regridding
