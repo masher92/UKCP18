@@ -79,7 +79,7 @@ plot = ax.xaxis.set_major_formatter(plt.NullFormatter())
 plot = ax.yaxis.set_major_formatter(plt.NullFormatter())
 plot =leeds_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=2)
 plot =leeds_at_centre_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=2)
-plt.savefig("Scripts/UKCP18/CreateSpatialPlots/Figs/CEH-GEAR.png")
+plt.savefig("Scripts/UKCP18/CreateSpatialPlots/Figs/CEH-GEAR.png", bbox_inches = 'tight')
 
 ########################################################################################
 ########################################################################################
