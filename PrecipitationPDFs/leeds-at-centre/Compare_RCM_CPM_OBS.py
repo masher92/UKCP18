@@ -22,7 +22,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import tilemapbase
 import matplotlib as mpl
-from datetime import datetime
+import datetime
 
 import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
@@ -48,6 +48,8 @@ from Spatial_geometry_functions import *
 ems = ['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
 # Define time period
 timeperiod = 'Baseline'
+# define whether to trim to JJA
+jja_status = 'jja'
 
 ################################################################
 # Create the spatial datafiles needed
@@ -75,18 +77,18 @@ leeds_gdf = create_leeds_outline({'init' :'epsg:27700'})
 # overlapping time period
 ################################################################
 # # Load in timestamps that relate to one cell's worth of data
-model_times_2_2km_regridded = np.load('Outputs/TimeSeries/UKCP18/2.2km_regridded_12km/Baseline/leeds-at-centre/timestamps.npy'.format(timeperiod))
-model_times_12km = np.load('Outputs/TimeSeries/UKCP18/12km/Baseline/leeds-at-centre/timestamps.npy'.format(timeperiod))
-model_times_2_2km = np.load('Outputs/TimeSeries/UKCP18/2.2km/Baseline/leeds-at-centre/timestamps.npy'.format(timeperiod))
+model_times_12km = pd.read_csv("Outputs/TimeSeries/UKCP18/12km/Baseline/leeds-at-centre/timestamps_jjaflag.csv")
+model_times_2_2km = pd.read_csv("Outputs/TimeSeries/UKCP18/2.2km/Baseline/leeds-at-centre/timestamps_jjaflag.csv")
+model_times_2_2km_regridded = pd.read_csv("Outputs/TimeSeries/UKCP18/2.2km_regridded_12km/Baseline/leeds-at-centre/timestamps_jjaflag.csv")
 
 # Set value as NA for values not in required date range
 # THis is to do with number of hours, so for 2.2km and 2.2km regridded it is the same
 for i in range(0,78480):
-    model_times_2_2km_regridded[i] = '0'
-for i in range(0,2909):
-    model_times_12km[i] = '0'
+    model_times_2_2km_regridded['times'][i] = '0'
+for i in range(0,3270):
+    model_times_12km['times'][i] = '0'
 for i in range(0,78480):
-    model_times_2_2km[i] = '0'
+    model_times_2_2km['times'][i] = '0'
 
 # ################################################################
 # # Loop through ensemble members and load in data for whole of leeds and trim
@@ -98,22 +100,30 @@ leeds_data_dict_overlapping = {}
 
 # Loop through ensemble members
 for resolution in ['2.2km', '12km', '2.2km_regridded_12km']:
+    print(resolution)
     # Repeat this 1221 times to be the same length as the precip data for whole of Leeds
     # This is to do with the number of cells (so for 12km and 2.2km_regridded_12km it is 36)
     if resolution == '2.2km':
-        model_times = np.tile(model_times_2_2km, 1221)
+        model_times = pd.concat([model_times_2_2km]* 1221)
+        #model_times = np.tile(model_times_2_2km, 1221)
     elif resolution == '2.2km_regridded_12km':
-         model_times = np.tile(model_times_2_2km_regridded, 36)
+        model_times = pd.concat([model_times_2_2km_regridded]* 36)
+         #model_times = np.tile(model_times_2_2km_regridded, 36)
     elif resolution == '12km':
-        model_times = np.tile(model_times_12km, 36)
+        model_times = pd.concat([model_times_12km]* 36)
+        #model_times = np.tile(times, 36)
 
     for em in ems:
         print(em)
 
         # Load in 20 years of model data for the whole of leeds
         # Join to corresponding dates/times
-        leeds_data = pd.DataFrame({"Date" : model_times,
-                                   'Precipitation (mm/hr)' :np.load("Outputs/TimeSeries/UKCP18/{}/{}/leeds-at-centre/{}/leeds-at-centre.npy".format(resolution, timeperiod, em))})
+        leeds_data = pd.DataFrame({"Date" : model_times['times'],
+                                   'Precipitation (mm/hr)' :np.load("Outputs/TimeSeries/UKCP18/{}/{}/leeds-at-centre/{}/leeds-at-centre.npy".format(resolution, timeperiod, em))
+                                   ,'jja' : model_times["in_jja"]})
+        # JJA?
+        if jja_status == 'jja':
+            leeds_data = leeds_data[leeds_data['jja'].notna()]
 
         # Add to dictionary
         leeds_data_dict['EM{}_{}'.format(em, resolution)] = leeds_data
@@ -136,7 +146,7 @@ for dict in [leeds_data_dict, leeds_data_dict_overlapping]:
 
         # Add the concat of all these frames to the dictionary
         dict['Model {}'.format(resolution)] = pd.concat(frames)
-        
+
         # Delete the individual ensemble member dataframes
         keys_to_remove =("EM01_{}".format(resolution), "EM04_{}".format(resolution), "EM05_{}".format(resolution), "EM06_{}".format(resolution), "EM07_{}".format(resolution), "EM08_{}".format(resolution),
                      "EM09_{}".format(resolution), "EM10_{}".format(resolution), "EM11_{}".format(resolution), "EM12_{}".format(resolution), "EM13_{}".format(resolution), "EM15_{}".format(resolution))
@@ -150,23 +160,44 @@ for dict in [leeds_data_dict, leeds_data_dict_overlapping]:
 ################################################################
 ################################################################
 print("Making dicts")
-# Repeat times 6083 times to be the same length as the precip data for whole of Leeds  (73 cells x 83 cells)
-leeds_data_dict['Observations'] =  pd.DataFrame({"Precipitation (mm/hr)" :  np.load("Outputs/TimeSeries/CEH-GEAR/1km/leeds-at-centre/leeds-at-centre.npy"),
-                                       'Date' : np.tile(np.load("Outputs/TimeSeries/CEH-GEAR/12km/NearestNeighbour/leeds-at-centre/timestamps.npy", allow_pickle = True), 6059)})
-# Repeat time data 1221 times to be the same length as the precip data for whole of Leeds
-leeds_data_dict['Observations Regridded_12km'] =  pd.DataFrame({"Precipitation (mm/hr)" : np.load("Outputs/TimeSeries/CEH-GEAR/12km/NearestNeighbour/leeds-at-centre/leeds-at-centre.npy"),
-                                       'Date' : np.tile(np.load("Outputs/TimeSeries/CEH-GEAR/12km/NearestNeighbour/leeds-at-centre/timestamps.npy", allow_pickle = True), 36)})
-# Repeat time data 1221 times to be the same length as the precip data for whole of Leeds
-leeds_data_dict['Observations Regridded_2.2km'] = pd.DataFrame({"Precipitation (mm/hr)" :  np.load("Outputs/TimeSeries/CEH-GEAR/2.2km/NearestNeighbour/leeds-at-centre/leeds-at-centre.npy"),
-                                       'Date' : np.tile(np.load("Outputs/TimeSeries/CEH-GEAR/12km/NearestNeighbour/leeds-at-centre/timestamps.npy", allow_pickle = True), 1221)})
+# 1km -- Repeat times 6083 times to be the same length as the precip data for whole of Leeds  (73 cells x 83 cells)
+leeds_data_dict['Observations'] =  pd.DataFrame({"Date" :  pd.concat([pd.read_csv("Outputs/TimeSeries/CEH-GEAR/1km/leeds-at-centre/timestamps_jjaflag.csv")]*6059)['times'],
+                                       "Precipitation (mm/hr)" : np.load("Outputs/TimeSeries/CEH-GEAR/1km/leeds-at-centre/leeds-at-centre.npy"),
+                                        'jja': pd.concat([pd.read_csv("Outputs/TimeSeries/CEH-GEAR/1km/leeds-at-centre/timestamps_jjaflag.csv")]*6059)['in_jja']})
 
-####### Add both native and regridded observations data to dictionary
+
+# 2.2km --- Repeat time data 1221 times to be the same length as the precip data for whole of Leeds
+leeds_data_dict['Observations Regridded_2.2km'] =  pd.DataFrame({"Date" :  pd.concat([pd.read_csv("Outputs/TimeSeries/CEH-GEAR/2.2km/NearestNeighbour/leeds-at-centre/timestamps_jjaflag.csv")]*1221)['times'],
+                                       "Precipitation (mm/hr)" : np.load("Outputs/TimeSeries/CEH-GEAR/2.2km/NearestNeighbour/leeds-at-centre/leeds-at-centre.npy"),
+                                        'jja': pd.concat([pd.read_csv("Outputs/TimeSeries/CEH-GEAR/2.2km/NearestNeighbour/leeds-at-centre/timestamps_jjaflag.csv")]*1221)['in_jja']})
+
+# 12km --- Repeat time data 1221 times to be the same length as the precip data for whole of Leeds
+leeds_data_dict['Observations Regridded_12km'] =  pd.DataFrame({"Date" :  pd.concat([pd.read_csv("Outputs/TimeSeries/CEH-GEAR/12km/NearestNeighbour/leeds-at-centre/timestamps_jjaflag.csv")]*36)['times'],
+                                       "Precipitation (mm/hr)" : np.load("Outputs/TimeSeries/CEH-GEAR/12km/NearestNeighbour/leeds-at-centre/leeds-at-centre.npy"),
+                                        'jja': pd.concat([pd.read_csv("Outputs/TimeSeries/CEH-GEAR/12km/NearestNeighbour/leeds-at-centre/timestamps_jjaflag.csv")]*36)['in_jja']})
+
+
+####### Cut to overlapping period
 leeds_data_dict_overlapping['Observations'] =  leeds_data_dict['Observations'][(leeds_data_dict['Observations']['Date'] >= '1990-01-01 00:00:00')
                                                 & (leeds_data_dict['Observations']['Date']<= '2000-11-30 23:00:00 ')]
 leeds_data_dict_overlapping['Observations Regridded_12km'] = leeds_data_dict['Observations Regridded_12km'][(leeds_data_dict['Observations Regridded_12km']['Date'] >= '1990-01-01 00:00:00')
                                                 & (leeds_data_dict['Observations Regridded_12km']['Date'] <= '2000-11-30 23:00:00 ')]
 leeds_data_dict_overlapping['Observations Regridded_2.2km'] =  leeds_data_dict['Observations Regridded_2.2km'][(leeds_data_dict['Observations Regridded_2.2km']['Date'] >= '1990-01-01 00:00:00')
                                                 & (leeds_data_dict['Observations Regridded_2.2km']['Date'] <= '2000-11-30 23:00:00 ')]
+
+
+### Trim to JJA
+if jja_status == 'jja':
+    for dict in [leeds_data_dict, leeds_data_dict_overlapping]:
+        for resolution in ['Observations','Observations Regridded_12km','Observations Regridded_2.2km'  ]:
+          print(resolution, len(dict[resolution]))  
+        # Extract df
+          leeds_data =  dict[resolution]
+          # Trim using JJA flag
+          leeds_data = leeds_data[leeds_data['jja'].notna()]
+          # Readd to dictionary
+          dict[resolution] = leeds_data
+
 
 ##############################################################################
 
@@ -187,7 +218,7 @@ for dict, overlapping_status in zip([leeds_data_dict, leeds_data_dict_overlappin
     cols_dict = {'Observations' : 'darkgoldenrod',
                  'Observations Regridded_2.2km' : 'tomato',
                  'Observations Regridded_12km' : 'darkred',
-                 'Model _12km' : 'navy',
+                 'Model 12km' : 'navy',
                  'Model 2.2km' : 'slateblue',
                  'Model 2.2km_regridded_12km': 'teal'}
     # Create patches
@@ -199,8 +230,8 @@ for dict, overlapping_status in zip([leeds_data_dict, leeds_data_dict_overlappin
     # Create plot
     log_discrete_histogram_lesslegend(dict, cols_dict, bin_nos, "Precipitation (mm/hr)",
                                       patches, True, xlim, x_axis, y_axis)
-    #Save 
-    plt.savefig("Scripts/UKCP18/PrecipitationPDFs/leeds-at-centre/PDFs/FullTimePeriod_RCMvsCPMvsObs/All{}.png".format(overlapping_status))
+    #Save
+    plt.savefig("Scripts/UKCP18/PrecipitationPDFs/leeds-at-centre/PDFs/FullTimePeriod_RCMvsCPMvsObs/All{}_{}.png".format(overlapping_status, jja_status))
 
 ####### Plot - compring 2.2km model and 2.2km regridded observation
 just_2_2kms = leeds_data_dict.copy()
@@ -216,16 +247,16 @@ for key, val in cols_dict.items():
 # Create plot
 log_discrete_histogram_lesslegend(just_2_2kms, cols_dict, bin_nos, "Precipitation (mm/hr)",
                                   patches, True, False, x_axis, y_axis)
-plt.savefig("Scripts/UKCP18/PrecipitationPDFs/leeds-at-centre/PDFs/FullTimePeriod_RCMvsCPMvsObs/ModelVsObs_2.2km.png")
+plt.savefig("Scripts/UKCP18/PrecipitationPDFs/leeds-at-centre/PDFs/FullTimePeriod_RCMvsCPMvsObs/ModelVsObs_2.2km_{}.png".format(jja_status))
 
 
 ####### Plot just Model, to see effect of regridding
 just_model = leeds_data_dict.copy()
 del just_model['Observations Regridded_2.2km'], just_model['Observations'], just_model['Observations Regridded_12km']
 
-cols_dict = {'Combined EMs_12km' : 'navy',
-             'Combined EMs_2.2km' : 'slateblue',
-             'Combined EMs_2.2km_regridded_12km': 'teal'}
+cols_dict = {'Model 12km' : 'navy',
+             'Model 2.2km' : 'slateblue',
+             'Model 2.2km_regridded_12km': 'teal'}
 # Create patches
 patches= []
 for key, val in cols_dict.items():
@@ -235,13 +266,13 @@ for key, val in cols_dict.items():
 # Create plot
 log_discrete_histogram_lesslegend(just_model, cols_dict, bin_nos, "Precipitation (mm/hr)",
                                   patches, True, False, x_axis, y_axis)
-plt.savefig("Scripts/UKCP18/PrecipitationPDFs/leeds-at-centre/PDFs/FullTimePeriod_RCMvsCPMvsObs/JustModel.png")
+plt.savefig("Scripts/UKCP18/PrecipitationPDFs/leeds-at-centre/PDFs/FullTimePeriod_RCMvsCPMvsObs/JustModel.png".format(jja_status))
 
 
 ###############################################################
 ####### Plot just Obs, to see effect of regridding
 just_obs = leeds_data_dict.copy()
-del just_obs['Combined EMs_12km'], just_obs['Combined EMs_2.2km'], just_obs['Combined EMs_2.2km_regridded_12km']
+del just_obs['Model 12km'], just_obs['Model 2.2km'], just_obs['Model 2.2km_regridded_12km']
 
 cols_dict = {'Observations' : 'darkgoldenrod',
                  'Observations Regridded_2.2km' : 'tomato',
@@ -255,39 +286,39 @@ for key, val in cols_dict.items():
 # Create plot
 log_discrete_histogram_lesslegend(just_obs, cols_dict, bin_nos, "Precipitation (mm/hr)",
                                   patches, True, False, x_axis, y_axis)
-plt.savefig("Scripts/UKCP18/PrecipitationPDFs/leeds-at-centre/PDFs/FullTimePeriod_RCMvsCPMvsObs/JustObs.png")
+plt.savefig("Scripts/UKCP18/PrecipitationPDFs/leeds-at-centre/PDFs/FullTimePeriod_RCMvsCPMvsObs/JustObs_{}.png".format(jja_status))
 
 
 ###############################################################
 ####### Plot just 12km
-just_12km = leeds_data_dict.copy()
-del just_12km['Combined EMs_2.2km'], just_12km['Observations Regridded_2.2km'], just_12km['Observations']
+# just_12km = leeds_data_dict.copy()
+# del just_12km['Combined EMs_2.2km'], just_12km['Observations Regridded_2.2km'], just_12km['Observations']
 
-cols_dict = {'Observations Regridded_12km' : 'darkred',
-             'Combined EMs_12km' : 'navy',
-             'Combined EMs_2.2km_regridded_12km': 'teal'}
+# cols_dict = {'Observations Regridded_12km' : 'darkred',
+#              'Combined EMs_12km' : 'navy',
+#              'Combined EMs_2.2km_regridded_12km': 'teal'}
 
-# Create patches
-patches= []
-for key, val in cols_dict.items():
-    patch = mpatches.Patch(color= val, label= key)
-    patches.append(patch)
+# # Create patches
+# patches= []
+# for key, val in cols_dict.items():
+#     patch = mpatches.Patch(color= val, label= key)
+#     patches.append(patch)
 
-# Create plot
-log_discrete_histogram_lesslegend(just_12km, cols_dict, bin_nos, "Precipitation (mm/hr)",
-                                  patches, True, False, x_axis, y_axis)
-plt.savefig("Scripts/UKCP18/PrecipitationPDFs/leeds-at-centre/PDFs/FullTimePeriod_RCMvsCPMvsObs/Just12kms.png")
+# # Create plot
+# log_discrete_histogram_lesslegend(just_12km, cols_dict, bin_nos, "Precipitation (mm/hr)",
+#                                   patches, True, False, x_axis, y_axis)
+# plt.savefig("Scripts/UKCP18/PrecipitationPDFs/leeds-at-centre/PDFs/FullTimePeriod_RCMvsCPMvsObs/Just12kms_{}.png".format(jja_status))
 
 ##################### Better legend
 just_12km = leeds_data_dict.copy()
-del just_12km['Combined EMs_2.2km'], just_12km['Observations Regridded_2.2km'], just_12km['Observations']
+del just_12km['Model 2.2km'], just_12km['Observations Regridded_2.2km'], just_12km['Observations']
 
 cols_dict = {'Observations Regridded_12km' : 'darkred',
-             'Combined EMs_12km' : 'navy',
-             'Combined EMs_2.2km_regridded_12km': 'teal'}
+             'Model 12km' : 'navy',
+             'Model 2.2km_regridded_12km': 'teal'}
 
 # Create patches
-patches= []    
+patches= []
 patches.append(mpatches.Patch(color= 'darkred', label= 'CEH-GEAR'))
 patches.append(mpatches.Patch(color= 'navy', label= 'UKCP18 12km'))
 patches.append(mpatches.Patch(color= 'teal', label= 'UKCP18 2.2km'))
@@ -295,4 +326,4 @@ patches.append(mpatches.Patch(color= 'teal', label= 'UKCP18 2.2km'))
 # Create plot
 log_discrete_histogram_lesslegend(just_12km, cols_dict, bin_nos, "Precipitation (mm/hr)",
                                   patches, True, False, x_axis, y_axis)
-plt.savefig("Scripts/UKCP18/PrecipitationPDFs/leeds-at-centre/PDFs/FullTimePeriod_RCMvsCPMvsObs/Just12kms.png")
+plt.savefig("Scripts/UKCP18/PrecipitationPDFs/leeds-at-centre/PDFs/FullTimePeriod_RCMvsCPMvsObs/Just12kms_{}.png".format(jja_status))

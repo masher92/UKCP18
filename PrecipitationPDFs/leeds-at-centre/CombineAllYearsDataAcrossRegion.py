@@ -28,7 +28,7 @@ from Spatial_geometry_functions import *
 timeperiod = 'Baseline' #'Baseline', 'Future_near'
 yrs_range = "1980_2001" # "1980_2001", "2020_2041"
 ems = ['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
-resolution = '2.2km_regridded_12km' #2.2km, 12km, 2.2km_regridded_12km
+resolution = '12km' #2.2km, 12km, 2.2km_regridded_12km
 
 ##################################################################
 # Load necessary spatial data
@@ -76,7 +76,11 @@ for em in ems:
     # Cut the cube to the extent of GDF surrounding Leeds  
     ################################################################
     print('trimming cube')
-    model_cube = trim_to_bbox_of_region_obs(model_cube, leeds_at_centre_gdf)
+    if resolution in ['2.2km']:
+            model_cube = trim_to_bbox_of_region(model_cube, leeds_at_centre_gdf)
+    elif resolution in['2.2km_regridded_12km', '12km']:
+            model_cube = trim_to_bbox_of_region_obs(model_cube, leeds_at_centre_gdf)
+   
     # Test plotting - one timeslice
     #iplt.pcolormesh(model_cube[120])
     print(model_cube)
@@ -88,21 +92,46 @@ for em in ems:
     print(model_cube)
     # Save trimmed netCDF to file    
     print('saving cube')
-    iris.save(model_cube, "Outputs/TimeSeries/UKCP18/{}/{}/leeds-at-centre/{}/leeds-at-centre.nc".format(resolution,timeperiod,em))
+    #iris.save(model_cube, "Outputs/TimeSeries/UKCP18/{}/{}/leeds-at-centre/{}/leeds-at-centre.nc".format(resolution,timeperiod,em))
+    
+    ############################################
+    # Cut to just June-July_August period
+    #############################################
+    ## Add season variables
+    iris.coord_categorisation.add_season(model_cube,'time', name = "clim_season")
+    # Keep only JJA
+    jja = model_cube.extract(iris.Constraint(clim_season = 'jja'))
+    
+    #print('saving jja cube')
+    #iris.save(jja, "Outputs/TimeSeries/UKCP18/{}/{}/leeds-at-centre/{}/jja_leeds-at-centre.nc".format(resolution,timeperiod,em))
     
     # ################################################################
     # # Once across all ensemble members, save a numpy array storing
     # # the timestamps to which the data refer
     # ################################################################          
     if em == '01':
-        times = model_cube.coord('yyyymmddhh').points
-        print(len(times))
-        print(times[len(times)-1])
-        print(times[0])
+        if resolution in ['2.2km', '2.2km_regridded_12km']:
+            time_var = 'yyyymmddhh'
+        elif resolution == '12km':
+            time_var = 'yyyymmdd'        
+        
+        # Extract ttimes
+        times = model_cube.coord(time_var).points   
         # Convert to datetime - doesnt work due to 30 days in Feb
         #times = [datetime.datetime.strptime(x, "%Y%m%d%H") for x in times]
         np.save("Outputs/TimeSeries/UKCP18/{}/{}/leeds-at-centre/timestamps.npy".format(resolution, timeperiod), times) 
 
+        ## Also save a dataframe, which contains a flag for whether that
+        # date is within JJA
+        jja_times = jja.coord(time_var).points
+        # Create dataframe showing which dates in JJA data and which not
+        jja_times_df = pd.DataFrame({'times':jja_times, 'in_jja': 1})
+        times_df = pd.DataFrame({'times':times, 'Value': 1})
+        
+        combined_times = times_df.merge(jja_times_df, how = 'outer')
+        del combined_times['Value']
+        combined_times.to_csv("Outputs/TimeSeries/UKCP18/{}/{}/leeds-at-centre/timestamps_jjaflag.csv".format(resolution, timeperiod), index = False)    
+        
     # ################################################################
     # # Create a numpy array containing all the precipitation values from across
     # # all 20 years of data and all positions in the cube
