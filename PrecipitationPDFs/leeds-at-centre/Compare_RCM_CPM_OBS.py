@@ -228,6 +228,9 @@ for dict, overlapping_status in zip([leeds_data_dict, leeds_data_dict_overlappin
         patches.append(patch)
 
     # Create plot
+    #log_discrete_with_inset(dict, cols_dict, bin_nos, "Precipitation (mm/hr)",
+    #                              patches, True, False)
+    
     log_discrete_histogram_lesslegend(dict, cols_dict, bin_nos, "Precipitation (mm/hr)",
                                       patches, True, xlim, x_axis, y_axis)
     #Save
@@ -266,7 +269,7 @@ for key, val in cols_dict.items():
 # Create plot
 log_discrete_histogram_lesslegend(just_model, cols_dict, bin_nos, "Precipitation (mm/hr)",
                                   patches, True, False, x_axis, y_axis)
-plt.savefig("Scripts/UKCP18/PrecipitationPDFs/leeds-at-centre/PDFs/FullTimePeriod_RCMvsCPMvsObs/JustModel.png".format(jja_status))
+plt.savefig("Scripts/UKCP18/PrecipitationPDFs/leeds-at-centre/PDFs/FullTimePeriod_RCMvsCPMvsObs/JustModel_{}.png".format(jja_status))
 
 
 ###############################################################
@@ -313,6 +316,10 @@ plt.savefig("Scripts/UKCP18/PrecipitationPDFs/leeds-at-centre/PDFs/FullTimePerio
 just_12km = leeds_data_dict.copy()
 del just_12km['Model 2.2km'], just_12km['Observations Regridded_2.2km'], just_12km['Observations']
 
+# Wet hurs
+# for key in just_12km.keys():
+#     just_12km[key] = just_12km[key][just_12km[key]['Precipitation (mm/hr)'] > 0.1]
+
 cols_dict = {'Observations Regridded_12km' : 'darkred',
              'Model 12km' : 'navy',
              'Model 2.2km_regridded_12km': 'teal'}
@@ -324,6 +331,6 @@ patches.append(mpatches.Patch(color= 'navy', label= 'UKCP18 12km'))
 patches.append(mpatches.Patch(color= 'teal', label= 'UKCP18 2.2km'))
 
 # Create plot
-log_discrete_histogram_lesslegend(just_12km, cols_dict, bin_nos, "Precipitation (mm/hr)",
-                                  patches, True, False, x_axis, y_axis)
+log_discrete_with_inset(just_12km, cols_dict, bin_nos, "Precipitation (mm/hr)",
+                                  patches, True, False)
 plt.savefig("Scripts/UKCP18/PrecipitationPDFs/leeds-at-centre/PDFs/FullTimePeriod_RCMvsCPMvsObs/Just12kms_{}.png".format(jja_status))
