@@ -316,7 +316,7 @@ plt.savefig("Scripts/UKCP18/PrecipitationPDFs/leeds-at-centre/PDFs/FullTimePerio
 just_12km = leeds_data_dict.copy()
 del just_12km['Model 2.2km'], just_12km['Observations Regridded_2.2km'], just_12km['Observations']
 
-# Wet hurs
+# Wet hours
 # for key in just_12km.keys():
 #     just_12km[key] = just_12km[key][just_12km[key]['Precipitation (mm/hr)'] > 0.1]
 
