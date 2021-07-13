@@ -415,9 +415,9 @@ for dict, overlapping_status in zip([leeds_data_dict, leeds_data_dict_overlappin
             plt.xlabel('Percentile')
             plt.ylabel('Precipitation (mm/hr)')
             plt.legend(handles=[darkred_patch, navy_patch, teal_patch])
-            plt.yscale('linear')
+            plt.yscale('log')
             plt.xticks(rotation = 23)
-        plt.savefig("Scripts/UKCP18/PrecipitationPDFs/leeds-at-centre/PDFs/PercentileThresholds/{}_{}_{}.png".format(name, overlapping_status, jja_status))
+        plt.savefig("Scripts/UKCP18/PrecipitationPDFs/leeds-at-centre/PDFs/PercentileThresholds/{}_{}_{}_log.png".format(name, overlapping_status, jja_status))
         plt.clf()
 
 
