@@ -469,7 +469,6 @@ def log_discrete_with_inset(results_dict, cols_dict, bin_nos, precip_variable, p
     # dataframe to store numbers in each bin
     numbers_in_each_bin = pd.DataFrame()
     
-    
     fig, ax1 = plt.subplots()
     left, bottom, width, height = [0.57, 0.56, 0.3, 0.3]
     ax2=fig.add_axes([left, bottom, width, height])
@@ -519,26 +518,33 @@ def log_discrete_with_inset(results_dict, cols_dict, bin_nos, precip_variable, p
     # Inset axis
     #ax2.plot(range(6), color = 'green')                   
     #patches= []
+    fig,ax = plt.subplots()
     for key, df in results_dict.items():
-        #print(key)
-        col = cols_dict[key]
-        #patch = mpatches.Patch(color=col, label=key)
-        #patches.append(patch)
-        
-        low_precips = df[(df["Precipitation (mm/hr)"] >0) & (df["Precipitation (mm/hr)"] <2)]
-        
-        # Specifying like this because gauge data is only at 0.2 intervals, so below this doesnt make sense
-        bin_edges = np.arange(0.01,2.01,0.2)
-        
-        # Create a histogram and save the bin edges and the values in each bin
-        values, bin_edges = np.histogram(low_precips["Precipitation (mm/hr)"], bins=bin_edges, density=True)
-        # Calculate the bin central positions
-        bin_centres =  0.5*(bin_edges[1:] + bin_edges[:-1])
-        # Draw the plot
-        ax2.plot(bin_centres, values,linewidth = 1, color = cols_dict[key])
-        #plt.plot(bin_centres, values, color='black', marker='o',markersize =1, linewidth=0.5, markerfacecolor = 'red')
-        #plt.hist(wethours['Precipitation (mm/hr)'], bins = bin_no, density = True, color = 'white', edgecolor = 'black', linewidth= 0.5)
-       
+        print(key)
+        if key in ['Observations Regridded_12km','Model 12km', 'Model 2.2km_regridded_12km']:
+            col = cols_dict[key]
+            #patch = mpatches.Patch(color=col, label=key)
+            #patches.append(patch)
+            low_precips = df[(df["Precipitation (mm/hr)"] >=0) & (df["Precipitation (mm/hr)"] <10)]
+            if key =='Observations Regridded_12km':
+                low_precips["Precipitation (mm/hr)"] = round(low_precips["Precipitation (mm/hr)"],1)
+            low_precips_12km = results_dict['Model 12km'][(results_dict['Model 12km']["Precipitation (mm/hr)"] >=0) & (results_dict['Model 12km']["Precipitation (mm/hr)"] <10)]
+            low_precips_2_2km = results_dict['Model 2.2km_regridded_12km'][(results_dict['Model 2.2km_regridded_12km']["Precipitation (mm/hr)"] >=0) & (results_dict['Model 2.2km_regridded_12km']["Precipitation (mm/hr)"] <10)]
+            
+            # Specifying like this because gauge data is only at 0.2 intervals, so below this doesnt make sense
+            bin_edges = np.arange(0.1,2.01,0.11)
+            
+            # Create a histogram and save the bin edges and the values in each bin
+            values, bin_edges = np.histogram(low_precips["Precipitation (mm/hr)"], bins=bin_edges, density=True)
+            
+            # Calculate the bin central positions
+            bin_centres =  0.5*(bin_edges[1:] + bin_edges[:-1])
+            # Draw the plot
+            plt.plot(bin_centres, values,linewidth = 1, color = cols_dict[key])
+            #plt.plot(bin_centres, values, color='black', marker='o',markersize =1, linewidth=0.5, markerfacecolor = 'red')
+            #plt.hist(wethours['Precipitation (mm/hr)'], bins = bin_no, density = True, color = 'white', edgecolor = 'black', linewidth= 0.5)
+            plt.legend(handles=patches)
+            ax.set_yscale('log')
     #plt.legend(handles=patches)
     #ax2.set_xlabel(precip_variable)
     #ax2.set_ylabel('Probability density')
