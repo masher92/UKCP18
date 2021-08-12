@@ -9,6 +9,7 @@ import seaborn as sns
 import glob
 import geopandas as gpd
 from mpl_toolkits.axes_grid1 import make_axes_locatable
+import statsmodels.formula.api as smf
 
 # Specify catchment name
 os.chdir("C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/FloodModelling/IndividualCatchments/")
@@ -87,6 +88,48 @@ for catchment_name in catchments:
     catchment_info = pd.concat([concat_shp, catchment_descriptors], axis=1)
     catchment_info['name'] = catchment_name
     catchments_info = pd.concat([catchments_info,catchment_info])
+
+catchments_info['Tp'] =  [3.495, 3.541, 4.323, 1.875,6.97, 5.86,5.308,6.221,1.955, 1.873,
+                              3.487, 6.713,3.151,6.129, 6.552,4.196,4.783, 7.115,4.961,6.07]
+catchments_info['CritDur'] = [6.30,5.30,7.30,3.15, 11,11, 9 , 11 , 3.45, 3.15,
+                              6.30,11,5.30,11,11,6.30 ,8.30,11 ,8.30,11]
+
+
+fig = plt.figure(figsize = (9,6))
+ax = fig.add_subplot(1,1,1)
+ax.clear()
+ax = sns.scatterplot(data=catchments_info, x='Tp', y='URBEXT2000', style = 'name', 
+            markers = catchment_markers_dict, hue = 'name', s= 200, palette = my_pal)
+#ax.set_xlabel('{} ({})'.format(variable1, variable1_unit), fontsize = 12)
+#ax.set_ylabel('{} ({})'.format(variable2, ("m")), fontsize = 12)
+ax.tick_params(axis='both', which='major')
+ax.legend_.remove()
+
+
+######################################################################################
+######################################################################################
+# Correlations - Multiple regression
+######################################################################################
+######################################################################################
+cols= ['name', 'AREA', 'ALTBAR', 'BFIHOST','DPSBAR', 'FARL', 'LDP',
+       'PROPWET', 'SAAR','URBEXT2000', 'Easting','Northing']
+catchments_info_filtered = catchments_info[cols]
+
+# Create dataframe to store the adjusted R2 values
+r2s_df = pd.DataFrame({'Variables' : catchments_info_filtered.columns[1:-2]})
+pos_or_neg_df = pd.DataFrame({'RPs' : catchments_info_filtered.columns[1:-2]})
+for predictor_variable in ['Easting', 'Northing', 'Easting + Northing']:
+    print(predictor_variable)
+    values = []
+    pos_or_neg = []
+    for response_variable in catchments_info_filtered.columns[1:-2]:
+        print(response_variable)
+        model = smf.ols("{}~{}".format(response_variable, predictor_variable) , data=catchments_info).fit()
+        values.append(round(model.rsquared_adj, 3))
+    r2s_df =pd.concat([r2s_df,pd.DataFrame({predictor_variable : values})], axis=1)
+    pos_or_neg_df =pd.concat([pos_or_neg_df,pd.DataFrame({predictor_variable : pos_or_neg})], axis=1)    
+
+r2s_df 
 
 ######################################################################################
 ######################################################################################
@@ -196,3 +239,10 @@ for variable2 in variables2s:
             ax.legend_.remove()
             plt.savefig(root_fp +"DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/Allcatchments/CatchmentDescriptors/{}vs{}.PNG".format(variable1, variable2))
             
+###############################################
+lin_dyke_shpfile = shapefile.loc[shapefile['CATCHNAME'] == 'Aire - Lin Dyke Catchment']
+
+# Plot
+fig, ax = plt.subplots(1, 1)
+lin_dyke_shpfile.plot()
+
