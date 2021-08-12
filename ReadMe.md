@@ -185,3 +185,21 @@ Useful: https://www.bnhs.co.uk/2019/technology/grabagridref/OSGB.pdf
 
 <a name="todo"></a>
 ## To do
+
+
+## Updating with new UKCP18 data
+Data downloaded - DONE for baseline, future near and future far
+Precip PDFS
+Regridding - DONE for 2.2km data
+Precipitation PDFs - 
+Combine all years data across region -- 2.2km, 2.2km regridded - DONE
+Compare_RCM_CPM_OBS -- All plots recreated DONE (except histograms)
+Compare_baseline_future - Not done
+
+RegionalRainfallStats
+Model -
+Calculate_UKstats - 
+
+
+
+
