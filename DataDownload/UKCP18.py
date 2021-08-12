@@ -8,11 +8,11 @@ from getpass import getpass # Allows typing password invisibly
 import sys
 
 # Define the years between which the data is required
-from_year = 2060
+from_year = 2060    
 to_year = 2081
 
 # Define ensemble members for which data is required
-members = ['11']
+members = ['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
 print("Downloading data for ensemble members " + str(members) + " for years between " + str(from_year) + " and " + str(to_year))
 
 # Define the variables required
@@ -67,7 +67,7 @@ for member in members:
               print ("File " + ffile + ' already exists, skipping to next file')
             else:
               # Change the remote directory to reflect correct member and variable
-              f.cwd("/badc/ukcp18/data/land-cpm/uk/2.2km/rcp85/"+member+"/"+var+"/1hr/latest")
+              f.cwd("/badc/ukcp18/data/land-cpm/uk/2.2km/rcp85/"+member+"/"+var+"/1hr/v20210615")
               print('File ' + ffile +  ' does not already exist, attempting to retrieve')
               try:     
                  with open(ffile, 'wb') as fp:

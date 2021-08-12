@@ -22,6 +22,7 @@ import iris.quickplot as qplt
 import cartopy.crs as ccrs
 import matplotlib 
 import iris.plot as iplt
+import multiprocessing as mp
 
 ############################################
 # Define variables and set up environment
@@ -31,10 +32,10 @@ root_fp = "/nfs/a319/gy17m2a/"
 os.chdir(root_fp)
 
 # Create path to files containing functions
-sys.path.insert(0, root_fp + 'Scripts/UKCP18/SpatialAnalyses')
+sys.path.insert(0, root_fp + 'Scripts/UKCP18/GlobalFunctions')
 from Spatial_plotting_functions import *
 
-ems = ['01', '04', '05', '06', '07', '08','09', '10', '11','12','13','15']
+ems = ['04', '05', '06', '07', '08','09', '10', '11','12','13','15']
 yrs_range = "1980_2001" 
 
 # Create a dictionary within which the stats cubes for each ensemble member will
@@ -50,8 +51,9 @@ ems_dict = {}
 #       Trim to the outline of the UK
 #       Cut so only hours in JJA remain
 #       Find the max, mean and percentile values for each grid square
-#       
-for em in ems:
+# 
+def calculate_stats(em):      
+#for em in ems:
     print(em)
     #############################################
     ## Load in the data
@@ -77,11 +79,7 @@ for em in ems:
     
     # Remove ensemble member dimension
     concat_cube = concat_cube[0,:,:,:]
-    
-    time_constraint = iris.Constraint(time=lambda c: c.point.day == 12)
-    time_constraint = iris.Constraint(time=lambda c: c.point.year == 12)
-    aa=concat_cube.extract(time_constraint)
-       
+          
     #############################################
     ## Trim to outline of UK
     #############################################
@@ -123,20 +121,28 @@ for em in ems:
     ###########################################
     ## Save to file
     ###########################################
-    iris.save(jja_max, '/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/em_'+ em+ '_jja_max.nc')
+    iris.save(jja_max, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Model/Allhours/EM_Data/em_'+ em+ '_jja_max.nc')
     print("JJA max saved")
-    iris.save(jja_mean, '/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/em_'+ em+ '_jja_mean.nc')
+    iris.save(jja_mean, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Model/Allhours/EM_Data/em_'+ em+ '_jja_mean.nc')
     print("JJA mean saved")
     # Save percentiles seperately
     p95 = jja_percentiles[0,:,:,:]
-    iris.save(p95, '/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/em_'+ em+ '_jja_p95.nc')
+    iris.save(p95, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Model/Allhours/EM_Data/em_'+ em+ '_jja_p95.nc')
     p97 = jja_percentiles[1,:,:,:]
-    iris.save(p97, '/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/em_'+ em+ '_jja_p97.nc')
+    iris.save(p97, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Model/Allhours/EM_Data/em_'+ em+ '_jja_p97.nc')
     p99 = jja_percentiles[2,:,:,:]
-    iris.save(p99, '/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/em_'+ em+ '_jja_p99.nc')
+    iris.save(p99, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Model/Allhours/EM_Data/em_'+ em+ '_jja_p99.nc')
     p99_5 = jja_percentiles[3,:,:,:]
-    iris.save(p99_5, '/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/em_'+ em+ '_jja_p99.5.nc')
+    iris.save(p99_5, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Model/Allhours/EM_Data/em_'+ em+ '_jja_p99.5.nc')
     p99_75 = jja_percentiles[4,:,:,:]
-    iris.save(p99_75, '/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/em_'+ em+ '_jja_p99.75.nc')
+    iris.save(p99_75, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Model/Allhours/EM_Data/em_'+ em+ '_jja_p99.75.nc')
     p99_9 = jja_percentiles[5,:,:,:]
-    iris.save(p99_9, '/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/em_'+ em+ '_jja_p99.9.nc')
+    iris.save(p99_9, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Model/Allhours/EM_Data/em_'+ em+ '_jja_p99.9.nc')
+
+### Complete via multiprocessing
+pool = mp.Pool(mp.cpu_count())
+results = [pool.apply_async(calculate_stats, args=(x,)) for x in ems]
+output = [p.get() for p in results]
+print(output) 
+    
+

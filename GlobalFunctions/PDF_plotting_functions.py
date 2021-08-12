@@ -290,7 +290,7 @@ def log_discrete_histogram_lesslegend_array(results_dict, cols_dict, bin_nos, pr
 
     
 def log_discrete_histogram_lesslegend(results_dict, cols_dict, bin_nos, precip_variable, patches, del_zeroes,
-                                      xlim, x_axis_scaling = 'linear', y_axis_scaling = 'linear'):
+                                      xlim, x_axis_scaling = 'linear', y_axis_scaling = 'log'):
     
     # Create bin edges based on data in all of the dataframes, i.e. use the same bin edges for all dataframes
     min_value = find_min_max_dict_values(results_dict, precip_variable)[0]
@@ -451,7 +451,7 @@ def log_discrete_with_inset_array(results_dict, cols_dict, bin_nos, precip_varia
     return numbers_in_each_bin
     
 
-def log_discrete_with_inset(results_dict, cols_dict, bin_nos, precip_variable, patches, del_zeroes,xlim):
+def log_discrete_with_inset(results_dict, cols_dict, bin_nos, precip_variable, patches, del_zeroes, xlim):
     
     # Create bin edges based on data in all of the dataframes, i.e. use the same bin edges for all dataframes
     min_value = find_min_max_dict_values(results_dict, precip_variable)[0]
@@ -513,7 +513,7 @@ def log_discrete_with_inset(results_dict, cols_dict, bin_nos, precip_variable, p
             ax1.xlim(0,xlim)
         #ax1.set_title(n_bins + " bins")
         ax1.set_xscale('linear')
-        ax1.set_yscale('log')
+        ax1.set_yscale('linear')
         
     # Inset axis
     #ax2.plot(range(6), color = 'green')                   
@@ -544,7 +544,7 @@ def log_discrete_with_inset(results_dict, cols_dict, bin_nos, precip_variable, p
             #plt.plot(bin_centres, values, color='black', marker='o',markersize =1, linewidth=0.5, markerfacecolor = 'red')
             #plt.hist(wethours['Precipitation (mm/hr)'], bins = bin_no, density = True, color = 'white', edgecolor = 'black', linewidth= 0.5)
             plt.legend(handles=patches)
-            ax.set_yscale('log')
+            ax.set_yscale('linear')
     #plt.legend(handles=patches)
     #ax2.set_xlabel(precip_variable)
     #ax2.set_ylabel('Probability density')

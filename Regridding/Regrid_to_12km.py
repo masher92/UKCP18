@@ -11,10 +11,11 @@ import glob
 from pyproj import Proj, transform
 import sys
 import warnings
+import multiprocessing as mp
 
 warnings.filterwarnings("ignore")
 
-ems = ['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
+ems = ['12']
 
 ##########################################################################################
 #########################################################################################
@@ -62,12 +63,13 @@ cube_model=iris.load_cube(file_model)
 #### Regrid UKCP18
 ##########################################################################################
 ##########################################################################################
-for em in ems:
+def regrid_12km (em):
   os.chdir("/nfs/a319/gy17m2a/datadir/UKCP18/2.2km/{}/1980_2001/".format(em))
   print(em)
   for filename in glob.glob("*"):     
       filename_to_save_to = "/nfs/a319/gy17m2a/datadir/UKCP18/2.2km_regridded_12km/{}/NearestNeighbour/1980_2001/rg_{}".format(em, filename)
-      if not os.path.isfile(filename_to_save_to):
+      if 0 ==0:
+      #if not os.path.isfile(filename_to_save_to):
         print(filename)
         cube = iris.load(filename)[0]
         # Linear interpolation
@@ -77,3 +79,13 @@ for em in ems:
         # Save 
         #iris.save(reg_cube_lin, "datadir/UKCP18_2.2km_regridded_12km/{}/1980_2001/NearestNeighbour/{}/rg_".format(em))
         iris.save(reg_cube_nn, filename_to_save_to)     
+
+
+# Send each ensemble member to the function
+# making use of parallelisation        
+pool = mp.Pool(mp.cpu_count())
+results = [pool.apply_async(regrid_12km, args=(x,)) for x in ems]
+output = [p.get() for p in results]
+print(output) 
+           
+        

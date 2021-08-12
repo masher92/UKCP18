@@ -12,6 +12,7 @@ import iris.plot as iplt
 import cartopy.crs as ccrs
 from matplotlib import colors
 import glob as glob
+import multiprocessing as mp
 warnings.simplefilter(action = 'ignore', category = FutureWarning)
 
 # Set up path to root directory
@@ -27,8 +28,8 @@ from Spatial_geometry_functions import *
 #############################################
 timeperiod = 'Baseline' #'Baseline', 'Future_near'
 yrs_range = "1980_2001" # "1980_2001", "2020_2041"
-ems = ['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
-resolution = '12km' #2.2km, 12km, 2.2km_regridded_12km
+ems = [ '01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
+resolution = '2.2km_regridded_12km' #2.2km, 12km, 2.2km_regridded_12km
 
 ##################################################################
 # Load necessary spatial data
@@ -40,6 +41,7 @@ leeds_at_centre_gdf = create_leeds_at_centre_outline({'init' :'epsg:3857'})
 # Trimming to region
 ##################################################################
 for em in ems:
+#def combining_data(em):
     print(em)
     # Create directory to store outputs in
     ddir = "Outputs/TimeSeries/UKCP18/{}/{}/leeds-at-centre/{}/".format(resolution, timeperiod, em)
@@ -54,19 +56,40 @@ for em in ems:
           general_filename = 'datadir/UKCP18/12km/{}/pr_rcp85_land-rcm_uk_12km_{}_day_*'.format(em, em)
     elif resolution == '2.2km_regridded_12km':
           general_filename = 'datadir/UKCP18/2.2km_regridded_12km/{}/NearestNeighbour/{}/rg_pr_rcp85_land-cpm_uk_2.2km_{}_1hr_*'.format(em, yrs_range, em)
-    print(general_filename)
+    #print(general_filename)
     
     # Find all files in directory which start with this string
     for filename in glob.glob(general_filename):
-        print(filename)
+        #print(filename)
         filenames.append(filename)
     print(len(filenames))
        
     monthly_cubes_list = iris.load(filenames,'lwe_precipitation_rate')
     for cube in monthly_cubes_list:
-         for attr in ['creation_date', 'tracking_id', 'history']:
+         for attr in ['creation_date', 'tracking_id', 'history', 'Conventions']:
              if attr in cube.attributes:
                  del cube.attributes[attr]
+    
+        
+    ls = ls
+    monthly_cubes_list = iris.load(filenames,'lwe_precipitation_rate')
+    i=0
+    for cube in monthly_cubes_list:
+        
+        print(i)
+        new_ls = []
+        for attribute in cube.attributes:
+            if attribute not in new_ls:
+                new_ls.append(attribute)
+        if new_ls != ls:
+            print("break")
+    
+    metadata= cube.metadata
+    for cube in monthly_cubes_list:
+        this_metadata = cube.metadata
+        if this_metadata != cube.metadata:
+            print("no")
+    
     
     # Concatenate the cubes into one
     print('Concatenating cube')
@@ -92,7 +115,7 @@ for em in ems:
     print(model_cube)
     # Save trimmed netCDF to file    
     print('saving cube')
-    #iris.save(model_cube, "Outputs/TimeSeries/UKCP18/{}/{}/leeds-at-centre/{}/leeds-at-centre.nc".format(resolution,timeperiod,em))
+    iris.save(model_cube, "Outputs/TimeSeries/UKCP18/{}/{}/leeds-at-centre/{}/leeds-at-centre.nc".format(resolution,timeperiod,em))
     
     ############################################
     # Cut to just June-July_August period
@@ -103,7 +126,7 @@ for em in ems:
     jja = model_cube.extract(iris.Constraint(clim_season = 'jja'))
     
     #print('saving jja cube')
-    #iris.save(jja, "Outputs/TimeSeries/UKCP18/{}/{}/leeds-at-centre/{}/jja_leeds-at-centre.nc".format(resolution,timeperiod,em))
+    iris.save(jja, "Outputs/TimeSeries/UKCP18/{}/{}/leeds-at-centre/{}/jja_leeds-at-centre.nc".format(resolution,timeperiod,em))
     
     # ################################################################
     # # Once across all ensemble members, save a numpy array storing
@@ -158,7 +181,7 @@ for em in ems:
             print(i,j)
             # Define the filename
             filename = ddir + "{}_{}.npy".format(i,j)
-            # If a file of this name already exists saved, then read in this file
+            # If a file of this name already exists concat, then read in this file
             if 1 ==2 :
             #if os.path.isfile (filename):
                 print("File exists")
@@ -181,3 +204,11 @@ for em in ems:
     print("saving data")
     np.save(ddir + "leeds-at-centre.npy", all_the_data)   
     print("saved data")
+
+
+### Complete via multiprocessing
+pool = mp.Pool(mp.cpu_count())
+results = [pool.apply_async(combining_data, args=(x,)) for x in ems]
+output = [p.get() for p in results]
+print(output) 
+    

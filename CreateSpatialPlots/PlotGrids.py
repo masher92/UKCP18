@@ -179,3 +179,41 @@ plot = ax.yaxis.set_major_formatter(plt.NullFormatter())
 plot =leeds_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=2)
 plot =leeds_at_centre_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=2)
 plt.savefig("Scripts/UKCP18/CreateSpatialPlots/Figs/UKCP18_12km.png", bbox_inches = 'tight')
+
+
+############################################################
+############################################################
+# Plot grid with lin dyke shapefile
+############################################################
+############################################################
+shapefile = gpd.read_file("datadir/LeedsCatchments/LeedsCatchments.shp")
+shapefile['PLAN_AREA_km2'] = shapefile['PLAN_AREA']/1000000
+print(shapefile)
+
+lin_dyke_shpfile = shapefile.loc[shapefile['CATCHNAME'] == 'Aire - Lin Dyke Catchment']
+lin_dyke_shpfile = lin_dyke_shpfile.to_crs(epsg = 3857)
+
+# Plot
+fig, ax = plt.subplots(1, 1)
+lin_dyke_shpfile.plot()
+
+##########################################################################
+#####################
+
+##########################################################################
+fig, ax = plt.subplots(figsize=(45,30))
+extent = tilemapbase.extent_from_frame(leeds_gdf)
+plot = plotter = tilemapbase.Plotter(extent, tilemapbase.tiles.build_OSM(), width=500)
+plot =plotter.plot(ax)
+# # Add edgecolor = 'grey' for lines
+plot =ax.pcolormesh(lons_cornerpoints, lats_cornerpoints, test_data,
+      linewidths=6, alpha = 1, cmap = cmap, edgecolors = 'grey')
+plot = ax.xaxis.set_major_formatter(plt.NullFormatter())
+plot = ax.yaxis.set_major_formatter(plt.NullFormatter())
+plot =leeds_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=4)
+plot = lin_dyke_shpfile.plot(ax=ax)
+plot =leeds_at_centre_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=2)
+#plt.savefig("Scripts/UKCP18/CreateSpatialPlots/Figs/UKCP18_2.2km.png", bbox_inches = 'tight')
+
+
+

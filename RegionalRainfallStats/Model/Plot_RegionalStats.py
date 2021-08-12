@@ -39,7 +39,7 @@ root_fp = "/nfs/a319/gy17m2a/"
 os.chdir(root_fp)
 
 # Create path to files containing functions
-sys.path.insert(0, root_fp + 'Scripts/UKCP18/SpatialAnalyses')
+sys.path.insert(0, root_fp + 'Scripts/UKCP18/GlobalFunctions')
 from Spatial_plotting_functions import *
 from Spatial_geometry_functions import *
 
@@ -51,9 +51,9 @@ ems = ['01', '04', '05', '06', '07', '08', '09','10','11','12', '13','15']
 # Whether to plot all subplots with axis with same range, or to plot an axis each
 shared_axis = True
 # Region over which to plot
-region = 'Northern' #['Northern', 'leeds-at-centre', 'UK']
+region = 'leeds-at-centre' #['Northern', 'leeds-at-centre', 'UK']
 # Whether to include All hours or just Wet hours 
-hours = 'wet'
+hours = 'all'
 
 ##################################################################
 # Load necessary spatial data
@@ -101,11 +101,10 @@ for em in ems:
     for stat in stats:
           # Load in netcdf files containing the stats data over the whole UK
           if hours == 'all':
-              stat_cube = iris.load('/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/Allhours/em_'+ em+ '_' + stat + '.nc')[0] 
+              stat_cube = iris.load('/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Model/Allhours/EM_Data/em_'+ em+ '_' + stat + '.nc')[0] 
               stat_cube = stat_cube[0]    
           elif hours == 'wet':
-              stat_cube = iris.load('/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/Wethours/em_'+ em+ '_' + stat + '.nc')[0] 
-              
+              stat_cube = iris.load('/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Model/Wethours/EM_Data/em_'+ em+ '_' + stat + '.nc')[0] 
           # Trim to smaller area
           if region == 'Northern':
               stat_cube = trim_to_bbox_of_region(stat_cube, wider_northern_gdf)
@@ -257,19 +256,23 @@ for stat in stats:
         colorbar.ax.tick_params(labelsize=15)
         colorbar.ax.set_yticklabels(["{:.{}f}".format(i, n_decimal_places) for i in colorbar.get_ticks()])    
         if hours == 'all':
-            filename = "Outputs/Stats_Spatial_plots/{}/Allhours/{}.png".format(region, stat)
+            filename = "Outputs/RegionalRainfallStats/Plots/Model/{}/Allhours/{}_new.png".format(region, stat)
         elif hours == 'wet':
-            filename = "Outputs/Stats_Spatial_plots/{}/Wethours/{}.png".format(region, stat)
+            filename = "Outputs/RegionalRainfallStats/Plots/Model/{}/Wethours/{}.png".format(region, stat)
   
     # Determine filename for saving file
     elif shared_axis == False:
         if hours == 'all':
-            filename = "Outputs/Stats_Spatial_plots/{}/Allhours/{}_diffscales.png".format(region, stat)
+            filename = "Outputs/RegionalRainfallStats/Plots/Model/{}/Allhours/{}_diffscales_new.png".format(region, stat)
         elif hours == 'wet':
-            filename = "Outputs/Stats_Spatial_plots/{}/Wethours/{}_diffscales.png".format(region, stat)
+            filename = "Outputs/RegionalRainfallStats/Plots/Model/{}/Wethours/{}_diffscales.png".format(region, stat)
             
     # Save plot        
     plt.savefig(filename, bbox_inches = 'tight')
+
+
+
+
 
 # ##########################################
 # # Code to check whether grid lines are due to changing projection
@@ -311,34 +314,29 @@ mesh = iplt.pcolormesh(stats_cube, cmap = precip_colormap, vmin = local_min,
 #      plt.gca().coastlines(linewidth =0.5)
 
 ################## Plot without specifying projection
-ax = plt.subplot(122)
-# Plot
-mesh = iplt.pcolormesh(stats_cube, cmap = precip_colormap, vmin = local_min,
-                        vmax = local_max)
+# ax = plt.subplot(122)
+# # Plot
+# mesh = iplt.pcolormesh(stats_cube, cmap = precip_colormap, vmin = local_min,
+#                         vmax = local_max)
 
-leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=0.5)
-
-
-###
-from pyproj.crs import CRS
-cube_crs = stats_cube.coord('grid_latitude').coord_system.as_cartopy_crs()
-proj_crs = CRS.from_dict(cube_crs.proj4_params)
-leeds_gdf = leeds_gdf.to_crs(proj_crs)
-leeds_gdf.plot()
+# leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=0.5)
 
 
-lons_wrapped = []
-lons=stats_cube.coord('grid_longitude').points
-for lon in lons:
-    if lon >360:
-        new_lon=lon-360
-        lons_wrapped.append(new_lon)
-    else:
-        lons_wrapped.append(lon)
-stats_cube.coord('grid_longitude').points = lons_wrapped
+# ###
+# from pyproj.crs import CRS
+# cube_crs = stats_cube.coord('grid_latitude').coord_system.as_cartopy_crs()
+# proj_crs = CRS.from_dict(cube_crs.proj4_params)
+# leeds_gdf = leeds_gdf.to_crs(proj_crs)
+# leeds_gdf.plot()
 
 
+# lons_wrapped = []
+# lons=stats_cube.coord('grid_longitude').points
+# for lon in lons:
+#     if lon >360:
+#         new_lon=lon-360
+#         lons_wrapped.append(new_lon)
+#     else:
+#         lons_wrapped.append(lon)
+# stats_cube.coord('grid_longitude').points = lons_wrapped
 
-
-
-lons=stats_cube.coord('grid_longitude').points
