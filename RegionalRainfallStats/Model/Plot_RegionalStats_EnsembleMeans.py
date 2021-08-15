@@ -38,14 +38,14 @@ root_fp = "/nfs/a319/gy17m2a/"
 os.chdir(root_fp)
 
 # Create path to files containing functions
-sys.path.insert(0, root_fp + 'Scripts/UKCP18/SpatialAnalyses')
+sys.path.insert(0, root_fp + 'Scripts/UKCP18/GlobalFunctions')
 from Spatial_plotting_functions import *
 from Spatial_geometry_functions import *
 
 # Set up variables
 ems = ['01', '04', '05', '06', '07', '08', '09','10','11','12', '13','15']
 yrs_range = "1980_2001" 
-region = 'UK' #['Northern', 'leeds-at-centre', 'UK']
+region = 'leeds-at-centre' #['Northern', 'leeds-at-centre', 'UK']
 hours = 'all' #['wet', 'all']
 
 ##################################################################
@@ -155,7 +155,7 @@ for stat in stats:
         
       # Save files
       if hours == 'all':
-          filename = "Outputs/RegionalRainfallStats/Plots/Model/{}/AllHours_EM_Difference/{}_{}.png".format(region, stat, em_cube_stat)
+          filename = "Outputs/RegionalRainfallStats/Plots/Model/{}/AllHours_EM_Difference/{}_{}_new.png".format(region, stat, em_cube_stat)
       elif hours == 'wet':
            filename = "Outputs/RegionalRainfallStats/Plots/Model/{}/WetHours_EM_Difference/{}_{}.png".format(region, stat, em_cube_stat)         
       fig.savefig(filename, bbox_inches = 'tight')

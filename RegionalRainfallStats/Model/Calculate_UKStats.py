@@ -35,7 +35,7 @@ os.chdir(root_fp)
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/GlobalFunctions')
 from Spatial_plotting_functions import *
 
-ems = ['04', '05', '06', '07', '08','09', '10', '11','12','13','15']
+ems = ['06', '07', '10', '13','15']
 yrs_range = "1980_2001" 
 
 # Create a dictionary within which the stats cubes for each ensemble member will
@@ -52,8 +52,8 @@ ems_dict = {}
 #       Cut so only hours in JJA remain
 #       Find the max, mean and percentile values for each grid square
 # 
-def calculate_stats(em):      
-#for em in ems:
+#def calculate_stats(em):      
+for em in ems:
     print(em)
     #############################################
     ## Load in the data
@@ -140,9 +140,9 @@ def calculate_stats(em):
     iris.save(p99_9, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Model/Allhours/EM_Data/em_'+ em+ '_jja_p99.9.nc')
 
 ### Complete via multiprocessing
-pool = mp.Pool(mp.cpu_count())
-results = [pool.apply_async(calculate_stats, args=(x,)) for x in ems]
-output = [p.get() for p in results]
-print(output) 
+#pool = mp.Pool(mp.cpu_count())
+#results = [pool.apply_async(calculate_stats, args=(x,)) for x in ems]
+#output = [p.get() for p in results]
+#print(output) 
     
 

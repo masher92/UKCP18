@@ -211,7 +211,7 @@ plot =ax.pcolormesh(lons_cornerpoints, lats_cornerpoints, test_data,
 plot = ax.xaxis.set_major_formatter(plt.NullFormatter())
 plot = ax.yaxis.set_major_formatter(plt.NullFormatter())
 plot =leeds_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=4)
-plot = lin_dyke_shpfile.plot(ax=ax)
+plot = lin_dyke_shpfile.plot(ax=ax, color = 'none', edgecolor = 'blue', linewidth = 10)
 plot =leeds_at_centre_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=2)
 #plt.savefig("Scripts/UKCP18/CreateSpatialPlots/Figs/UKCP18_2.2km.png", bbox_inches = 'tight')
 

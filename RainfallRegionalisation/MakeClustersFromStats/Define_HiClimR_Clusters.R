@@ -12,11 +12,11 @@ region = 'Northern' #'WY' 'Northern'
 # stats: The stats to attempt regionalise with
 # ems: the ensemble members with which to attempt the regionalisation
 # num_clusters_list: the numbers of clusters to try splitting the region into
-stats = list('Wethours/jja_p99_wh') # 'Greatest_ten'
-#stats = ('99.5th Percentile', '99.9th Percentile', '99.99th Percentile', '97th Percentile', '99th Percentile', '95th Percentile') 
+#stats = list('Wethours/jja_p99_wh') # 'Greatest_ten'
+stats = ('max', 'mean', '99.5th Percentile', '99.9th Percentile', '99.99th Percentile', '97th Percentile', '99th Percentile', '95th Percentile') 
 ems = list('01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13','15')
 # Number of clusters
-num_clusters_list = list(2,3,4,5,10)
+num_clusters_list = list(2)
 
 #############################################
 # Find clusters

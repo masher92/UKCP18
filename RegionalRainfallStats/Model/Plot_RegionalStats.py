@@ -145,6 +145,7 @@ for em in ems:
 #############################################
 # Plotting
 #############################################
+print("plotting")
 # Create a colourmap                                   
 precip_colormap = create_precip_cmap()
 
@@ -278,32 +279,32 @@ for stat in stats:
 # # Code to check whether grid lines are due to changing projection
 # ##########################################
 # Extract data for correct ensemble member and stat
-em_dict = ems_dict[em]
-stats_cube = em_dict[stat]
+#em_dict = ems_dict[em]
+#stats_cube = em_dict[stat]
    
 # Define the contour levels to use in plotting where the axis is not shared
-local_min = stats_cube.data.min()
-local_max = stats_cube.data.max()       
-contour_levels = np.linspace(local_min, local_max, 11,endpoint = True)
+#local_min = stats_cube.data.min()
+#local_max = stats_cube.data.max()       
+#contour_levels = np.linspace(local_min, local_max, 11,endpoint = True)
  
-# Define number of decimal places to use in the rounding of the colour bar
-# This ensures smaller numbers have decimal places, but not bigger ones.
-if local_max >10:
-  n_decimal_places = 0
-else:
-  n_decimal_places = 2
+## Define number of decimal places to use in the rounding of the colour bar
+## This ensures smaller numbers have decimal places, but not bigger ones.
+#if local_max >10:
+#  n_decimal_places = 0
+#else:
+#  n_decimal_places = 2
  
-########################## Plot in Web Mercator
-proj = ccrs.Mercator.GOOGLE
-#proj = ccrs.PlateCarree()
-# Think this needs to match the 
-data_crs = ccrs.Mercator.GOOGLE
+########################### Plot in Web Mercator
+#proj = ccrs.Mercator.GOOGLE
+##proj = ccrs.PlateCarree()
+## Think this needs to match the 
+#data_crs = ccrs.Mercator.GOOGLE
 
-# Create axis using this WM projection
-ax = plt.subplot(122, projection=proj)
-# Plot
-mesh = iplt.pcolormesh(stats_cube, cmap = precip_colormap, vmin = local_min,
-                        vmax = local_max)
+## Create axis using this WM projection
+#ax = plt.subplot(122, projection=proj)
+## Plot
+#mesh = iplt.pcolormesh(stats_cube, cmap = precip_colormap, vmin = local_min,
+#                        vmax = local_max)
 # Add regional outlines, depending on which region is being plotted
 # if region == 'Northern':
 #      leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=0.5)
