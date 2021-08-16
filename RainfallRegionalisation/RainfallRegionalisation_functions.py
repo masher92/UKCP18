@@ -54,9 +54,9 @@ def values_above_percentile(rain_data, percentile_cutoff_data):
 # From FindStats - work out what difference is
 @jit
 def values_above_percentile(rain_data,percentile_data,n_highest):
-"""Using numba to extract values above a percentile.
-Numba executes loops efficiently (just in time compiling)
-Somehow, the exceptions do not work well within numba, so they are passed out as integers"""    
+#Using numba to extract values above a percentile.
+#Numba executes loops efficiently (just in time compiling)
+#Somehow, the exceptions do not work well within numba, so they are passed out as integers"""    
     
     exception=0
     # length of lons
@@ -90,7 +90,7 @@ Somehow, the exceptions do not work well within numba, so they are passed out as
     return n_highest_array,exception
 
 
-def find_biggest_percentage_share (dictionary):
+def find_biggest_percentage_share (dictionary, region_codes, region, num_clusters, lat_length, lon_length):
     '''
     Description
     ----------

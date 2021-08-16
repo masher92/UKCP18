@@ -10,6 +10,41 @@ import pandas as pd
 
 root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
 
+def create_leeds_at_centre_narrow_outline (required_proj):
+    '''
+    Description
+    ----------
+        Creates a shapely geometry of a square box with Leeds at the centre
+        in the projection specified
+
+    Parameters
+    ----------
+        required_proj : Dict
+            Python dictionary with a key init that has a value epsg:4326. 
+            This is a very typical way how CRS is stored in GeoDataFrames 
+            e.g. {'init' :'epsg:3785'} for Web Mercator
+            or   {'init' :'epsg:4326'} for WGS84
+
+    Returns
+    -------
+        leeds_at_centre_gdf : Geodataframe
+            Dataframe contaiing coordinates of outline of aquare are with Leeds at centre
+    
+    ''', 
+    # Define lats and lons to make box around Leeds
+    lons = [53.979403, 53.979403, 53.502785, 53.502785]
+    lats = [-1.678661,-1.198520, -1.198520, -1.678661]
+    # Convert to polygon
+    polygon_geom = Polygon(zip(lats, lons))
+    # Convert to geodataframe
+    leeds_at_centre_narrow_gdf = gpd.GeoDataFrame(index=[0], crs={'init': 'epsg:4326'}, geometry=[polygon_geom])
+    leeds_at_centre_narrow_gdf = leeds_at_centre_narrow_gdf.to_crs(required_proj) 
+
+    return leeds_at_centre_narrow_gdf
+
+
+
+
 def create_leeds_at_centre_outline (required_proj):
     '''
     Description

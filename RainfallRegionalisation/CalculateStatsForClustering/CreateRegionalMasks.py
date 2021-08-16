@@ -34,11 +34,11 @@ warnings.filterwarnings("ignore")
 root_fp = "/nfs/a319/gy17m2a/"
 os.chdir(root_fp)
 
-sys.path.insert(0, root_fp + 'Scripts/UKCP18/SpatialAnalyses')
+sys.path.insert(0, root_fp + 'Scripts/UKCP18/GlobalFunctions')
 from Spatial_plotting_functions import trim_to_bbox_of_region
 from Spatial_geometry_functions import *
 
-locations = ["WY_square", "Northern", "leeds-at-centre"]
+locations = ["leeds-at-centre-narrow"] # "Northern", "leeds-at-centre"]
 
 #############################################
 # Create regional geodataframes
@@ -50,6 +50,9 @@ wider_northern_gdf = create_wider_northern_outline({'init' :'epsg:3857'})
 leeds_gdf = create_leeds_outline({'init' :'epsg:3857'})
 # This is a square area surrounding Leeds
 leeds_at_centre_gdf = create_leeds_at_centre_outline({'init' :'epsg:3857'})
+# This is a square area surrounding Leeds
+leeds_at_centre_narrow_gdf = create_leeds_at_centre_narrow_outline({'init' :'epsg:3857'})
+
 # This is the outline of the coast of the UK
 uk_gdf = create_uk_outline({'init' :'epsg:3857'})
 
@@ -76,12 +79,12 @@ square_northern_cube_df = pd.DataFrame({'lat': square_northern_cube.coord('latit
 # defines whether that location is within the specified region.
 #############################################
 for location in locations:
-    if location == 'WY_square':
-        location_gdf = wys_gdf
-    elif location =='Northern':
+    if location =='Northern':
         location_gdf = northern_gdf
     elif location == 'leeds-at-centre':
         location_gdf = leeds_at_centre_gdf
+    elif location == 'leeds-at-centre-narrow':
+        location_gdf = leeds_at_centre_narrow_gdf
         
     #############################################
     # Create a dataframe with the latitude and longitude of all locations in the

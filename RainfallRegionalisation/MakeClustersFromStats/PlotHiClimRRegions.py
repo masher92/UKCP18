@@ -20,21 +20,20 @@ import os
 import sys
 import numpy.ma as ma
 
-root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
+root_fp = "/nfs/a319/gy17m2a/"
 os.chdir(root_fp)
 
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/RainfallRegionalisation/')
 from RainfallRegionalisation_functions import find_biggest_percentage_share
-# sys.path.insert(0, root_fp + 'Scripts/UKCP18/SpatialAnalyses')
+sys.path.insert(0, root_fp + 'Scripts/UKCP18/GlobalFunctions')
 # from Spatial_plotting_functions import *
 from Spatial_geometry_functions import *
 
 ############################################
 # Define variables and set up environment
 #############################################
-region = 'Northern' # ['WY', 'Leeds-at-centre' 'Northern']
-stats = [ 'Wethours/jja_p99_wh']
-#['97th Percentile','Max', 'Mean', 'Greatest_ten','95th Percentile', '99th Percentile', '99.5th Percentile', '99.9th Percentile', '99.99th Percentile']
+region = 'leeds-at-centre' # ['Leeds-at-centre' 'Northern']
+stats = ['Max', 'Mean', '95th Percentile', '97th Percentile', '99th Percentile', '99.5th Percentile',  '99.75th Percentile', '99.9th Percentile']
 ems =['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
 num_clusters_ls = [2,3,4,5,10]
 
@@ -55,6 +54,7 @@ northern_gdf = create_northern_outline({'init' :'epsg:27700'})
 for stat in stats:
     codes_dict = {}
     print(stat)
+    
     for num_clusters in num_clusters_ls:
         print("Num clusters: ", num_clusters)      
         
@@ -64,10 +64,12 @@ for stat in stats:
         # Set up plotting parameters for a plot with 12 subplots in
         # a 4 rows by 3 columns grid
         rows, cols = 4, 3
-        fig, ax = plt.subplots(rows, cols,
-                               sharex='col', 
-                               sharey='row',
-                               figsize=(20, 20))
+        if region == 'Northern':
+          fig, ax = plt.subplots(rows, cols, sharex='col',  sharey='row', figsize=(20, 30))
+        elif region == 'leeds-at-centre':
+          fig, ax = plt.subplots(rows, cols, sharex='col', sharey='row',figsize=(20, 28))
+        plt.setp(plt.gcf().get_axes(), xticks=[], yticks=[]);
+        
         
         # Create a dictionary:
         # For the number of clusters that the code is currently working on
@@ -85,7 +87,7 @@ for stat in stats:
                 ##############################################################################
                 # Read in the file containing the cluster number assigned to each lat/long location
                 ##############################################################################
-                general_filename = 'Outputs/Regionalisation/HiClimR_outputdata/{}/{}/{} clusters/em{}.csv'.format(region, stat, num_clusters,em)
+                general_filename = 'Outputs/RainfallRegionalisation/HiClimR_outputdata/{}/{}/{} clusters/em{}.csv'.format(region, stat, num_clusters,em)
                 region_codes = pd.read_csv(general_filename)
                 region_codes = region_codes.rename(columns={'lats': 'lat', 'lons': 'lon'})
                        
@@ -144,10 +146,12 @@ for stat in stats:
                 ax[row, col].pcolormesh(lons_2d, lats_2d, region_codes_2d,
                                   linewidths=3, alpha = 1, cmap = 'tab20')
                 leeds_gdf.plot(ax=ax[row, col], edgecolor='black', color='none', linewidth=2)
-                northern_gdf.plot(ax=ax[row, col], edgecolor='black', color='none', linewidth=2)
+                if region == 'Northern':
+                  northern_gdf.plot(ax=ax[row, col], edgecolor='black', color='none', linewidth=2)
                 ax[row, col].tick_params(axis='x', labelsize= 25)
                 ax[row, col].tick_params(axis='y', labelsize= 25)
-                #ax[row, col].set_title('The function g', fontsize=5)
+                #ax[row, col].axis('off')
+                
                 em_i = em_i +1
         
         # Add the dictionary containing the region codes associated with each ensemble member
@@ -161,12 +165,12 @@ for stat in stats:
         # Adjust plotting parameters over all subplots
         ##############################################################################
         fig.subplots_adjust(top=1.5)
-        fig.tight_layout()  
+        fig.tight_layout()          
         
         ##############################################################################
         # Save figure
         ##############################################################################
-        ddir = 'C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/Outputs/Regionalisation/HiClimR_plots/{}/{}'.format(region, stat) 
+        ddir = 'Scripts/UKCP18/RainfallRegionalisation/Figs/{}/Allhours/{}'.format(region, stat) 
         if not os.path.isdir(ddir):
             os.makedirs(ddir)
         filename =  ddir + '/{}_clusters.jpg'.format(num_clusters)    
@@ -189,7 +193,8 @@ for stat in stats:
     # The regional cluster code which it is most commonly placed amongst the 12 ensemble members
     # For this most common cluster code, find the proportion of the twelve ensemble members which place it within this
     # This percentage will be used for plotting
-    lats_2d, lons_2d, percent_2d = find_biggest_percentage_share (codes_dict[num_clusters_ls[i]])
+    lats_2d, lons_2d, percent_2d = find_biggest_percentage_share (codes_dict[num_clusters_ls[i]], region_codes, region,
+                                                                  num_clusters, 144, 114)
     
     # Set up plotting parameters
     # Plot with 5 subplots, all within one row
@@ -202,10 +207,18 @@ for stat in stats:
         # Define position of subplot in figure
         ax = fig.add_subplot(rows, columns, new_i)
         
+        # Calculate for each grid cell:
+        # The regional cluster code which it is most commonly placed amongst the 12 ensemble members
+        # For this most common cluster code, find the proportion of the twelve ensemble members which place it within this
+        # This percentage will be used for plotting
+        lats_2d, lons_2d, percent_2d = find_biggest_percentage_share (codes_dict[num_clusters_ls[i]], region_codes, region,
+                                                                      num_clusters_ls[i], 144, 114)
+            
         # Create plot
         my_plot = ax.pcolormesh(lons_2d, lats_2d, percent_2d, linewidths=3, alpha = 1, cmap = "BuPu", vmin=0, vmax=100)
         leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=1)
-        northern_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=1)
+        if region == 'Northern':
+          northern_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=1)
         # Turn off the axis        
         plt.axis('off')
         #plt.title(str(num_clusters_ls[i]) + " Clusters", fontsize=10)
@@ -218,7 +231,7 @@ for stat in stats:
     cb1.ax.tick_params(labelsize=25)
     
     ## Save figure
-    ddir = 'C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/Outputs/Regionalisation/HiClimR_plots/{}/{}'.format(region, stat) 
+    ddir = 'Scripts/UKCP18/RainfallRegionalisation/Figs/{}/Allhours/{}'.format(region, stat) 
     if not os.path.isdir(ddir):
         os.makedirs(ddir)
     filename =  ddir + '/EnsembleSimilarity.jpg'

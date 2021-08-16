@@ -43,7 +43,7 @@ sys.path.insert(0, root_fp + 'Scripts/UKCP18/GlobalFunctions')
 from Spatial_plotting_functions import *
 from Spatial_geometry_functions import *
 
-ems = ['01', '04', '05', '06', '07', '08', '10', '11','12','13','15']
+ems = ['01', '04', '05', '06', '07', '08', '09', '10', '11','12','13','15']
 stats = ['Max', 'Mean', '95th Percentile', '97th Percentile', '99th Percentile', '99.5th Percentile', '99.75th Percentile', '99.9th Percentile']
 yrs_range = "1980_2001" 
 
@@ -152,7 +152,7 @@ def create_stats_df(em):
         df = df.join(pd.DataFrame({str(year) : stats_array_1d}))
 
       # Save to file
-      ddir = "Outputs/HiClimR_inputdata/NorthernSquareRegion/Allhours/{}/".format(stat)
+      ddir = "Outputs/RainfallRegionalisation/HiClimR_inputdata/NorthernSquareRegion/Allhours/{}/".format(stat)
       if not os.path.isdir(ddir):
            os.makedirs(ddir)
       df.to_csv(ddir + "em_{}.csv".format(em), index = False, float_format = '%.20f')

@@ -49,7 +49,7 @@ from Spatial_geometry_functions import *
 # List of ensemble members
 ems = ['01', '04', '05', '06', '07', '08', '09','10','11','12', '13','15']
 # Whether to plot all subplots with axis with same range, or to plot an axis each
-shared_axis = True
+shared_axis = False
 # Region over which to plot
 region = 'leeds-at-centre' #['Northern', 'leeds-at-centre', 'UK']
 # Whether to include All hours or just Wet hours 
@@ -257,14 +257,14 @@ for stat in stats:
         colorbar.ax.tick_params(labelsize=15)
         colorbar.ax.set_yticklabels(["{:.{}f}".format(i, n_decimal_places) for i in colorbar.get_ticks()])    
         if hours == 'all':
-            filename = "Outputs/RegionalRainfallStats/Plots/Model/{}/Allhours/{}_new.png".format(region, stat)
+            filename = "Outputs/RegionalRainfallStats/Plots/Model/{}/Allhours/{}.png".format(region, stat)
         elif hours == 'wet':
             filename = "Outputs/RegionalRainfallStats/Plots/Model/{}/Wethours/{}.png".format(region, stat)
   
     # Determine filename for saving file
     elif shared_axis == False:
         if hours == 'all':
-            filename = "Outputs/RegionalRainfallStats/Plots/Model/{}/Allhours/{}_diffscales_new.png".format(region, stat)
+            filename = "Outputs/RegionalRainfallStats/Plots/Model/{}/Allhours/{}_diffscales.png".format(region, stat)
         elif hours == 'wet':
             filename = "Outputs/RegionalRainfallStats/Plots/Model/{}/Wethours/{}_diffscales.png".format(region, stat)
             

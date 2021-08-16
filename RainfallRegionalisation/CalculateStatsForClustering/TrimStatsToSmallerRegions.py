@@ -29,14 +29,10 @@ warnings.filterwarnings("ignore")
 ##############################################################################
 # Define variables and set up environment
 ##############################################################################
-#root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
 root_fp = "/nfs/a319/gy17m2a/"
 os.chdir(root_fp)
-stats = ['Wethours/ValuesOver20Years/wet_prop']
-#stats = ['Wethours/jja_mean_wh', 'Wethours/jja_max_wh', 'Wethours/wet_prop', 'Wethours/jja_p95_wh', 'Wethours/jja_p97_wh', 'Wethours/jja_p99_wh', 'Wethours/jja_p99_wh', 'Wethours/jja_p99.5_wh', 'Wethours/jja_p99.75_wh', 'Wethours/jja_p99.9_wh']
-#stats= ['Max','Mean', '95th Percentile', '97th Percentile', '99th Percentile', '99.5th Percentile',
-#        '99.75th Percentile', '99.9th Percentile']
-regions = ['leeds-at-centre']   
+stats= ['Max','Mean', '95th Percentile', '97th Percentile', '99th Percentile', '99.5th Percentile',  '99.75th Percentile', '99.9th Percentile']
+regions = ['leeds-at-centre', 'Northern']   
 ems = ['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
 
 ############################################################################## 
@@ -55,7 +51,7 @@ for region in regions:
         for stat in stats:
             print(region, em, stat)
             #Read in data        
-            stats_data = pd.read_csv("Outputs/HiClimR_inputdata/NorthernSquareRegion/{}/em_{}.csv".format(stat, em))
+            stats_data = pd.read_csv("Outputs/RainfallRegionalisation/HiClimR_inputdata/NorthernSquareRegion/Allhours/{}/em_{}.csv".format(stat, em))
             mask = pd.read_csv("Outputs/RegionalMasks/{}_mask.csv".format(region))
         
             # Join the mask with the stats 
@@ -68,7 +64,7 @@ for region in regions:
             # Remove within_region columns
             joined.drop(joined.columns[2], axis =1, inplace = True)         
            
-            ddir = "Outputs/HiClimR_inputdata/{}/{}/".format(region, stat)
+            ddir = "Outputs/RainfallRegionalisation/HiClimR_inputdata/{}/Allhours/{}/".format(region, stat)
             if not os.path.isdir(ddir):
                 os.makedirs(ddir)
             print(ddir + "em_{}.csv".format(em))

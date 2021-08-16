@@ -6,17 +6,16 @@ library(HiClimR)
 library(dplyr)
 
 # Specify the region for which the analysis will be conducted
-region = 'Northern' #'WY' 'Northern'
+region = 'leeds-at-centre' #'WY' 'Northern'
 
 # Specify lists with:
 # stats: The stats to attempt regionalise with
 # ems: the ensemble members with which to attempt the regionalisation
 # num_clusters_list: the numbers of clusters to try splitting the region into
-#stats = list('Wethours/jja_p99_wh') # 'Greatest_ten'
-stats = ('max', 'mean', '99.5th Percentile', '99.9th Percentile', '99.99th Percentile', '97th Percentile', '99th Percentile', '95th Percentile') 
-ems = list('01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13','15')
+stats = list('Max', 'Mean', '99.5th Percentile', '99.9th Percentile', '99.75th Percentile', '97th Percentile', '99th Percentile', '95th Percentile') 
+ems = list('01', '04', '05', '06', '07', '08','09',  '10', '11', '12', '13','15')
 # Number of clusters
-num_clusters_list = list(2)
+num_clusters_list = list(2,3,4,5,10)
 
 #############################################
 # Find clusters
@@ -27,7 +26,7 @@ for (num_clusters in num_clusters_list){
     for (em in ems){
             print (em)
             # Create the filepath
-            filepath = sprintf("C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/Outputs/RainfallRegionalisation/HiClimR_inputdata/%s/%s/em_%s.csv", region, stat, em)
+            filepath = sprintf("/nfs/a319/gy17m2a/Outputs/RainfallRegionalisation/HiClimR_inputdata/%s/Allhours/%s/em_%s.csv", region, stat, em)
             
             # Read in data
             df <- read.csv(file = filepath)
@@ -40,12 +39,11 @@ for (num_clusters in num_clusters_list){
             lons <- df[['lon']]
 
             # Remove lat and long from the dataframe (not sure why there are 2 variables of lat/long)
-            drops <- c("lat","lon", "lat.1", "lon.1", "mask")
+            drops <- c("lat","lon", "lats", "lons", "mask")
             df = df[ , !(names(df) %in% drops)]
             
             # Testing whether sorting makes a difference - it does
             #new_matrix <- t(apply(df, 1, sort))
-            
             
             #df$MeanRainfall <- rowMeans(df[2:20], na.rm=TRUE)
             #new_df <- rbind(yearlyvalues$MeanRainfall, df$Mean.Rainfall)
@@ -74,14 +72,14 @@ for (num_clusters in num_clusters_list){
             regions_df <- data.frame(regions_values, lats, lons)
             
             # Save to file
-            if (!(file.exists(sprintf("C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/Outputs/Regionalisation/HiClimR_outputdata/%s/%s/%s clusters", region, stat, num_clusters)))) 
+            if (!(file.exists(sprintf("/nfs/a319/gy17m2a/Outputs/RainfallRegionalisation/HiClimR_outputdata/%s/%s/%s clusters", region, stat, num_clusters)))) 
             {  print ("Directory does not exist")
-              dir.create(sprintf("C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/Outputs/Regionalisation/HiClimR_outputdata/%s/%s/%s clusters", region, stat, num_clusters), recursive = TRUE)
+              dir.create(sprintf("/nfs/a319/gy17m2a/Outputs/RainfallRegionalisation/HiClimR_outputdata/%s/%s/%s clusters", region, stat, num_clusters), recursive = TRUE)
               print("Directory created")
             }
             
             print("Here")
-            output_filepath = sprintf("C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/Outputs/Regionalisation/HiClimR_outputdata/%s/%s/%s clusters/em%s.csv", region, stat,  num_clusters, em)
+            output_filepath = sprintf("/nfs/a319/gy17m2a/Outputs/RainfallRegionalisation/HiClimR_outputdata/%s/%s/%s clusters/em%s.csv", region, stat,  num_clusters, em)
             print("Here")
             unlink(output_filepath)
             write.csv(regions_df, output_filepath, row.names = FALSE)
