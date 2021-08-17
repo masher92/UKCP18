@@ -6,7 +6,7 @@ library(HiClimR)
 library(dplyr)
 
 # Specify the region for which the analysis will be conducted
-region = 'leeds-at-centre' #'WY' 'Northern'
+region = 'Northern' #'WY' 'Northern'
 
 # Specify lists with:
 # stats: The stats to attempt regionalise with
