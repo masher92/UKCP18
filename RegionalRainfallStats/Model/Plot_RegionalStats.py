@@ -51,7 +51,7 @@ ems = ['01', '04', '05', '06', '07', '08', '09','10','11','12', '13','15']
 # Whether to plot all subplots with axis with same range, or to plot an axis each
 shared_axis = False
 # Region over which to plot
-region = 'leeds-at-centre' #['Northern', 'leeds-at-centre', 'UK']
+region = 'leeds' #['Northern', 'leeds-at-centre', 'UK']
 # Whether to include All hours or just Wet hours 
 hours = 'all'
 
@@ -66,7 +66,7 @@ leeds_gdf = create_leeds_outline({'init' :'epsg:3857'})
 # This is a square area surrounding Leeds
 leeds_at_centre_gdf = create_leeds_at_centre_outline({'init' :'epsg:3857'})
 # This is the outline of the coast of the UK
-uk_gdf = create_uk_outline({'init' :'epsg:3857'})
+#uk_gdf = create_uk_outline({'init' :'epsg:3857'})
 
 # Load mask for wider northern region
 # This masks out cells outwith the wider northern region
@@ -110,7 +110,9 @@ for em in ems:
               stat_cube = trim_to_bbox_of_region(stat_cube, wider_northern_gdf)
           elif region == 'leeds-at-centre':
               stat_cube = trim_to_bbox_of_region(stat_cube, leeds_at_centre_gdf)
-          
+          elif region == 'leeds':
+              stat_cube = trim_to_bbox_of_region(stat_cube, leeds_gdf)
+              
           # Mask the data so as to cover any cells not within the specified region 
           if region == 'Northern':
               stat_cube.data = ma.masked_where(wider_northern_mask == 0, stat_cube.data)
@@ -164,6 +166,8 @@ for stat in stats:
         plt.figure(figsize=(48,30), dpi=200)
     elif region == 'leeds-at-centre':
         plt.figure(figsize=(48, 24), dpi=200)
+    elif region == 'leeds':
+        plt.figure(figsize=(48, 24), dpi=200)        
     elif region == 'UK':
         plt.figure(figsize=(46,29), dpi=200)
       
@@ -209,7 +213,7 @@ for stat in stats:
            if region == 'Northern':
                 leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=0.5)
                 northern_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=0.4)
-           elif region == 'leeds-at-centre':
+           elif region == 'leeds-at-centre' or region == 'leeds':
                 leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=1)
            elif region == 'UK':
                 plt.gca().coastlines(linewidth =0.5)
@@ -229,7 +233,7 @@ for stat in stats:
                 northern_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=0.4)
                 cb1 = plt.colorbar(mesh, ax=ax, fraction=0.053, pad=0.03, boundaries = contour_levels)
                 #cb1.ax.set_yticklabels(["{:.{}f}".format(i, n_decimal_places) for i in cb1.get_ticks()])  
-           elif region == 'leeds-at-centre':
+           elif region == 'leeds-at-centre' or region == 'leeds':
                 leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=1)
                 cb1 = plt.colorbar(mesh, ax=ax, fraction=0.039, pad=0.03, boundaries = contour_levels)
                 #cb1.ax.set_yticklabels(["{:.{}f}".format(i, n_decimal_places) for i in cb1.get_ticks()]) 

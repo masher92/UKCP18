@@ -72,7 +72,7 @@ leeds_poly = Polygon(create_leeds_outline({'init' :'epsg:4326'})['geometry'].ilo
 #############################################################################
 #############################################################################
 # Define file path to one CEH-GEAR file
-filename = "datadir/CEH-GEAR/CEH-GEAR-1hr_201001.nc"
+filename = "datadir/CEH-GEAR/OriginalFormat/CEH-GEAR-1hr_201001.nc"
 
 # Define variable which indiciates the minimum distancxe to a rain gauge
 variable = 'min_dist'
@@ -173,7 +173,6 @@ defined_gauges= pd.DataFrame({'ID' : ["no1", "no2", "no3", "no4", "no5", "no6"],
 mo_gauges = reproject_wm (mo_gauges)
 defined_gauges = reproject_wm (defined_gauges)
 
-
 ###############################################################################
 ###############################################################################
 # Plot distance to gauges with all the Newcastle gauges on (to compare)
@@ -197,7 +196,6 @@ mesh = iplt.pcolormesh(distance_to_gauge_onetimeslice, cmap = precip_colormap)
 leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=4)
 # Add gauges
 for lat, lon in zip(lats, lons):
-        this_point = Point(lon, lat)
         res_in_leeds = this_point.within(leeds_at_centre_poly)
         # If the point is within leeds-at-centre geometry 
         if res_in_leeds ==True :
@@ -205,6 +203,9 @@ for lat, lon in zip(lats, lons):
             plt.plot(lon_wm, lat_wm,   'o', color='black', markersize = 20) 
 plt.plot(mo_gauges['Long_wm'], mo_gauges['Lat_wm'], 'o', color='red', markersize =20)
 plt.plot(defined_gauges['Long_wm'], defined_gauges['Lat_wm'], 'o', color='yellow', markersize =20)
+cb = plt.colorbar(fraction = 0.042, pad = 0.05)
+cb.set_label(label = 'Distance to gauge (m)', size = 45)
+cb.ax.tick_params(labelsize = 40)
 
 ###############################################################################
 ###############################################################################

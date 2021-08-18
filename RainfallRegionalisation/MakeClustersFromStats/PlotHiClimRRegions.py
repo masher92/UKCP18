@@ -32,7 +32,7 @@ from Spatial_geometry_functions import *
 ############################################
 # Define variables and set up environment
 #############################################
-region = 'Northern' # ['Leeds-at-centre' 'Northern']
+region = 'test' # ['Leeds-at-centre' 'Northern']
 stats = ['Max', 'Mean', '95th Percentile', '97th Percentile', '99th Percentile', '99.5th Percentile',  '99.75th Percentile', '99.9th Percentile']
 ems =['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
 num_clusters_ls = [2,3,4,5,10]
@@ -68,9 +68,10 @@ for stat in stats:
           fig, ax = plt.subplots(rows, cols, sharex='col',  sharey='row', figsize=(20, 30))
         elif region == 'leeds-at-centre':
           fig, ax = plt.subplots(rows, cols, sharex='col', sharey='row',figsize=(20, 28))
-        elif region == 'leeds-at-centre-narrow':
+        elif region == 'leeds-square':
           fig, ax = plt.subplots(rows, cols, sharex='col', sharey='row',figsize=(20, 28))
-
+        elif region == 'test':
+          fig, ax = plt.subplots(rows, cols, sharex='col', sharey='row',figsize=(20, 28))
         plt.setp(plt.gcf().get_axes(), xticks=[], yticks=[]);
         
         

@@ -45,7 +45,7 @@ from Spatial_geometry_functions import *
 # Set up variables
 ems = ['01', '04', '05', '06', '07', '08', '09','10','11','12', '13','15']
 yrs_range = "1980_2001" 
-region = 'leeds-at-centre' #['Northern', 'leeds-at-centre', 'UK']
+region = 'leeds' #['Northern', 'leeds-at-centre', 'UK']
 hours = 'all' #['wet', 'all']
 
 ##################################################################
@@ -59,7 +59,7 @@ leeds_gdf = create_leeds_outline({'init' :'epsg:3857'})
 # This is a square area surrounding Leeds
 leeds_at_centre_gdf = create_leeds_at_centre_outline({'init' :'epsg:3857'})
 # This is the outline of the coast of the UK
-uk_gdf = create_uk_outline({'init' :'epsg:3857'})
+#uk_gdf = create_uk_outline({'init' :'epsg:3857'})
 
 # Load mask for wider northern region
 # This masks out cells outwith the wider northern region
@@ -97,7 +97,9 @@ for stat in stats:
               stats_cube = trim_to_bbox_of_region(stats_cube, wider_northern_gdf)
       elif region == 'leeds-at-centre':
               stats_cube = trim_to_bbox_of_region(stats_cube, leeds_at_centre_gdf)
-          
+      elif region == 'leeds':
+              stats_cube = trim_to_bbox_of_region(stats_cube, leeds_gdf)    
+              
       # Mask the data so as to cover any cells not within the specified region 
       if region == 'Northern':
               stats_cube.data = ma.masked_where(wider_northern_mask == 0, stats_cube.data)
@@ -142,7 +144,7 @@ for stat in stats:
              leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=2)
              northern_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=2)
              cb1 = plt.colorbar(mesh, ax=ax, fraction=0.053, pad=0.03, boundaries = contour_levels)
-      elif region == 'leeds-at-centre':
+      elif region == 'leeds-at-centre' or region == 'leeds':
              leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=2.3)
              cb1 = plt.colorbar(mesh, ax=ax, fraction=0.041, pad=0.03, 
                                boundaries = contour_levels)
@@ -155,7 +157,7 @@ for stat in stats:
         
       # Save files
       if hours == 'all':
-          filename = "Outputs/RegionalRainfallStats/Plots/Model/{}/AllHours_EM_Difference/{}_{}_new.png".format(region, stat, em_cube_stat)
+          filename = "Outputs/RegionalRainfallStats/Plots/Model/{}/AllHours_EM_Difference/{}_{}.png".format(region, stat, em_cube_stat)
       elif hours == 'wet':
            filename = "Outputs/RegionalRainfallStats/Plots/Model/{}/WetHours_EM_Difference/{}_{}.png".format(region, stat, em_cube_stat)         
       fig.savefig(filename, bbox_inches = 'tight')

@@ -38,7 +38,7 @@ sys.path.insert(0, root_fp + 'Scripts/UKCP18/GlobalFunctions')
 from Spatial_plotting_functions import trim_to_bbox_of_region
 from Spatial_geometry_functions import *
 
-locations = ["leeds-at-centre-narrow"] # "Northern", "leeds-at-centre"]
+locations = ["test"] # "Northern", "leeds-at-centre"]
 
 #############################################
 # Create regional geodataframes
@@ -51,10 +51,15 @@ leeds_gdf = create_leeds_outline({'init' :'epsg:3857'})
 # This is a square area surrounding Leeds
 leeds_at_centre_gdf = create_leeds_at_centre_outline({'init' :'epsg:3857'})
 # This is a square area surrounding Leeds
-leeds_at_centre_narrow_gdf = create_leeds_at_centre_narrow_outline({'init' :'epsg:3857'})
+leeds_square_gdf = create_leeds_outline_square({'init' :'epsg:3857'})
+
+
+test_gdf = create_test_outline({'init' :'epsg:3857'})
+
+
 
 # This is the outline of the coast of the UK
-uk_gdf = create_uk_outline({'init' :'epsg:3857'})
+#uk_gdf = create_uk_outline({'init' :'epsg:3857'})
 
 ############################################
 # Read in one cube
@@ -83,8 +88,10 @@ for location in locations:
         location_gdf = northern_gdf
     elif location == 'leeds-at-centre':
         location_gdf = leeds_at_centre_gdf
-    elif location == 'leeds-at-centre-narrow':
-        location_gdf = leeds_at_centre_narrow_gdf
+    elif location == 'leeds-square':
+        location_gdf = leeds_square_gdf
+    elif location == 'test':
+        location_gdf = test_gdf
         
     #############################################
     # Create a dataframe with the latitude and longitude of all locations in the

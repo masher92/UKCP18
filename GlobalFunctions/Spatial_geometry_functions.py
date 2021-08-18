@@ -1,3 +1,5 @@
+#linestrings.com/bbox
+
 import numpy as np
 import geopandas as gpd
 import iris
@@ -8,9 +10,10 @@ import tilemapbase
 import time 
 import pandas as pd
 
-root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
+root_fp = "/nfs/a319/gy17m2a/"
 
-def create_leeds_at_centre_narrow_outline (required_proj):
+
+def create_test_outline (required_proj):
     '''
     Description
     ----------
@@ -30,18 +33,18 @@ def create_leeds_at_centre_narrow_outline (required_proj):
         leeds_at_centre_gdf : Geodataframe
             Dataframe contaiing coordinates of outline of aquare are with Leeds at centre
     
-    ''', 
+    '''
     # Define lats and lons to make box around Leeds
-    lons = [54.2, 54.2, 53.2, 53.2]
-    lats = [-1.87,-1.1, -1.1, -1.87] 
-    
+    lons = [54, 54, 53.7, 53.7]
+    lats = [-2.2, -1.5, -1.5,  -2.2]
     # Convert to polygon
     polygon_geom = Polygon(zip(lats, lons))
     # Convert to geodataframe
-    leeds_at_centre_narrow_gdf = gpd.GeoDataFrame(index=[0], crs={'init': 'epsg:4326'}, geometry=[polygon_geom])
-    leeds_at_centre_narrow_gdf = leeds_at_centre_narrow_gdf.to_crs(required_proj) 
+    leeds_at_centre_gdf = gpd.GeoDataFrame(index=[0], crs={'init': 'epsg:4326'}, geometry=[polygon_geom])
+    leeds_at_centre_gdf = leeds_at_centre_gdf.to_crs(required_proj) 
 
-    return leeds_at_centre_narrow_gdf
+    return leeds_at_centre_gdf
+
 
 
 
@@ -110,8 +113,41 @@ def create_leeds_at_centre_outline_forgrid (required_proj):
 
     return leeds_at_centre_gdf
 
+def create_leeds_outline_square (required_proj):
+    '''
+    Description
+    ----------
+        Creates a shapely geometry of the outline of Leeds in the projection specified
 
+    Parameters
+    ----------
+        required_proj : Dict
+            Python dictionary with a key init that has a value epsg:4326. 
+            This is a very typical way how CRS is stored in GeoDataFrames 
+            e.g. {'init' :'epsg:3785'} for Web Mercator
+            or   {'init' :'epsg:4326'} for WGS84
 
+    Returns
+    -------
+        leeds_gdf : Geodataframe
+            Dataframe contaiing coordinates of outline of Leeds
+    
+    '''
+    # Read in outline of Leeds wards  
+    wards = gpd.read_file("/nfs/a319/gy17m2a/datadir/SpatialData/england_cmwd_2011.shp")
+    # Create column to merge on
+    wards['City'] = 'Leeds'
+    # Merge all wards into one outline
+    leeds = wards.dissolve(by = 'City')
+
+    # Convert Leeds outline geometry to WGS84
+    leeds.crs = {'init' :'epsg:27700'}
+    leeds_gdf = leeds.to_crs(required_proj)
+
+    leeds_gdf_square = leeds_gdf.envelope
+    leeds_gdf_square = gpd.GeoDataFrame(gpd.GeoSeries(leeds_gdf_square), columns = ['geometry'], crs={'init': 'epsg:3857'},)
+
+    return leeds_gdf_square
 
 
 
