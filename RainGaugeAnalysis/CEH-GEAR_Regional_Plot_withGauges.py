@@ -75,6 +75,29 @@ defined_gauges= pd.DataFrame({'ID' : ["no1", "no2", "no3", "no4", "no5", "no6"],
 mo_gauges = reproject_wm (mo_gauges)
 defined_gauges = reproject_wm (defined_gauges)
 
+# EA gauges
+lats,lons, station_names = [], [],[]
+for filename in glob.glob("datadir/GaugeData/Newcastle/E*"):
+    with open(filename) as myfile:
+        # read in the lines of text at the top of the file
+        firstNlines=myfile.readlines()[0:21]
+        
+        # Extract the lat, lon and station name
+        station_name = firstNlines[3][23:-1]
+        lat = float(firstNlines[5][10:-1])
+        lon = float(firstNlines[6][11:-1])
+        
+        # Check if point is within leeds-at-centre geometry
+        this_point = Point(lon, lat)
+        res = this_point.within(leeds_at_centre_poly)
+        res_in_leeds = this_point.within(leeds_poly)
+        # If the point is within leeds-at-centre geometry
+        if res ==True:
+            # Add station name and lats/lons to list
+            lats.append(lat)
+            lons.append(lon)
+            station_names.append(station_name)
+
 ##################################################################
 # Trimming to region
 ##################################################################
@@ -111,6 +134,12 @@ for stat in stats:
     ax = fig.add_subplot(projection=proj)
     # Plot
     mesh = iplt.pcolormesh(obs_cube, cmap = 'Blues')
+    # Add gauges
+    for lat, lon in zip(lats, lons):
+            lon_wm,lat_wm = transform(Proj(init = 'epsg:4326') , Proj(init = 'epsg:3857') , lon, lat)
+            plt.plot(lon_wm, lat_wm,   'o', color='black', markersize = 20) 
+    plt.plot(mo_gauges['Long_wm'], mo_gauges['Lat_wm'], 'o', color='red', markersize =20)
+    plt.plot(defined_gauges['Long_wm'], defined_gauges['Lat_wm'], 'o', color='yellow', markersize =20)
     
     # Add regional outlines, depending on which region is being plotted
     # And define extent of colorbars
@@ -130,12 +159,8 @@ for stat in stats:
     colorbar.ax.tick_params(labelsize=40)
     colorbar.ax.set_yticklabels(["{:.{}f}".format(i, 2) for i in colorbar.get_ticks()])    
     
-    plt.plot(mo_gauges['Long_wm'], mo_gauges['Lat_wm'], 'o', color='red', markersize =20)
-    plt.plot(defined_gauges['Long_wm'], defined_gauges['Lat_wm'], 'o', color='yellow', markersize =20)
-   
-    
     # Save to file
-    filename = "Outputs/RegionalRainfallStats/Plots/Observations/{}/{}.png".format(region, stat)
+    filename = "Scripts/UKCP18/RainGaugeAnalysis/Figs/GaugesLocationsvsRegionalRainfallStats/{}vsGaugeLocations.png".format(stat)
     
     # Save plot        
     plt.savefig(filename, bbox_inches = 'tight')

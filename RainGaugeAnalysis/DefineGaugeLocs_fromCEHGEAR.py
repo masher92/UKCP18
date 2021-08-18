@@ -179,7 +179,7 @@ defined_gauges = reproject_wm (defined_gauges)
 ###############################################################################
 ###############################################################################
 # Get one timeslcie
-distance_to_gauge_onetimeslice = distance_to_gauge[0,:,:]
+distance_to_gauge_onetimeslice = distance_to_gauge[200,:,:]
 print(distance_to_gauge_onetimeslice)
 
 precip_colormap = create_precip_cmap()   
