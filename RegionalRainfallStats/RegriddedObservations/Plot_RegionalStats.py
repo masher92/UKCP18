@@ -23,13 +23,13 @@ sys.path.insert(0, root_fp + 'Scripts/UKCP18/GlobalFunctions')
 from Spatial_plotting_functions import *
 from Spatial_geometry_functions import *
 
-overlapping = '_overlapping' # ''
+overlapping = '' # '' , _overlapping
 
 ############################################
 # Define variables and set up environment
 #############################################
 # Region over which to plot
-region = 'UK' #['Northern', 'leeds-at-centre', 'UK']
+region = 'leeds-at-centre' #['Northern', 'leeds-at-centre', 'UK']
 # Stats to plot
 stats = ['jja_max', 'jja_mean', 'jja_p95', 'jja_p97', 'jja_p99', 'jja_p99.5', 'jja_p99.75', 'jja_p99.9']
 

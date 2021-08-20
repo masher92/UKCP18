@@ -28,12 +28,15 @@ from Spatial_geometry_functions import *
 # Define variables and set up environment
 #############################################
 # Region over which to plot
-region = 'leeds-at-centre' #['Northern', 'leeds-at-centre', 'UK']
+region = 'Northern' #['Northern', 'leeds-at-centre', 'UK']
 stats = ['jja_max', 'jja_mean', 'jja_p95', 'jja_p97', 'jja_p99', 'jja_p99.5', 'jja_p99.75', 'jja_p99.9']
 
 ##################################################################
 # Load necessary spatial data
 ##################################################################
+# These geodataframes are square
+northern_gdf = create_northern_outline({'init' :'epsg:3857'})
+wider_northern_gdf = create_wider_northern_outline({'init' :'epsg:3857'})
 # This is the outlins of Leeds
 leeds_gdf = create_leeds_outline({'init' :'epsg:3857'})
 # This is a square area surrounding Leeds
