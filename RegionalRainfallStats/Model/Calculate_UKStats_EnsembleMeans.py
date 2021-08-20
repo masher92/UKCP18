@@ -24,7 +24,6 @@ sys.path.insert(0, root_fp + 'Scripts/UKCP18/GlobalFunctions')
 
 # Set up variables
 ems = ['01', '04', '05', '06', '07', '08', '09','10','11','12', '13','15']
-hours = 'All' #['Wet', 'All']
 
 overlapping = '_overlapping' # ''
 
@@ -39,54 +38,49 @@ uk_mask_reshaped = uk_mask.reshape(458, 383)
 # Loop through stats:
 ##################################################################
 # List of stats to loop through
-if hours == 'All':
-    stats = ['jja_max', 'jja_mean', 'jja_p95', 'jja_p97', 'jja_p99', 'jja_p99.5', 'jja_p99.75', 'jja_p99.9']
-elif hours == 'Wet':
-    stats = ['wet_prop', 'jja_max_wh', 'jja_mean_wh', 'jja_p95_wh', 'jja_p97_wh', 'jja_p99_wh', 'jja_p99.5_wh', 'jja_p99.75_wh', 'jja_p99.9_wh']
+stats = ['jja_max', 'jja_mean', 'jja_p95', 'jja_p97', 'jja_p99', 'jja_p99.5', 'jja_p99.75', 'jja_p99.9', 'whprop']
 
 #############################################################################  
 # For each stat, load in cubes containing this data for each of the ensemble members
 # And concatenate all the ensemble member statistic cubes into one. 
 #############################################################################
-for stat in stats:
-  # Load in files
-  filenames = []
-  for em in ems:
-      if hours == 'All':
-          filename= '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Model/Allhours/EM_Data/em_{}_{}{}.nc'.format(em, stat, overlapping)
-      elif hours == 'Wet':
-          filename= '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Model/Wethours/EM_Data/em_{}_{}{}.nc'.format(em, stat, overlapping)    
-      filenames.append(filename)
-
-  # Load 12 ensemble member files into a cube list
-  cubes_list = iris.load(filenames,'lwe_precipitation_rate')
-  # Concatenate the cubes into one
-  cubes = cubes_list.concatenate_cube()
-      
-  # Remove time dimension (only had one value)
-  if hours == 'All':
-      cubes = cubes[:,0,:,:]
-      
-  #############################################################################
-  # Calculate:
-  # The ensemble mean
-  # The ensemble spread (standard deviation)
-  #############################################################################
-  # Define the two different metrics
-  em_cube_stats = ["EM_mean", "EM_spread"]
-  # For each of the two different metrics
-  for em_cube_stat in em_cube_stats:
-      print(em_cube_stat)
-     # Collapse them to contain one mean value across 12 ensemble members
-      if em_cube_stat == "EM_mean":
-          stats_cube = cubes.collapsed(['ensemble_member'], iris.analysis.MEAN)
-      elif em_cube_stat == "EM_spread":
-          stats_cube = cubes.collapsed(['ensemble_member'], iris.analysis.STD_DEV)
-
-      # Mask out data points outside UK
-      stats_cube.data = ma.masked_where(uk_mask_reshaped == 0, stats_cube.data)  
+for overlapping in ['_overlapping', '']:
+    for stat in stats:
+      # Load in files
+      filenames = []
+      for em in ems:
+          filename= 'Outputs/RegionalRainfallStats/NetCDFs/Model/Allhours/EM_Data/em_{}_{}{}.nc'.format(em, stat, overlapping)
+          filenames.append(filename)
     
+      # Load 12 ensemble member files into a cube list
+      cubes_list = iris.load(filenames,'lwe_precipitation_rate')
+      # Concatenate the cubes into one
+      cubes = cubes_list.concatenate_cube()
+          
+      # Remove time dimension (only had one value)
+      if stat != 'whprop':
+          cubes = cubes[:,0,:,:]
+          
       #############################################################################
-      # Save netCDF files
+      # Calculate:
+      # The ensemble mean
+      # The ensemble spread (standard deviation)
       #############################################################################
-      iris.save(stats_cube, 'Outputs/RegionalRainfallStats/NetCDFs/Model/{}hours/EM_Summaries/{}_{}{}.nc'.format(hours, stat, em_cube_stat, overlapping))
+      # Define the two different metrics
+      em_cube_stats = ["EM_mean", "EM_spread"]
+      # For each of the two different metrics
+      for em_cube_stat in em_cube_stats:
+          print(em_cube_stat)
+         # Collapse them to contain one mean value across 12 ensemble members
+          if em_cube_stat == "EM_mean":
+              stats_cube = cubes.collapsed(['ensemble_member'], iris.analysis.MEAN)
+          elif em_cube_stat == "EM_spread":
+              stats_cube = cubes.collapsed(['ensemble_member'], iris.analysis.STD_DEV)
+    
+          # Mask out data points outside UK
+          stats_cube.data = ma.masked_where(uk_mask_reshaped == 0, stats_cube.data)  
+        
+          #############################################################################
+          # Save netCDF files
+          #############################################################################
+          iris.save(stats_cube, 'Outputs/RegionalRainfallStats/NetCDFs/Model/Allhours/EM_Summaries/{}_{}{}.nc'.format(stat, em_cube_stat, overlapping))

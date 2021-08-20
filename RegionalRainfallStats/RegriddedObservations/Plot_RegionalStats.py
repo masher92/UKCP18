@@ -23,13 +23,13 @@ sys.path.insert(0, root_fp + 'Scripts/UKCP18/GlobalFunctions')
 from Spatial_plotting_functions import *
 from Spatial_geometry_functions import *
 
-overlapping = '' # '' , _overlapping
+overlapping = '_overlapping' # '' , _overlapping
 
 ############################################
 # Define variables and set up environment
 #############################################
 # Region over which to plot
-region = 'leeds-at-centre' #['Northern', 'leeds-at-centre', 'UK']
+region = 'leeds' #['Northern', 'leeds-at-centre', 'UK']
 # Stats to plot
 stats = ['jja_max', 'jja_mean', 'jja_p95', 'jja_p97', 'jja_p99', 'jja_p99.5', 'jja_p99.75', 'jja_p99.9']
 
@@ -44,7 +44,8 @@ leeds_gdf = create_leeds_outline({'init' :'epsg:3857'})
 # This is a square area surrounding Leeds
 leeds_at_centre_gdf = create_leeds_at_centre_outline({'init' :'epsg:3857'})
 # This is the outline of the coast of the UK
-uk_gdf = create_uk_outline({'init' :'epsg:3857'})
+if region == 'UK':
+    uk_gdf = create_uk_outline({'init' :'epsg:3857'})
 
 ##################################################################
 # Trimming to region
@@ -63,6 +64,9 @@ for stat in stats:
     elif region == 'leeds-at-centre':
          nn_cube = trim_to_bbox_of_region_regriddedobs(nn_cube, leeds_at_centre_gdf)
          lr_cube = trim_to_bbox_of_region_regriddedobs(lr_cube, leeds_at_centre_gdf)
+    elif region == 'leeds':
+         nn_cube = trim_to_bbox_of_region_regriddedobs(nn_cube, leeds_gdf)
+         lr_cube = trim_to_bbox_of_region_regriddedobs(lr_cube, leeds_gdf)
     
     # Find difference cube   
     diff_cube = nn_cube - lr_cube
@@ -86,8 +90,8 @@ for stat in stats:
         precip_colormap = create_precip_cmap()
         
         # Define figure size
-        if region == 'leeds-at-centre':
-            fig = plt.figure(figsize = (20,30))
+        if region == 'leeds-at-centre' or region == 'leeds':
+            fig = plt.figure(figsize = (20,20))
         else:
             fig = plt.figure(figsize = (30,20))     
             
@@ -105,7 +109,7 @@ for stat in stats:
              leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=2)
              northern_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=4)
              colorbar_axes = plt.gcf().add_axes([0.73, 0.15, 0.015, 0.7])
-        elif region == 'leeds-at-centre':
+        elif region == 'leeds-at-centre' or region == 'leeds':
              leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=4)
              colorbar_axes = plt.gcf().add_axes([0.92, 0.28, 0.015, 0.45])
         elif region == 'UK':

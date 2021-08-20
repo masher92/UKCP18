@@ -24,11 +24,13 @@ sys.path.insert(0, root_fp + 'Scripts/UKCP18/GlobalFunctions')
 from Spatial_plotting_functions import *
 from Spatial_geometry_functions import *
 
+overlapping = '_overlapping'
+
 ############################################
 # Define variables and set up environment
 #############################################
 # Region over which to plot
-region = 'Northern' #['Northern', 'leeds-at-centre', 'UK']
+region = 'leeds-at-centre' #['Northern', 'leeds-at-centre', 'UK']
 stats = ['jja_max', 'jja_mean', 'jja_p95', 'jja_p97', 'jja_p99', 'jja_p99.5', 'jja_p99.75', 'jja_p99.9']
 
 ##################################################################
@@ -103,8 +105,8 @@ for stat in stats:
     print(stat)
     
     # Load in netcdf files containing the stats data over the whole UK
-    model_cube = iris.load('/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Model/Allhours/EM_Summaries/{}_EM_mean_overlapping.nc'.format(stat))[0]
-    obs_cube= iris.load('/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/RegriddedObservations/NearestNeighbour/{}_overlapping.nc'.format(stat))[0][0]
+    model_cube = iris.load('/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Model/Allhours/EM_Summaries/{}_EM_mean{}.nc'.format(stat, overlapping))[0]
+    obs_cube= iris.load('/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/RegriddedObservations/NearestNeighbour/{}{}.nc'.format(stat, overlapping))[0][0]
 
     # Remove coordinates present in model cube, but not in observations
     model_cube.remove_coord('latitude')
@@ -207,7 +209,7 @@ for stat in stats:
     #ax.set_title(stat, fontsize = 50)
     
     # Save to file
-    filename = "Scripts/UKCP18/RegionalRainfallStats/Difference_ModelVsObs/Figs/{}/percentage_diff_{}.png".format(region, stat)
+    filename = "Scripts/UKCP18/RegionalRainfallStats/Difference_ModelVsObs/Figs/{}/percentage_diff_{}{}.png".format(region, stat, overlapping)
     
     # Save plot        
     plt.savefig(filename, bbox_inches = 'tight')

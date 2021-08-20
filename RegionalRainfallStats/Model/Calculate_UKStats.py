@@ -28,20 +28,20 @@ import multiprocessing as mp
 # Define variables and set up environment
 #############################################
 root_fp = "/nfs/a319/gy17m2a/"
-#root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
 os.chdir(root_fp)
 
 # Create path to files containing functions
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/GlobalFunctions')
 from Spatial_plotting_functions import *
 
-ems = ['01', '04', '05' ,'06', '07', '08', '09', '10', '11', '12', '13','15']
+ems = ['01', '04', '05' ,'06', '07', '08', '09', '10', '11', '12', '13', '15']
 yrs_range = "1980_2001" 
 
 # Create a dictionary within which the stats cubes for each ensemble member will
 # be stored
 ems_dict = {}
 
+# define whether to trim to overlapping model/obs period
 overlapping_period = True
 
 ############################################
@@ -54,8 +54,8 @@ overlapping_period = True
 #       Cut so only hours in JJA remain
 #       Find the max, mean and percentile values for each grid square
 # 
-def calculate_stats(em):      
-#for em in ems:
+#def calculate_stats(em):      
+for em in ems:
     print(em)
     #############################################
     ## Load in the data
@@ -150,10 +150,33 @@ def calculate_stats(em):
     p99_9 = jja_percentiles[5,:,:,:]
     iris.save(p99_9, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Model/Allhours/EM_Data/em_'+ em+ '_jja_p99.9{}.nc'.format(overlapping))
 
-### Complete via multiprocessing
-pool = mp.Pool(mp.cpu_count())
-results = [pool.apply_async(calculate_stats, args=(x,)) for x in ems]
-output = [p.get() for p in results]
-print(output) 
+    ############################################
+    # Find wet hour stats
+    #############################################
+    rain_data = jja.data
+    print("loaded data")
     
-
+    # Get one timeslice of the JJA cube
+    # This is used as a template to save the data to later
+    one_ts = jja[0,:,:]
+    
+    # Find wet hour proportion
+    stats_array = wet_hour_stats(rain_data, 'wet_prop')
+    one_ts.data = stats_array
+          
+    # Test plotting
+    #precip_colormap = create_precip_cmap()    
+    #qplt.pcolormesh(one_ts, cmap = precip_colormap)
+    #plt.gca().coastlines()
+      
+    # Save to file
+    iris.save(one_ts, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Model/Allhours/EM_Data/em_{}_whprop{}.nc'.format(em,overlapping))
+    print("Saved wet hours")
+              
+### Complete via multiprocessing
+# pool = mp.Pool(mp.cpu_count())
+# results = [pool.apply_async(calculate_stats, args=(x,)) for x in ems]
+# output = [p.get() for p in results]
+# print(output) 
+# 
+   

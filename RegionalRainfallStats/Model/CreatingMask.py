@@ -18,7 +18,6 @@ import pandas as pd
 # Define variables and set up environment
 #############################################
 root_fp = "/nfs/a319/gy17m2a/"
-#root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
 os.chdir(root_fp)
 em = '01'
 
