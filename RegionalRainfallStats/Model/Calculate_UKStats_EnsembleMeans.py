@@ -2,7 +2,6 @@
 This file creates ensemble summary NetCDFs using stats cubes created in UK_stats.py
 and UK_stats_wethours.py. 
 These are saved to file
-
 '''
 
 import iris.coord_categorisation
@@ -16,7 +15,6 @@ import numpy.ma as ma
 # Define variables and set up environment
 #############################################
 root_fp = "/nfs/a319/gy17m2a/"
-#root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
 os.chdir(root_fp)
 
 # Create path to files containing functions
@@ -27,6 +25,8 @@ sys.path.insert(0, root_fp + 'Scripts/UKCP18/GlobalFunctions')
 # Set up variables
 ems = ['01', '04', '05', '06', '07', '08', '09','10','11','12', '13','15']
 hours = 'All' #['Wet', 'All']
+
+overlapping = '_overlapping' # ''
 
 ##################################################################
 # Load mask for UK
@@ -53,9 +53,9 @@ for stat in stats:
   filenames = []
   for em in ems:
       if hours == 'All':
-          filename= '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Model/Allhours/EM_Data/em_{}_{}.nc'.format(em, stat)
+          filename= '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Model/Allhours/EM_Data/em_{}_{}{}.nc'.format(em, stat, overlapping)
       elif hours == 'Wet':
-          filename= '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Model/Wethours/EM_Data/em_{}_{}.nc'.format(em, stat)    
+          filename= '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Model/Wethours/EM_Data/em_{}_{}{}.nc'.format(em, stat, overlapping)    
       filenames.append(filename)
 
   # Load 12 ensemble member files into a cube list
@@ -89,4 +89,4 @@ for stat in stats:
       #############################################################################
       # Save netCDF files
       #############################################################################
-      iris.save(stats_cube, 'Outputs/RegionalRainfallStats/NetCDFs/Model/{}hours/EM_Summaries/{}_{}.nc'.format(hours, stat, em_cube_stat))
+      iris.save(stats_cube, 'Outputs/RegionalRainfallStats/NetCDFs/Model/{}hours/EM_Summaries/{}_{}{}.nc'.format(hours, stat, em_cube_stat, overlapping))

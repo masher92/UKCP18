@@ -27,22 +27,24 @@ import iris.plot as iplt
 # Define variables and set up environment
 #############################################
 root_fp = "/nfs/a319/gy17m2a/"
-#root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
 os.chdir(root_fp)
 
 # Create path to files containing functions
-sys.path.insert(0, root_fp + 'Scripts/UKCP18/SpatialAnalyses')
+sys.path.insert(0, root_fp + 'Scripts/UKCP18/GlobalFunctions')
 from Spatial_plotting_functions import *
 
 # Define regridding method
-regridding_method = 'NearestNeighbour'
+regridding_method = 'LinearRegridding'
+
+# Whether to cut to same period as model
+overlapping_period = True 
 
 #############################################
 ## Load in the data
 #############################################
 filenames =[]
 # Create filepath to correct folder using ensemble member and year
-general_filename = 'Outputs/RegriddingObservations/CEH-GEAR_regridded_2.2km/{}/rg_*'.format(regridding_method)
+general_filename = 'datadir/CEH-GEAR/CEH-GEAR_regridded_2.2km/{}/rg_*'.format(regridding_method)
 # Find all files in directory which start with this string
 for filename in glob.glob(general_filename):
     #print(filename)
@@ -96,10 +98,16 @@ concat_cube = concat_cube[..., imin:imax+1, jmin:jmax+1]
 #############################################
 ## Add season variables
 iris.coord_categorisation.add_season(concat_cube,'time', name = "clim_season")
+iris.coord_categorisation.add_year(concat_cube,'time', name = "year")
+iris.coord_categorisation.add_month(concat_cube,'time', name = "month")
+
 # Keep only JJA
 jja = concat_cube.extract(iris.Constraint(clim_season = 'jja'))
-# Add season year
-iris.coord_categorisation.add_season_year(jja,'time', name = "season_year") 
+
+# Trim to overlapping period with model
+if overlapping_period == True:
+  # Cut to only overlapping period
+  jja = jja.extract(iris.Constraint(year = lambda cell: 1989 < cell < 2001))   
 
 ###########################################
 # Find Max, mean, percentiles
@@ -111,21 +119,26 @@ jja_percentiles = jja.aggregated_by(['clim_season'], iris.analysis.PERCENTILE, p
 ###########################################
 ## Save to file
 ###########################################
-iris.save(jja_max, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/RegriddedObservations/{}/jja_max.nc'.format(regridding_method))
+if overlapping_period == True:
+  overlapping = '_overlapping'
+else:
+  overlapping = ''
+
+iris.save(jja_max, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/RegriddedObservations/{}/jja_max{}.nc'.format(regridding_method, overlapping))
 print("JJA max saved")
-iris.save(jja_mean, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/RegriddedObservations/{}/jja_mean.nc'.format(regridding_method))
+iris.save(jja_mean, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/RegriddedObservations/{}/jja_mean{}.nc'.format(regridding_method, overlapping))
 print("JJA mean saved")
 # Save percentiles seperately
 p95 = jja_percentiles[0,:,:,:]
-iris.save(p95, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/RegriddedObservations/{}/jja_p95.nc'.format(regridding_method))
+iris.save(p95, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/RegriddedObservations/{}/jja_p95{}.nc'.format(regridding_method, overlapping))
 p97 = jja_percentiles[1,:,:,:]
-iris.save(p97, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/RegriddedObservations/{}/jja_p97.nc'.format(regridding_method))
+iris.save(p97, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/RegriddedObservations/{}/jja_p97{}.nc'.format(regridding_method, overlapping))
 p99 = jja_percentiles[2,:,:,:]
-iris.save(p99, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/RegriddedObservations/{}/jja_p99.nc'.format(regridding_method))
+iris.save(p99, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/RegriddedObservations/{}/jja_p99{}.nc'.format(regridding_method, overlapping))
 p99_5 = jja_percentiles[3,:,:,:]
-iris.save(p99_5, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/RegriddedObservations/{}/jja_p99.5.nc'.format(regridding_method))
+iris.save(p99_5, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/RegriddedObservations/{}/jja_p99.5{}.nc'.format(regridding_method, overlapping))
 p99_75 = jja_percentiles[4,:,:,:]
-iris.save(p99_75, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/RegriddedObservations/{}/jja_p99.75.nc'.format(regridding_method))
+iris.save(p99_75, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/RegriddedObservations/{}/jja_p99.75{}.nc'.format(regridding_method, overlapping))
 p99_9 = jja_percentiles[5,:,:,:]
-iris.save(p99_9, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/RegriddedObservations/{}/jja_p99.9.nc'.format(regridding_method))
+iris.save(p99_9, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/RegriddedObservations/{}/jja_p99.9{}.nc'.format(regridding_method, overlapping))
 

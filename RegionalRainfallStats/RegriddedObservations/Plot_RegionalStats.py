@@ -1,6 +1,5 @@
 ### Finding diff between NN and linear interpolation is not working -- not yet implemented erro
 
-
 import iris.coord_categorisation
 import iris
 import numpy as np
@@ -23,6 +22,8 @@ os.chdir(root_fp)
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/GlobalFunctions')
 from Spatial_plotting_functions import *
 from Spatial_geometry_functions import *
+
+overlapping = '_overlapping' # ''
 
 ############################################
 # Define variables and set up environment
@@ -52,16 +53,16 @@ for stat in stats:
     print(stat)
     
     # Load in netcdf files containing the stats data over the whole UK
-    nn_cube = iris.load('/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/RegriddedObservations/NearestNeighbour/{}.nc'.format(stat))[0][0]
-    lr_cube = iris.load('/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/RegriddedObservations/LinearRegridding/{}.nc'.format(stat))[0][0]
+    nn_cube = iris.load('/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/RegriddedObservations/NearestNeighbour/{}{}.nc'.format(stat, overlapping))[0][0]
+    lr_cube = iris.load('/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/RegriddedObservations/LinearRegridding/{}{}.nc'.format(stat, overlapping))[0][0]
 
     # Trim to smaller area
     if region == 'Northern':
-         nn_cube = trim_to_bbox_of_region_obs(nn_cube, northern_gdf)
-         lr_cube = trim_to_bbox_of_region_obs(lr_cube, northern_gdf)
+         nn_cube = trim_to_bbox_of_region_regriddedobs(nn_cube, northern_gdf)
+         lr_cube = trim_to_bbox_of_region_regriddedobs(lr_cube, northern_gdf)
     elif region == 'leeds-at-centre':
-         nn_cube = trim_to_bbox_of_region_obs(nn_cube, leeds_at_centre_gdf)
-         lr_cube = trim_to_bbox_of_region_obs(lr_cube, leeds_at_centre_gdf)
+         nn_cube = trim_to_bbox_of_region_regriddedobs(nn_cube, leeds_at_centre_gdf)
+         lr_cube = trim_to_bbox_of_region_regriddedobs(lr_cube, leeds_at_centre_gdf)
     
     # Find difference cube   
     diff_cube = nn_cube - lr_cube
@@ -112,17 +113,17 @@ for stat in stats:
              colorbar_axes = plt.gcf().add_axes([0.76, 0.15, 0.015, 0.7])
     
         colorbar = plt.colorbar(mesh, colorbar_axes, orientation='vertical',  boundaries = contour_levels)  
-        colorbar.set_label('mm/hr', size = 20)
+        colorbar.set_label('mm/hr', size = 35)
         colorbar.ax.tick_params(labelsize=28)
         colorbar.ax.set_yticklabels(["{:.{}f}".format(i, 2) for i in colorbar.get_ticks()])    
         
         # Save to file
         if key == 'LinearRegridding':
-            filename = "Scripts/UKCP18/RegionalRainfallStats/RegriddedObservations/Figs/LinearRegridding/{}/{}.png".format(region, stat)
+            filename = "Scripts/UKCP18/RegionalRainfallStats/RegriddedObservations/Figs/LinearRegridding/{}/{}{}.png".format(region, stat, overlapping)
         elif key == 'NearestNeighbour':
-            filename = "Scripts/UKCP18/RegionalRainfallStats/RegriddedObservations/Figs/NearestNeighbour/{}/{}.png".format(region, stat)       
+            filename = "Scripts/UKCP18/RegionalRainfallStats/RegriddedObservations/Figs/NearestNeighbour/{}/{}{}.png".format(region, stat, overlapping)       
         elif key == 'Regridding_Difference':
-            filename = "Scripts/UKCP18/RegionalRainfallStats/RegriddedObservations/Figs/Regridding_Difference/{}/{}.png".format(region, stat)
+            filename = "Scripts/UKCP18/RegionalRainfallStats/RegriddedObservations/Figs/Regridding_Difference/{}/{}{}.png".format(region, stat, overlapping)
             
         # Save plot        
         plt.savefig(filename, bbox_inches = 'tight')

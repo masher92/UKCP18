@@ -35,12 +35,14 @@ os.chdir(root_fp)
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/GlobalFunctions')
 from Spatial_plotting_functions import *
 
-ems = ['06', '07', '10', '13','15']
+ems = ['01', '04', '05' ,'06', '07', '08', '09', '10', '11', '12', '13','15']
 yrs_range = "1980_2001" 
 
 # Create a dictionary within which the stats cubes for each ensemble member will
 # be stored
 ems_dict = {}
+
+overlapping_period = True
 
 ############################################
 # Define variables and set up environment
@@ -52,8 +54,8 @@ ems_dict = {}
 #       Cut so only hours in JJA remain
 #       Find the max, mean and percentile values for each grid square
 # 
-#def calculate_stats(em):      
-for em in ems:
+def calculate_stats(em):      
+#for em in ems:
     print(em)
     #############################################
     ## Load in the data
@@ -110,6 +112,10 @@ for em in ems:
     # Add season year
     iris.coord_categorisation.add_season_year(jja,'time', name = "season_year") 
     
+    if overlapping_period == True:
+      # Cut to only overlapping period
+      jja = jja.extract(iris.Constraint(year = lambda cell: 1989 < cell < 2001))   
+          
     ###########################################
     # Find Max, mean, percentiles
     #############################################
@@ -121,28 +127,33 @@ for em in ems:
     ###########################################
     ## Save to file
     ###########################################
-    iris.save(jja_max, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Model/Allhours/EM_Data/em_'+ em+ '_jja_max.nc')
+    if overlapping_period == True:
+      overlapping = '_overlapping'
+    else:
+      overlapping = ''
+    
+    iris.save(jja_max, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Model/Allhours/EM_Data/em_{}_jja_max{}.nc'.format(em, overlapping))
     print("JJA max saved")
-    iris.save(jja_mean, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Model/Allhours/EM_Data/em_'+ em+ '_jja_mean.nc')
+    iris.save(jja_mean, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Model/Allhours/EM_Data/em_'+ em+ '_jja_mean{}.nc'.format(overlapping))
     print("JJA mean saved")
     # Save percentiles seperately
     p95 = jja_percentiles[0,:,:,:]
-    iris.save(p95, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Model/Allhours/EM_Data/em_'+ em+ '_jja_p95.nc')
+    iris.save(p95, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Model/Allhours/EM_Data/em_'+ em+ '_jja_p95{}.nc'.format(overlapping))
     p97 = jja_percentiles[1,:,:,:]
-    iris.save(p97, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Model/Allhours/EM_Data/em_'+ em+ '_jja_p97.nc')
+    iris.save(p97, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Model/Allhours/EM_Data/em_'+ em+ '_jja_p97{}.nc'.format(overlapping))
     p99 = jja_percentiles[2,:,:,:]
-    iris.save(p99, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Model/Allhours/EM_Data/em_'+ em+ '_jja_p99.nc')
+    iris.save(p99, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Model/Allhours/EM_Data/em_'+ em+ '_jja_p99{}.nc'.format(overlapping))
     p99_5 = jja_percentiles[3,:,:,:]
-    iris.save(p99_5, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Model/Allhours/EM_Data/em_'+ em+ '_jja_p99.5.nc')
+    iris.save(p99_5, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Model/Allhours/EM_Data/em_'+ em+ '_jja_p99.5{}.nc'.format(overlapping))
     p99_75 = jja_percentiles[4,:,:,:]
-    iris.save(p99_75, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Model/Allhours/EM_Data/em_'+ em+ '_jja_p99.75.nc')
+    iris.save(p99_75, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Model/Allhours/EM_Data/em_'+ em+ '_jja_p99.75{}.nc'.format(overlapping))
     p99_9 = jja_percentiles[5,:,:,:]
-    iris.save(p99_9, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Model/Allhours/EM_Data/em_'+ em+ '_jja_p99.9.nc')
+    iris.save(p99_9, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Model/Allhours/EM_Data/em_'+ em+ '_jja_p99.9{}.nc'.format(overlapping))
 
 ### Complete via multiprocessing
-#pool = mp.Pool(mp.cpu_count())
-#results = [pool.apply_async(calculate_stats, args=(x,)) for x in ems]
-#output = [p.get() for p in results]
-#print(output) 
+pool = mp.Pool(mp.cpu_count())
+results = [pool.apply_async(calculate_stats, args=(x,)) for x in ems]
+output = [p.get() for p in results]
+print(output) 
     
 

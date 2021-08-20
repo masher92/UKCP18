@@ -44,11 +44,10 @@ import multiprocessing as mp
 # Define variables and set up environment
 #############################################
 root_fp = "/nfs/a319/gy17m2a/"
-#root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
 os.chdir(root_fp)
 
 # Create path to files containing functions
-sys.path.insert(0, root_fp + 'Scripts/UKCP18/SpatialAnalyses')
+sys.path.insert(0, root_fp + 'Scripts/UKCP18/GlobalFunctions')
 from Spatial_plotting_functions import *
 
 ems = ['01', '04', '05', '06', '07', '08','09', '10', '11','12','13','15']
@@ -144,7 +143,7 @@ def create_stats_cube (em):
       
       # Save to file
       iris.save(one_ts, 
-                '/nfs/a319/gy17m2a/Outputs/UK_stats_netcdf/Wethours/em_'+ em+ '_' +stat + '.nc')
+                '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/Model/Wethours/em_'+ em+ '_' +stat + '.nc')
 
      
 # Parallelise the process  
