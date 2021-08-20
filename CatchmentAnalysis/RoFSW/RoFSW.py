@@ -10,6 +10,7 @@ import numpy as np
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from scipy.stats import pearsonr, spearmanr
 from scipy import stats
+import statsmodels.formula.api as smf
 
 # Specify catchment name
 os.chdir("C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/FloodModelling/IndividualCatchments/")
@@ -90,7 +91,7 @@ catchments_info_filtered = catchments_info[cols]
 ######################################################################################
 # List return periods and variables to look at
 RPs = [30,100,1000]
-variables = ['Depth', 'Hazard', 'Velocity']
+#variables = ['Depth', 'Hazard', 'Velocity']
 variables = ['Hazard']
 
 # Function to clean the catchment names to match those used in the catchment descriptors
@@ -216,14 +217,14 @@ catchment_markers_dict = {catchments[i]: mStyles[i] for i in range(len(catchment
 # Create seaborn palette
 my_pal = sns.set_palette(sns.color_palette(catchment_colors))
       
-fig, ax = plt.subplots()
-ax.plot(all_catchments_all_vars['name'], all_catchments_all_vars['Extent'], label="Extent")
-ax.plot(all_catchments_all_vars['name'], all_catchments_all_vars['Velocity_Total'], label="Speed")
-ax.plot(all_catchments_all_vars['name'], all_catchments_all_vars['Depth_Total'], label="Depth")
-ax.plot(all_catchments_all_vars['name'], all_catchments_all_vars['Hazard_Total'], label="Hazard")
-ax.set_ylabel('Number of Cells')
-ax.legend()
-plt.xticks(rotation = 90)
+# fig, ax = plt.subplots()
+# ax.plot(all_catchments_all_vars['name'], all_catchments_all_vars['Extent'], label="Extent")
+# ax.plot(all_catchments_all_vars['name'], all_catchments_all_vars['Velocity_Total'], label="Speed")
+# ax.plot(all_catchments_all_vars['name'], all_catchments_all_vars['Depth_Total'], label="Depth")
+# ax.plot(all_catchments_all_vars['name'], all_catchments_all_vars['Hazard_Total'], label="Hazard")
+# ax.set_ylabel('Number of Cells')
+# ax.legend()
+# plt.xticks(rotation = 90)
 
 ######################################################################################
 ######################################################################################
@@ -231,47 +232,13 @@ plt.xticks(rotation = 90)
 ######################################################################################
 ######################################################################################
 cols= ['name', 'geometry', 'AREA', 'ALTBAR', 'BFIHOST','DPSBAR', 'FARL', 'LDP',
-       'PROPWET', 'SAAR','URBEXT2000', 'Easting', 'Northing', 'Depth_0.00 - 0.15', 'Depth_0.15 - 0.30',
-       'Depth_0.30 - 0.60', 'Depth_0.60 - 0.90', 'Depth_0.90 - 1.20',
-       'Depth_> 1.20', 'Depth_Total', 'Hazard_0.75 - 1.25',
+       'PROPWET', 'SAAR','URBEXT2000', 'Easting', 'Northing', 'Hazard_0.75 - 1.25',
        'Hazard_0.50 - 0.75', 'Hazard_1.25 - 2.00', 'Hazard_> 2.00',
-       'Hazard_Total', 'Velocity_0.00 - 0.25', 'Velocity_0.25 - 0.50',
-       'Velocity_0.50 - 1.00', 'Velocity_1.00 - 2.00', 'Velocity_> 2.00',
-       'Velocity_Total', 'Extent']
-
-severe_vars = ['Depth_> 1.20','Velocity_> 2.00', 'Hazard_> 2.00']
-rps = [30,100,1000]
-
-# Create figure
-fig = plt.figure(figsize=(28,20)) 
-# Make subplot for each Return Period
-#for var, subplot_num in zip(severe_vars, range(1,13)):
-i=1
-for rp in rps:
-    all_catchments_all_vars = results_dict[rp]
-    filtered = all_catchments_all_vars[cols]
-    # Convert to number cells per km2
-    filtered.iloc[:,13:]=filtered.iloc[:,13:].div(filtered['AREA'], axis=0) 
-    
-    for var in severe_vars:
-         print(var, rp)
-         ax = fig.add_subplot(3,3,i)
-         divider = make_axes_locatable(ax)
-         # create `cax` for the colorbar
-         cax = divider.append_axes("right", size="5%", pad=-0.2)
-         filtered.plot(ax=ax, cax = cax, column= var,cmap='OrRd', 
-                             edgecolor = 'black', legend=True)
-         # manipulate the colorbar `cax`
-         cax.set_ylabel('Flooded cells per km2', rotation=90, size = 20)
-         cax.tick_params(labelsize=15)
-         ax.axis('off')
-         ax.set_title(str(rp) + 'yr RP: ' + var, fontsize=20)
-         
-         i = i+1
+       'Hazard_Total']
 
 ### FLooded cells per km2
 fig = plt.figure(figsize=(28,20)) 
-for rp, subplot_num in zip(rps, range(1,4)):
+for rp, subplot_num in zip(RPs, range(1,4)):
     all_catchments_all_vars = results_dict[rp]
     filtered = all_catchments_all_vars[cols]
     # Convert to number cells per km2
@@ -282,27 +249,27 @@ for rp, subplot_num in zip(rps, range(1,4)):
     divider = make_axes_locatable(ax)
     # create `cax` for the colorbar
     cax = divider.append_axes("right", size="5%", pad=-0.2)
-    filtered.plot(ax=ax, cax = cax, column= 'Depth_Total',cmap='OrRd', 
+    filtered.plot(ax=ax, cax = cax, column= 'Hazard_Total',cmap='OrRd', 
                         edgecolor = 'black', legend=True)
     # manipulate the colorbar `cax`
     cax.set_ylabel('Flooded cells per km2', rotation=90, size = 20)
     cax.tick_params(labelsize=15)
     ax.axis('off')
-    ax.set_title(rp + 'yr RP: ', fontsize=20)
+    ax.set_title(str(rp) + 'yr RP: ', fontsize=20)
     
-    # Append with catchment names
-    #filtered.apply(lambda filtered: ax.annotate(s=filtered['name'], 
-    #                                                          xy= filtered.geometry.centroid.coords[0],
-    #                                                          ha='center', size= 18),axis=1)  
+    #Append with catchment names
+    # filtered.apply(lambda filtered: ax.annotate(s=filtered['name'], 
+    #                                                           xy= filtered.geometry.centroid.coords[0],
+    #                                                           ha='center', size= 18),axis=1)  
 
 # Save and show plot
 plt.savefig(root_fp +"DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/RoFSW/Figs/Flooding_AllRPs.png".format(rp),
             bbox_inches='tight')
 
 
-
 ############ Just for Hazard
-hazard_vars= ['Hazard_0.75 - 1.25','Hazard_0.50 - 0.75', 'Hazard_1.25 - 2.00', 'Hazard_> 2.00',
+# Calculating a weighted sum
+hazard_vars= ['Hazard_0.50 - 0.75', 'Hazard_0.75 - 1.25','Hazard_1.25 - 2.00', 'Hazard_> 2.00',
        'Hazard_Total']
 
 # Create figure
@@ -351,40 +318,9 @@ fig.subplots_adjust(top=0.92)
 plt.subplots_adjust(hspace=0.05, wspace=0.0)   
 
 
-
-rp = 30
-# Get the results for this RP
-all_catchments_all_vars = results_dict[rp]
-# Get just the hazard variables
-hazard = all_catchments_all_vars[hazard_vars]
-# Join to catchments info
-hazard = pd.concat([catchments_info_filtered, hazard], axis=1)
-# Convert to number cells per km2
-hazard.iloc[:,13:17]=hazard.iloc[:,13:].div(hazard['AREA'], axis=0) 
-
-# Get just the 4 hazard categories
-hazard_cats = hazard.copy().iloc[:,13:17]
-# Define the weights
-weights = pd.Series([0.5, 0.25, 0.75, 1], index=['Hazard_0.75 - 1.25', 'Hazard_0.50 - 0.75',
-#weights = pd.Series([0.25, 0.5, 1, 2], index=['Hazard_0.75 - 1.25', 'Hazard_0.50 - 0.75',
- 'Hazard_1.25 - 2.00', 'Hazard_> 2.00'])
-# Add a column to the initial df containing the weighted syms
-hazard['weighted_sum']  = (hazard_cats * weights).sum(1)
-
-# PLot
-fig = plt.figure() 
-ax = fig.add_subplot(1,1,1)
-divider = make_axes_locatable(ax)
-# create `cax` for the colorbar
-cax = divider.append_axes("right", size="2%", pad=-0.1)
-hazard.plot(ax=ax, cax = cax, column= 'weighted_sum2',cmap='OrRd', 
-                    edgecolor = 'black', legend=True)
-# manipulate the colorbar `cax`
-cax.set_ylabel('Flooded cells per km2', rotation=90, size = 20)
-cax.tick_params(labelsize=15)
-cax.remove()
-ax.axis('off')
-
+# Save and show plot
+plt.savefig(root_fp +"DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/RoFSW/Figs/Flooding_AllRPs_weightedsum.png".format(rp),
+            bbox_inches='tight')
 
 
 ######################################################################################
@@ -392,13 +328,10 @@ ax.axis('off')
 # Plotting - relationship between flood extent and catchment descriptors
 ######################################################################################
 ######################################################################################
-cols= ['name', 'geometry', 'AREA', 'ALTBAR', 'BFIHOST','DPSBAR', 'FARL', 'LDP',
-       'PROPWET', 'SAAR','URBEXT2000', 'Easting', 'Northing', 'Hazard_0.75 - 1.25',
-       'Hazard_0.50 - 0.75', 'Hazard_1.25 - 2.00', 'Hazard_> 2.00',
-       'Hazard_Total']
-
+rp =30
+all_catchments_all_vars = results_dict[rp]
 # Just keep Hazard
-hazard = all_catchments_all_vars[ cols]
+hazard = all_catchments_all_vars[cols]
 # Normalise by area
 hazard.iloc[:,13:]=hazard.iloc[:,13:].div(hazard['AREA'], axis=0) 
 
@@ -414,10 +347,10 @@ hazard.iloc[:,13:]=hazard.iloc[:,13:].div(hazard['AREA'], axis=0)
 rp = "100"
 var = 'FloodedCellsPerKm2'
 cols =['name', 'geometry', 'AREA', 'ALTBAR', 'BFIHOST', 'DPSBAR', 'FARL',
-           'LDP', 'PROPWET', 'SAAR', 'URBEXT2000', 'Easting', 'Northing', 'Depth_Total']
+           'LDP', 'PROPWET', 'SAAR', 'URBEXT2000', 'Easting', 'Northing', 'Hazard_Total']
 
 correlations_df = pd.DataFrame()
-for rp in ['30', '100', '1000']:
+for rp in RPs:
     all_catchments_all_vars = results_dict[rp]
     # filter columns
     # Just keep Hazard
@@ -425,7 +358,7 @@ for rp in ['30', '100', '1000']:
     # Normalise by area
     hazard.iloc[:,13:]=hazard.iloc[:,13:].div(hazard['AREA'], axis=0) 
     # Find all correlations with total number flooded cells
-    corrs = hazard[hazard.columns[2:]].corr()['FloodedCellsPerKm2'][:]
+    corrs = hazard[hazard.columns[2:]].corr()['Hazard_Total'][:]
     corrs = corrs.reindex(corrs.abs().sort_values(ascending = False).index)
     df = pd.DataFrame({'Variable': corrs.index, 'Correlation': round(corrs,2)})
     df.reset_index(inplace = True, drop = True)
@@ -435,40 +368,17 @@ for rp in ['30', '100', '1000']:
 fig = plt.figure(figsize = (9,6))
 ax = fig.add_subplot(1,1,1)
 ax.clear()
-ax = sns.scatterplot(data=hazard, x="Hazard_0.75 - 1.25", y='BFIHOST',
+ax = sns.scatterplot(data=hazard, x="Hazard_Total", y='BFIHOST',
                      style = 'name',  markers = catchment_markers_dict, hue = 'name', 
                      s= 200, palette = my_pal)
 ax.legend_.remove()
 
 
-# Fit OLS regression models and store adjusted r2 values                                                         
- # Create dataframe to store the adjusted R2 values
-r2s_df = pd.DataFrame({'Variables' : rp_rainfall_plus_catchmentdescritptors.columns[0:-9]})
-pos_or_neg_df = pd.DataFrame({'Variables' : rp_rainfall_plus_catchmentdescritptors.columns[0:-9]})
-
-# Loop through combinations of predictor and response variables
-for predictor_variable in ['Northing', 'Easting', 'Northing + Easting', 'ALTBAR', 'DPSBAR', 'SAAR', 'AREA', 'BFIHOST',
-       'FARL', 'URBEXT2000']:
-    values = []
-    pos_or_neg = []
-    for response_variable in rp_rainfall_plus_catchmentdescritptors.columns[0:-9]:
-        model = smf.ols("Q({})~{}".format(response_variable, predictor_variable) , data=rp_rainfall_plus_catchmentdescritptors).fit()
-        values.append(round(model.rsquared_adj, 2))
-    r2s_df =pd.concat([r2s_df,pd.DataFrame({predictor_variable : values})], axis=1)
-    pos_or_neg_df =pd.concat([pos_or_neg_df,pd.DataFrame({predictor_variable : pos_or_neg})], axis=1)    
-
-# Filter to only keep some durations
-r2s_df =  r2s_df.loc[r2s_df['Variables'].isin([0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2,5,10,20,30,40,50.0, 60.0, 70.0, 80.0])]
-
-
-
-
-
-
-
-
-
-
+# MUltiple lienar regression?
+predictor_variables = 'BFIHOST'
+model = smf.ols("Hazard_Total~{}".format(predictor_variables) , data=hazard).fit()
+model.summary()
+round(model.rsquared_adj,2)
 
 
 
@@ -477,6 +387,14 @@ r2s_df =  r2s_df.loc[r2s_df['Variables'].isin([0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 
 # Plotting - relationship between flood extent and FEH13 rainfall
 ######################################################################################
 ######################################################################################
+rp = 30
+all_catchments_all_vars = results_dict[rp]
+# filter columns
+# Just keep Hazard
+hazard = all_catchments_all_vars[ cols]
+# Normalise by area
+hazard.iloc[:,13:]=hazard.iloc[:,13:].div(hazard['AREA'], axis=0) 
+
 # Import FEH13 rainfall
 # (Code from RainfallAnalysis.py)
 filename = glob.glob(root_fp + "DataAnalysis/FloodModelling/IndividualCatchments/BagleyBeck/DesignRainfall/*.csv")[0]
@@ -491,34 +409,25 @@ for rp in rps:
         filename = glob.glob(root_fp + "DataAnalysis/FloodModelling/IndividualCatchments/{}/DesignRainfall/*.csv".format(catchment_name))[0]
         rainfall = pd.read_csv(filename, index_col = False, skiprows = 9)
         design_rainfall_by_catchment[catchment_name] = rainfall
-        
 design_rainfall_by_rp = {}
-catchments_with_maxs = pd.DataFrame({'Duration hours': design_rainfall_by_catchment[catchment_name]['Duration hours']})
-catchments_with_mins = pd.DataFrame({'Duration hours': design_rainfall_by_catchment[catchment_name]['Duration hours']})
+
 
 for rp in rps:
     df = pd.DataFrame({'Duration hours': design_rainfall_by_catchment[catchment_name]['Duration hours']})
     for catchment_name in catchments:
             catchment_df = pd.DataFrame({catchment_name: design_rainfall_by_catchment[catchment_name][rp]})
             df[catchment_name] = catchment_df[catchment_name]
-    
-    # Add values to max/min dataframes
-    #df['Catchment_with_max_val'] = df.iloc[:, 1:].idxmax(axis=1)   
-    #df['Catchment_with_min_val'] = df.iloc[:, 1:].idxmin(axis=1)    
-    # Add value to dictionary
-    catchments_with_maxs[rp] = df.iloc[:, 1:].idxmax(axis=1)   
-    catchments_with_mins[rp] = df.iloc[:, 1:].idxmin(axis=1)   
-      
+     
     # Add to dictionary
     design_rainfall_by_rp[rp] = df
 
 # Create dataframe to store correlation for each RP/duration combination 
 # between precipitation for that combination and the number of flooded cells
 correlations_df = pd.DataFrame()
-for rp in design_rainfall_by_rp.keys():
+for rainfall_rp in design_rainfall_by_rp.keys():
     
     # Create dataframe containing rainfall for this rp and the RoFSW flooded cells
-    rainfall_10yrrp = design_rainfall_by_rp[rp]
+    rainfall_10yrrp = design_rainfall_by_rp[rainfall_rp]
     rainfall_10yrrp = rainfall_10yrrp.T
     # Reformat
     rainfall_10yrrp.columns = rainfall_10yrrp.iloc[0]
@@ -526,17 +435,17 @@ for rp in design_rainfall_by_rp.keys():
     # rainfall_10yrrp = rainfall_10yrrp[[1,10,50,90]]
     rainfall_10yrrp['name'] = rainfall_10yrrp.index
     rainfall_10yrrp.reset_index(inplace = True, drop = True)
-    rainfall_10yrrp= pd.concat([rainfall_10yrrp, filtered['Depth_Total']], axis = 1)
+    rainfall_10yrrp= pd.concat([rainfall_10yrrp, hazard['Hazard_Total']], axis = 1)
     
     # Find correlations between rainfall and the number of flooded cells
-    corrs = rainfall_10yrrp[rainfall_10yrrp.columns[1:]].corr()['Depth_Total'][:]
-    corrs = corrs.reindex(corrs.abs().sort_values().index)
+    corrs = rainfall_10yrrp[rainfall_10yrrp.columns].corr()['Hazard_Total'][:]
+    #corrs = corrs.reindex(corrs.abs().sort_values().index)
     
     # Add to dataframe
-    correlations_df[[int(i) for i in rp.split() if i.isdigit()][0]] = corrs
+    correlations_df[[int(i) for i in rainfall_rp.split() if i.isdigit()][0]] = corrs
 
 # Remove row containing Depth
-correlations_df = correlations_df.drop(['Depth_Total'], axis=0)
+correlations_df = correlations_df.drop(['Hazard_Total'], axis=0)
 # Find the max correlation for each return period
 correlations_df.abs().max()
 
@@ -544,7 +453,7 @@ correlations_df.abs().max()
 fig = plt.figure(figsize = (9,6))
 ax = fig.add_subplot(1,1,1)
 ax.clear()
-ax = sns.scatterplot(data=rainfall_10yrrp, x="Depth_Total", y=0.5,
+ax = sns.scatterplot(data=rainfall_10yrrp, x="Hazard_Total", y=96.0,
                      style = 'name',  markers = catchment_markers_dict, hue = 'name', 
                      s= 200, palette = my_pal)
 ax.legend_.remove()

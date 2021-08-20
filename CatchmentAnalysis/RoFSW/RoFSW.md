@@ -126,3 +126,14 @@ But would maybe expect that there would be a greater correlation for shorter dur
   
 Problems:
 Normalising by area: discriminates against bigger catchments, if the flood risk is concentrated in one area?
+
+
+
+######## Thoughts
+Normalising by catchment area to ensure that big catchments don’t always come out looking as though they have the worst flood risk.
+However, on the flip side, this might mean that big catchments which have high concentrated flood risk turn out to not look as bad as they are.
+Within which catchments are biggest clusters of flood risk?
+FEH web server – downloading data for grid cells instead of catchments
+Another way for determining which catchments have hotspots in?
+Catchments not the same – redo with Leeds Catchments¬¬
+Cells covering water bodies?
