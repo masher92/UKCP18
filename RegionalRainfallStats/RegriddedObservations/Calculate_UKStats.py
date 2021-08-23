@@ -34,7 +34,7 @@ sys.path.insert(0, root_fp + 'Scripts/UKCP18/GlobalFunctions')
 from Spatial_plotting_functions import *
 
 # Define regridding method
-regridding_method = 'LinearRegridding'
+regridding_method = 'NearestNeighbour'
 
 # Whether to cut to same period as model
 overlapping_period = False 
@@ -160,7 +160,7 @@ one_ts.data = stats_array
 #plt.gca().coastlines()
   
 # Save to file
-iris.save(one_ts, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/RegriddedObservations/Allhours/EM_Data/em_{}_whprop{}.nc'.format(em,overlapping))
+iris.save(one_ts, '/nfs/a319/gy17m2a/Outputs/RegionalRainfallStats/NetCDFs/RegriddedObservations/{}/jja_whprop{}.nc'.format(regridding_method,overlapping))
 print("Saved wet hours")
           
  
