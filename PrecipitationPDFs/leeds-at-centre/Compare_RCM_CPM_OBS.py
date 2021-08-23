@@ -418,24 +418,35 @@ for dict, overlapping_status in zip([leeds_data_dict, leeds_data_dict_overlappin
         plt.savefig("Scripts/UKCP18/PrecipitationPDFs/leeds-at-centre/PDFs/PercentileThresholds/{}_{}_{}.png".format(name, overlapping_status, jja_status))
         plt.clf()
 
-#
+
+##############################################################################
+##############################################################################
+just_12km = leeds_data_dict_overlapping.copy()
+del just_12km['Model 2.2km'], just_12km['Observations Regridded_2.2km'], just_12km['Observations']
+
 # ## Proportion of values in each which are 0
 # Should this be with regridded data?
 less_low_hours_lst = []
 low_hours_lst = []
 dry_hours_lst = []
 zero_hours_lst= []
+more_than_1_hours_lst= []
 for key, value in just_12km.items():
-    print(key)
+    print(value)
     df= value
-    less_low_hours_lst.append(round((len(value[value['Precipitation (mm/hr)'] <1])/len(value) *100  ),1))
-    low_hours_lst.append(round((len(value[value['Precipitation (mm/hr)'] <0.51])/len(value) *100  ),1))
+    
     zero_hours_lst.append(round((len(value[value['Precipitation (mm/hr)'] ==0])/len(value) *100  ),1))
-    dry_hours_lst.append(round((len(value[value['Precipitation (mm/hr)'] < 0.11])/len(value) *100  ),1))
+    dry_hours_lst.append(round((len(value[(value['Precipitation (mm/hr)'] <0.11) & value['Precipitation (mm/hr)']>0])/len(value) *100  ),1))
+    low_hours_lst.append(round((len(value[(value['Precipitation (mm/hr)'] <0.51) & value['Precipitation (mm/hr)']>0])/len(value) *100  ),1))
+    less_low_hours_lst.append(round((len(value[(value['Precipitation (mm/hr)'] <1) & value['Precipitation (mm/hr)']>0])/len(value) *100  ),1))    
+    more_than_1_hours_lst.append(round((len(value[value['Precipitation (mm/hr)'] >1])/len(value) *100  ),1))
+
 zeros_df = pd.DataFrame({'Key': list(just_12km.keys()), '% hours 0': zero_hours_lst, '% hours <0.1': dry_hours_lst ,'% hours <0.5': low_hours_lst,
-                         '% hours <1': less_low_hours_lst})
+                         '% hours <1': less_low_hours_lst, '% hours >1': more_than_1_hours_lst})
 
 
+
+###############
 model_12km = just_12km['Model 12km']
 model_2_2km = just_12km['Model 2.2km_regridded_12km']
 obs = just_12km['Observations Regridded_12km']
@@ -446,5 +457,9 @@ bins = [0.01, 0.21, 0.41, 0.61, 0.81, 1.01, 1.21, 1.41, 1.61 ,1.81, 2.01]
 plt.hist([obs['Precipitation (mm/hr)'], model_12km['Precipitation (mm/hr)'], model_2_2km['Precipitation (mm/hr)']],
           label = ['CEH-GEAR', 'UKCP18 12km', 'UKCP18 2.2km'],bins = bins,
           density = True, color = ['firebrick', 'navy',  'teal'])
+plt.xlabel('mm/hr')
+plt.ylabel('Probability density')
 plt.legend()
 plt.xticks(bins)
+
+
