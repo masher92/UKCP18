@@ -378,7 +378,6 @@ for dict, overlapping_status in zip([leeds_data_dict, leeds_data_dict_overlappin
         p_20.append(df['Precipitation (mm/hr)'].quantile(0.2))
         p_10.append(df['Precipitation (mm/hr)'].quantile(0.1))
 
-
     df= pd.DataFrame({'Key':keys, '10': p_10,
                       '20': p_20,'30': p_30,
                       '40': p_40,  '50': p_50,
@@ -415,12 +414,14 @@ for dict, overlapping_status in zip([leeds_data_dict, leeds_data_dict_overlappin
             plt.legend(handles=[darkred_patch, navy_patch, teal_patch])
             plt.yscale('linear')
             plt.xticks(rotation = 23)
-        plt.savefig("Scripts/UKCP18/PrecipitationPDFs/leeds-at-centre/PDFs/PercentileThresholds/{}_{}_{}.png".format(name, overlapping_status, jja_status))
+        plt.savefig("Scripts/UKCP18/PrecipitationPDFs/leeds-at-centre/Figs/PercentileThresholds/{}_{}_{}.png".format(name, overlapping_status, jja_status))
         plt.clf()
 
-
 ##############################################################################
 ##############################################################################
+# Label with proportion of values which are 0, <0.1 etc
+###########################################################################
+###########################################################################
 just_12km = leeds_data_dict_overlapping.copy()
 del just_12km['Model 2.2km'], just_12km['Observations Regridded_2.2km'], just_12km['Observations']
 
@@ -431,6 +432,7 @@ low_hours_lst = []
 dry_hours_lst = []
 zero_hours_lst= []
 more_than_1_hours_lst= []
+wet_hours_lst = []
 for key, value in just_12km.items():
     print(value)
     df= value
@@ -440,13 +442,19 @@ for key, value in just_12km.items():
     low_hours_lst.append(round((len(value[(value['Precipitation (mm/hr)'] <0.51) & value['Precipitation (mm/hr)']>0])/len(value) *100  ),1))
     less_low_hours_lst.append(round((len(value[(value['Precipitation (mm/hr)'] <1) & value['Precipitation (mm/hr)']>0])/len(value) *100  ),1))    
     more_than_1_hours_lst.append(round((len(value[value['Precipitation (mm/hr)'] >1])/len(value) *100  ),1))
+    wet_hours_lst.append(round((len(value[value['Precipitation (mm/hr)'] >0.1])/len(value) *100  ),1))
 
 zeros_df = pd.DataFrame({'Key': list(just_12km.keys()), '% hours 0': zero_hours_lst, '% hours <0.1': dry_hours_lst ,'% hours <0.5': low_hours_lst,
-                         '% hours <1': less_low_hours_lst, '% hours >1': more_than_1_hours_lst})
+                         '% hours <1': less_low_hours_lst, '% hours >1': more_than_1_hours_lst,
+                        '% hours >0.1': wet_hours_lst})
 
 
 
-###############
+###########################################################################
+###########################################################################
+# Histogram
+###########################################################################
+###########################################################################
 model_12km = just_12km['Model 12km']
 model_2_2km = just_12km['Model 2.2km_regridded_12km']
 obs = just_12km['Observations Regridded_12km']
