@@ -57,6 +57,10 @@ wider_northern_gdf = create_wider_northern_outline({'init' :'epsg:3857'})
 leeds_gdf = create_leeds_outline({'init' :'epsg:3857'})
 # This is a square area surrounding Leeds
 leeds_at_centre_gdf = create_leeds_at_centre_outline({'init' :'epsg:3857'})
+# This is a square area surrounding Leeds
+leeds_at_centre_gdf = create_leeds_at_centre_outline({'init' :'epsg:3857'})
+leeds_at_centre_narrow_gdf = create_leeds_at_centre_narrow_outline({'init' :'epsg:3857'})
+
 
 # Load mask for wider northern region
 # This masks out cells outwith the wider northern region
@@ -69,6 +73,7 @@ uk_mask = uk_mask.reshape(458,383)
 ##################################################################
 # List of stats to loop through
 stats = ['whprop' , 'jja_max', 'jja_mean', 'jja_p95', 'jja_p97', 'jja_p99', 'jja_p99.5', 'jja_p99.75', 'jja_p99.9']
+stats = ['jja_max']
 
 #############################################################################  
 # Loop through stats and EM summary metrics
@@ -95,6 +100,8 @@ for region in ['UK']:
                       stats_cube = trim_to_bbox_of_region(stats_cube, leeds_at_centre_gdf)
               elif region == 'leeds':
                       stats_cube = trim_to_bbox_of_region(stats_cube, leeds_gdf)    
+              elif region == 'leeds-at-centre-narrow':
+                      stats_cube = trim_to_bbox_of_region(stats_cube, leeds_at_centre_narrow_gdf)                       
                       
               # Mask the data so as to cover any cells not within the specified region 
               if region == 'Northern':
@@ -140,7 +147,7 @@ for region in ['UK']:
                      leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=2)
                      northern_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=2)
                      cb1 = plt.colorbar(mesh, ax=ax, fraction=0.053, pad=0.03, boundaries = contour_levels)
-              elif region == 'leeds-at-centre' or region == 'leeds':
+              elif region == 'leeds-at-centre' or region == 'leeds' or region == 'leeds-at-centre-narrow':
                      leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=2.3)
                      cb1 = plt.colorbar(mesh, ax=ax, fraction=0.041, pad=0.03, 
                                        boundaries = contour_levels)

@@ -32,7 +32,8 @@ def create_leeds_at_centre_narrow_outline (required_proj):
     
     ''', 
     # Define lats and lons to make box around Leeds
-    lons = [54.2, 54.2, 53.2, 53.2]
+    
+    lons = [54.8, 54.2, 53.2, 53.2]
     lats = [-1.87,-1.1, -1.1, -1.87] 
     
     # Convert to polygon
