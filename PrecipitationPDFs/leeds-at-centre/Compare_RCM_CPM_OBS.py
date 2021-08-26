@@ -204,7 +204,7 @@ if jja_status == 'jja':
 ##############################################################################
 x_axis = 'linear'
 y_axis = 'log'
-bin_nos = 20 #(10 gives 12, 30 gives 29, 45 gives 41 bins)
+bin_nos = 60 #(10 gives 12, 30 gives 29, 45 gives 41 bins)
 xlim = 250
 bins_if_log_spaced= bin_nos
 
@@ -232,7 +232,7 @@ for dict, overlapping_status in zip([leeds_data_dict, leeds_data_dict_overlappin
     log_discrete_histogram_lesslegend(dict, cols_dict, bin_nos, "Precipitation (mm/hr)",
                                       patches, True, xlim, x_axis, y_axis)
     #Save
-    plt.savefig("Scripts/UKCP18/PrecipitationPDFs/leeds-at-centre/PDFs/RCMvsCPMvsObs/All{}_{}.png".format(overlapping_status, jja_status))
+    plt.savefig("Scripts/UKCP18/PrecipitationPDFs/leeds-at-centre/Figs/RCMvsCPMvsObs/All{}_{}.png".format(overlapping_status, jja_status))
 
 # ####### Plot - compring 2.2km model and 2.2km regridded observation
 for dict, overlapping_status in zip([leeds_data_dict, leeds_data_dict_overlapping], ["","_Overlapping"]):
@@ -250,7 +250,7 @@ for dict, overlapping_status in zip([leeds_data_dict, leeds_data_dict_overlappin
     # Create plot
     log_discrete_histogram_lesslegend(just_2_2kms, cols_dict, bin_nos, "Precipitation (mm/hr)",
                                       patches, True, False, x_axis, y_axis)
-    plt.savefig("Scripts/UKCP18/PrecipitationPDFs/leeds-at-centre/PDFs//ModelVsObs_2.2km_{}_{}.png".format(overlapping_status, jja_status))
+    plt.savefig("Scripts/UKCP18/PrecipitationPDFs/leeds-at-centre/Figs//ModelVsObs_2.2km_{}_{}.png".format(overlapping_status, jja_status))
 
 
 # ####### Plot just Model, to see effect of regridding
@@ -258,7 +258,6 @@ for dict, overlapping_status in zip([leeds_data_dict, leeds_data_dict_overlappin
     print(dict.keys(), overlapping_status)
     just_model = dict.copy()
     del just_model['Observations Regridded_2.2km'], just_model['Observations'], just_model['Observations Regridded_12km']
-FullTimePeriod_RCMvsCPMvsObs
     cols_dict = {'Model 12km' : 'navy',
                   'Model 2.2km' : 'slateblue',
                   'Model 2.2km_regridded_12km': 'teal'}
@@ -271,9 +270,8 @@ FullTimePeriod_RCMvsCPMvsObs
     # Create plot
     log_discrete_histogram_lesslegend(just_model, cols_dict, bin_nos, "Precipitation (mm/hr)",
                                       patches, True, False, x_axis, y_axis)
-    plt.savefig("Scripts/UKCP18/PrecipitationPDFs/leeds-at-centre/PDFs/RCMvsCPMvsObs/JustModel_{}_{}.png".format(overlapping_status,jja_status))
+    plt.savefig("Scripts/UKCP18/PrecipitationPDFs/leeds-at-centre/Figs/RCMvsCPMvsObs/JustModel_{}_{}.png".format(overlapping_status,jja_status))
 
-#
 # ###############################################################
 ####### Plot just Obs, to see effect of regridding
 for dict, overlapping_status in zip([leeds_data_dict, leeds_data_dict_overlapping], ["","_Overlapping"]):
@@ -294,7 +292,7 @@ for dict, overlapping_status in zip([leeds_data_dict, leeds_data_dict_overlappin
     # Create plot
     log_discrete_histogram_lesslegend(just_obs, cols_dict, bin_nos, "Precipitation (mm/hr)",
                                       patches, True, False, x_axis, y_axis)
-    plt.savefig("Scripts/UKCP18/PrecipitationPDFs/leeds-at-centre/PDFs/RCMvsCPMvsObs/JustObs_{}_{}.png".format(overlapping_status,jja_status))
+    plt.savefig("Scripts/UKCP18/PrecipitationPDFs/leeds-at-centre/Figs/RCMvsCPMvsObs/JustObs_{}_{}.png".format(overlapping_status,jja_status))
 
 #
 # ###############################################################
@@ -313,9 +311,9 @@ for key, val in cols_dict.items():
     patches.append(patch)
 
 # Create plot
-log_discrete_histogram_lesslegend(just_12km, cols_dict, bin_nos, "Precipitation (mm/hr)",
+log_discrete_histogram_lesslegend(just_12km, cols_dict, bin_no, "Precipitation (mm/hr)",
                                   patches, True, False, x_axis, y_axis)
-plt.savefig("Scripts/UKCP18/PrecipitationPDFs/leeds-at-centre/PDFs/RCMvsCPMvsObs/Just12kms_{}.png".format(jja_status))
+plt.savefig("Scripts/UKCP18/PrecipitationPDFs/leeds-at-centre/Figs/RCMvsCPMvsObs/Just12kms_{}.png".format(jja_status))
 
 # ##################### Plot just 12km -Better legend
 for dict, overlapping_status in zip([leeds_data_dict, leeds_data_dict_overlapping], ["","_Overlapping"]):
@@ -340,7 +338,7 @@ for dict, overlapping_status in zip([leeds_data_dict, leeds_data_dict_overlappin
     # Create plot
     df = log_discrete_histogram_lesslegend(just_12km, cols_dict, bin_nos, "Precipitation (mm/hr)",
                                       patches, True, False)
-    plt.savefig("Scripts/UKCP18/PrecipitationPDFs/leeds-at-centre/PDFs/RCMvsCPMvsObs/Just12kms_{}_{}.png".format(overlapping_status, jja_status))
+    plt.savefig("Scripts/UKCP18/PrecipitationPDFs/leeds-at-centre/Figs/RCMvsCPMvsObs/Just12kms_{}_{}.png".format(overlapping_status, jja_status))
 
 
 # # ##########################################################################
@@ -419,7 +417,7 @@ for dict, overlapping_status in zip([leeds_data_dict, leeds_data_dict_overlappin
 
 ##############################################################################
 ##############################################################################
-# Label with proportion of values which are 0, <0.1 etc
+# Table with proportion of values which are 0, <0.1 etc
 ###########################################################################
 ###########################################################################
 just_12km = leeds_data_dict_overlapping.copy()
@@ -460,7 +458,11 @@ model_2_2km = just_12km['Model 2.2km_regridded_12km']
 obs = just_12km['Observations Regridded_12km']
 bins = [0.01, 0.11, 0.21, 0.31, 0.41,0.51, 0.61,0.71,0.81,0.91,1]
 bins = [0.01, 0.21, 0.41, 0.61, 0.81, 1.01, 1.21, 1.41, 1.61 ,1.81, 2.01]
-#        ,2.21, 2.41, 2.61, 2.81, 3.01, 3.21, 3.41, 3.61, 3.81, 4.01]
+bins = [2.01, 4.01, 6.01, 8.01, 10.01, 12.01, 14.01, 16.01, 18.01, 20.01]
+bins = [10.01, 12.01, 14.01, 16.01, 18.01, 20.01, 22.01, 24.01, 26.01]
+
+bins = [20.01, 25.01, 30.01, 35.01, 40.01, 45.01, 50.01, 55.01, 60.01]
+
 
 plt.hist([obs['Precipitation (mm/hr)'], model_12km['Precipitation (mm/hr)'], model_2_2km['Precipitation (mm/hr)']],
           label = ['CEH-GEAR', 'UKCP18 12km', 'UKCP18 2.2km'],bins = bins,

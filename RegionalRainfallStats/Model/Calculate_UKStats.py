@@ -115,6 +115,20 @@ for em in ems:
     if overlapping_period == True:
       # Cut to only overlapping period
       jja = jja.extract(iris.Constraint(year = lambda cell: 1989 < cell < 2001))   
+      
+      
+      
+def smooth(cube,window):
+    return cube.rolling_window('time',iris.analysis.MEAN,window)
+
+# first plot..(merge across the top two cells)
+fig = matplotlib.pyplot.figure(figsize=(16,16))
+ax = matplotlib.pyplot.subplot2grid((2,2),(0,0),colspan=2)
+pid = iris.quickplot.plot(sat_ts,'grey')
+matplotlib.pyplot.axhline(0,linestyle='--',color='grey')
+iris.quickplot.plot(smooth(sat_ts, 12), 'r', linewidth=2.0, label='12-month rolling mean')
+leg = matplotlib.pyplot.legend(loc='lower right')
+
           
     ###########################################
     # Find Max, mean, percentiles
@@ -180,3 +194,113 @@ for em in ems:
 # print(output) 
 # 
    
+   
+   
+   import bottleneck
+import iris
+import numpy as np
+import warnings
+
+
+def _as_cube_coord(cube, name_or_coord):
+    """
+    Returns the cube coordinate corresponding to given coordinate name or cube
+    """
+    if isinstance(name_or_coord, basestring):
+        return cube.coord(name_or_coord)
+    elif isinstance(name_or_coord, iris.coords.Coord):
+        return cube.coord(coord=name_or_coord)
+    else:
+        raise TypeError('%r is not a string or coordinate' % name_or_coord)
+
+
+def _rolling_window_cube_template(cube, dimension, window):
+    """
+    Prepare a cube with the right shape and coordinates to use for a rolling
+    window
+    Copied from iris.cube.Cube.rolling_window
+    """
+    # Use indexing to get a result-cube of the correct shape.
+    # NB. This indexes the data array which is wasted work.
+    # As index-to-get-shape-then-fiddle is a common pattern, perhaps
+    # some sort of `cube.prepare()` method would be handy to allow
+    # re-shaping with given data, and returning a mapping of
+    # old-to-new-coords (to avoid having to use metadata identity)?
+    key = [slice(None, None)] * cube.ndim
+    key[dimension] = slice(None, cube.shape[dimension] - window + 1)
+    new_cube = cube[tuple(key)]
+
+    # now update all of the coordinates to reflect the aggregation
+    for coord_ in cube.coords(dimensions=dimension):
+        if coord_.has_bounds():
+            warnings.warn('The bounds of coordinate %r were ignored in '
+                          'the rolling window operation.' % coord_.name())
+
+        if coord_.ndim != 1:
+            raise ValueError('Cannot calculate the rolling '
+                             'window of %s as it is a multidimensional '
+                             'coordinate.' % coord_.name())
+
+        new_bounds = iris.util.rolling_window(coord_.points, window)
+
+        # Take the first and last element of the rolled window (i.e. the
+        # bounds)
+        new_bounds = new_bounds[:, (0, -1)]
+        new_points = np.mean(new_bounds, axis=-1)
+
+        # wipe the coords points and set the bounds
+        new_coord = new_cube.coord(coord=coord_)
+        new_coord.points = new_points
+        new_coord.bounds = new_bounds
+
+    return new_cube
+
+
+def bottleneck_rolling_window(cube, coord, method_name, window):
+    """
+    Perform fast rolling window aggregation on a cube using bottleneck
+    Like iris.cube.Cube.rolling_window, except much faster because the
+    computation is done with the `bottleneck` package. It takes the same
+    arguments as Cube.rolling_window except for 'method_name' instead of
+    'aggregator'.
+    Parameters
+    ----------
+    method_name : {'sum', 'nansum', 'mean', 'nanmean', 'median', 'std',
+                   'nanstd', 'min', 'nanmin', 'max', 'nanmax'}
+        Name of the operation to apply over the moving window. When prepended
+        with 'move_', must be the name of a top-level function in the
+        `bottleneck` package.
+    Reference
+    ---------
+        https://github.com/kwgoodman/bottleneck
+    """
+
+    window_func = getattr(bottleneck, 'move_' + method_name)
+    coord = _as_cube_coord(cube, coord)
+    dimension, = cube.coord_dims(coord)
+
+    # create a cube with the right metadata
+    new_cube = _rolling_window_cube_template(cube, dimension, window)
+    new_cube.add_cell_method(iris.coords.CellMethod(method_name, coord.name()))
+
+    # bottleneck returns an array of the same shape of the original data
+    # prepended with NaN, so we need a slice to trim NaNs along the window dim
+    bn_slice = tuple(slice(window - 1, None)
+                     if dim == dimension
+                     else slice(None)
+                     for dim in range(cube.ndim))
+    new_cube.data = window_func(cube.data, window, axis=dimension)[bn_slice]
+    return new_cube
+
+
+from iris.tests import stock
+
+
+def test_bottleneck_rolling_window():
+    cube = stock.realistic_4d()
+    expected = cube.rolling_window('time', iris.analysis.MEAN, 3)
+    actual = bottleneck_rolling_window(cube, 'time', 'mean', 3)
+    # n.b.: this test will need to be updated if/when cube equality changes to
+    # be elementwise instead of checking all cube data and metadata for
+    # approximate equality
+    assert expected == actual

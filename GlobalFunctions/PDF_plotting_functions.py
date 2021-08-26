@@ -288,7 +288,7 @@ def log_discrete_histogram_lesslegend_array(results_dict, cols_dict, bin_nos, pr
     
     return numbers_in_each_bin
 
-    
+   
 def log_discrete_histogram_lesslegend(results_dict, cols_dict, bin_nos, precip_variable, patches, del_zeroes,
                                       xlim, x_axis_scaling = 'linear', y_axis_scaling = 'log'):
     
@@ -314,9 +314,6 @@ def log_discrete_histogram_lesslegend(results_dict, cols_dict, bin_nos, precip_v
         # Define the colour to use for this entry
         # Create a patch for this colour to be used in creating the legend
         # And add to list of patches for use in legend
-        #col = cols_dict[key]
-        #patch = mpatches.Patch(color=col, label=key)
-        #patches.append(patch)
         
         # Find the density in each biin  
         freqs, bin_edges = np.histogram(df[precip_variable], bins= bin_edges_planned, density=True)
@@ -335,12 +332,16 @@ def log_discrete_histogram_lesslegend(results_dict, cols_dict, bin_nos, precip_v
         # Delete those with a value of 0
         if del_zeroes == True:
             indexes = np.where(freqs == 0)[0]
-            freqs = np.delete(freqs, indexes)
-            bin_centres= np.delete(bin_centres,indexes)        
+            #freqs = np.delete(freqs, indexes)
+            #bin_centres= np.delete(bin_centres,indexes) 
+            for i in range(0, len(freqs)):
+                if i in indexes:
+                    freqs[i] = np.nan
 
         # Draw the plot
+        plt.scatter(bin_centres, freqs ,linewidth = 1,s=3, color = cols_dict[key])
         plt.plot(bin_centres, freqs ,linewidth = 1, color = cols_dict[key])
-        
+
     plt.legend(handles=patches)
     plt.xlabel(precip_variable)
     plt.ylabel('Probability density')
