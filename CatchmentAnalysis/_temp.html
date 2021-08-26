@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>@font-face {
+  font-family: octicons-link;
+  src: url(data:font/woff;charset=utf-8;base64,d09GRgABAAAAAAZwABAAAAAACFQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABEU0lHAAAGaAAAAAgAAAAIAAAAAUdTVUIAAAZcAAAACgAAAAoAAQAAT1MvMgAAAyQAAABJAAAAYFYEU3RjbWFwAAADcAAAAEUAAACAAJThvmN2dCAAAATkAAAABAAAAAQAAAAAZnBnbQAAA7gAAACyAAABCUM+8IhnYXNwAAAGTAAAABAAAAAQABoAI2dseWYAAAFsAAABPAAAAZwcEq9taGVhZAAAAsgAAAA0AAAANgh4a91oaGVhAAADCAAAABoAAAAkCA8DRGhtdHgAAAL8AAAADAAAAAwGAACfbG9jYQAAAsAAAAAIAAAACABiATBtYXhwAAACqAAAABgAAAAgAA8ASm5hbWUAAAToAAABQgAAAlXu73sOcG9zdAAABiwAAAAeAAAAME3QpOBwcmVwAAAEbAAAAHYAAAB/aFGpk3jaTY6xa8JAGMW/O62BDi0tJLYQincXEypYIiGJjSgHniQ6umTsUEyLm5BV6NDBP8Tpts6F0v+k/0an2i+itHDw3v2+9+DBKTzsJNnWJNTgHEy4BgG3EMI9DCEDOGEXzDADU5hBKMIgNPZqoD3SilVaXZCER3/I7AtxEJLtzzuZfI+VVkprxTlXShWKb3TBecG11rwoNlmmn1P2WYcJczl32etSpKnziC7lQyWe1smVPy/Lt7Kc+0vWY/gAgIIEqAN9we0pwKXreiMasxvabDQMM4riO+qxM2ogwDGOZTXxwxDiycQIcoYFBLj5K3EIaSctAq2kTYiw+ymhce7vwM9jSqO8JyVd5RH9gyTt2+J/yUmYlIR0s04n6+7Vm1ozezUeLEaUjhaDSuXHwVRgvLJn1tQ7xiuVv/ocTRF42mNgZGBgYGbwZOBiAAFGJBIMAAizAFoAAABiAGIAznjaY2BkYGAA4in8zwXi+W2+MjCzMIDApSwvXzC97Z4Ig8N/BxYGZgcgl52BCSQKAA3jCV8CAABfAAAAAAQAAEB42mNgZGBg4f3vACQZQABIMjKgAmYAKEgBXgAAeNpjYGY6wTiBgZWBg2kmUxoDA4MPhGZMYzBi1AHygVLYQUCaawqDA4PChxhmh/8ODDEsvAwHgMKMIDnGL0x7gJQCAwMAJd4MFwAAAHjaY2BgYGaA4DAGRgYQkAHyGMF8NgYrIM3JIAGVYYDT+AEjAwuDFpBmA9KMDEwMCh9i/v8H8sH0/4dQc1iAmAkALaUKLgAAAHjaTY9LDsIgEIbtgqHUPpDi3gPoBVyRTmTddOmqTXThEXqrob2gQ1FjwpDvfwCBdmdXC5AVKFu3e5MfNFJ29KTQT48Ob9/lqYwOGZxeUelN2U2R6+cArgtCJpauW7UQBqnFkUsjAY/kOU1cP+DAgvxwn1chZDwUbd6CFimGXwzwF6tPbFIcjEl+vvmM/byA48e6tWrKArm4ZJlCbdsrxksL1AwWn/yBSJKpYbq8AXaaTb8AAHja28jAwOC00ZrBeQNDQOWO//sdBBgYGRiYWYAEELEwMTE4uzo5Zzo5b2BxdnFOcALxNjA6b2ByTswC8jYwg0VlNuoCTWAMqNzMzsoK1rEhNqByEyerg5PMJlYuVueETKcd/89uBpnpvIEVomeHLoMsAAe1Id4AAAAAAAB42oWQT07CQBTGv0JBhagk7HQzKxca2sJCE1hDt4QF+9JOS0nbaaYDCQfwCJ7Au3AHj+LO13FMmm6cl7785vven0kBjHCBhfpYuNa5Ph1c0e2Xu3jEvWG7UdPDLZ4N92nOm+EBXuAbHmIMSRMs+4aUEd4Nd3CHD8NdvOLTsA2GL8M9PODbcL+hD7C1xoaHeLJSEao0FEW14ckxC+TU8TxvsY6X0eLPmRhry2WVioLpkrbp84LLQPGI7c6sOiUzpWIWS5GzlSgUzzLBSikOPFTOXqly7rqx0Z1Q5BAIoZBSFihQYQOOBEdkCOgXTOHA07HAGjGWiIjaPZNW13/+lm6S9FT7rLHFJ6fQbkATOG1j2OFMucKJJsxIVfQORl+9Jyda6Sl1dUYhSCm1dyClfoeDve4qMYdLEbfqHf3O/AdDumsjAAB42mNgYoAAZQYjBmyAGYQZmdhL8zLdDEydARfoAqIAAAABAAMABwAKABMAB///AA8AAQAAAAAAAAAAAAAAAAABAAAAAA==) format('woff');
+}
+
+.markdown-body {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  color: #333;
+  font-family: "Helvetica Neue", Helvetica, "Segoe UI", Arial, freesans, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  font-size: 16px;
+  line-height: 1.6;
+  word-wrap: break-word;
+}
+
+.markdown-body a {
+  background-color: transparent;
+}
+
+.markdown-body a:active,
+.markdown-body a:hover {
+  outline: 0;
+}
+
+.markdown-body strong {
+  font-weight: bold;
+}
+
+.markdown-body h1 {
+  font-size: 2em;
+  margin: 0.67em 0;
+}
+
+.markdown-body img {
+  border: 0;
+}
+
+.markdown-body hr {
+  box-sizing: content-box;
+  height: 0;
+}
+
+.markdown-body pre {
+  overflow: auto;
+}
+
+.markdown-body code,
+.markdown-body kbd,
+.markdown-body pre {
+  font-family: monospace, monospace;
+  font-size: 1em;
+}
+
+.markdown-body input {
+  color: inherit;
+  font: inherit;
+  margin: 0;
+}
+
+.markdown-body html input[disabled] {
+  cursor: default;
+}
+
+.markdown-body input {
+  line-height: normal;
+}
+
+.markdown-body input[type="checkbox"] {
+  box-sizing: border-box;
+  padding: 0;
+}
+
+.markdown-body table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+.markdown-body td,
+.markdown-body th {
+  padding: 0;
+}
+
+.markdown-body * {
+  box-sizing: border-box;
+}
+
+.markdown-body input {
+  font: 13px / 1.4 Helvetica, arial, nimbussansl, liberationsans, freesans, clean, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}
+
+.markdown-body a {
+  color: #4078c0;
+  text-decoration: none;
+}
+
+.markdown-body a:hover,
+.markdown-body a:active {
+  text-decoration: underline;
+}
+
+.markdown-body hr {
+  height: 0;
+  margin: 15px 0;
+  overflow: hidden;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.markdown-body hr:before {
+  display: table;
+  content: "";
+}
+
+.markdown-body hr:after {
+  display: table;
+  clear: both;
+  content: "";
+}
+
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4,
+.markdown-body h5,
+.markdown-body h6 {
+  margin-top: 15px;
+  margin-bottom: 15px;
+  line-height: 1.1;
+}
+
+.markdown-body h1 {
+  font-size: 30px;
+}
+
+.markdown-body h2 {
+  font-size: 21px;
+}
+
+.markdown-body h3 {
+  font-size: 16px;
+}
+
+.markdown-body h4 {
+  font-size: 14px;
+}
+
+.markdown-body h5 {
+  font-size: 12px;
+}
+
+.markdown-body h6 {
+  font-size: 11px;
+}
+
+.markdown-body blockquote {
+  margin: 0;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+  padding: 0;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.markdown-body ol ol,
+.markdown-body ul ol {
+  list-style-type: lower-roman;
+}
+
+.markdown-body ul ul ol,
+.markdown-body ul ol ol,
+.markdown-body ol ul ol,
+.markdown-body ol ol ol {
+  list-style-type: lower-alpha;
+}
+
+.markdown-body dd {
+  margin-left: 0;
+}
+
+.markdown-body code {
+  font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+  font-size: 12px;
+}
+
+.markdown-body pre {
+  margin-top: 0;
+  margin-bottom: 0;
+  font: 12px Consolas, "Liberation Mono", Menlo, Courier, monospace;
+}
+
+.markdown-body .select::-ms-expand {
+  opacity: 0;
+}
+
+.markdown-body .octicon {
+  font: normal normal normal 16px/1 octicons-link;
+  display: inline-block;
+  text-decoration: none;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.markdown-body .octicon-link:before {
+  content: '\f05c';
+}
+
+.markdown-body:before {
+  display: table;
+  content: "";
+}
+
+.markdown-body:after {
+  display: table;
+  clear: both;
+  content: "";
+}
+
+.markdown-body>*:first-child {
+  margin-top: 0 !important;
+}
+
+.markdown-body>*:last-child {
+  margin-bottom: 0 !important;
+}
+
+.markdown-body a:not([href]) {
+  color: inherit;
+  text-decoration: none;
+}
+
+.markdown-body .anchor {
+  display: inline-block;
+  padding-right: 2px;
+  margin-left: -18px;
+}
+
+.markdown-body .anchor:focus {
+  outline: none;
+}
+
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4,
+.markdown-body h5,
+.markdown-body h6 {
+  margin-top: 1em;
+  margin-bottom: 16px;
+  font-weight: bold;
+  line-height: 1.4;
+}
+
+.markdown-body h1 .octicon-link,
+.markdown-body h2 .octicon-link,
+.markdown-body h3 .octicon-link,
+.markdown-body h4 .octicon-link,
+.markdown-body h5 .octicon-link,
+.markdown-body h6 .octicon-link {
+  color: #000;
+  vertical-align: middle;
+  visibility: hidden;
+}
+
+.markdown-body h1:hover .anchor,
+.markdown-body h2:hover .anchor,
+.markdown-body h3:hover .anchor,
+.markdown-body h4:hover .anchor,
+.markdown-body h5:hover .anchor,
+.markdown-body h6:hover .anchor {
+  text-decoration: none;
+}
+
+.markdown-body h1:hover .anchor .octicon-link,
+.markdown-body h2:hover .anchor .octicon-link,
+.markdown-body h3:hover .anchor .octicon-link,
+.markdown-body h4:hover .anchor .octicon-link,
+.markdown-body h5:hover .anchor .octicon-link,
+.markdown-body h6:hover .anchor .octicon-link {
+  visibility: visible;
+}
+
+.markdown-body h1 {
+  padding-bottom: 0.3em;
+  font-size: 2.25em;
+  line-height: 1.2;
+  border-bottom: 1px solid #eee;
+}
+
+.markdown-body h1 .anchor {
+  line-height: 1;
+}
+
+.markdown-body h2 {
+  padding-bottom: 0.3em;
+  font-size: 1.75em;
+  line-height: 1.225;
+  border-bottom: 1px solid #eee;
+}
+
+.markdown-body h2 .anchor {
+  line-height: 1;
+}
+
+.markdown-body h3 {
+  font-size: 1.5em;
+  line-height: 1.43;
+}
+
+.markdown-body h3 .anchor {
+  line-height: 1.2;
+}
+
+.markdown-body h4 {
+  font-size: 1.25em;
+}
+
+.markdown-body h4 .anchor {
+  line-height: 1.2;
+}
+
+.markdown-body h5 {
+  font-size: 1em;
+}
+
+.markdown-body h5 .anchor {
+  line-height: 1.1;
+}
+
+.markdown-body h6 {
+  font-size: 1em;
+  color: #777;
+}
+
+.markdown-body h6 .anchor {
+  line-height: 1.1;
+}
+
+.markdown-body p,
+.markdown-body blockquote,
+.markdown-body ul,
+.markdown-body ol,
+.markdown-body dl,
+.markdown-body table,
+.markdown-body pre {
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+.markdown-body hr {
+  height: 4px;
+  padding: 0;
+  margin: 16px 0;
+  background-color: #e7e7e7;
+  border: 0 none;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+  padding-left: 2em;
+}
+
+.markdown-body ul ul,
+.markdown-body ul ol,
+.markdown-body ol ol,
+.markdown-body ol ul {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.markdown-body li>p {
+  margin-top: 16px;
+}
+
+.markdown-body dl {
+  padding: 0;
+}
+
+.markdown-body dl dt {
+  padding: 0;
+  margin-top: 16px;
+  font-size: 1em;
+  font-style: italic;
+  font-weight: bold;
+}
+
+.markdown-body dl dd {
+  padding: 0 16px;
+  margin-bottom: 16px;
+}
+
+.markdown-body blockquote {
+  padding: 0 15px;
+  color: #777;
+  border-left: 4px solid #ddd;
+}
+
+.markdown-body blockquote>:first-child {
+  margin-top: 0;
+}
+
+.markdown-body blockquote>:last-child {
+  margin-bottom: 0;
+}
+
+.markdown-body table {
+  display: block;
+  width: 100%;
+  overflow: auto;
+  word-break: normal;
+  word-break: keep-all;
+}
+
+.markdown-body table th {
+  font-weight: bold;
+}
+
+.markdown-body table th,
+.markdown-body table td {
+  padding: 6px 13px;
+  border: 1px solid #ddd;
+}
+
+.markdown-body table tr {
+  background-color: #fff;
+  border-top: 1px solid #ccc;
+}
+
+.markdown-body table tr:nth-child(2n) {
+  background-color: #f8f8f8;
+}
+
+.markdown-body img {
+  max-width: 100%;
+  box-sizing: content-box;
+  background-color: #fff;
+}
+
+.markdown-body code {
+  padding: 0;
+  padding-top: 0.2em;
+  padding-bottom: 0.2em;
+  margin: 0;
+  font-size: 85%;
+  background-color: rgba(0,0,0,0.04);
+  border-radius: 3px;
+}
+
+.markdown-body code:before,
+.markdown-body code:after {
+  letter-spacing: -0.2em;
+  content: "\00a0";
+}
+
+.markdown-body pre>code {
+  padding: 0;
+  margin: 0;
+  font-size: 100%;
+  word-break: normal;
+  white-space: pre;
+  background: transparent;
+  border: 0;
+}
+
+.markdown-body .highlight {
+  margin-bottom: 16px;
+}
+
+.markdown-body .highlight pre,
+.markdown-body pre {
+  padding: 16px;
+  overflow: auto;
+  font-size: 85%;
+  line-height: 1.45;
+  background-color: #f7f7f7;
+  border-radius: 3px;
+}
+
+.markdown-body .highlight pre {
+  margin-bottom: 0;
+  word-break: normal;
+}
+
+.markdown-body pre {
+  word-wrap: normal;
+}
+
+.markdown-body pre code {
+  display: inline;
+  max-width: initial;
+  padding: 0;
+  margin: 0;
+  overflow: initial;
+  line-height: inherit;
+  word-wrap: normal;
+  background-color: transparent;
+  border: 0;
+}
+
+.markdown-body pre code:before,
+.markdown-body pre code:after {
+  content: normal;
+}
+
+.markdown-body kbd {
+  display: inline-block;
+  padding: 3px 5px;
+  font-size: 11px;
+  line-height: 10px;
+  color: #555;
+  vertical-align: middle;
+  background-color: #fcfcfc;
+  border: solid 1px #ccc;
+  border-bottom-color: #bbb;
+  border-radius: 3px;
+  box-shadow: inset 0 -1px 0 #bbb;
+}
+
+.markdown-body .pl-c {
+  color: #969896;
+}
+
+.markdown-body .pl-c1,
+.markdown-body .pl-s .pl-v {
+  color: #0086b3;
+}
+
+.markdown-body .pl-e,
+.markdown-body .pl-en {
+  color: #795da3;
+}
+
+.markdown-body .pl-s .pl-s1,
+.markdown-body .pl-smi {
+  color: #333;
+}
+
+.markdown-body .pl-ent {
+  color: #63a35c;
+}
+
+.markdown-body .pl-k {
+  color: #a71d5d;
+}
+
+.markdown-body .pl-pds,
+.markdown-body .pl-s,
+.markdown-body .pl-s .pl-pse .pl-s1,
+.markdown-body .pl-sr,
+.markdown-body .pl-sr .pl-cce,
+.markdown-body .pl-sr .pl-sra,
+.markdown-body .pl-sr .pl-sre {
+  color: #183691;
+}
+
+.markdown-body .pl-v {
+  color: #ed6a43;
+}
+
+.markdown-body .pl-id {
+  color: #b52a1d;
+}
+
+.markdown-body .pl-ii {
+  background-color: #b52a1d;
+  color: #f8f8f8;
+}
+
+.markdown-body .pl-sr .pl-cce {
+  color: #63a35c;
+  font-weight: bold;
+}
+
+.markdown-body .pl-ml {
+  color: #693a17;
+}
+
+.markdown-body .pl-mh,
+.markdown-body .pl-mh .pl-en,
+.markdown-body .pl-ms {
+  color: #1d3e81;
+  font-weight: bold;
+}
+
+.markdown-body .pl-mq {
+  color: #008080;
+}
+
+.markdown-body .pl-mi {
+  color: #333;
+  font-style: italic;
+}
+
+.markdown-body .pl-mb {
+  color: #333;
+  font-weight: bold;
+}
+
+.markdown-body .pl-md {
+  background-color: #ffecec;
+  color: #bd2c00;
+}
+
+.markdown-body .pl-mi1 {
+  background-color: #eaffea;
+  color: #55a532;
+}
+
+.markdown-body .pl-mdr {
+  color: #795da3;
+  font-weight: bold;
+}
+
+.markdown-body .pl-mo {
+  color: #1d3e81;
+}
+
+.markdown-body kbd {
+  display: inline-block;
+  padding: 3px 5px;
+  font: 11px Consolas, "Liberation Mono", Menlo, Courier, monospace;
+  line-height: 10px;
+  color: #555;
+  vertical-align: middle;
+  background-color: #fcfcfc;
+  border: solid 1px #ccc;
+  border-bottom-color: #bbb;
+  border-radius: 3px;
+  box-shadow: inset 0 -1px 0 #bbb;
+}
+
+.markdown-body .task-list-item {
+  list-style-type: none;
+}
+
+.markdown-body .task-list-item+.task-list-item {
+  margin-top: 3px;
+}
+
+.markdown-body .task-list-item input {
+  margin: 0 0.35em 0.25em -1.6em;
+  vertical-align: middle;
+}
+
+.markdown-body :checked+.radio-label {
+  z-index: 1;
+  position: relative;
+  border-color: #4078c0;
+}
+</style><style>/*
+
+github.com style (c) Vasily Polovnyov <vast@whiteants.net>
+
+*/
+
+.hljs {
+  display: block;
+  overflow-x: auto;
+  padding: 0.5em;
+  color: #333;
+  background: #f8f8f8;
+}
+
+.hljs-comment,
+.hljs-quote {
+  color: #998;
+  font-style: italic;
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-subst {
+  color: #333;
+  font-weight: bold;
+}
+
+.hljs-number,
+.hljs-literal,
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag .hljs-attr {
+  color: #008080;
+}
+
+.hljs-string,
+.hljs-doctag {
+  color: #d14;
+}
+
+.hljs-title,
+.hljs-section,
+.hljs-selector-id {
+  color: #900;
+  font-weight: bold;
+}
+
+.hljs-subst {
+  font-weight: normal;
+}
+
+.hljs-type,
+.hljs-class .hljs-title {
+  color: #458;
+  font-weight: bold;
+}
+
+.hljs-tag,
+.hljs-name,
+.hljs-attribute {
+  color: #000080;
+  font-weight: normal;
+}
+
+.hljs-regexp,
+.hljs-link {
+  color: #009926;
+}
+
+.hljs-symbol,
+.hljs-bullet {
+  color: #990073;
+}
+
+.hljs-built_in,
+.hljs-builtin-name {
+  color: #0086b3;
+}
+
+.hljs-meta {
+  color: #999;
+  font-weight: bold;
+}
+
+.hljs-deletion {
+  background: #fdd;
+}
+
+.hljs-addition {
+  background: #dfd;
+}
+
+.hljs-emphasis {
+  font-style: italic;
+}
+
+.hljs-strong {
+  font-weight: bold;
+}
+</style><style>.markdown-body {
+    font-size: 11px;
+}
+
+img.emoji-img.emoji {
+  max-width: 11px;
+  max-height: 11px;
+  vertical-align: middle;
+}
+</style><style>/*
+ * Your Stylesheet
+ *
+ * This stylesheet is loaded when Atom starts up and is reloaded automatically
+ * when it is changed and saved.
+ *
+ * Add your own CSS or Less to fully customize Atom.
+ * If you are unfamiliar with Less, you can read more about it here:
+ * http://lesscss.org
+ */
+/*
+ * Examples
+ * (To see them, uncomment and save)
+ */
+</style>
+
+        <!--<script src=""></script>-->
+    </head>
+    <body class="markdown-body">
+        <p>Critical duration is also strongly linked to the topography. In lowlying areas, near to rivers, the critical duration is long because<br>
+surface runoff drains into these areas from larger catchments. On<br>
+hill slopes the critical duration is generally short because the<br>
+greatest flood depth arises from high intensity rainfall. </p>
+<h1 id="leeds-urban-catchments">Leeds Urban Catchments</h1>
+<p>This file contains analysis of 20 urban catchments within Leeds. </p>
+<h2 id="table-of-contents">Table of contents</h2>
+<ol>
+<li><a href="#loc"> Catchment locations. </a></li>
+<li><a href="#descriptors"> Catchment descriptors. </a></li>
+<li><a href="#rainfall"> Catchment rainfall from FEH. </a>  <br>
+a. <a href="#feh13_rainfall"> FEH13 rainfall values. </a>  <br>
+b. <a href="#rainfallvsdescriptors"> Relationship with catchment descriptors. </a></li>
+<li><a href="#runoff"> Catchment runoff. </a>  <br>
+a. <a href="#calculatingrunoff"> ReFH2: Calculating catchment runoff. </a>  <br>
+b. <a href="#peakflow_directrunoff"> ReFH2 outputs: peak flow and direct runoff. </a>  <br>
+c. <a href="#flow_vs_rurality_seasonality"> Variation in peak flow with rurality and seasonality. </a>  <br>
+d. <a href="#flow_vs_catchments"> Variation in peak flow between catchments. </a>  </li>
+<li><a href="#criticaldurations"> Critical storm durations. </a>  <br>
+a. <a href="#criticaldurationsvsdescriptors">Relationship with catchment descriptors. </a>  </li>
+</ol>
+<p><a name="loc"></a></p>
+<p><a name="loc"></a></p>
+<h2 id="catchment-locations">Catchment Locations</h2>
+<p></p><p align="center"><br>
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/Catchments_matching_FEH.PNG" width="500">  <br>
+</p><p align="center"> Figure 1. Urban catchments defined by LCC (blue outlines), and catchment boundaries from FEH web server (green fill) </p><p align="center"></p>
+<p>Leeds City Council (LCC) defined the boundaries of 46 urban catchments in Leeds, shown in blue in Figure 1. Using the FEH web service, 20 catchments with boundaries closely matching those identified by LCC have been identified and are shown in green on Figure 1.  The area of these 20 catchments range between 5km<sup>2</sup> and 71km<sup>2</sup> (Figure 2).  The LCC catchments which couldn&apos;t be generated in the FEH web service are sub-catchments of major rivers (Aire, Wharfe, Nidd and Calder). Additionally, LCC define Holbeck and Wortley Beck as seperate catchments, but the FEH produces one catchment boundary for Holbeck covering the area of both.</p>
+<p></p><p align="center"><br>
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/CatchmentDescriptors/Area.PNG" width="400"><br>
+</p><p align="center"> Figure 2. Histogram of catchment area (km<sup>2</sup>) </p><p align="center"></p>
+<p>The FEH web service identifies the catchment area upstream of a catchment outlet point. For each catchment it generates:</p>
+<ul>
+<li>The catchment boundaries as a shapefile;</li>
+<li>Design rainfall depths for pre-defined return period/duration combinations;  </li>
+<li>Catchment descriptors based on the Integrated Hydrological Digital Terrain Model (IHDTM).</li>
+</ul>
+<p>This data is analysed in more depth below.</p>
+<p><a name="descriptors"></a></p>
+<h2 id="catchment-descriptors">Catchment Descriptors</h2>
+<p>The catchment descriptors file generated by the FEH webservice contains various metrics related to the climate, drainage characteristics and soils in the catchment. Some characteristics that are likely to cause sensitivity to high intensity rainfall and to influence pluvial flood risk are:</p>
+<ul>
+<li>ALTBAR: Mean catchment altitude (m above sea level), derived from the IHDTM.</li>
+<li>BFIHOST: Catchment Average Base Flow Index. This is measure of catchment responsiveness derived using the 29-class Hydrology Of Soil Types (HOST) classification. Values over 0.65 represent permeability, and those below 0.65 represent an impermeable catchment.</li>
+<li>DPSBAR: This landform descriptor (mean Drainage Path Slope) provides an index of overall catchment steepness. It was developed for the Flood Estimation Handbook and is calculated as the mean of all inter-nodal slopes (derived using the IHDTM) for the catchment. The index is expressed in metres per kilometre with values ranging from &gt;300 in mountainous terrain to &lt;25 in the flattest parts of the country.</li>
+<li>SAAR: Average annual rainfall in the standard period (1961-1990) in millimetres.</li>
+<li>URBEXT2000: Index of urban and suburban land cover in 1990 / 2000 expressed as a fraction. A value of less than 0.3 represents a rural catchment, and more than 0.3 an urban catchment.</li>
+<li>LDP: Longest drainage path (in kilometres), defined by recording the greatest distance from a catchment node to the defined outlet.</li>
+</ul>
+<p>For each of these catchment descriptors the spread of values across the 20 catchments is plotted in a histogram. To understand the geographic spread in these values a heat map of the catchments is plotted, and additionally the values are plotted on a scatter plot against both the easting and northing of the central point of the catchments. For descriptors other than altitude, the value are also plotted on a scatter plot against altitude.</p>
+<p></p><p align="center"><br>
+<img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Rainfall/catchment_legend.PNG" width="600"></p>
+<h3 id="altitude-m-above-sea-level">Altitude (m above sea level)</h3>
+<p></p><p align="center"><br>
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/CatchmentDescriptors/ALTBAR.PNG" width="300"><br>
+<img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/CatchmentDescriptors/ALTBAR_spatial.PNG" width="300">    <br>
+</p><p align="center">  <br>
+<img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/CatchmentDescriptors/ALTBARvsNorthing.PNG" width="300"><br>
+<img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/CatchmentDescriptors/ALTBARvsEasting.PNG" width="300">    <br>
+</p><p align="center"> Figure 3. Mean Catchment Altitude (m above sea level) </p><p align="center"></p>
+<p>The altitude of the catchments vary between 47m and 226m above sea level. The highest catchment is Gill Beck (Aire) in the north west. There is a strong negative relationship between catchment altitude and easting (meaning the further west you go, the higher the altitude) and a weaker positive relationship between altitude and northing.</p>
+<h3 id="catchment-steepness-m-per-km">Catchment Steepness (m per km)</h3>
+<p></p><p align="center"><br>
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/CatchmentDescriptors/DPSBAR.PNG" width="300"><br>
+<img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/CatchmentDescriptors/DPSBAR_spatial.PNG" width="300">    <br>
+</p><p align="center">  <br>
+<img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/CatchmentDescriptors/DPSBARvsNorthing.PNG" width="300"><br>
+<img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/CatchmentDescriptors/DPSBARvsEasting.PNG" width="300">  <br>
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/CatchmentDescriptors/DPSBARvsALTBAR.PNG" width="300">  <br>
+</p><p align="center"> Figure 4. Catchment steepness (Metres per km)) </p><p align="center"></p>
+<p>The steepness of the catchments varies between 31.1 and 80.8 m per km. Catchments with a higher mean catchment altitude tend to have a higher catchment steepness. There is a negative correlation and positive correlation with northing, however, these relationship are less than strong than they are for altitude. </p>
+<h3 id="longest-drainage-path-km">Longest Drainage Path (km)</h3>
+<p></p><p align="center"><br>
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/CatchmentDescriptors/LDP.PNG" width="300"><br>
+<img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/CatchmentDescriptors/LDP_spatial.PNG" width="300">    <br>
+</p><p align="center">  <br>
+<img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/CatchmentDescriptors/LDPvsNorthing.PNG" width="300"><br>
+<img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/CatchmentDescriptors/LDPvsEasting.PNG" width="300">  <br>
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/CatchmentDescriptors/LDPvsALTBAR.PNG" width="300">  <br>
+</p><p align="center"> Figure 5. Longest drainage path (km)) </p><p align="center"></p>
+<p>The longest drainage path is 18.3km in Holbeck, and the shortest is Carr Beck at 4.5km. There is no clear relationship between a catchment&apos;s longest drainage path and its easting, northing or altitude.</p>
+<h3 id="urban-extent-">Urban Extent (%)</h3>
+<p></p><p align="center"><br>
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/CatchmentDescriptors/URBEXT2000.PNG" width="300"><br>
+<img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/CatchmentDescriptors/URBEXT2000_spatial.PNG" width="300">    <br>
+</p><p align="center">  <br>
+<img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/CatchmentDescriptors/URBEXT2000vsNorthing.PNG" width="300"><br>
+<img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/CatchmentDescriptors/URBEXT2000vsEasting.PNG" width="300">  <br>
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/CatchmentDescriptors/URBEXT2000vsALTBAR.PNG" width="300">  <br>
+</p><p align="center"> Figure 6. URBEXT (%) </p><p align="center"></p>
+<p>The urban extent in the catchments also has no correlation with easting, northing or altitude. Rather the catchments with the greatest urban extent are in the middle of the catchment in the area proximate to Leeds City Centre. Bagley Beck, Meanwood Beck and Wyke Beck are the only catchments with &gt; 0.3% urban extent and therefore classified as urban.</p>
+<h3 id="base-flow-index">Base Flow Index</h3>
+<p></p><p align="center"><br>
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/CatchmentDescriptors/BFIHOST.PNG" width="300"><br>
+<img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/CatchmentDescriptors/BFIHOST_spatial.PNG" width="300">    <br>
+</p><p align="center">  <br>
+<img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/CatchmentDescriptors/BFIHOSTvsNorthing.PNG" width="300"><br>
+<img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/CatchmentDescriptors/BFIHOSTvsEasting.PNG" width="300">  <br>
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/CatchmentDescriptors/BFIHOSTvsALTBAR.PNG" width="300">  <br>
+</p><p align="center"> Figure 7. BFIHOST </p><p align="center"></p>
+<p>The Base Flow Index has a weak positive relationship with easting, and a negative relationship with altitude, with the highest values generally found in catchments in the east.<br>
+Cock Beck, Firgreen Beck, Fairburn Ings and Mill Dyke have values over 0.65, which represents that they are permeable catchments. The rest of the catchments have values below 0.65, so are classed as impermeable.</p>
+<h3 id="standard-average-areal-rainfall-mm">Standard Average Areal Rainfall (mm)</h3>
+<p></p><p align="center"><br>
+<img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/CatchmentDescriptors/SAAR.PNG" width="300"><br>
+<img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/CatchmentDescriptors/SAAR_spatial.PNG" width="300">   <br>
+</p><p align="center"><br>
+<img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/CatchmentDescriptors/SAARvsEasting.PNG" width="300">   <br>
+<img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/CatchmentDescriptors/SAARvsNorthing.PNG" width="300">     <br>
+<img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/CatchmentDescriptors/SAARvsALTBAR.PNG" width="300">       <br>
+</p><p align="center"> Figure 8. Standard Average Areal Rainfall (mm) </p><p align="center"></p>
+<p>SAAR is strongly postively related to altitude, and consequently negatively related to easting. There is a weaker positive relationship with northing. </p>
+<p><a name="rainfall"></a></p>
+<h2 id="catchment-rainfall-feh13">Catchment rainfall (FEH13)</h2>
+<p><a name="feh13_rainfall"></a></p>
+<h2 id="rainfall-values-feh13">Rainfall values: FEH13</h2>
+<p>The FEH uses a depth-duration-frequency (DDF) model, based on complex statistical analysis of datasets of annual and seasonal maximum precipitation values, to estimate the annual maximum rainfall for events of particular durations and corresponding to certain return periods. FEH DDF design rainfall is supplied through the FEH web service.</p>
+<p></p><p align="center"><br>
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Rainfall/2yrRainfall_spatialplot.png" width="700">  <br>
+<img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Rainfall/10yrRainfall_spatialplot.png" width="700"><br>
+<img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Rainfall/100yrRainfall_spatialplot.png" width="700"><br>
+</p><p align="center">  </p><p align="center"></p>
+<p>In Figure 9, the annual maximum rainfall accumulations within the specified durations (between 0.25 and 96 hours, at 0.25h intervals) are shown for each return period, with a line for each catchment.</p>
+<p></p><p align="center"><br>
+<img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Rainfall/Rainfall.png" width="700"><br>
+</p><p align="center"> Figure 9. Annual maximum rainfall accumulations within the specified durations, over a range of return periods. Each line represents a different catchment </p><p align="center"></p>
+<p>Figure 10 helps to visualise the catchments which have the maximum and minimum precipitation values associated with certain durations and return periods, and to assess how much variation there is in this. </p>
+<p></p><p align="center"><br>
+<img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Rainfall/HeatMap_maxs.png" width="350"><br>
+<img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Rainfall/HeatMap_mins.png" width="350"><br>
+</p><p align="center"> Figure 10. Displays the catchment with the maximum (left) and minimum (right) annual precipitation accumulation associated with each duration at each return period </p><p align="center"></p>
+<p>The rainfall values for some return period and duration combinations are displayed below.</p>
+<p></p><p align="center"><br>
+<img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Rainfall/MinMaxRainfalValues.PNG" width="600"><br>
+</p><p align="center"> </p><p align="center"></p>
+<p><a name="rainfallvsdescriptors"></a></p>
+<h3 id="relationship-between-annual-maximum-rainfall-accumulation-and-catchment-descriptors">Relationship between annual maximum rainfall accumulation and catchment descriptors</h3>
+<p>Catchment rainfall accumulations are influenced by the catchment&apos;s geographic location, primarily because in Leeds altitude has a strong spatial component, with the highest values found in the north west. The animations below display the relationship beween catchment annual precipitation accumulations and northing, easting, altitude and standard average areal rainfall values. Each frame in the animation shows the relationship for one duration, and they cycle between 0.25h and 95.25h at hourly intervals. The plot on the left is for a 2 year return period, and on the right for a 10 year return period.  </p>
+<p></p><p align="center"><br>
+<img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Rainfall/catchment_legend.PNG" width="600"></p>
+<h4 id="northing">Northing</h4>
+<p align="center">
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Rainfall/northingvs2yrRPrainfall.gif" alt="animated" width="350">
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Rainfall/northingvs10yrRPrainfall.gif" alt="animated" width="350">
+</p>
+<h4 id="easting">Easting</h4>
+<p align="center">
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Rainfall/eastingvs2yrRPrainfall.gif" alt="animated" width="350">
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Rainfall/eastingvs10yrRPrainfall.gif" alt="animated" width="350">
+</p>
+<h4 id="altitude-altbar">Altitude (ALTBAR)</h4>
+<p align="center">
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Rainfall/ALTBARvs2yrRPrainfall.gif" alt="animated" width="350">
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Rainfall/ALTBARvs10yrRPrainfall.gif" alt="animated" width="350">  
+</p>
+<h4 id="standard--average-areal-rainfall-saar">Standard  Average Areal Rainfall (SAAR)</h4>
+<p align="center">
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Rainfall/SAARvs2yrRPRainfall.gif" alt="animated" width="350">
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Rainfall/SAARvs10yrRPRainfall.gif" alt="animated" width="350">
+</p>
+<h4 id="area">Area</h4>
+<p align="center">
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Rainfall/AREAvs2yrRPrainfall.gif" alt="animated" width="350"> 
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Rainfall/AREAvs10yrRPrainfall.gif" alt="animated" width="350">
+</p>
+<p>A similar pattern is found in the relationship between SAAR, mean catchment altitude, easting and northing, and FEH13 precipitation values at various durations. This follows, considering the strong positive relationship between altitude and SAAR (Figure 8) and altitude and easting and northing (Figure 3). This pattern is that at the shorter durations (~ &lt;10 hrs) there is no clear relationships seen; however, during this time a clear relationship develops. </p>
+<p>TO BE COMPLETED</p>
+<p></p><p align="center"><br>
+<img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Rainfall/SAARvs10yrRPrainfall_start.gif" alt="animated" width="330"><br>
+<img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Rainfall/SAARvs10yrRPrainfall_frame1.png" width="310"><br>
+<img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Rainfall/SAARvs10yrRPrainfall_frame50.png" width="300"><br>
+</p><p align="center">  &#x2026; </p><p align="center"></p>
+<p>Two groups are notable:  </p>
+<ul>
+<li>Group1: FEH13 rainfall is higher than other catchments at very short durations, but is lower than other catchments at longer durations (generally catchments with low SAAR, low altitude and which are further east and south).  </li>
+<li>Group2: FEH13 rainfall is lower than other catchments at very short durations, but is higher than other catchments at longer durations (generally catchments with high SAAR, high altitude and which are further west and north).  </li>
+</ul>
+<p>To determine the catchments in each group, the precipitation value for each catchment is normalised for 96h and 1h durations. For group 1, the 96h normalised precipitation is lower than the 1h value, and for group 2 it is larger. This difference in normalised precipitation can be plotted against different catchment descriptors to investigar the relationship.</p>
+<p></p><p align="center"><br>
+<img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Rainfall/DifferenceNormalised_Northing.png" width="240"><br>
+<img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Rainfall/DifferenceNormalised_Easting.png" width="240"><br>
+<img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Rainfall/DifferenceNormalised_ALTBAR.png" width="230"><br>
+<img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Rainfall/DifferenceNormalised_SAAR.png" width="230">  <br>
+</p><p align="center"> ..  </p><p align="center"></p>
+<p><a name="runoff"></a></p>
+<h2 id="catchment-runoff">Catchment runoff</h2>
+<p><a name="calculatingrunoff"></a></p>
+<h3 id="refh2-calculating-catchment-runoff">ReFH2: Calculating catchment runoff</h3>
+<p>The ReFH2 rainfall runoff model translates the rainfall depths derived from the FEH13 DDF model into runoff. FEH13 calculates pre-defined return period/duration combinations and so to calculate other combinations a non-linear interpolation procedure is invoked. The final design rainfall depth in ReFH2 is calculated as the product of the FEH DDF rainfall depths, the areal reduction factor, and the seasonal correction factor (SCF). The SCF converts an annual maximum rainfall depth to a seasonal maximum depth and is calculated based upon location, season, duration and selected return period [NB: the total rainfall given in ReFH2 can be calculated by multiplying the values provided in the csv file of catchment rainfalls exported from FEH web server by the SCF given in ReFH2]. </p>
+<p>The storm seasonality (summer or winter) can be selected in ReFH2 manually, or alternatively a default seasonality is adopted based on urban extent and BFIHOST19, and summer storms are selected by default if:  </p>
+<ul>
+<li>URBEXT2000 is &#x2265; 0.30, or  </li>
+<li>0.15 &#x2264; URBEXT2000 &lt; 0.30 and BFIHOST19 is &#x2265; 0.65.<br>
+Winter storms are selected by default in all other cases.</li>
+</ul>
+<p>Out of the 20 Leeds catchments, only 4 (Wyke Beck, Bagley Beck, Meanwood Beck, Carr Beck) use a summer storm profile by default. </p>
+<p>ReFH2 uses data on initial catchment conditions and model parameters that are estimated from catchment descriptors to convert rainfall into runoff, and the rainfall depth is scaled accordingly to reflect that season in order to produce summer and winter hyetographs. Additionally, in ReFH2 rainfall hyetographs are available as both rural and urbanised scenarios. The ReFH2 model has both a rural catchment model component and an urban catchment model component. In rural scenarios, the whole catchment is modelled using the rural catchment model, whereas in urbanised scenarios the catchment area which is urban is first delineated, and then this urban area is run through the urban model, and the remainder of the catchment is modelled as rural.  </p>
+<p><a name="peakflow_directrunoff"></a></p>
+<h3 id="refh2-outputs-peak-flow-and-direct-runoff">ReFH2 outputs: peak flow and direct runoff</h3>
+<p>ReFH2 allows the user to define a duration of rainfall and then calculates the associated peak flow (m<sup>3</sup>/s) and total direct runoff (ml) in both rural and urbanised scenarios for return periods of 1, 2, 5, 10, 30, 50, 75, 100, 200 and 1000 years. The direct runoff is the total cumulative amount of runoff during that rainfall event, and as such the longer duration the storm the higher that value becomes. Contrastingly, the storm duration associated with the highest peak flow (known as the critical storm duration) is not generally the longest storm duration, and will be dependent on catchment characteristics. This is seen in Figure 11, where the greatest runoff volume is found at the longest duration, whereas the greatest peak flow value varies between catchments but generally occurs at a shorter duration.  </p>
+<p></p><p align="center"><br>
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/DirectRunoff_SummerUrban_1yr.PNG" width="300">    <br>
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Peaks_SummerUrban_1yr.PNG" width="300">  <br>
+</p><p align="center"> Figure 11. Direct runoff in ml (left) and peak flow in m<sup>3</sup>/s (right) for a 1 year return period event in summer using an urbanised scenario </p><p align="center"></p>
+<p><a name="flow_vs_rurality_seasonality"></a></p>
+<h3 id="variation-in-peak-flow-with-rurality-and-seasonality">Variation in peak flow with rurality and seasonality</h3>
+<p>The maximum peak flow is generally associated with the widest flood extent and is of great importance for surface water flooding. The peak flows found in Leeds catchments for various durations across both urbanised and rural scenarios, and for both winter and summer storm profiles, at a ten year return period, are shown in Figure 12. This shows that the relationship between peak flow and rainfall event duration varies extensively between different catchments. There is also clear variation between catchments in how much this relationship differs from summer to winter, and between urbanised and rural scenarios. Across all catchments, using a summer storm profile results in higher peak flows than a winter storm profile. In almost all catchments the model including the urban component has higher peak flows than the model with no urban component. However, in Gill Beck (Aire) which is one of the catchments with the lowest urban extent, there is practically no difference between the two. </p>
+<p></p><p align="center"><br>
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/10RP_comparingseason_rurality.png" width="1000">    <br>
+</p><p align="center"> Figure 12. Peak flows in Leeds catchments for various durations across both urbanised and rural scenarios, and for both winter and summer storm profiles, at a ten year return period </p><p align="center"></p>
+<p>The plots in the section below help understand more about which catchment characteristics influence the variation in catchment response to summer and winter storms and to modelling with or without an urban component. The mean difference across all return periods between the critical duration in summer and winter (for a model both with and without an urban component) and between the peak flow using a model with an urban component and the model without an urban component (for both summer and winter storm profiles), is plotted against the value for various catchment descriptors for each catchment.</p>
+<h4 id="altitude">Altitude</h4>
+<p></p><p align="center"><br>
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Runoff/VsCatchmentDescriptors/ALTBARvsSvW_Diff_Urban.PNG" width="230">    <br>
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Runoff/VsCatchmentDescriptors/ALTBARvsSvW_Diff_Rural.PNG" width="230">    <br>
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Runoff/VsCatchmentDescriptors/ALTBARvsUvR_Diff_Summer.PNG" width="230"><br>
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Runoff/VsCatchmentDescriptors/ALTBARvsUvR_Diff_Winter.PNG" width="230">      <br>
+</p><p align="center">  </p><p align="center"></p>
+<p>There is a strong negative correlation between the difference in peak flow between summer and winter and altitude, for models both with and without and urban component. This means that the higher the catchment altitude, the smaller the difference between peak flow from summer and winter storms.<br>
+There is a weaker negative correlation between the difference in peak flow between a model with and without and urban component, for both summer and winter storm profiles.</p>
+<h4 id="bfihost">BFIHOST</h4>
+<p></p><p align="center"><br>
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Runoff/VsCatchmentDescriptors/BFIHOSTvsSvW_Diff_Urban.PNG" width="230">    <br>
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Runoff/VsCatchmentDescriptors/BFIHOSTvsSvW_Diff_Rural.PNG" width="230">    <br>
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Runoff/VsCatchmentDescriptors/BFIHOSTvsUvR_Diff_Summer.PNG" width="230"><br>
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Runoff/VsCatchmentDescriptors/BFIHOSTvsUvR_Diff_Winter.PNG" width="230">      <br>
+</p><p align="center">  </p><p align="center"></p>
+<p>There is a weak positive correlation between the difference in peak flow between summer and winter and BFIHOST, for models both with and without and urban component. This means that catchments with a higher BFIHOST value (e.g. more permeable) have a greater difference between peak flow from summer and winter storms. There is no clear correlation between BFIHOST and the difference in peak flow between a model with and without and urban component.</p>
+<h4 id="steepness">Steepness</h4>
+<p></p><p align="center"><br>
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Runoff/VsCatchmentDescriptors/DPSBARvsSvW_Diff_Urban.PNG" width="230">    <br>
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Runoff/VsCatchmentDescriptors/DPSBARvsSvW_Diff_Rural.PNG" width="230">    <br>
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Runoff/VsCatchmentDescriptors/DPSBARvsUvR_Diff_Summer.PNG" width="230"><br>
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Runoff/VsCatchmentDescriptors/DPSBARvsUvR_Diff_Winter.PNG" width="230">      <br>
+</p><p align="center">  </p><p align="center"></p>
+<p>There is a weak negative correlation between the difference in peak flow between summer and winter and steepness, for models both with and without and urban component, and between the difference in peak flow between a model with and without and urban component and steepnes, for both summer and winter storm profiles.</p>
+<h4 id="standard-average-areal-rainfall">Standard Average Areal Rainfall</h4>
+<p></p><p align="center"><br>
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Runoff/VsCatchmentDescriptors/DPSBARvsSvW_Diff_Urban.PNG" width="230">    <br>
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Runoff/VsCatchmentDescriptors/DPSBARvsSvW_Diff_Rural.PNG" width="230">    <br>
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Runoff/VsCatchmentDescriptors/DPSBARvsUvR_Diff_Summer.PNG" width="230"><br>
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Runoff/VsCatchmentDescriptors/DPSBARvsUvR_Diff_Winter.PNG" width="230">      <br>
+</p><p align="center">  </p><p align="center"></p>
+<h4 id="urban-extent">Urban Extent</h4>
+<p></p><p align="center"><br>
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Runoff/VsCatchmentDescriptors/URBEXT2000vsSvW_Diff_Urban.PNG" width="230">    <br>
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Runoff/VsCatchmentDescriptors/URBEXT2000vsSvW_Diff_Rural.PNG" width="230">    <br>
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Runoff/VsCatchmentDescriptors/URBEXT2000vsUvR_Diff_Summer.PNG" width="230"><br>
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Runoff/VsCatchmentDescriptors/URBEXT2000vsUvR_Diff_Winter.PNG" width="230">      <br>
+</p><p align="center">  </p><p align="center"></p>
+<p>Weak negative correlation between the difference in peak flow between summer and winter and urban extent, for models both with and without and urban component. Surprisingly, there is little correlation evident between the urban extent and the difference in peak flow between a model with and without and urban component, for both summer and winter storm profiles.</p>
+<h4 id="area-1">Area</h4>
+<p></p><p align="center"><br>
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Runoff/VsCatchmentDescriptors/AREAvsSvW_Diff_Urban.PNG" width="230">    <br>
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Runoff/VsCatchmentDescriptors/AREAvsSvW_Diff_Rural.PNG" width="230">    <br>
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Runoff/VsCatchmentDescriptors/AREAvsUvR_Diff_Summer.PNG" width="230"><br>
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Runoff/VsCatchmentDescriptors/AREAvsUvR_Diff_Winter.PNG" width="230">      <br>
+</p><p align="center">  </p><p align="center"></p>
+<p><a name="flow_vs_catchments"></a></p>
+<h3 id="variation-in-peak-flow-between-catchments">Variation in peak flow between catchments</h3>
+<p></p><p align="center"><br>
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Runoff/Peaks_Urban_Summer.png" width="800">    <br>
+</p><p align="center"> Figure 13. Normalised peak flows in Leeds catchments for durations between 1 and 39h, for various return periods </p><p align="center"></p>
+<p>The shape of the relationship between duration and peak flow varies between catchments. To explore this, the peak flow at durations between 1 and 39 hours are plottted for each catchment, for several return periods, in Figure 13. This focuses on a summer storm profile, using a model including an urban component.</p>
+<p></p><p align="center"><br>
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Runoff/UrbanSummerPeaks_grouped.PNG" width="800">    <br>
+</p><p align="center"> Figure 14. Normalised peak flows in Leeds catchments for durations between 1 and 39h, for 10 year return period </p><p align="center"></p>
+<p>From Figure 13 it is apparent that the shape of the relationship between duration and peak flow varies between catchments. Four predominant response shapes can be picked out in the plots in Figure 13. To illustrate this further, in Figure 14 for a 10 year return period, these grouped are manually identified and the response curves for each group are plotted seperately. </p>
+<p>ANYTHING TO LINK TOGETHER THE GROUPS?</p>
+<p><a name="criticaldurations"></a></p>
+<h2 id="critical-storm-duration">Critical storm duration</h2>
+<p>The critical storm duration (duration with highest peak flow) is generally associated with the widest flood extent and is of great importance for surface water flooding. Understanding a catchment&apos;s critical storm duration is important in order to understand the kinds of storms which are most likely to lead to surface water flooding in the catchment. In Figure 15 the critical storm duration at each return period for each catchment is plotted. </p>
+<p></p><p align="center"><br>
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Runoff/Peaks_criticaldurations_Urban_Summer.png" width="500">    <br>
+</p><p align="center"> Figure 15. Critical durations for each catchment and return period, for a summer storm profile and model including urban component </p><p align="center"></p>
+<p><a name="criticaldurationsvsdescriptors"></a></p>
+<h2 id="relationship-between-critical-storm-durations-and-catchment-descriptors">Relationship between critical storm durations and catchment descriptors</h2>
+<p>Critical storm durations are likely to be influenced by catchment characteristics. To investigate this, the plots below display the relationship between catchment critical duration and various catchment descriptors. Each frame in the animation shows the relationship for one return period, with a seperate plot for summer and winter storm profiles, and models including and excluding an urban component.</p>
+<h3 id="altitude-1">Altitude</h3>
+<p align="center">
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Summer_UrbanvsALTBAR_CriticalDurations.gif" alt="animated" width="230">
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Summer_RuralvsALTBAR_CriticalDurations.gif" alt="animated" width="230">
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_UrbanvsALTBAR_CriticalDurations.gif" alt="animated" width="230">
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_RuralvsALTBAR_CriticalDurations.gif" alt="animated" width="230">  
+</p>
+<p>Across all return periods, there is a negative correlation between catchment altitude and critical duration. This means that the higher the elevation of the catchment, the shorter the critical storm duration. </p>
+<h3 id="area-2">Area</h3>
+<p align="center">
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Summer_UrbanvsAREA_CriticalDurations.gif" alt="animated" width="230">
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Summer_RuralvsAREA_CriticalDurations.gif" alt="animated" width="230">
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_UrbanvsAREA_CriticalDurations.gif" alt="animated" width="230">
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_RuralvsAREA_CriticalDurations.gif" alt="animated" width="230">  
+</p>
+<h3 id="bfihost-1">BFIHOST</h3>
+<p align="center">
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Summer_UrbanvsBFIHOST_CriticalDurations.gif" alt="animated" width="230">
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Summer_RuralvsBFIHOST_CriticalDurations.gif" alt="animated" width="230">
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_UrbanvsBFIHOST_CriticalDurations.gif" alt="animated" width="230">
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_RuralvsBFIHOST_CriticalDurations.gif" alt="animated" width="230">  
+</p>
+<h3 id="dpsbar">DPSBAR</h3>
+<p align="center">
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Summer_UrbanvsDPSBAR_CriticalDurations.gif" alt="animated" width="230">
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Summer_RuralvsDPSBAR_CriticalDurations.gif" alt="animated" width="230">
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_UrbanvsDPSBAR_CriticalDurations.gif" alt="animated" width="230">
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_RuralvsDPSBAR_CriticalDurations.gif" alt="animated" width="230">  
+</p>
+<h3 id="ldp">LDP</h3>
+<p align="center">
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Summer_UrbanvsLDP_CriticalDurations.gif" alt="animated" width="230">
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Summer_RuralvsLDP_CriticalDurations.gif" alt="animated" width="230">
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_UrbanvsLDP_CriticalDurations.gif" alt="animated" width="230">
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_RuralvsLDP_CriticalDurations.gif" alt="animated" width="230">  
+</p>
+<h3 id="urbext200">URBEXT200</h3>
+<p align="center">
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Summer_UrbanvsURBEXT2000_CriticalDurations.gif" alt="animated" width="230">
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Summer_RuralvsURBEXT2000_CriticalDurations.gif" alt="animated" width="230">
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_UrbanvsURBEXT2000_CriticalDurations.gif" alt="animated" width="230">
+  <img src="file:///C:/Users/gy17m2a/OneDrive%20-%20University%20of%20Leeds/PhD/DataAnalysis/Scripts/UKCP18/CatchmentAnalysis/Figs/AllCatchments/Runoff/CDsVsCatchmentDescriptors/Winter_RuralvsURBEXT2000_CriticalDurations.gif" alt="animated" width="230">  
+</p>
+    </body>
+</html>
