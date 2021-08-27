@@ -136,8 +136,7 @@ for run_number in [9,10,11,12,13,14,15,16,17,18,19,20,21,22,23, 24]:
       
     # Trim to smaller area
     stats_cube = trim_to_bbox_of_region(stats_cube, leeds_at_centre_narrow_gdf)                       
-           
-      
+     
     # Find the minimum and maximum values to define the spread of the pot
     local_min = stats_cube.data.min()
     local_max = stats_cube.data.max()
@@ -188,7 +187,7 @@ for run_number in [9,10,11,12,13,14,15,16,17,18,19,20,21,22,23, 24]:
     print(num_cells)
     
     # Save files
-    filename = "Scripts/UKCP18/RegionalRainfallStats/Model/Figs/Testing_{}_{}_{}%_{}cells.png".format(stat, run_number, percent_diff, num_cells)
+    filename = "Scripts/UKCP18/RegionalRainfallStats/Model/Figs/Testing_{}_{}_{}_{}cells.png".format(stat, run_number, percent_diff, num_cells)
     fig.savefig(filename, bbox_inches = 'tight')
       
 
