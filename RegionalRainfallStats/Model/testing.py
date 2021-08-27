@@ -1,29 +1,11 @@
-run_number =9
+run_number =23
 stat = 'jja_p99'
 
 em_cube_stat = 'EM_mean'
 overlapping = ''
 region = 'leeds-at-centre-narrow'
 
-def create_leeds_at_centre_narrow_outline (required_proj):
-    # #Read in outline of Leeds wards  
-    # wards = gpd.read_file("/nfs/a319/gy17m2a/datadir/SpatialData/england_cmwd_2011.shp")
-    # # Create column to merge on
-    # wards['City'] = 'Leeds'
-    # # Merge all wards into one outline
-    # leeds = wards.dissolve(by = 'City')
-
-    # # Convert Leeds outline geometry to WGS84
-    # leeds.crs = {'init' :'epsg:27700'}
-    # leeds_gdf = leeds.to_crs(required_proj)
-
-    # leeds_gdf_square = leeds_gdf.envelope
-    # leeds_at_centre_narrow_gdf = gpd.GeoDataFrame(gpd.GeoSeries(leeds_gdf_square), columns = ['geometry'], crs={'init': 'epsg:3857'},)
-
-    # #Define lats and lons to make box around Leeds
-    # lons = [54.2, 54.2, 53.2, 53.2]
-    # lats = [-1.80,-1.3, -1.3, -1.80] 
-    
+def create_leeds_at_centre_narrow_outline (required_proj, run_number):
     # #first two control height above outlnie (bigger number extends it higher)
     # second 2 (smaller number extends it down)
     # #First and last control left hand verticla sdie (smaller number moves it to right)
@@ -59,65 +41,65 @@ def create_leeds_at_centre_narrow_outline (required_proj):
     # lons = [53.94, 53.94, 53.68, 53.68]
     # lats = [-1.50,-0.94, -0.94, -1.50] 
     
-    # ### 9.
-    lons = [53.94, 53.94, 53.68, 53.68]
-    lats = [-1.82,-1.08, -1.08, -1.82]     
+    if run_number == 9:
+        lons = [53.94, 53.94, 53.68, 53.68]
+        lats = [-1.82,-1.08, -1.08, -1.82]     
     
-    ## 10. leeds box
-    # lons = [53.94, 53.94, 53.68, 53.68]
-    # lats = [-1.82,-1.28, -1.28, -1.82]    
+    elif run_number == 10: ##leeds-box
+        lons = [53.94, 53.94, 53.68, 53.68]
+        lats = [-1.82,-1.28, -1.28, -1.82]    
     
-    ### 11. 
-    # lons = [53.94, 53.94, 53.68, 53.68]
-    # lats = [-1.99,-1.28, -1.28, -1.99]   
+    elif run_number == 11:
+        lons = [53.94, 53.94, 53.68, 53.68]
+        lats = [-1.99,-1.28, -1.28, -1.99]   
     
-    ### 12
-    # lons = [54.04, 54.04 ,53.68, 53.68]
-    # lats = [-1.82,-1.28, -1.28, -1.82]        
+    elif run_number == 12:
+        lons = [54.04, 54.04 ,53.68, 53.68]
+        lats = [-1.82,-1.28, -1.28, -1.82]        
      
-    ### 13.     
-    # lons = [53.94, 53.94, 53.58, 53.58]
-    # lats = [-1.82,-1.28, -1.28, -1.82]    
+    elif run_number == 13:   
+        lons = [53.94, 53.94, 53.58, 53.58]
+        lats = [-1.82,-1.28, -1.28, -1.82]    
     
-    # 14
-    # lons = [53.94, 53.94, 53.68, 53.68]
-    # lats = [-1.53,-1.0, -1.0, -1.53] 
+    elif run_number == 14:
+        lons = [53.94, 53.94, 53.68, 53.68]
+        lats = [-1.53,-1.0, -1.0, -1.53] 
    
-    # 15
-    # lons = [53.94, 53.94, 53.68, 53.68]
-    # lats = [-2.00,-1.53, -1.53, -2.00] 
+    elif run_number == 15:
+        lons = [53.94, 53.94, 53.68, 53.68]
+        lats = [-2.00,-1.53, -1.53, -2.00] 
  
-    # 16
-    # lons = [53.94, 53.94, 53.68, 53.68]
-    # lats = [-1.82,-1.54, -1.54, -1.82] 
+    elif run_number == 16:
+        lons = [53.94, 53.94, 53.68, 53.68]
+        lats = [-1.82,-1.54, -1.54, -1.82] 
 
-    # 17
-    # lons = [53.94, 53.94, 53.68, 53.68]
-    # lats = [-1.54,-1.28, -1.28, -1.54] 
+    elif run_number == 17:
+        lons = [53.94, 53.94, 53.68, 53.68]
+        lats = [-1.54,-1.28, -1.28, -1.54] 
     
-    # # 18. 
-    # lons = [54.04, 54.04, 53.81, 53.81]
-    # lats = [-1.82,-1.28, -1.28, -1.82]      
+    elif run_number == 18:
+        lons = [54.04, 54.04, 53.81, 53.81]
+        lats = [-1.82,-1.28, -1.28, -1.82]      
      
-    # # 19. 
-    # lons = [53.81, 53.81, 53.57, 53.57]
-    # lats = [-1.82,-1.28, -1.28, -1.82]      
+    elif run_number == 19:
+        lons = [53.81, 53.81, 53.57, 53.57]
+        lats = [-1.82,-1.28, -1.28, -1.82]      
     
-    # # 20
-    # lons = [53.82, 53.82, 53.69, 53.69]
-    # lats = [-1.82,-1.28, -1.28, -1.82]   
+    elif run_number == 20:
+        lons = [53.82, 53.82, 53.69, 53.69]
+        lats = [-1.82,-1.28, -1.28, -1.82]   
     
-    # 21
-    # lons = [53.95, 53.95, 53.82, 53.82]
-    # lats = [-1.82,-1.28, -1.28, -1.82]       
+    elif run_number == 21:
+        lons = [53.95, 53.95, 53.82, 53.82]
+        lats = [-1.82,-1.28, -1.28, -1.82]       
   
-    # ### 22.
-    # lons = [53.94, 53.94, 53.68, 53.68]
-    # lats = [-1.72,-0.99, -0.99, -1.72]    
+    elif run_number == 22:
+        lons = [53.94, 53.94, 53.68, 53.68]
+        lats = [-1.72,-0.99, -0.99, -1.72]    
     
-    ### 23.
-    # lons = [53.94, 53.94, 53.68, 53.68]
-    # lats = [-1.72,-1.18, -1.18, -1.72]        
+    elif run_number == 23:
+        lons = [53.94, 53.94, 53.68, 53.68]
+        lats = [-1.72,-1.18, -1.18, -1.72]        
     
     # Convert to polygon
     polygon_geom = Polygon(zip(lats, lons))
@@ -127,7 +109,7 @@ def create_leeds_at_centre_narrow_outline (required_proj):
 
     return leeds_at_centre_narrow_gdf
 
-leeds_at_centre_narrow_gdf = create_leeds_at_centre_narrow_outline({'init' :'epsg:3857'})
+leeds_at_centre_narrow_gdf = create_leeds_at_centre_narrow_outline({'init' :'epsg:3857'}, run_number)
 
 # Load in the cube for the correct statistic and ensemble summary metric 
 stats_cube = iris.load("Outputs/RegionalRainfallStats/NetCDFs/Model/Allhours/EM_Summaries/{}_{}{}.nc".format(stat, em_cube_stat, overlapping))[0]
@@ -140,7 +122,7 @@ stats_cube = trim_to_bbox_of_region(stats_cube, leeds_at_centre_narrow_gdf)
 local_min = stats_cube.data.min()
 local_max = stats_cube.data.max()
 percent_diff = round((local_max-local_min)/((local_max+local_min)/2)*100,2)
-local_min = 2.15
+local_min = 2.07
 local_max = 3.12
 contour_levels = np.linspace(local_min, local_max, 11,endpoint = True)
 
@@ -169,25 +151,15 @@ else:
 mesh = iplt.pcolormesh(stats_cube, cmap = precip_colormap, vmin = local_min, vmax = local_max)
      
 # Add regional outlines, depending on which region is being plotted
-if region == 'Northern':
-       leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=2)
-       northern_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=2)
-       cb1 = plt.colorbar(mesh, ax=ax, fraction=0.053, pad=0.03, boundaries = contour_levels)
-elif region == 'leeds-at-centre' or region == 'leeds' or region == 'leeds-at-centre-narrow':
-       leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=2.3)
-       cb1 = plt.colorbar(mesh, ax=ax, fraction=0.041, pad=0.03, 
-                         boundaries = contour_levels)
-elif region == 'UK':
-       plt.gca().coastlines(linewidth =0.5)
-       cb1 = plt.colorbar(mesh, ax=ax, fraction=0.049, pad=0.03, 
-                         boundaries = contour_levels)
+leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=2.3)
+cb1 = plt.colorbar(mesh, ax=ax, fraction=0.041, pad=0.03, boundaries = contour_levels)
+
 cb1.ax.tick_params(labelsize=25)
 if stat != 'whprop':
     cb1.set_label('mm/hr', size = 25)
 elif stat == 'whprop':
     cb1.set_label('%', size = 25)
 cb1.ax.set_yticklabels(["{:.{}f}".format(i, n_decimal_places) for i in cb1.get_ticks()])   
-
 
 print(percent_diff)
 
