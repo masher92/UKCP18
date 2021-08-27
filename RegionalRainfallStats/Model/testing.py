@@ -1,4 +1,4 @@
-run_number =23
+run_number =12
 stat = 'jja_p99'
 
 em_cube_stat = 'EM_mean'
@@ -72,8 +72,8 @@ def create_leeds_at_centre_narrow_outline (required_proj):
     # lats = [-1.99,-1.28, -1.28, -1.99]   
     
     ### 12
-    # lons = [54.04, 54.04 ,53.68, 53.68]
-    # lats = [-1.82,-1.28, -1.28, -1.82]        
+    lons = [54.04, 54.04 ,53.68, 53.68]
+    lats = [-1.82,-1.28, -1.28, -1.82]        
      
     ### 13.     
     # lons = [53.94, 53.94, 53.68, 53.68]
@@ -116,8 +116,8 @@ def create_leeds_at_centre_narrow_outline (required_proj):
     # lats = [-1.72,-0.99, -0.99, -1.72]    
     
     ### 23.
-    lons = [53.94, 53.94, 53.68, 53.68]
-    lats = [-1.72,-1.18, -1.18, -1.72]        
+    # lons = [53.94, 53.94, 53.68, 53.68]
+    # lats = [-1.72,-1.18, -1.18, -1.72]        
     
     # Convert to polygon
     polygon_geom = Polygon(zip(lats, lons))
@@ -155,8 +155,8 @@ elif region == 'UK':
 # Find the minimum and maximum values to define the spread of the pot
 local_min = stats_cube.data.min()
 local_max = stats_cube.data.max()
-#local_min = 2.10
-#local_max = 3.12
+local_min = 2.15
+local_max = 3.12
 contour_levels = np.linspace(local_min, local_max, 11,endpoint = True)
 
 #############################################################################
