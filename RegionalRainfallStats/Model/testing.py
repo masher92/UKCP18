@@ -1,4 +1,4 @@
-run_number =12
+run_number =9
 stat = 'jja_p99'
 
 em_cube_stat = 'EM_mean'
@@ -60,8 +60,8 @@ def create_leeds_at_centre_narrow_outline (required_proj):
     # lats = [-1.50,-0.94, -0.94, -1.50] 
     
     # ### 9.
-    # lons = [53.94, 53.94, 53.68, 53.68]
-    # lats = [-1.82,-1.08, -1.08, -1.82]     
+    lons = [53.94, 53.94, 53.68, 53.68]
+    lats = [-1.82,-1.08, -1.08, -1.82]     
     
     ## 10. leeds box
     # lons = [53.94, 53.94, 53.68, 53.68]
@@ -72,11 +72,11 @@ def create_leeds_at_centre_narrow_outline (required_proj):
     # lats = [-1.99,-1.28, -1.28, -1.99]   
     
     ### 12
-    lons = [54.04, 54.04 ,53.68, 53.68]
-    lats = [-1.82,-1.28, -1.28, -1.82]        
+    # lons = [54.04, 54.04 ,53.68, 53.68]
+    # lats = [-1.82,-1.28, -1.28, -1.82]        
      
     ### 13.     
-    # lons = [53.94, 53.94, 53.68, 53.68]
+    # lons = [53.94, 53.94, 53.58, 53.58]
     # lats = [-1.82,-1.28, -1.28, -1.82]    
     
     # 14
@@ -133,28 +133,13 @@ leeds_at_centre_narrow_gdf = create_leeds_at_centre_narrow_outline({'init' :'eps
 stats_cube = iris.load("Outputs/RegionalRainfallStats/NetCDFs/Model/Allhours/EM_Summaries/{}_{}{}.nc".format(stat, em_cube_stat, overlapping))[0]
   
 # Trim to smaller area
-if region == 'Northern':
-        stats_cube = trim_to_bbox_of_region(stats_cube, wider_northern_gdf)
-elif region == 'leeds-at-centre':
-        stats_cube = trim_to_bbox_of_region(stats_cube, leeds_at_centre_gdf)
-elif region == 'leeds':
-        stats_cube = trim_to_bbox_of_region(stats_cube, leeds_gdf)    
-elif region == 'leeds-at-centre-narrow':
-        stats_cube = trim_to_bbox_of_region(stats_cube, leeds_at_centre_narrow_gdf)                       
-        
-# Mask the data so as to cover any cells not within the specified region 
-if region == 'Northern':
-        stats_cube.data = ma.masked_where(wider_northern_mask == 0, stats_cube.data)
-        # Trim to the BBOX of Northern England
-        # This ensures the plot shows only the bbox around northern england
-        # but that all land values are plotted
-        stats_cube = trim_to_bbox_of_region(stats_cube, northern_gdf)
-elif region == 'UK':
-        stats_cube.data = ma.masked_where(uk_mask == 0, stats_cube.data)  
+stats_cube = trim_to_bbox_of_region(stats_cube, leeds_at_centre_narrow_gdf)                       
+       
   
 # Find the minimum and maximum values to define the spread of the pot
 local_min = stats_cube.data.min()
 local_max = stats_cube.data.max()
+percent_diff = round((local_max-local_min)/((local_max+local_min)/2)*100,2)
 local_min = 2.15
 local_max = 3.12
 contour_levels = np.linspace(local_min, local_max, 11,endpoint = True)
@@ -203,7 +188,7 @@ elif stat == 'whprop':
     cb1.set_label('%', size = 25)
 cb1.ax.set_yticklabels(["{:.{}f}".format(i, n_decimal_places) for i in cb1.get_ticks()])   
 
-percent_diff = round((local_max-local_min)/((local_max+local_min)/2)*100,2)
+
 print(percent_diff)
 
 num_cells = stats_cube.shape[0] * stats_cube.shape[1] 
