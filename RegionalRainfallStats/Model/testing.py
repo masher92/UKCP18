@@ -1,5 +1,9 @@
-run_number =11
-stat = 'jja_p99.75'
+run_number =19
+stat = 'jja_p99'
+
+em_cube_stat = 'EM_mean'
+overlapping = ''
+region = 'leeds-at-centre-narrow'
 
 def create_leeds_at_centre_narrow_outline (required_proj):
     # #Read in outline of Leeds wards  
@@ -64,17 +68,42 @@ def create_leeds_at_centre_narrow_outline (required_proj):
     # lats = [-1.82,-1.28, -1.28, -1.82]    
     
     ### 11. 
-    lons = [53.94, 53.94, 53.68, 53.68]
-    lats = [-1.99,-1.28, -1.28, -1.99]   
+    # lons = [53.94, 53.94, 53.68, 53.68]
+    # lats = [-1.99,-1.28, -1.28, -1.99]   
     
     ### 12
     # lons = [54.04, 54.04 ,53.68, 53.68]
     # lats = [-1.82,-1.28, -1.28, -1.82]        
      
     ### 13.     
-    # lons = [53.94, 53.94, 53.58, 53.58]
+    # lons = [53.94, 53.94, 53.68, 53.68]
     # lats = [-1.82,-1.28, -1.28, -1.82]    
     
+    # 14
+    # lons = [53.94, 53.94, 53.68, 53.68]
+    # lats = [-1.53,-1.0, -1.0, -1.53] 
+   
+    # 15
+    # lons = [53.94, 53.94, 53.68, 53.68]
+    # lats = [-2.00,-1.53, -1.53, -2.00] 
+ 
+    # 16
+    # lons = [53.94, 53.94, 53.68, 53.68]
+    # lats = [-1.82,-1.54, -1.54, -1.82] 
+
+    # 17
+    # lons = [53.94, 53.94, 53.68, 53.68]
+    # lats = [-1.54,-1.28, -1.28, -1.54] 
+    
+    # 18. 
+    lons = [54.04, 54.04, 53.81, 53.81]
+    lats = [-1.82,-1.28, -1.28, -1.82]      
+     
+    # 19. 
+    lons = [53.81, 53.81, 53.57, 53.57]
+    lats = [-1.82,-1.28, -1.28, -1.82]       
+    
+           
     # Convert to polygon
     polygon_geom = Polygon(zip(lats, lons))
     # Convert to geodataframe
@@ -84,8 +113,6 @@ def create_leeds_at_centre_narrow_outline (required_proj):
     return leeds_at_centre_narrow_gdf
 
 leeds_at_centre_narrow_gdf = create_leeds_at_centre_narrow_outline({'init' :'epsg:3857'})
-
-
 
 # Load in the cube for the correct statistic and ensemble summary metric 
 stats_cube = iris.load("Outputs/RegionalRainfallStats/NetCDFs/Model/Allhours/EM_Summaries/{}_{}{}.nc".format(stat, em_cube_stat, overlapping))[0]
