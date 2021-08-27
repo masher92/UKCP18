@@ -1,4 +1,4 @@
-run_number =19
+run_number =20
 stat = 'jja_p99'
 
 em_cube_stat = 'EM_mean'
@@ -95,15 +95,18 @@ def create_leeds_at_centre_narrow_outline (required_proj):
     # lons = [53.94, 53.94, 53.68, 53.68]
     # lats = [-1.54,-1.28, -1.28, -1.54] 
     
-    # 18. 
-    lons = [54.04, 54.04, 53.81, 53.81]
-    lats = [-1.82,-1.28, -1.28, -1.82]      
+    # # 18. 
+    # lons = [54.04, 54.04, 53.81, 53.81]
+    # lats = [-1.82,-1.28, -1.28, -1.82]      
      
-    # 19. 
-    lons = [53.81, 53.81, 53.57, 53.57]
-    lats = [-1.82,-1.28, -1.28, -1.82]       
+    # # 19. 
+    # lons = [53.81, 53.81, 53.57, 53.57]
+    # lats = [-1.82,-1.28, -1.28, -1.82]      
     
-           
+    # 20
+    lons = [53.81, 53.81, 53.69, 53.69]
+    lats = [-1.82,-1.28, -1.28, -1.82]      
+    
     # Convert to polygon
     polygon_geom = Polygon(zip(lats, lons))
     # Convert to geodataframe
