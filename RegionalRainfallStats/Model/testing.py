@@ -1,3 +1,17 @@
+# create square gdf
+def create_square_outline (required_proj):
+    # Define lats and lons to make box around Leeds
+    lons = [54.06, 54.06, 53.54, 53.54]
+    lats = [-1.99,-0.96, -0.96, -1.99] 
+    
+    # Convert to polygon
+    polygon_geom = Polygon(zip(lats, lons))
+    # Convert to geodataframe
+    leeds_at_centre_narrow_gdf = gpd.GeoDataFrame(index=[0], crs={'init': 'epsg:4326'}, geometry=[polygon_geom])
+    leeds_at_centre_narrow_gdf = leeds_at_centre_narrow_gdf.to_crs(required_proj) 
+
+    return leeds_at_centre_narrow_gdf
+
 run_number =23
 stat = 'jja_p99'
 
@@ -99,7 +113,11 @@ def create_leeds_at_centre_narrow_outline (required_proj, run_number):
     
     elif run_number == 23:
         lons = [53.94, 53.94, 53.68, 53.68]
-        lats = [-1.72,-1.18, -1.18, -1.72]        
+        lats = [-1.72,-1.18, -1.18, -1.72]     
+        
+    elif run_number ==24:    
+        lons = [54.06, 54.06, 53.54, 53.54]
+        lats = [-1.99,-0.96, -0.96, -1.99] 
     
     # Convert to polygon
     polygon_geom = Polygon(zip(lats, lons))
@@ -109,66 +127,69 @@ def create_leeds_at_centre_narrow_outline (required_proj, run_number):
 
     return leeds_at_centre_narrow_gdf
 
-leeds_at_centre_narrow_gdf = create_leeds_at_centre_narrow_outline({'init' :'epsg:3857'}, run_number)
 
-# Load in the cube for the correct statistic and ensemble summary metric 
-stats_cube = iris.load("Outputs/RegionalRainfallStats/NetCDFs/Model/Allhours/EM_Summaries/{}_{}{}.nc".format(stat, em_cube_stat, overlapping))[0]
-  
-# Trim to smaller area
-stats_cube = trim_to_bbox_of_region(stats_cube, leeds_at_centre_narrow_gdf)                       
-       
-  
-# Find the minimum and maximum values to define the spread of the pot
-local_min = stats_cube.data.min()
-local_max = stats_cube.data.max()
-percent_diff = round((local_max-local_min)/((local_max+local_min)/2)*100,2)
-local_min = 2.07
-local_max = 3.12
-contour_levels = np.linspace(local_min, local_max, 11,endpoint = True)
-
-#############################################################################
-# Set up environment for plotting
-#############################################################################
-# Set up plotting colours
-precip_colormap = create_precip_cmap()   
-# Set up a plotting figurge with Web Mercator projection
-proj = ccrs.Mercator.GOOGLE
-fig = plt.figure(figsize=(20,20), dpi=200)
-ax = fig.add_subplot(122, projection = proj)
-   
-# Define number of decimal places to use in the rounding of the colour bar
-# This ensures smaller numbers have decimal places, but not bigger ones.  
-if stats_cube.data.max() >10:
-    n_decimal_places = 0
-elif stats_cube.data.max() < 0.1:
-    n_decimal_places  =3
-else:
-    n_decimal_places =2
+for run_number in [9,10,11,12,13,14,15,16,17,18,19,20,21,22,23, 24]:
+    leeds_at_centre_narrow_gdf = create_leeds_at_centre_narrow_outline({'init' :'epsg:3857'}, run_number)
+    square_gdf = create_square_outline({'init' :'epsg:3857'})
+    # Load in the cube for the correct statistic and ensemble summary metric 
+    stats_cube = iris.load("Outputs/RegionalRainfallStats/NetCDFs/Model/Allhours/EM_Summaries/{}_{}{}.nc".format(stat, em_cube_stat, overlapping))[0]
+      
+    # Trim to smaller area
+    stats_cube = trim_to_bbox_of_region(stats_cube, leeds_at_centre_narrow_gdf)                       
+           
+      
+    # Find the minimum and maximum values to define the spread of the pot
+    local_min = stats_cube.data.min()
+    local_max = stats_cube.data.max()
+    percent_diff = round((local_max-local_min)/((local_max+local_min)/2)*100,2)
+    local_min = 2.07
+    local_max = 3.12
+    contour_levels = np.linspace(local_min, local_max, 11,endpoint = True)
     
-#############################################################################
-# Plot
-#############################################################################
-mesh = iplt.pcolormesh(stats_cube, cmap = precip_colormap, vmin = local_min, vmax = local_max)
-     
-# Add regional outlines, depending on which region is being plotted
-leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=2.3)
-cb1 = plt.colorbar(mesh, ax=ax, fraction=0.041, pad=0.03, boundaries = contour_levels)
-
-cb1.ax.tick_params(labelsize=25)
-if stat != 'whprop':
-    cb1.set_label('mm/hr', size = 25)
-elif stat == 'whprop':
-    cb1.set_label('%', size = 25)
-cb1.ax.set_yticklabels(["{:.{}f}".format(i, n_decimal_places) for i in cb1.get_ticks()])   
-
-print(percent_diff)
-
-num_cells = stats_cube.shape[0] * stats_cube.shape[1] 
-print(num_cells)
-
-# Save files
-filename = "Scripts/UKCP18/RegionalRainfallStats/Model/Figs/Testing_{}_{}_{}%_{}cells.png".format(stat, run_number, percent_diff, num_cells)
-fig.savefig(filename, bbox_inches = 'tight')
-  
+    #############################################################################
+    # Set up environment for plotting
+    #############################################################################
+    # Set up plotting colours
+    precip_colormap = create_precip_cmap()   
+    # Set up a plotting figurge with Web Mercator projection
+    proj = ccrs.Mercator.GOOGLE
+    fig = plt.figure(figsize=(20,20), dpi=200)
+    ax = fig.add_subplot(122, projection = proj)
+       
+    # Define number of decimal places to use in the rounding of the colour bar
+    # This ensures smaller numbers have decimal places, but not bigger ones.  
+    if stats_cube.data.max() >10:
+        n_decimal_places = 0
+    elif stats_cube.data.max() < 0.1:
+        n_decimal_places  =3
+    else:
+        n_decimal_places =2
+        
+    #############################################################################
+    # Plot
+    #############################################################################
+    mesh = iplt.pcolormesh(stats_cube, cmap = precip_colormap, vmin = local_min, vmax = local_max)
+         
+    # Add regional outlines, depending on which region is being plotted
+    square_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=0.1)
+    leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=2.3)
+    cb1 = plt.colorbar(mesh, ax=ax, fraction=0.041, pad=0.03, boundaries = contour_levels)
+    
+    cb1.ax.tick_params(labelsize=25)
+    if stat != 'whprop':
+        cb1.set_label('mm/hr', size = 25)
+    elif stat == 'whprop':
+        cb1.set_label('%', size = 25)
+    cb1.ax.set_yticklabels(["{:.{}f}".format(i, n_decimal_places) for i in cb1.get_ticks()])   
+    
+    print(percent_diff)
+    
+    num_cells = stats_cube.shape[0] * stats_cube.shape[1] 
+    print(num_cells)
+    
+    # Save files
+    filename = "Scripts/UKCP18/RegionalRainfallStats/Model/Figs/Testing_{}_{}_{}%_{}cells.png".format(stat, run_number, percent_diff, num_cells)
+    fig.savefig(filename, bbox_inches = 'tight')
+      
 
 
