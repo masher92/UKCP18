@@ -1,3 +1,57 @@
+
+import iris.coord_categorisation
+import iris
+import glob
+import numpy as np
+from numba import jit
+import os
+import geopandas as gpd
+import time 
+import sys
+import iris.quickplot as qplt
+import cartopy.crs as ccrs
+import matplotlib 
+import iris.plot as iplt
+import numpy.ma as ma
+
+############################################
+# Define variables and set up environment
+#############################################
+root_fp = "/nfs/a319/gy17m2a/"
+os.chdir(root_fp)
+
+# Create path to files containing functions
+sys.path.insert(0, root_fp + 'Scripts/UKCP18/GlobalFunctions')
+from Spatial_plotting_functions import *
+from Spatial_geometry_functions import *
+
+# Set up variables
+ems = ['01', '04', '05', '06', '07', '08', '09','10','11','12', '13','15']
+yrs_range = "1980_2001" 
+region = 'leeds' #['Northern', 'leeds-at-centre', 'UK']
+regions = ['leeds', 'leeds-at-centre', 'Northern', 'UK']
+
+##################################################################
+# Load necessary spatial data
+##################################################################
+# These geodataframes are square
+northern_gdf = create_northern_outline({'init' :'epsg:3857'})
+wider_northern_gdf = create_wider_northern_outline({'init' :'epsg:3857'})
+# This is the outlins of Leeds
+leeds_gdf = create_leeds_outline({'init' :'epsg:3857'})
+# This is a square area surrounding Leeds
+leeds_at_centre_gdf = create_leeds_at_centre_outline({'init' :'epsg:3857'})
+# This is a square area surrounding Leeds
+leeds_at_centre_gdf = create_leeds_at_centre_outline({'init' :'epsg:3857'})
+leeds_at_centre_narrow_gdf = create_leeds_at_centre_narrow_outline({'init' :'epsg:3857'})
+
+
+# Load mask for wider northern region
+# This masks out cells outwith the wider northern region
+wider_northern_mask = np.load('Outputs/RegionalMasks/wider_northern_region_mask.npy')
+uk_mask = np.load('Outputs/RegionalMasks/uk_mask.npy')  
+uk_mask = uk_mask.reshape(458,383)
+
 # create square gdf
 def create_square_outline (required_proj):
     # Define lats and lons to make box around Leeds
@@ -12,7 +66,7 @@ def create_square_outline (required_proj):
 
     return leeds_at_centre_narrow_gdf
 
-run_number =23
+run_number =25
 stat = 'jja_p99'
 
 em_cube_stat = 'EM_mean'
@@ -118,7 +172,12 @@ def create_leeds_at_centre_narrow_outline (required_proj, run_number):
     elif run_number ==24:    
         lons = [54.06, 54.06, 53.54, 53.54]
         lats = [-1.99,-0.96, -0.96, -1.99] 
-    
+
+    elif run_number ==25:    
+        lons = [53.94, 53.94, 53.68, 53.68]
+        lats = [-1.72,-1.28, -1.28, -1.72]    
+        
+            
     # Convert to polygon
     polygon_geom = Polygon(zip(lats, lons))
     # Convert to geodataframe
@@ -128,7 +187,7 @@ def create_leeds_at_centre_narrow_outline (required_proj, run_number):
     return leeds_at_centre_narrow_gdf
 
 
-for run_number in [9,10,11,12,13,14,15,16,17,18,19,20,21,22,23, 24]:
+for run_number in [25]:
     leeds_at_centre_narrow_gdf = create_leeds_at_centre_narrow_outline({'init' :'epsg:3857'}, run_number)
     square_gdf = create_square_outline({'init' :'epsg:3857'})
     # Load in the cube for the correct statistic and ensemble summary metric 
