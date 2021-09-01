@@ -67,7 +67,7 @@ def create_square_outline (required_proj):
     return leeds_at_centre_narrow_gdf
 
 run_number =25
-stat = 'jja_p99'
+stat = 'jja_p95'
 
 em_cube_stat = 'EM_mean'
 overlapping = ''
@@ -187,7 +187,7 @@ def create_leeds_at_centre_narrow_outline (required_proj, run_number):
     return leeds_at_centre_narrow_gdf
 
 
-for run_number in [25]:
+for run_number in [9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24, 25]:
     leeds_at_centre_narrow_gdf = create_leeds_at_centre_narrow_outline({'init' :'epsg:3857'}, run_number)
     square_gdf = create_square_outline({'init' :'epsg:3857'})
     # Load in the cube for the correct statistic and ensemble summary metric 
@@ -246,7 +246,7 @@ for run_number in [25]:
     print(num_cells)
     
     # Save files
-    filename = "Scripts/UKCP18/RegionalRainfallStats/Model/Figs/Testing_{}_{}_{}_{}cells.png".format(stat, run_number, percent_diff, num_cells)
+    filename = "Scripts/UKCP18/RegionalRainfallStats/Model/Figs/{}/Testing_{}_{}_{}_{}cells.png".format(stat, stat, run_number, percent_diff, num_cells)
     fig.savefig(filename, bbox_inches = 'tight')
       
 
