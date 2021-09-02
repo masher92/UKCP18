@@ -1,28 +1,10 @@
 ### Does it matter that 12km model is daily rather than hourly?
 
-import numpy.ma as ma
-import iris.coord_categorisation
-import iris
-import glob
 import numpy as np
-from numba import jit
 import os
-import geopandas as gpd
-import time
 import sys
-import iris.quickplot as qplt
-import cartopy.crs as ccrs
-import matplotlib
-import iris.plot as iplt
-from scipy import spatial
-import itertools
-from shapely.geometry import Point, Polygon
-from pyproj import Proj, transform
 import matplotlib.pyplot as plt
 import pandas as pd
-import tilemapbase
-import matplotlib as mpl
-import datetime
 
 import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
@@ -211,134 +193,134 @@ bins_if_log_spaced= bin_nos
 ##############################################################
 # All resolutions
 ##############################################################
-for dict, overlapping_status in zip([leeds_data_dict, leeds_data_dict_overlapping], ["","_Overlapping"]):
-    print(dict.keys(), overlapping_status)
-    cols_dict = {'Observations' : 'darkgoldenrod',
-                  'Observations Regridded_2.2km' : 'tomato',
-                  'Observations Regridded_12km' : 'darkred',
-                  'Model 12km' : 'navy',
-                  'Model 2.2km' : 'slateblue',
-                  'Model 2.2km_regridded_12km': 'teal'}
-    # Create patches
-    patches= []
-    for key, val in cols_dict.items():
-        patch = mpatches.Patch(color= val, label= key)
-        patches.append(patch)
-
-    # Create plot
-    #log_discrete_with_inset(dict, cols_dict, bin_nos, "Precipitation (mm/hr)",
-    #                              patches, True, False)
-
-    log_discrete_histogram_lesslegend(dict, cols_dict, bin_nos, "Precipitation (mm/hr)",
-                                      patches, True, xlim, x_axis, y_axis)
-    #Save
-    plt.savefig("Scripts/UKCP18/PrecipitationPDFs/leeds-at-centre/Figs/RCMvsCPMvsObs/All{}_{}.png".format(overlapping_status, jja_status))
-
-# ####### Plot - compring 2.2km model and 2.2km regridded observation
-for dict, overlapping_status in zip([leeds_data_dict, leeds_data_dict_overlapping], ["","_Overlapping"]):
-    print(dict.keys(), overlapping_status)
-    just_2_2kms = dict.copy()
-    del just_2_2kms['Model 12km'], just_2_2kms['Observations'], just_2_2kms['Observations Regridded_12km'], just_2_2kms['Model 2.2km_regridded_12km']
-    cols_dict = {'Observations Regridded_2.2km' : 'tomato',
-                  'Model 2.2km' : 'slateblue'}
-    # Create patches
-    patches= []
-    for key, val in cols_dict.items():
-        patch = mpatches.Patch(color= val, label= key)
-        patches.append(patch)
-
-    # Create plot
-    log_discrete_histogram_lesslegend(just_2_2kms, cols_dict, bin_nos, "Precipitation (mm/hr)",
-                                      patches, True, False, x_axis, y_axis)
-    plt.savefig("Scripts/UKCP18/PrecipitationPDFs/leeds-at-centre/Figs//ModelVsObs_2.2km_{}_{}.png".format(overlapping_status, jja_status))
-
-
-# ####### Plot just Model, to see effect of regridding
-for dict, overlapping_status in zip([leeds_data_dict, leeds_data_dict_overlapping], ["","_Overlapping"]):
-    print(dict.keys(), overlapping_status)
-    just_model = dict.copy()
-    del just_model['Observations Regridded_2.2km'], just_model['Observations'], just_model['Observations Regridded_12km']
-    cols_dict = {'Model 12km' : 'navy',
-                  'Model 2.2km' : 'slateblue',
-                  'Model 2.2km_regridded_12km': 'teal'}
-    # Create patches
-    patches= []
-    for key, val in cols_dict.items():
-        patch = mpatches.Patch(color= val, label= key)
-        patches.append(patch)
-
-    # Create plot
-    log_discrete_histogram_lesslegend(just_model, cols_dict, bin_nos, "Precipitation (mm/hr)",
-                                      patches, True, False, x_axis, y_axis)
-    plt.savefig("Scripts/UKCP18/PrecipitationPDFs/leeds-at-centre/Figs/RCMvsCPMvsObs/JustModel_{}_{}.png".format(overlapping_status,jja_status))
-
-# ###############################################################
-####### Plot just Obs, to see effect of regridding
-for dict, overlapping_status in zip([leeds_data_dict, leeds_data_dict_overlapping], ["","_Overlapping"]):
-    print(dict.keys(), overlapping_status)
-
-    just_obs = dict.copy()
-    del just_obs['Model 12km'], just_obs['Model 2.2km'], just_obs['Model 2.2km_regridded_12km']
-
-    cols_dict = {'Observations' : 'darkgoldenrod',
-                      'Observations Regridded_2.2km' : 'tomato',
-                      'Observations Regridded_12km' : 'darkred'}
-    # Create patches
-    patches= []
-    for key, val in cols_dict.items():
-        patch = mpatches.Patch(color= val, label= key)
-        patches.append(patch)
-
-    # Create plot
-    log_discrete_histogram_lesslegend(just_obs, cols_dict, bin_nos, "Precipitation (mm/hr)",
-                                      patches, True, False, x_axis, y_axis)
-    plt.savefig("Scripts/UKCP18/PrecipitationPDFs/leeds-at-centre/Figs/RCMvsCPMvsObs/JustObs_{}_{}.png".format(overlapping_status,jja_status))
-
+# for dict, overlapping_status in zip([leeds_data_dict, leeds_data_dict_overlapping], ["","_Overlapping"]):
+#     print(dict.keys(), overlapping_status)
+#     cols_dict = {'Observations' : 'darkgoldenrod',
+#                   'Observations Regridded_2.2km' : 'tomato',
+#                   'Observations Regridded_12km' : 'darkred',
+#                   'Model 12km' : 'navy',
+#                   'Model 2.2km' : 'slateblue',
+#                   'Model 2.2km_regridded_12km': 'teal'}
+#     # Create patches
+#     patches= []
+#     for key, val in cols_dict.items():
+#         patch = mpatches.Patch(color= val, label= key)
+#         patches.append(patch)
 #
-# ###############################################################
-# ####### Plot just 12km
-just_12km = leeds_data_dict.copy()
-del just_12km['Model 2.2km'], just_12km['Observations Regridded_2.2km'], just_12km['Observations']
-
-cols_dict = {'Observations Regridded_12km' : 'darkred',
-              'Model 12km' : 'navy',
-              'Model 2.2km_regridded_12km': 'teal'}
-
-# Create patches
-patches= []
-for key, val in cols_dict.items():
-    patch = mpatches.Patch(color= val, label= key)
-    patches.append(patch)
-
-# Create plot
-log_discrete_histogram_lesslegend(just_12km, cols_dict, bin_no, "Precipitation (mm/hr)",
-                                  patches, True, False, x_axis, y_axis)
-plt.savefig("Scripts/UKCP18/PrecipitationPDFs/leeds-at-centre/Figs/RCMvsCPMvsObs/Just12kms_{}.png".format(jja_status))
-
-# ##################### Plot just 12km -Better legend
-for dict, overlapping_status in zip([leeds_data_dict, leeds_data_dict_overlapping], ["","_Overlapping"]):
-    print(dict.keys(), overlapping_status)
-    just_12km = dict.copy()
-    del just_12km['Model 2.2km'], just_12km['Observations Regridded_2.2km'], just_12km['Observations']
-
-    # Wet hours
-    #for key in just_12km.keys():
-    #    just_12km[key] = just_12km[key][just_12km[key]['Precipitation (mm/hr)'] > 0.1]
-
-    cols_dict = {'Observations Regridded_12km' : 'darkred',
-                 'Model 12km' : 'navy',
-                 'Model 2.2km_regridded_12km': 'teal'}
-
-    # Create patches
-    patches= []
-    patches.append(mpatches.Patch(color= 'darkred', label= 'CEH-GEAR'))
-    patches.append(mpatches.Patch(color= 'navy', label= 'UKCP18 12km'))
-    patches.append(mpatches.Patch(color= 'teal', label= 'UKCP18 2.2km'))
-
-    # Create plot
-    df = log_discrete_histogram_lesslegend(just_12km, cols_dict, bin_nos, "Precipitation (mm/hr)",
-                                      patches, True, False)
-    plt.savefig("Scripts/UKCP18/PrecipitationPDFs/leeds-at-centre/Figs/RCMvsCPMvsObs/Just12kms_{}_{}.png".format(overlapping_status, jja_status))
+#     # Create plot
+#     #log_discrete_with_inset(dict, cols_dict, bin_nos, "Precipitation (mm/hr)",
+#     #                              patches, True, False)
+#
+#     log_discrete_histogram_lesslegend(dict, cols_dict, bin_nos, "Precipitation (mm/hr)",
+#                                       patches, True, xlim, x_axis, y_axis)
+#     #Save
+#     plt.savefig("Scripts/UKCP18/PrecipitationPDFs/leeds-at-centre/Figs/RCMvsCPMvsObs/All{}_{}.png".format(overlapping_status, jja_status))
+#
+# # ####### Plot - compring 2.2km model and 2.2km regridded observation
+# for dict, overlapping_status in zip([leeds_data_dict, leeds_data_dict_overlapping], ["","_Overlapping"]):
+#     print(dict.keys(), overlapping_status)
+#     just_2_2kms = dict.copy()
+#     del just_2_2kms['Model 12km'], just_2_2kms['Observations'], just_2_2kms['Observations Regridded_12km'], just_2_2kms['Model 2.2km_regridded_12km']
+#     cols_dict = {'Observations Regridded_2.2km' : 'tomato',
+#                   'Model 2.2km' : 'slateblue'}
+#     # Create patches
+#     patches= []
+#     for key, val in cols_dict.items():
+#         patch = mpatches.Patch(color= val, label= key)
+#         patches.append(patch)
+#
+#     # Create plot
+#     log_discrete_histogram_lesslegend(just_2_2kms, cols_dict, bin_nos, "Precipitation (mm/hr)",
+#                                       patches, True, False, x_axis, y_axis)
+#     plt.savefig("Scripts/UKCP18/PrecipitationPDFs/leeds-at-centre/Figs//ModelVsObs_2.2km_{}_{}.png".format(overlapping_status, jja_status))
+#
+#
+# # ####### Plot just Model, to see effect of regridding
+# for dict, overlapping_status in zip([leeds_data_dict, leeds_data_dict_overlapping], ["","_Overlapping"]):
+#     print(dict.keys(), overlapping_status)
+#     just_model = dict.copy()
+#     del just_model['Observations Regridded_2.2km'], just_model['Observations'], just_model['Observations Regridded_12km']
+#     cols_dict = {'Model 12km' : 'navy',
+#                   'Model 2.2km' : 'slateblue',
+#                   'Model 2.2km_regridded_12km': 'teal'}
+#     # Create patches
+#     patches= []
+#     for key, val in cols_dict.items():
+#         patch = mpatches.Patch(color= val, label= key)
+#         patches.append(patch)
+#
+#     # Create plot
+#     log_discrete_histogram_lesslegend(just_model, cols_dict, bin_nos, "Precipitation (mm/hr)",
+#                                       patches, True, False, x_axis, y_axis)
+#     plt.savefig("Scripts/UKCP18/PrecipitationPDFs/leeds-at-centre/Figs/RCMvsCPMvsObs/JustModel_{}_{}.png".format(overlapping_status,jja_status))
+#
+# # ###############################################################
+# ####### Plot just Obs, to see effect of regridding
+# for dict, overlapping_status in zip([leeds_data_dict, leeds_data_dict_overlapping], ["","_Overlapping"]):
+#     print(dict.keys(), overlapping_status)
+#
+#     just_obs = dict.copy()
+#     del just_obs['Model 12km'], just_obs['Model 2.2km'], just_obs['Model 2.2km_regridded_12km']
+#
+#     cols_dict = {'Observations' : 'darkgoldenrod',
+#                       'Observations Regridded_2.2km' : 'tomato',
+#                       'Observations Regridded_12km' : 'darkred'}
+#     # Create patches
+#     patches= []
+#     for key, val in cols_dict.items():
+#         patch = mpatches.Patch(color= val, label= key)
+#         patches.append(patch)
+#
+#     # Create plot
+#     log_discrete_histogram_lesslegend(just_obs, cols_dict, bin_nos, "Precipitation (mm/hr)",
+#                                       patches, True, False, x_axis, y_axis)
+#     plt.savefig("Scripts/UKCP18/PrecipitationPDFs/leeds-at-centre/Figs/RCMvsCPMvsObs/JustObs_{}_{}.png".format(overlapping_status,jja_status))
+#
+# #
+# # ###############################################################
+# # ####### Plot just 12km
+# just_12km = leeds_data_dict.copy()
+# del just_12km['Model 2.2km'], just_12km['Observations Regridded_2.2km'], just_12km['Observations']
+#
+# cols_dict = {'Observations Regridded_12km' : 'darkred',
+#               'Model 12km' : 'navy',
+#               'Model 2.2km_regridded_12km': 'teal'}
+#
+# # Create patches
+# patches= []
+# for key, val in cols_dict.items():
+#     patch = mpatches.Patch(color= val, label= key)
+#     patches.append(patch)
+#
+# # Create plot
+# log_discrete_histogram_lesslegend(just_12km, cols_dict, bin_no, "Precipitation (mm/hr)",
+#                                   patches, True, False, x_axis, y_axis)
+# plt.savefig("Scripts/UKCP18/PrecipitationPDFs/leeds-at-centre/Figs/RCMvsCPMvsObs/Just12kms_{}.png".format(jja_status))
+#
+# # ##################### Plot just 12km -Better legend
+# for dict, overlapping_status in zip([leeds_data_dict, leeds_data_dict_overlapping], ["","_Overlapping"]):
+#     print(dict.keys(), overlapping_status)
+#     just_12km = dict.copy()
+#     del just_12km['Model 2.2km'], just_12km['Observations Regridded_2.2km'], just_12km['Observations']
+#
+#     # Wet hours
+#     #for key in just_12km.keys():
+#     #    just_12km[key] = just_12km[key][just_12km[key]['Precipitation (mm/hr)'] > 0.1]
+#
+#     cols_dict = {'Observations Regridded_12km' : 'darkred',
+#                  'Model 12km' : 'navy',
+#                  'Model 2.2km_regridded_12km': 'teal'}
+#
+#     # Create patches
+#     patches= []
+#     patches.append(mpatches.Patch(color= 'darkred', label= 'CEH-GEAR'))
+#     patches.append(mpatches.Patch(color= 'navy', label= 'UKCP18 12km'))
+#     patches.append(mpatches.Patch(color= 'teal', label= 'UKCP18 2.2km'))
+#
+#     # Create plot
+#     df = log_discrete_histogram_lesslegend(just_12km, cols_dict, bin_nos, "Precipitation (mm/hr)",
+#                                       patches, True, False)
+#     plt.savefig("Scripts/UKCP18/PrecipitationPDFs/leeds-at-centre/Figs/RCMvsCPMvsObs/Just12kms_{}_{}.png".format(overlapping_status, jja_status))
 
 
 # # ##########################################################################
@@ -398,15 +380,18 @@ for dict, overlapping_status in zip([leeds_data_dict, leeds_data_dict_overlappin
             if key == 'Model 12km':
                 filtered = test[key]
                 filtered = filtered[:x]
-                plt.plot(filtered, color = 'navy')
+                plt.plot(filtered, color = 'navy', s =3, marker ='o', linestyle ='dashed')
             if key == 'Model 2.2km_regridded_12km':
                 filtered = test[key]
                 filtered = filtered[:x]
                 plt.plot(filtered, color = 'teal')
+                plt.scatter(filtered, freqs ,linewidth = 1,s=3, color = 'teal')
             if key == 'Observations Regridded_12km':
                 filtered = test[key]
                 filtered = filtered[:x]
                 plt.plot(filtered, color = 'darkred')
+                plt.scatter(filtered, freqs ,linewidth = 1,s=3, color = 'darkred')
+
             plt.xlabel('Percentile')
             plt.ylabel('Precipitation (mm/hr)')
             plt.legend(handles=[darkred_patch, navy_patch, teal_patch])
@@ -434,11 +419,11 @@ wet_hours_lst = []
 for key, value in just_12km.items():
     print(value)
     df= value
-    
+
     zero_hours_lst.append(round((len(value[value['Precipitation (mm/hr)'] ==0])/len(value) *100  ),1))
     dry_hours_lst.append(round((len(value[(value['Precipitation (mm/hr)'] <0.11) & value['Precipitation (mm/hr)']>0])/len(value) *100  ),1))
     low_hours_lst.append(round((len(value[(value['Precipitation (mm/hr)'] <0.51) & value['Precipitation (mm/hr)']>0])/len(value) *100  ),1))
-    less_low_hours_lst.append(round((len(value[(value['Precipitation (mm/hr)'] <1) & value['Precipitation (mm/hr)']>0])/len(value) *100  ),1))    
+    less_low_hours_lst.append(round((len(value[(value['Precipitation (mm/hr)'] <1) & value['Precipitation (mm/hr)']>0])/len(value) *100  ),1))
     more_than_1_hours_lst.append(round((len(value[value['Precipitation (mm/hr)'] >1])/len(value) *100  ),1))
     wet_hours_lst.append(round((len(value[value['Precipitation (mm/hr)'] >0.1])/len(value) *100  ),1))
 
@@ -471,5 +456,3 @@ plt.xlabel('mm/hr')
 plt.ylabel('Probability density')
 plt.legend()
 plt.xticks(bins)
-
-
