@@ -200,8 +200,8 @@ for run_number in [9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24, 25]:
     local_min = stats_cube.data.min()
     local_max = stats_cube.data.max()
     percent_diff = round((local_max-local_min)/((local_max+local_min)/2)*100,2)
-    local_min = 2.07
-    local_max = 3.12
+    local_min = 0.22 #2.07
+    local_max = 0.92 #3.12
     contour_levels = np.linspace(local_min, local_max, 11,endpoint = True)
     
     #############################################################################
