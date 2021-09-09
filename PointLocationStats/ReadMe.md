@@ -1,3 +1,6 @@
+NONE OF THE CODE OR OUTPUTS IN THIS FOLDER HAS BEEN UPDATED TO INCLUDE THE NEW UKCP18 2.2KM DATA.
+A LOT OF THE SCRIPT IS OLD, AND SO WOULD NEED TOO MUCH UPDATING TO BE CURRENTLY WORTH THE EFFORT
+
 ### Point location statistics
 
 The 'CreateTimeSeries' directory contains code which finds the grid cell which a given latitude and longitude point is found within and extracts the timeseries of data for that location. There is a seperate script for the model and for the observations. The resulting timeseries is saved as both a netCDF cube and as a CSV.
