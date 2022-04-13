@@ -3,17 +3,12 @@
 #############################################
 import sys
 import iris
-import cartopy.crs as ccrs
 import os
-from scipy import spatial
-import itertools
 import iris.quickplot as qplt
 import warnings
-import copy
 from timeit import default_timer as timer
 import glob
 import numpy as np
-import iris.quickplot as qplt
 import iris.plot as iplt
 import pandas as pd
 #import datetime
@@ -62,7 +57,7 @@ for em in ems:
     print ("Checking timeseries for " + location + " using ensemble member " + em + " over years " + str(start_year) + "-" + str(end_year))
     
     # Create paths to the folders where the outputs would be stored
-    cubefolder_fp = root_fp + "Outputs/TimeSeries/UKCP18/{}/2.2km/TimeSeries_cubes".format(location)
+    cubefolder_fp = root_fp + "Outputs/TimeSeries/UKCP18/{}/2.2km/Baseline/TimeSeries_cubes".format(location)
     cube_fp =  cubefolder_fp + '/EM{}_{}-{}.nc'.format(em, start_year, end_year)
     csvfolder_fp =root_fp + "Outputs/TimeSeries/UKCP18/{}/2.2km/TimeSeries_csv".format(location)
     csv_fp = csvfolder_fp + '/EM{}_{}-{}.csv'.format(em, start_year, end_year)

@@ -1,7 +1,3 @@
-'''
-This 
-'''
-
 import numpy.ma as ma
 import iris.coord_categorisation
 import iris
@@ -32,11 +28,10 @@ root_fp = "/nfs/a319/gy17m2a/"
 os.chdir(root_fp)
 
 # Create path to files containing functions
-sys.path.insert(0, root_fp + 'Scripts/UKCP18/PointLocationStats/PlotPDFs')
-from PDF_plotting_functions import *
-sys.path.insert(0, root_fp + 'Scripts/UKCP18/RegriddingObservations')
+sys.path.insert(0, root_fp + 'Scripts/UKCP18/Regridding')
 from Regridding_functions import *
-sys.path.insert(0, root_fp + 'Scripts/UKCP18/SpatialAnalyses')
+sys.path.insert(0, root_fp + 'Scripts/UKCP18/GlobalFunctions')
+from PDF_plotting_functions import *
 from Spatial_geometry_functions import *
 
 ################################################################
@@ -46,14 +41,14 @@ from Spatial_geometry_functions import *
 leeds_at_centre_gdf = create_leeds_at_centre_outline({'init' :'epsg:27700'})
 # Create otuline of Leeds itself
 leeds_gdf = create_leeds_outline({'init' :'epsg:27700'})
-
+ 
 ################################################################
 # Load data, and convert to dataframe
 ################################################################
 # Load data
-leeds_rg_nn = np.load("Outputs/RegriddingObservations/CEH-GEAR_regridded_2.2km/NearestNeighbour/leeds-at-centre_data/leeds-at-centre.npy")
-leeds_rg_lin = np.load("Outputs/RegriddingObservations/CEH-GEAR_regridded_2.2km/LinearRegridding/leeds-at-centre_data/leeds-at-centre.npy")
-leeds_rf = np.load("Outputs/RegriddingObservations/CEH-GEAR_reformatted/leeds-at-centre_data/leeds-at-centre.npy")
+leeds_rg_nn = np.load("Outputs/TimeSeries/CEH-GEAR/2.2km/NearestNeighbour/leeds-at-centre/leeds-at-centre.npy")
+leeds_rg_lin = np.load("Outputs/TimeSeries/CEH-GEAR/2.2km/LinearRegridding/leeds-at-centre/leeds-at-centre.npy")
+leeds_rf = np.load("Outputs/TimeSeries/CEH-GEAR/1km/leeds-at-centre/leeds-at-centre.npy")
 
 # Convert to dataframe
 leeds_rg_nn = pd.DataFrame({"Precipitation (mm/hr)" : leeds_rg_nn})
@@ -81,16 +76,21 @@ bin_nos =50
 bins_if_log_spaced= bin_nos
 
 # Equal spaced   
-equal_spaced_histogram(my_dict, cols_dict, bin_nos, "Precipitation (mm/hr)", x_axis, y_axis)
+#equal_spaced_histogram(my_dict, cols_dict, bin_nos, "Precipitation (mm/hr)", x_axis, y_axis)
 
 # Log spaced histogram
 log_spaced_histogram(my_dict, cols_dict, bin_nos, "Precipitation (mm/hr)", x_axis, y_axis)    
+plt.savefig("Scripts/UKCP18/Regridding/TestingRegridding/leeds-at-centre/Figs/log_spaced.png")
+ 
  
 # Fractional contribution
 fractional_contribution(my_dict, cols_dict, bin_nos, "Precipitation (mm/hr)", x_axis, y_axis) 
+plt.savefig("Scripts/UKCP18/Regridding/TestingRegridding/leeds-at-centre/Figs/fract_contribution.png")
              
 # Log histogram with adaptation     
 log_discrete_histogram(my_dict, cols_dict, bin_nos, "Precipitation (mm/hr)", x_axis, y_axis) 
+plt.savefig("Scripts/UKCP18/Regridding/TestingRegridding/leeds-at-centre/Figs/log_discrete.png")
+
 
 # # ##########################################################################
 # # # Percentile plots

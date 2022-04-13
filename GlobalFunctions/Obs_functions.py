@@ -87,11 +87,11 @@ def find_position_obs (concat_cube, lat, lon, station_name):
             indexs_lst.append((i,j))
          
     # Extract the lat and long values of this point using the index
-    filename = "Outputs/TimeSeries/CEH-GEAR/leeds-at-centre/{}_{}.npy".format(indexs_lst[closest_point_idx][0],indexs_lst[closest_point_idx][1])
+    filename = "Outputs/TimeSeries/CEH-GEAR/1km/leeds-at-centre/{}_{}.npy".format(indexs_lst[closest_point_idx][0],indexs_lst[closest_point_idx][1])
     data_slice = np.load(filename)
      
     # Get the times
-    times = np.load('Outputs/TimeSeries/CEH-GEAR/leeds-at-centre/timestamps.npy', allow_pickle = True)
+    times = np.load('Outputs/TimeSeries/CEH-GEAR/1km/leeds-at-centre/timestamps.npy', allow_pickle = True)
          
     # Create dataframe
     df = pd.DataFrame({'Times': times, 'Precipitation (mm/hr)':data_slice})
@@ -137,8 +137,8 @@ def find_position_obs (concat_cube, lat, lon, station_name):
     plot =leeds_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=2)
     plot =leeds_at_centre_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=2)
     plt.plot(lon_wm, lat_wm,  'o', color='black', markersize = 10)     
-    plt.savefig('Scripts/UKCP18/RainGaugeAnalysis/Figs/CheckingLocations/CEH-GEAR/{}.png'.format(station_name),
-                bbox_inches = 'tight')
+    #plt.savefig('Scripts/UKCP18/RainGaugeAnalysis/Figs/CheckingLocations/CEH-GEAR/{}.png'.format(station_name),
+    #            bbox_inches = 'tight')
     plt.show()
  
     return (df, closest_point_idx)    

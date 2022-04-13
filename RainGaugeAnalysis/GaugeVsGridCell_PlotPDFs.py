@@ -21,11 +21,8 @@ import glob
 from shapely.geometry import Point, Polygon
 import sys
 from pyproj import Proj, transform
-import iris.plot as iplt
-import matplotlib as mpl
 import warnings
 from datetime import datetime
-import pandas as pd
 import matplotlib.patches as mpatches
 
 # Set up path to root directory
@@ -153,7 +150,7 @@ for filename in glob.glob("datadir/GaugeData/Newcastle/E*"):
             # the gauge is located within
             #############################################################################
             print('Loading CEH-GEAR data')
-            filename = 'Outputs/RegriddingObservations/CEH-GEAR_reformatted/rf_CEH-GEAR-1hr_201411.nc'
+            filename = 'datadir/CEH-GEAR/CEH-GEAR_reformatted/rf_CEH-GEAR-1hr_201411.nc'
             obs_cube = iris.load(filename,'rainfall_amount')[0]
             # Trim concatenated cube to outline of leeds-at-centre geodataframe
             obs_cube = trim_to_bbox_of_region_obs(obs_cube, leeds_at_centre_gdf)

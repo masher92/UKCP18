@@ -55,18 +55,14 @@ strings_dict  = {'datadir/CEH-GEAR/CEH-GEAR_reformatted/rf_': '1km',
 # Coordinates of location of interest
 sample_point = [('grid_latitude', 53.796638), ('grid_longitude', -1.592600)]
 
-# Create dictionary to store results
-my_dict = {}
-
-# Loop through 3 options
 for string1, string2 in strings_dict.items():
-  print(string1)
-  print(string2)
+    print(string1)
+    print(string2)
 
-   # Define target_crs, dependent on whether using reformatted or regridded data
-  if string1 =='datadir/CEH-GEAR/CEH-GEAR_reformatted/rf_':
+    # Define target_crs, dependent on whether using reformatted or regridded data
+    if string1 =='datadir/CEH-GEAR/CEH-GEAR_reformatted/rf_':
         target_crs = {'init' :'epsg:27700'}
-  else:
+    else:
         target_crs = {'init' :'epsg:4326'}
 
   ################################################################
@@ -104,124 +100,21 @@ for string1, string2 in strings_dict.items():
   # those closest to the location of interest
   #############################################################################
   plot_grid_highlight_cells(cube, target_crs,  {'init' :'epsg:3785'}, 
-                                 sample_point, closest_coordinates[0] ) 
+                                 sample_point, closest_coordinates[0] )
   
   #############################################################################
   # Convert to dataframe
   #############################################################################
   # Define location to save dataframe to
-  #output_filename = "Outputs/TimeSeries/CEH-GEAR/{}/Random_GridCells/{}_{}.csv".format(string2, sample_point[0], samplepoint[1])
+  output_filename = 'Outputs/TimeSeries/CEH-GEAR/{}/Random_GridCells/{}_{}.csv'.format(string2, sample_point[0][1], sample_point[1][1])
   
   # Save dataframe
   df =pd.DataFrame({"time_stamp" : time_series_cube.coord('time').points,
                        "Rainfall": time_series_cube.data})
   df['Date_formatted']  = pd.to_datetime(df['time_stamp'], unit='s')\
                  .dt.strftime('%Y-%m-%d %H:%M:%S')
-  #df.to_csv(output_filename, index = False)
+  df.to_csv(output_filename, index = False)
 
-  # Save to dictionary
-  my_dict["{}".format(string2)] = df
-
-##############################################################################
-# Setting up colours dictionary
-##############################################################################
-# Set up colours dictionary to use in plotting
-cols_dict = {'Original 1km':"navy",
-             '2.2km/LinearRegridding': 'firebrick',
-             '2.2km/NearestNeighbour': 'olive'}
-
-##############################################################################
-# Plotting - complex PDFs
-##############################################################################
-x_axis = 'linear'
-y_axis = 'log'
-bin_nos =30
-bins_if_log_spaced= bin_nos
-
-# Equal spaced   
-equal_spaced_histogram(my_dict, cols_dict, bin_nos, x_axis, y_axis)
-
-# Log spaced histogram
-log_spaced_histogram(my_dict, cols_dict, bin_nos,x_axis, y_axis)    
- 
-# Fractional contribution
-fractional_contribution(my_dict, cols_dict,bin_nos,x_axis, y_axis) 
-             
-# Log histogram with adaptation     
-log_discrete_histogram(my_dict, cols_dict, bin_nos, x_axis, y_axis) 
-plt.savefig("Scripts/UKCP18/Regridding/TestingRegridding/IndividualCells/Figs/{}_{}.png".format(string2, sample_point[0], samplepoint[1])
-
-
-##############################################################################
-# Plotting - simple histograms
-##############################################################################
-# plt.hist(rf_df['Precipitation (mm/hr)'], bins = 200)
-
-# bin_density, bin_edges = np.histogram(rf_df['Precipitation (mm/hr)'], bins= 20, density=True)
-# print (bin_edges)
-
-# import matplotlib.pyplot as plt
-# plt.bar(bin_edges[:-1], bin_density, width = 1)
-# plt.xlim(min(bin_edges), max(bin_edges))
-# plt.show()  
-
-# ##########################################################################
-# # Percentile plots
-# ##########################################################################
-# keys = []
-# p_99_99 = []
-# p_99_95 = []
-# p_99_9 = []
-# p_99_5 = []
-# p_99 = []
-# p_95 =[]
-# p_90 = []
-# p_80 = []
-# p_70 = []
-# p_60 = []
-# p_50 = []
-# for key, value in my_dict.items():
-#     df = my_dict[key]
-#     p_99_99.append(df['Precipitation (mm/hr)'].quantile(0.9999))
-#     p_99_95.append(df['Precipitation (mm/hr)'].quantile(0.9995))
-#     p_99_9.append(df['Precipitation (mm/hr)'].quantile(0.999))
-#     p_99_5.append(df['Precipitation (mm/hr)'].quantile(0.995))
-#     p_99.append(df['Precipitation (mm/hr)'].quantile(0.99))
-#     p_95.append(df['Precipitation (mm/hr)'].quantile(0.95))
-#     p_90.append(df['Precipitation (mm/hr)'].quantile(0.9))
-#     p_80.append(df['Precipitation (mm/hr)'].quantile(0.8))
-#     p_70.append(df['Precipitation (mm/hr)'].quantile(0.7))
-#     p_60.append(df['Precipitation (mm/hr)'].quantile(0.6))
-#     p_50.append(df['Precipitation (mm/hr)'].quantile(0.5))
-#     keys.append(key)
-    
-    
-# df= pd.DataFrame({'Key':keys, '50': p_50,
-#                  '60': p_60, '70': p_70,  
-#                   '80': p_80, '90': p_90,
-#                  '95': p_95, '99': p_99,
-#                  '99.5': p_99_5, '99.9': p_99_9,
-#                 '99.95': p_99_95, '99.99': p_99_99}) 
-
-
-# test = df.transpose()
-# test = test.rename(columns=test.iloc[0]).drop(test.index[0])
-
-# # Plot
-# navy_patch = mpatches.Patch(color='navy', label='Original 1km')
-# red_patch = mpatches.Patch(color='firebrick', label='Regridded 2.2km')
-
-# for key, value in my_dict.items():
-#     print(key)
-#     if key == 'Original 1km':
-#         plt.plot(test[key], color = 'navy')
-#     if key == 'Regridded 2.2km':
-#         plt.plot(test[key], color = 'firebrick')
-#     plt.xlabel('Percentile')
-#     plt.ylabel('Precipitation (mm/hr)')
-#     plt.legend(handles=[red_patch, navy_patch])
-#     plt.yscale('log')
-#     plt.xticks(rotation = 23)
 
 
 

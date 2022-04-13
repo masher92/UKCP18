@@ -29,7 +29,6 @@ def reproject_wm (gauges_df):
     gauges_df['Lat_wm'] = gauges_lat_wm
     return gauges_df
 
-
 ############################################
 # Define variables and set up environment
 #############################################
