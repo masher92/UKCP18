@@ -44,4 +44,4 @@ for i in range(0,lat_length):
 
 I am still not 100% sure about the reasoning behind this. However, I think it is something to do with the fact that in an array the X position is given before the Y position. Whereas on a map the Y coordinate is given before the X coordinate. And on an array you count from the top left, whereas on a map you start on the bottom left. 
 
-![image](https://user-images.githubusercontent.com/43998529/163199246-45162056-7e9d-4657-8606-7bcad6df517a.png){ width: 200px; }
+![image](https://user-images.githubusercontent.com/43998529/163199246-45162056-7e9d-4657-8606-7bcad6df517a.png)
