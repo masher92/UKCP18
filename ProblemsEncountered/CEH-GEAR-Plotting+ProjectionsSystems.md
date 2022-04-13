@@ -21,4 +21,24 @@ for i in range(0,lat_length):
 ```
 
 However, in the resulting plot, the grid cells highlighted and the cells in which a point was plotted did not match up
+
 ![image](https://user-images.githubusercontent.com/43998529/163194254-011f074f-df9e-47af-9e86-8add2cef2067.png)
+
+To solve this, I had to change the order in which the lat and long coordinates are given.
+
+```
+# Loop through
+for i in range(0,lat_length): 
+    for j in range(0,lon_length):
+        transformer = Transformer.from_crs("epsg:27700", "epsg:3857")
+        x, y = transformer.transform(lons[j], lats[i])
+        point = Point(x,y) 
+        # Check if point is within catchment boundary shapefile
+        if lindyke_shp.contains(point)[0]:
+            plt.plot(x, y,  'o', color='black', markersize = 5)  
+            test_data[i,j]=1
+            print(i,j)
+```
+
+![image](https://user-images.githubusercontent.com/43998529/163197986-73bdf714-750e-4ea1-93b0-bd3940abc867.png)
+
