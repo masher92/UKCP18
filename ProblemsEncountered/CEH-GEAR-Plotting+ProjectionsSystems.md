@@ -5,12 +5,7 @@ To find all grid cells within a certain catchment, to combine the precipitation 
 ```UKCP18/CatchmentAnalysis/ObservedCatchmentRainfallAnalysis/FindCatchmentAvgRainfall.py```
 
 ### Problems encountered:  
-Trying to identify which CEH-GEAR 1km grid cells are within the boundaries of a certain catchment. 
-
-I
-
-
-nclude code with which I was getting the mirror image plot:
+I wrote some code to loop through each lat, long pair and to check whether the coordinate is found within the catchment. If it is then a point is plotted on the figure in that cell, and the corresponding value in the test_data array (which is created as an array filled with 0s) is set to 1.
 
 ```
 # Loop through
@@ -25,4 +20,5 @@ for i in range(0,lat_length):
             test_data[i,j]=1
 ```
 
+However, in the resulting plot, the grid cells highlighted and the cells in which a point was plotted did not match up
 ![image](https://user-images.githubusercontent.com/43998529/163194254-011f074f-df9e-47af-9e86-8add2cef2067.png)
