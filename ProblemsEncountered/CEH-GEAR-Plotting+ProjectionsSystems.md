@@ -1,8 +1,13 @@
-###
+# Goal: to find all grid cells within a certain catchment, to combine the precipitation data from all the cells and to find an average daily/monthly/weekly rainfall amount
 
-Trying to identify which CEH-GEAR 1km grid cells are within the boundaries of a certain catchment. 
+# Script: UKCP18/CatchmentAnalysis/ObservedCatchmentRainfallAnalysis/FindCatchmentAvgRainfall.py
 
-Include code with which I was getting the mirror image plot:
+# Trying to identify which CEH-GEAR 1km grid cells are within the boundaries of a certain catchment. 
+
+I
+
+
+nclude code with which I was getting the mirror image plot:
 
 ```
 # Loop through
