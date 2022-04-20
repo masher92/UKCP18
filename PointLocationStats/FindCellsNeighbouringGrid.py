@@ -4,36 +4,39 @@
 
 import sys
 import iris
-import cartopy.crs as ccrs
 import os
-from scipy import spatial
 import itertools
-import iris.quickplot as qplt
-import warnings
-import copy
-from timeit import default_timer as timer
 import glob
 import numpy as np
-import iris.quickplot as qplt
-import pandas as pd
 import geopandas as gpd
 import matplotlib.pyplot as plt
 import tilemapbase
-import numpy as np
 
 # Provide root_fp as argument
-root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
+root_fp = "/nfs/a319/gy17m2a/"
 os.chdir(root_fp)
-sys.path.insert(0, root_fp + 'Scripts/UKCP18/')
+
+sys.path.insert(0, root_fp + 'Scripts/UKCP18/GlobalFunctions')
 from Pr_functions import *
-sys.path.insert(0, root_fp + 'Scripts/UKCP18/SpatialAnalyses')
-from Plotting_functions import *
+from Spatial_plotting_functions import *
 
 start_year = 1980
 end_year = 2000 
 yrs_range = "1980_2001" 
 em = '01'
 
+##############################################################################
+#### Create a shapely geometry of the outline of Leeds and West Yorks
+##############################################################################
+# Convert outline of Leeds into a polygon
+leeds_gdf = create_leeds_outline({'init' :'epsg:3785'})
+
+# Create geodataframe of the outline of West Yorkshire
+# Data from https://data.opendatasoft.com/explore/dataset/combined-authorities-april-2015-super-generalised-clipped-boundaries-in-england%40ons-public/export/
+wy_gdf = gpd.read_file("datadir/SpatialData/combined-authorities-april-2015-super-generalised-clipped-boundaries-in-england.shp") 
+wy_gdf = wy_gdf[wy_gdf['cauth15cd'] == 'E47000003']
+wy_gdf = wy_gdf.to_crs({'init' :'epsg:3785'}) 
+ 
 #############################################
 # Read in files
 #############################################
@@ -51,18 +54,6 @@ for year in range(start_year,end_year+1):
 monthly_cubes_list = iris.load(filenames,'lwe_precipitation_rate')
 print(str(len(monthly_cubes_list)) + " cubes found for this time period.")
 
-##############################################################################
-#### Create a shapely geometry of the outline of Leeds and West Yorks
-##############################################################################
-# Convert outline of Leeds into a polygon
-leeds_gdf = create_leeds_outline({'init' :'epsg:3785'})
-
-# Create geodataframe of the outline of West Yorkshire
-# Data from https://data.opendatasoft.com/explore/dataset/combined-authorities-april-2015-super-generalised-clipped-boundaries-in-england%40ons-public/export/
-wy_gdf = gpd.read_file("datadir/SpatialData/combined-authorities-april-2015-super-generalised-clipped-boundaries-in-england.shp") 
-wy_gdf = wy_gdf[wy_gdf['cauth15cd'] == 'E47000003']
-wy_gdf = wy_gdf.to_crs({'init' :'epsg:3785'}) 
- 
 #############################################
 # Concat the cubes into one
 #############################################

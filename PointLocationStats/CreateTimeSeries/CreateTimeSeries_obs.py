@@ -5,7 +5,7 @@
 # for these that correspond would appear on top of each other if these arrays
 # were stacked. I.e. accessing the values from the arrays with the same index
 # gives corresponding values. 
-#sss
+# Dont think this aplies anymore after reformatting????
 
 # Import packages
 from numpy import array, shape
@@ -38,9 +38,10 @@ from Spatial_plotting_functions import *
 from Spatial_geometry_functions import *
 
 # Define name and coordinates of location
-location = 'Armley'
-lat = 53.79282
-lon = -1.37818
+location = 'Lin Dyke'
+lat = 53.743277
+lon = -1.337115
+
 
 #############################################################################
 # Load in spatial data

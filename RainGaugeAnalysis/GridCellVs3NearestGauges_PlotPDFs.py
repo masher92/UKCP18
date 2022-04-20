@@ -16,7 +16,6 @@ from Spatial_plotting_functions import *
 from Spatial_geometry_functions import *
 from PDF_plotting_functions import *
 
-
 ###################################################################################
 ###################################################################################
 # Load data
@@ -53,11 +52,10 @@ for filename in glob.glob("datadir/GaugeData/Newcastle/E*"):
 
 # Load in CEH-GEAR - one timeslice
 print('Loading CEH-GEAR data')
-filename = 'Outputs/RegriddingObservations/CEH-GEAR_reformatted/rf_CEH-GEAR-1hr_201311.nc'
+filename = 'datadir/CEH-GEAR/CEH-GEAR_reformatted/rf_CEH-GEAR-1hr_201311.nc'
 obs_cube = iris.load(filename,'rainfall_amount')[0]
 # Trim concatenated cube to outline of leeds-at-centre geodataframe
 obs_cube = trim_to_bbox_of_region_obs(obs_cube, leeds_at_centre_gdf)
-
 
 ###################################################################################
 ###################################################################################

@@ -6,28 +6,32 @@ It loops through timesteps and checks the mean and max value for the original an
 and records the largest difference between the two.
 '''
 
+import matplotlib.pyplot as plt
+import os
+import iris
+import numpy as np
+
 ############################################
 # Define variables and set up environment
 #############################################
 root_fp = "/nfs/a319/gy17m2a/"
-#root_fp = "C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/"
 os.chdir(root_fp)
 
 ####################################################################
 # Load native version of cube, reformatted cube and regridded cube
 ####################################################################
 #Filename of cube
-filename = "datadir/CEH-GEAR/CEH-GEAR-1hr_199001.nc"
+filename = "datadir/CEH-GEAR/OriginalFormat/CEH-GEAR-1hr_199001.nc"
 
 # Load cube in its native format
 cube = iris.load(filename)[5]
 
 # Filename of reformatted cube
-filename_reformat = filename.replace("datadir/CEH-GEAR/", "Outputs/CEH-GEAR_reformatted/rf_")
+filename_reformat = "datadir/CEH-GEAR/CEH-GEAR_reformatted/rf_CEH-GEAR-1hr_199001.nc"
 cube_rfmt = iris.load(filename_reformat)[0]
 
 # Filename of regridded cube
-filename_regrid = filename.replace("datadir/CEH-GEAR/", "Outputs/CEH-GEAR_regridded_2.2km/rg_")
+filename_regrid = "datadir/CEH-GEAR/CEH-GEAR_regridded_2.2km/NearestNeighbour/rg_CEH-GEAR-1hr_199001.nc"
 cube_rgd = iris.load(filename_regrid)[0]
 
 ####################################################################
@@ -55,8 +59,6 @@ for frame in range(100,200):
 ####################################################################
 # Checking plotting
 ####################################################################
-import matplotlib.pyplot as plt
-
 # month_uk_cube = cube_rgd
 # hour = month_uk_cube[frame]
 # #Extract the data
