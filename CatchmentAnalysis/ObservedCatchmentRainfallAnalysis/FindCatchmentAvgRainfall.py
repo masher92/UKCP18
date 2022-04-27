@@ -27,6 +27,7 @@ iris.FUTURE.netcdf_no_unlimited = True
 
 # Provide root_fp as argument
 root_fp = "/nfs/a319/gy17m2a/"
+root_fp = 'C:/Users/gy17m2a/'
 os.chdir(root_fp)
 
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/GlobalFunctions')
