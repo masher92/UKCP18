@@ -167,7 +167,7 @@ def create_leeds_outline_square (required_proj):
     
     '''
     # Read in outline of Leeds wards  
-    wards = gpd.read_file("/nfs/a319/gy17m2a/datadir/SpatialData/england_cmwd_2011.shp")
+    wards = gpd.read_file("/nfs/a319/gy17m2a/PhD/datadir/SpatialData/england_cmwd_2011.shp")
     # Create column to merge on
     wards['City'] = 'Leeds'
     # Merge all wards into one outline
@@ -205,7 +205,7 @@ def create_leeds_outline (required_proj):
     
     '''
     # Read in outline of Leeds wards  
-    wards = gpd.read_file("datadir/SpatialData/england_cmwd_2011.shp")
+    wards = gpd.read_file("PhD/datadir/SpatialData/england_cmwd_2011.shp")
     # Create column to merge on
     wards['City'] = 'Leeds'
     # Merge all wards into one outline
@@ -240,7 +240,7 @@ def create_northern_outline (required_proj):
     
     '''
     # Read in outline of UK
-    uk_regions = gpd.read_file("datadir/SpatialData/Region__December_2015__Boundaries-shp/Region__December_2015__Boundaries.shp") 
+    uk_regions = gpd.read_file("PhD/datadir/SpatialData/Region__December_2015__Boundaries-shp/Region__December_2015__Boundaries.shp") 
     # Select only requried regions
     northern_regions = uk_regions.loc[uk_regions['rgn15nm'].isin(['North West', 'North East', 'Yorkshire and The Humber'])]
     # Merge the three regions into one
@@ -275,7 +275,7 @@ def create_wider_northern_outline (required_proj):
     
     '''
     # Read in outline of UK
-    uk_regions = gpd.read_file("datadir/SpatialData/Region__December_2015__Boundaries-shp/Region__December_2015__Boundaries.shp") 
+    uk_regions = gpd.read_file("PhD/datadir/SpatialData/Region__December_2015__Boundaries-shp/Region__December_2015__Boundaries.shp") 
     # England part
     wider_northern_gdf = uk_regions.loc[uk_regions['rgn15nm'].isin(['North West', 'North East', 'Yorkshire and The Humber', 'East Midlands', 'West Midlands'])]
     wider_northern_gdf['merging_col'] = 0
@@ -284,11 +284,11 @@ def create_wider_northern_outline (required_proj):
     
     # Scotland part
     # D and G
-    dg = gpd.read_file("datadir/SpatialData/2011_Census_Dumfries_and_Galloway_(shp)/DC_2011_EoR_Dumfries___Galloway.shp")
+    dg = gpd.read_file("PhD/datadir/SpatialData/2011_Census_Dumfries_and_Galloway_(shp)/DC_2011_EoR_Dumfries___Galloway.shp")
     dg['merging_col'] = 0
     dg = dg.dissolve(by='merging_col')
     # Borders
-    borders = gpd.read_file('datadir/SpatialData/Scottish_Borders_shp/IZ_2001_EoR_Scottish_Borders.shp')
+    borders = gpd.read_file('PhD/datadir/SpatialData/Scottish_Borders_shp/IZ_2001_EoR_Scottish_Borders.shp')
     borders['merging_col'] = 0
     borders = borders.dissolve(by='merging_col')
     
@@ -327,7 +327,7 @@ def create_uk_outline (required_proj):
     
     '''
     # Read in outline of UK
-    uk_regions = gpd.read_file("datadir/SpatialData/UK_shpfile/UnitedKingdom_Bound.shp") 
+    uk_regions = gpd.read_file("PhD/datadir/SpatialData/UK_shpfile/UnitedKingdom_Bound.shp") 
     uk_regions = uk_regions.to_crs({'init' :'epsg:27700'}) 
     uk_regions = uk_regions[['geometry']]
     

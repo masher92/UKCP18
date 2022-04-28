@@ -14,7 +14,7 @@ import tilemapbase
 import sys
 
 # Create path to files containing functions
-sys.path.insert(0, root_fp + 'Scripts/UKCP18/GlobalFunctions')
+sys.path.insert(0, root_fp + 'PhD/Scripts/GlobalFunctions')
 from Spatial_geometry_functions import *
 
 #############################################################################
