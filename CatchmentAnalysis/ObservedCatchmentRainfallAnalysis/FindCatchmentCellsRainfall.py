@@ -19,25 +19,26 @@ import pandas as pd
 import warnings
 import cartopy.crs as ccrs
 from pyproj import Transformer
+import iris.coord_categorisation
 warnings.simplefilter(action='ignore', category=UserWarning)
 
-# Stops warning on loading Iris cubes
-iris.FUTURE.netcdf_promote = True
-iris.FUTURE.netcdf_no_unlimited = True
+# # Stops warning on loading Iris cubes
+# iris.FUTURE.netcdf_promote = True
+# iris.FUTURE.netcdf_no_unlimited = True
 
 # Provide root_fp as argument
 root_fp = "/nfs/a319/gy17m2a/"
-root_fp = 'C:/Users/gy17m2a/'
+# root_fp = 'C:/Users/gy17m2a/'
 os.chdir(root_fp)
 
-sys.path.insert(0, root_fp + 'Scripts/UKCP18/GlobalFunctions')
+sys.path.insert(0, root_fp + 'PhD/Scripts/GlobalFunctions')
 from Obs_functions import *
 from Spatial_plotting_functions import *
 from Spatial_geometry_functions import *
 
 # Define name and coordinates of location
 # Read in shapefile 
-lindyke_shp = gpd.read_file("FloodModelling/IndividualCatchments/LinDyke/Shapefile/FEH_Catchment_443550_427250.shp")
+lindyke_shp = gpd.read_file("PhD/FloodModelling/IndividualCatchments/LinDyke/Shapefile/FEH_Catchment_443550_427250.shp")
 lindyke_shp =  lindyke_shp.to_crs({'init' :'epsg:3857'}) 
 
 #############################################################################
@@ -55,7 +56,7 @@ leeds_at_centre_gdf = create_leeds_at_centre_outline({'init' :'epsg:3857'})
 #############################################################################
 filenames =[]
 # Create filepath to correct folder using ensemble member and year
-general_filename = 'datadir/CEH-GEAR/CEH-GEAR_reformatted/rf_*'
+general_filename = 'PhD/datadir/CEH-GEAR/CEH-GEAR_reformatted/rf_*'
 # Find all files in directory which start with this string
 for filename in glob.glob(general_filename):
     #print(filename)
@@ -67,7 +68,7 @@ monthly_cubes_list = iris.load(filenames,'rainfall_amount')
 concat_cube = monthly_cubes_list.concatenate_cube()
 
 # Test plotting
-iplt.pcolormesh(concat_cube[12])
+# iplt.pcolormesh(concat_cube[12])
 
 #############################################################################
 #############################################################################
@@ -77,13 +78,22 @@ iplt.pcolormesh(concat_cube[12])
 concat_cube = trim_to_bbox_of_region_obs(concat_cube, leeds_gdf)
 
 # Test plotting
-iplt.pcolormesh(concat_cube[12])
+# iplt.pcolormesh(concat_cube[12])
 
-fig = plt.figure(figsize = (20,30))
-proj = ccrs.Mercator.GOOGLE
-ax = fig.add_subplot(projection=proj)
-mesh = iplt.pcolormesh(concat_cube[12], cmap = 'Blues')
-leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=4)
+# fig = plt.figure(figsize = (20,30))
+# proj = ccrs.Mercator.GOOGLE
+# ax = fig.add_subplot(projection=proj)
+# mesh = iplt.pcolormesh(concat_cube[12], cmap = 'Blues')
+# leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=4)
+
+############################################
+# Cut to just June-July_August period
+#############################################
+## Add season variables
+iris.coord_categorisation.add_season(concat_cube,'time', name = "clim_season")
+
+# Keep only JJA
+jja_cube = concat_cube.extract(iris.Constraint(clim_season = 'jja'))
 
 #############################################################################
 #############################################################################
@@ -100,21 +110,16 @@ leeds_gdf.plot(ax=ax, edgecolor='black', color='none', linewidth=4)
 #############################################################################
 # For use in for loop:
 # Create variables specifying the number of lat and long values there are 
-lat_length, lon_length = concat_cube.shape[1], concat_cube.shape[2]
+lat_length, lon_length = jja_cube.shape[1], jja_cube.shape[2]
 # Store lat and long values as variables
-lats = concat_cube.coord('projection_y_coordinate').points
-lons = concat_cube.coord('projection_x_coordinate').points
+lats = jja_cube.coord('projection_y_coordinate').points
+lons = jja_cube.coord('projection_x_coordinate').points
 
 # Create a list to store the indices of the coordinates within the catchment
 coords_within_catchment_ls = []
 # Create an empty array to store the data
 all_the_data = np. array([])
-fig, ax = plt.subplots(figsize=(20,10))
-extent = tilemapbase.extent_from_frame(leeds_gdf)
-plot = plotter = tilemapbase.Plotter(extent, tilemapbase.tiles.build_OSM(), width=600)
-plot =plotter.plot(ax)
-plot =leeds_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=2)
-plot =lindyke_shp.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=2)
+
 # Loop through each lat/long pair 
 for i in range(0,lat_length): 
     for j in range(0,lon_length):
@@ -127,76 +132,64 @@ for i in range(0,lat_length):
             # print to show progress
             print(i,j)
             # Add data to array (first 9 values are always NA)
-            #one_slice = concat_cube[10:12,i,j]
-            #all_the_data = np.append(all_the_data, one_slice.data)
+            one_slice = jja_cube[:,i,j]
+            all_the_data = np.append(all_the_data, one_slice.data)
             # Store the indices of the lat/longs with the catchment (for plotting) 
             coords_within_catchment_ls.append((i, j)) 
-            plt.plot(x,y, marker = 'o', color = 'black')
+            # Save one slice of data
+            np.save("PhD/Scripts/CatchmentAnalysis/ObservedCatchmentRainfallAnalysis/LinDykeData/{}_{}_jja.npy".format(i,j), one_slice)
+
+# Save data for all of Lin Dyke
+np.save("PhD/Scripts/CatchmentAnalysis/ObservedCatchmentRainfallAnalysis/LinDykeData/LinDyke_jja.npy", all_the_data)
 
 #############################################################################
 #############################################################################
-## 
+## Check plotting
 #############################################################################
 #############################################################################
-# Create empty array with same shape as the cube's data
-# Within the for loop we will set the value for grid cells where the central point
-# is within the catchment to 1, so we can check which cell's data we are using
-cells_within_catchment_cube = concat_cube[0,:,:]
-cells_within_catchment_array = np.full((cells_within_catchment_cube.shape),0,dtype = int)
+# # Create empty array with same shape as the cube's data
+# # Within the for loop we will set the value for grid cells where the central point
+# # is within the catchment to 1, so we can check which cell's data we are using
+# cells_within_catchment_cube = concat_cube[0,:,:]
+# cells_within_catchment_array = np.full((cells_within_catchment_cube.shape),0,dtype = int)
+# # 
+# for i,j in coords_within_catchment_ls:
+#     # Set value in array to 1
+#     cells_within_catchment_array[i,j]=1
 
-# 
-for i,j in coords_within_catchment_ls:
-    # Set value in array to 1
-    cells_within_catchment_array[i,j]=1
+# # Mask out all values that aren't 1
+# cells_within_catchment_array = ma.masked_where(cells_within_catchment_array<1,cells_within_catchment_array)
 
-# Mask out all values that aren't 1
-cells_within_catchment_array = ma.masked_where(cells_within_catchment_array<1,cells_within_catchment_array)
+# # Set the dummy data back on the cube
+# cells_within_catchment_cube.data = cells_within_catchment_array 
 
-# Set the dummy data back on the cube
-cells_within_catchment_cube.data = cells_within_catchment_array 
+# # Find cornerpoint coordinates (for use in plotting)
+# lats_cornerpoints = find_cornerpoint_coordinates_obs(cells_within_catchment_cube)[0]
+# lons_cornerpoints = find_cornerpoint_coordinates_obs(cells_within_catchment_cube)[1]
 
-# Find cornerpoint coordinates (for use in plotting)
-lats_cornerpoints = find_cornerpoint_coordinates_obs(cells_within_catchment_cube)[0]
-lons_cornerpoints = find_cornerpoint_coordinates_obs(cells_within_catchment_cube)[1]
+# # Trim the data timeslice to be the same dimensions as the corner coordinates
+# cells_within_catchment_array = cells_within_catchment_array[1:,1:]      
 
-# Trim the data timeslice to be the same dimensions as the corner coordinates
-cells_within_catchment_array = cells_within_catchment_array[1:,1:]      
-
-
-#############################################################################
-#############################################################################
-## Plot locations for which data extracted
-#############################################################################
-#############################################################################
-# Set up figure, with the leeds city boundary and catchment boundary
-fig, ax = plt.subplots(figsize=(20,10))
-extent = tilemapbase.extent_from_frame(leeds_gdf)
-plot = plotter = tilemapbase.Plotter(extent, tilemapbase.tiles.build_OSM(), width=600)
-plot =plotter.plot(ax)
-plot =leeds_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=2)
+# #############################################################################
+# #############################################################################
+# ## Plot locations for which data extracted
+# #############################################################################
+# #############################################################################
+# # Set up figure, with the leeds city boundary and catchment boundary
+# fig, ax = plt.subplots(figsize=(20,10))
+# extent = tilemapbase.extent_from_frame(leeds_gdf)
+# plot = plotter = tilemapbase.Plotter(extent, tilemapbase.tiles.build_OSM(), width=600)
+# plot =plotter.plot(ax)
+# plot =leeds_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=2)
  
-# Create a colormap
-cmap = mpl.colors.ListedColormap(['yellow'])
-plot =ax.pcolormesh(lons_cornerpoints, lats_cornerpoints, cells_within_catchment_array,
-      linewidths=0.4, alpha = 1, cmap = cmap, edgecolors = 'grey')
+# # Create a colormap
+# cmap = mpl.colors.ListedColormap(['yellow'])
+# plot =ax.pcolormesh(lons_cornerpoints, lats_cornerpoints, cells_within_catchment_array,
+#       linewidths=0.4, alpha = 1, cmap = cmap, edgecolors = 'grey')
 
-plot =lindyke_shp.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=2)
+# plot =lindyke_shp.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=2)
 
-for i,j in coords_within_catchment_ls:
-    x, y = transformer.transform(lons_cornerpoints[1], lats_cornerpoints[2])
-    plt.plot(x,y, marker = 'o', color = 'black')
+# for i,j in coords_within_catchment_ls:
+#     x, y = transformer.transform(lons[j], lats[i])
+#     plt.plot(x,y, marker = 'o', color = 'black')
     
-
-
-###########################################################
-# Save cube and csv
-###########################################################
-iris.save(time_series_cube, 
-          "/nfs/a319/gy17m2a/Outputs/TimeSeries/CEH-GEAR/Armley/TimeSeries_cubes/1990-2014.nc")
-iris.save(time_series_cube_1990_2001, 
-          "/nfs/a319/gy17m2a/Outputs/TimeSeries/CEH-GEAR/Armley/TimeSeries_cubes/1990-2001.nc")
-
-df.to_csv("/nfs/a319/gy17m2a/Outputs/TimeSeries/CEH-GEAR/Armley/TimeSeries_csv/1990-2014.csv", index = False)
-df_1990_2001.to_csv("/nfs/a319/gy17m2a/Outputs/TimeSeries/CEH-GEAR/Armley/TimeSeries_csv/1990-2001.csv", index = False)
-
-
