@@ -19,7 +19,7 @@ Let me know what you think. I can try making some example plots, which could hel
 
 <p align="center">
   <img src=".PNG" width="300" />
-<img src="1hr_syntheticevents.jpg" width="300"  />  <p align="center">  
-<img src="1hr_syntheticevents.jpg" width="300" />
-<img src="1hr_syntheticevents.jpg" width="300"  />    
+<img src="1hr_syntheticevents.jpg" width="300"  /> 
+<img src="3hr_syntheticevents.jpg" width="300" />
+<img src="6hr_syntheticevents.jpg" width="300"  />    
 <p align="center"> Figure 1. <p align="center">
