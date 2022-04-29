@@ -18,7 +18,7 @@ The standard process for deriving the precipitation inputs includes the followin
 <img src="refh2_example.jpg" width="500"  />
 <p align="center"> Figure 1. Example ReFH2 design storm hyetograph for a 6hr duration storm with a 17 year return period <p align="center">
 
-#### Approach to generating synthetic design storm hyetographs
+### Approach to generating synthetic design storm hyetographs
 In order to generate synthetic design storm hyetographs:
 * Use the FEH DDF model to estimate the design rainfall depth (in mm) for the required duration and return period for the 1km grid cell within which the modelling area is found
 * Generate synthetic design storm hyetographs which preserve the total event rainfall volume and duration, but splitting this rainfall volume into multiple peaks (see below)
