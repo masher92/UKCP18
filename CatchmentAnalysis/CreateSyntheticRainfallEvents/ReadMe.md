@@ -28,13 +28,13 @@ In order to generate synthetic design storm hyetographs:
 Several methods are explored for generating synthetic design storm hyetographs which preserve the total event rainfall volume and duration, but splitting this rainfall volume into multiple peaks. For now, an event with 3 peaks will be considered.
 
 The following parameters must be accounted for to construct multiple peaks:
-  1. The rainfall volume for each peak
+  1. The rainfall volume for each peak  
     * Suggestion: Divide the total volume by the number of peaks so each peak has an equal volume and there is the same total rainfall.
-  2. The shape of each peak.
+  2. The shape of each peak  
     * Suggestion: Use the same shape, but different peak rainfall height so it gives the desired volume given a start-to-end duration for the peak.
-  3. The start-to-end duration of each peak
+  3. The start-to-end duration of each peak  
     * This is a parameter we can play with, but probably we will mainly look at short durations.
-  4. The spacing between peaks.
+  4. The spacing between peaks  
     * What is a "fair" spacing for comparison so that the overall "event duration" is the same (i.e. the total length of the event including the non rain periods)?
 
 Three different possible approaches are considered for constructing a multi-peaked hyetograph (with 3 peaks):
