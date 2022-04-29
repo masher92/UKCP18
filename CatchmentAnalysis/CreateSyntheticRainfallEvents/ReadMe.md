@@ -38,12 +38,12 @@ The following parameters must be accounted for to construct multiple peaks:
     * What is a "fair" spacing for comparison so that the overall "event duration" is the same (i.e. the total length of the event including the non rain periods)?
 
 Three different possible approaches are considered for constructing a multi-peaked hyetograph (with 3 peaks):
-1. 'Divide-time'  
- * The first peak starts at the same time as the single peak, and the last peak finishes at the same time,  and there is a third peak located in the middle.
-2. 'Max-spread'  
-    * The centre of the peaks are equally spread out over the duration of the event. There is the same amount of time between the start of the event and the 1st peak, the 1st peak and the 2nd peak, the 2nd peak and the 3rd peak, and the 3rd peak and the end of the event. (i.e. centre of the peaks at t=(1/6)*d, (3/6)*d, and (5/6)*d)
-  3. 'Sub-peak timing'  
-    * Divide the single peak into 3 sections so that each has the same volume of rainfall. Then calculate the "average arrival time" of the rainfall in each subpeak (using these as the centre for the multiple peaks). Peak timing calculated so that Nth part of rainfall falls on average at the same time as in the single peak consider each minute as a block with constant rainfall rate for simplicity (don't understand this)
+- 'Divide-time'  
+  - The first peak starts at the same time as the single peak, and the last peak finishes at the same time,  and there is a third peak located in the middle.
+- 'Max-spread'  
+  - The centre of the peaks are equally spread out over the duration of the event. There is the same amount of time between the start of the event and the 1st peak, the 1st peak and the 2nd peak, the 2nd peak and the 3rd peak, and the 3rd peak and the end of the event. (i.e. centre of the peaks at t=(1/6)*d, (3/6)*d, and (5/6)*d)
+- 'Sub-peak timing'  
+  - Divide the single peak into 3 sections so that each has the same volume of rainfall. Then calculate the "average arrival time" of the rainfall in each subpeak (using these as the centre for the multiple peaks). Peak timing calculated so that Nth part of rainfall falls on average at the same time as in the single peak consider each minute as a block with constant rainfall rate for simplicity (don't understand this)
 
 Figure 2 visualises these 3 methods alongside an equivalent single peaked storm for 1h, 3h and 6h durations.
 
