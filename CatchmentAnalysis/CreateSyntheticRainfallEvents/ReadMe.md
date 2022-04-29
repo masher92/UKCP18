@@ -38,8 +38,8 @@ The following parameters must be accounted for to construct multiple peaks:
     * What is a "fair" spacing for comparison so that the overall "event duration" is the same (i.e. the total length of the event including the non rain periods)?
 
 Three different possible approaches are considered for constructing a multi-peaked hyetograph (with 3 peaks):
-  1. 'Divide-time'
-    * The first peak starts at the same time as the single peak, and the last peak finishes at the same time,  and there is a third peak located in the middle.
+1. 'Divide-time'
+ * The first peak starts at the same time as the single peak, and the last peak finishes at the same time,  and there is a third peak located in the middle.
   2. 'Max-spread'
     * The centre of the peaks are equally spread out over the duration of the event. There is the same amount of time between the start of the event and the 1st peak, the 1st peak and the 2nd peak, the 2nd peak and the 3rd peak, and the 3rd peak and the end of the event. (i.e. centre of the peaks at t=(1/6)*d, (3/6)*d, and (5/6)*d)
   3. 'Sub-peak timing'
