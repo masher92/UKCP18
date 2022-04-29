@@ -21,4 +21,4 @@ Let me know what you think. I can try making some example plots, which could hel
 <img src="1hr_syntheticevents.jpg" width="300"  /> 
 <img src="3hr_syntheticevents.jpg" width="300" />
 <img src="6hr_syntheticevents.jpg" width="300"  />    
-<p align="center"> Figure 1. <p align="center">
+<p align="center"> Figure 1. 4 methods (1= single peak, 2=divide-time, 3=max-spread, 4=sub-peak timing), for 1hr (left), 3hr (middle) and 6hr (right).  <p align="center">
