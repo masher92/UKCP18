@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 ### Creating synthetic rainfall events
 #### Background
 One research objective is to explore and identify the pluvial flood model sensitivity to alterations in the temporal pattern of the design storm rainfall inputs (e.g. the distribution of rainfall over time).
