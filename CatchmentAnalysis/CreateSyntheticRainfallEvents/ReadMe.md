@@ -15,7 +15,10 @@ It is unclear, however, how these variations might impact on the flooding outcom
 ### Standard approach to generating design storm hyetograph for Lin Dyke
 
 The standard process for deriving the precipitation inputs includes the following stages:
-* Use the FEH DDF model to estimate the design rainfall depth (in mm) for the required duration and return period for the 1km grid cell within which the modelling area is found
+* Use the FEH DDF model to estimate the design rainfall depth (in mm) for the required duration and return period for the catchment
+    * The FEH web service allows a catchment boundary to be determined (Figure 1a)
+    * For the catchment it calculates the rainfall depth associated with a particular duration and return period (Figure 1b)
+    * For Lin Dyke, for a 100 year return period, a rainfall depth of 59.98mm equates to a 6hr duration, 51.32mm for a 3hr duration and 38.7mm for a 1hr duration
 
 <p align="center">
 <img src="FEH_LinDyke.PNG" width="580"  />
