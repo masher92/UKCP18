@@ -4,15 +4,13 @@ One research objective is to explore and identify the pluvial flood model sensit
 
 This sensitivity will be tested using a 2D flood model, built in Hec-Ras, which covers the Lin Dyke catchment in east Leeds. The model takes a rainfall input and simulates the movement of this water overland, according to a topographic profile, defined in a Digital Elevation Model. This rainfall input is in the format of a design storm hyetograph which represents the distribution of rainfall intensity over time. 
 
-The standard process for deriving a design storm hyetograph is to use the FEH DDF model to estimate the design rainfall depth (in mm) for the required duration and return period for the 1km grid cell within which the modelling area is found, and then to convert this rainfall depth, using ReFH2 software, into a design rainfall hyetograph at the required time step.
+The standard process for deriving a design storm hyetograph is to use the FEH DDF model to estimate the design rainfall depth (in mm) for the required duration and return period for the 1km grid cell within which the catchment being modelled is found, and then to convert this rainfall depth, using ReFH2 software, into a design rainfall hyetograph at the required time step.
 
 ReFH2 uses the FSR 75% winter and 50% summer design storm profiles to translate rainfall depths into hyetographs. These profiles are symmetrical and single peaked, with a slow build up and gradual decay (info on specification here: https://tinyurl.com/39jnvu8n). The profiles are consistent for different durations and locations. 
 
 Evidence indicates that these profiles are not particularly representative of real convective events. Firstly, research indicates that events may often have multiple peaks embedded within a longer period of lighter rainfall (e.g. see rainfall event over Garforth in (Birch et al., 2021)), and secondly, that many convective events may be front-loaded (with the majority of the rainfall occurring at the start of the event) or back-loaded (with the majority of rainfall occurring at the end of the event). 
 
-It is unclear, however, how these variations might impact on the flooding outcome.
-
-The model outputs the depth and velocity of water found in each grid cell in the model domain.
+It is unclear, however, how these variations might impact on the flooding outcome. Thus, the objective of this piece of work is to formulate design storm hyetographs using different profiles, to use these to run the flood model and to observe the extent to which this impacts the outomces. 
 
 ### Standard approach to generating rainfall inputs to pluvial flood modelling in HEC-RAS
 
