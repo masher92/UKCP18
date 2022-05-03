@@ -12,10 +12,18 @@ Evidence indicates that these profiles are not particularly representative of re
 
 It is unclear, however, how these variations might impact on the flooding outcome. Thus, the objective of this piece of work is to formulate design storm hyetographs using different profiles, to use these to run the flood model and to observe the extent to which this impacts the outomces. 
 
-### Standard approach to generating rainfall inputs to pluvial flood modelling in HEC-RAS
+### Standard approach to generating design storm hyetograph for Lin Dyke
 
 The standard process for deriving the precipitation inputs includes the following stages:
 * Use the FEH DDF model to estimate the design rainfall depth (in mm) for the required duration and return period for the 1km grid cell within which the modelling area is found
+
+<p align="center">
+<img src="FEH_LinDyke.jpg" width="500"  />
+  <img src="FEH_LinDyke_rainfall.jpg" width="500"  />
+<p align="center"> Figure 1. Example ReFH2 design storm hyetograph for a 6hr duration storm with a 17 year return period <p align="center">
+
+
+
 * Convert this rainfall depth, using ReFH2 software, into a design rainfall hyetograph at the required time step (e.g. Figure 1)
 * Extract the data on the net rainfall after losses have been subtracted from ReFH2
 * Feed in this net rainfall data as the precipitation input to Hec-RAS
