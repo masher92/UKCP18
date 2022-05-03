@@ -19,7 +19,7 @@ The standard process for deriving the precipitation inputs includes the followin
 
 <p align="center">
 <img src="FEH_LinDyke.PNG" width="600"  />
-  <img src="FEH_LinDyke_rainfall.PNG" width="400"  />
+  <img src="FEH_LinDyke_rainfall.PNG" width="500"  />
 <p align="center"> Figure 1. Example ReFH2 design storm hyetograph for a 6hr duration storm with a 17 year return period <p align="center">
 
 
