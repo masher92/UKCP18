@@ -4,38 +4,13 @@ One research objective is to explore and identify the pluvial flood model sensit
 
 This sensitivity will be tested using a 2D flood model, built in Hec-Ras, which covers the Lin Dyke catchment in east Leeds. The model takes a rainfall input and simulates the movement of this water overland, according to a topographic profile, defined in a Digital Elevation Model. This rainfall input is in the format of a design storm hyetograph which represents the distribution of rainfall intensity over time. 
 
-The standard process for deriving the design storm hyetograph is to use the FEH DDF model to estimate the design rainfall depth (in mm) for the required duration and return period for the 1km grid cell within which the modelling area is found, and then to convert this rainfall depth, using ReFH2 software, into a design rainfall hyetograph at the required time step.
+The standard process for deriving a design storm hyetograph is to use the FEH DDF model to estimate the design rainfall depth (in mm) for the required duration and return period for the 1km grid cell within which the modelling area is found, and then to convert this rainfall depth, using ReFH2 software, into a design rainfall hyetograph at the required time step.
 
-
-precipitation inputs includes the following stages:
-* Use the FEH DDF model to estimate the design rainfall depth (in mm) for the required duration and return period for the 1km grid cell within which the modelling area is found
-* Convert this rainfall depth, using ReFH2 software, into a design rainfall hyetograph at the required time step (e.g. Figure 1)
-* Extract the data on the net rainfall after losses have been subtracted from ReFH2
-* Feed in this net rainfall data as the precipitation input to Hec-RAS
-
-
-The industry standard is to use ReFH2 to translate rainfall depths into 
-
-
-
-The standard process for deriving the precipitation inputs includes the following stages:
-* Use the FEH DDF model to estimate the design rainfall depth (in mm) for the required duration and return period for the 1km grid cell within which the modelling area is found
-* Convert this rainfall depth, using ReFH2 software, into a design rainfall hyetograph at the required time step (e.g. Figure 1)
-* Extract the data on the net rainfall after losses have been subtracted from ReFH2
-* Feed in this net rainfall data as the precipitation input to Hec-RAS
-
-
-
-
-The design storm profiles used within ReFH to translate the rainfall depth to the hyetograph that forms the rainfall input to the model are the FSR 75% winter and 50% summer profiles. These symmetric and single peaked and the shape does not vary with storm duration or location.
-
-
-
+ReFH2 uses the FSR 75% winter and 50% summer design storm profiles to translate rainfall depths into hyetographs. These profiles are symmetrical and single peaked, with a slow build up and gradual decay. They are consistent for different durations and locations (info on specification here: https://refhdocs.hydrosolutions.co.uk/Design-DDF-Rainfall-Hyetographs/Design-Storm-Profiles/). Evidence indicates that this is not particularly representative of real convective events. Firstly, research indicates that events may often have multiple peaks embedded within a longer period of lighter rainfall (e.g. see rainfall event over Garforth in (Birch et al., 2021)), and secondly, that many convective events may be front-loaded (with the majority of the rainfall occurring at the start of the event) or back-loaded (with the majority of rainfall occurring at the end of the event). It is unclear, however, how these variations might impact on the flooding outcome.
 
 The model outputs the depth and velocity of water found in each grid cell in the model domain.
 
-
-In flood modelling, the industry standard in the UK is to use design storm hyetographs from ReFH2 as the input. ReFH2 always generates symmetrical rainfall events with a slow build up to a single prominent peak (containing a large proportion of the event rainfall), followed by a slow decay (Info on specification here: https://refhdocs.hydrosolutions.co.uk/Design-DDF-Rainfall-Hyetographs/Design-Storm-Profiles/). This is not particularly representative of real convective events. Firstly, research indicates that events may often have multiple peaks embedded within a longer period of lighter rainfall (e.g. see rainfall event over Garforth in (Birch et al., 2021)), and secondly, that many convective events may be front-loaded (with the majority of the rainfall occurring at the start of the event) or back-loaded (with the majority of rainfall occurring at the end of the event). It is unclear, however, how these variations might impact on the flooding outcome.
+. 
 
 A 2D flood model built in Hec-Ras, which covers the Lin Dyke catchment in east Leeds, will be used in this sensitivity testing. 
 ### Standard approach to generating rainfall inputs to pluvial flood modelling in HEC-RAS
