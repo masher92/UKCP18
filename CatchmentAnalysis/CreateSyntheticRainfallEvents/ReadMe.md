@@ -18,7 +18,7 @@ The standard process for deriving the precipitation inputs includes the followin
 * Use the FEH DDF model to estimate the design rainfall depth (in mm) for the required duration and return period for the 1km grid cell within which the modelling area is found
 
 <p align="center">
-<img src="FEH_LinDyke.PNG" width="600"  />
+<img src="FEH_LinDyke.PNG" width="580"  />
   <img src="FEH_LinDyke_rainfall.PNG" width="420"  />
 <p align="center"> Figure 1. Example ReFH2 design storm hyetograph for a 6hr duration storm with a 17 year return period <p align="center">
 
