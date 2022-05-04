@@ -64,9 +64,9 @@ Three different possible approaches are considered for constructing a multi-peak
 Figure 2 visualises these 3 methods alongside an equivalent single peaked storm for 1h, 3h and 6h durations.
 
 <p align="center">
-<img src="1hr/1hr_allmethods.jpg" width="300"  />
-<img src="3hr/3hr_allmethods.jpg" width="300" />
-<img src="6hr/6hr_allmethods.jpg" width="300"  />    
+<img src="1hr/1h_allmethods.jpg" width="300"  />
+<img src="3hr/3h_allmethods.jpg" width="300" />
+<img src="6hr/6h_allmethods.jpg" width="300"  />    
 <p align="center"> Figure 1. 4 methods (1= single peak, 2=divide-time, 3=max-spread, 4=sub-peak timing), for 1hr (left), 3hr (middle) and 6hr (right).  <p align="center">
 
  <!-- Script initially calculates a rate in mm/hr, can divide this by 60 to get a rate in mm/min
