@@ -20,6 +20,7 @@ import warnings
 import cartopy.crs as ccrs
 from pyproj import Transformer
 import iris.coord_categorisation
+import datetime
 warnings.simplefilter(action='ignore', category=UserWarning)
 
 # # Stops warning on loading Iris cubes
@@ -115,6 +116,14 @@ lat_length, lon_length = jja_cube.shape[1], jja_cube.shape[2]
 lats = jja_cube.coord('projection_y_coordinate').points
 lons = jja_cube.coord('projection_x_coordinate').points
 
+# Get times
+times = jja_cube.coord('time').points
+# Convert to datetimes
+times = [datetime.datetime.fromtimestamp(x).strftime("%x %X") for x in times]
+times= [datetime.datetime.strptime(x, '%m/%d/%y %H:%M:%S') for x in times]
+# Save data for all of Lin Dyke
+np.save("PhD/Scripts/CatchmentAnalysis/ObservedCatchmentRainfallAnalysis/LinDykeData/times_jja.npy", times)
+
 # Create a list to store the indices of the coordinates within the catchment
 coords_within_catchment_ls = []
 # Create an empty array to store the data
@@ -131,9 +140,12 @@ for i in range(0,lat_length):
         if lindyke_shp.contains(point)[0]:
             # print to show progress
             print(i,j)
-            # Add data to array (first 9 values are always NA)
-            one_slice = jja_cube[:,i,j]
-            all_the_data = np.append(all_the_data, one_slice.data)
+            # Get data for this one slice
+            one_slice = jja_cube[:,i,j].data
+            # Unmask array
+            one_slice = one_slice.data
+            # Add to array contianing data for all of cells in catchment
+            all_the_data = np.append(all_the_data, one_slice)
             # Store the indices of the lat/longs with the catchment (for plotting) 
             coords_within_catchment_ls.append((i, j)) 
             # Save one slice of data
