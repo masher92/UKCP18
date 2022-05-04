@@ -5,7 +5,7 @@ The design storm hyetograph input to Hec-Ras is expected to be the net rainfall 
 To calculate appropriate antecedent conditions, the CEH-GEAR precipitation data is extracted for the cells which are found within the catchment area (Figure 1)
 
 <p align="center">
-<img src="LinDyke_cells.png" width="250"  />
+<img src="LinDyke_cells.png" width="350"  />
 <p align="center"> Figure 1. <p align="center">
 
   
