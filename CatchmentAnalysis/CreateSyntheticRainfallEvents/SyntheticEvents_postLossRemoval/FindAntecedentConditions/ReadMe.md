@@ -9,3 +9,9 @@ To calculate appropriate antecedent conditions, the CEH-GEAR precipitation data 
 <p align="center"> Figure 1. <p align="center">
 
 Using the hourly values for June, July and August for the period covered by the data (1990-2014), an average daily rainfall amount is calculated. For the Lin Dyke catchment this is 0.51mm.
+
+## Questions about standard practice for defining antecedent conditions?
+  * How is it usually done? https://refhdocs.hydrosolutions.co.uk/Initial-Conditions-Design-Estimates/
+  * Could try find out exact method from manual to replicate
+  * Or could try testing by experimenting with ReFH2
+  * 
