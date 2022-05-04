@@ -8,17 +8,9 @@ import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import pandas as pd
-
-## DIFFERENT METHODS EXPLORED IN SCRIPT
-methods=['single-peak','divide-time','max-spread','subpeak-timing']
-
-## PARAMETER SETTINGS
-duration = '6h'
-total_duration_minutes=360 # needs to be an integer # 60, 180, 360
-N_subpeaks=3
-subpeak_duration_minutes=60 # 10, 30, 60
-total_mm_accum=17.76 # 24,34, 40, 
-default_peak_shape='refh2-summer'
+from datetime import timedelta
+from dateutil.relativedelta import relativedelta
+from datetime import datetime
 
 def make_peak(total_duration_minutes,peak_duration,peak_mm_accum,peak_time,peak_shape):
     a_sum=0.1
@@ -165,6 +157,7 @@ def pdf_plotter_rate(method):
 for method in methods:
     pdf_plotter_rate(method)
 
+
 ########################################################
 ########################################################
 #### Create one plot with 4 stacked subplots
@@ -186,10 +179,12 @@ def pdf_plotter_all_rates():
     fig.text(0.5, 0.0, 'Time [mins]', ha='center', fontsize = 15)
     fig.text(0.0, 0.5, 'Rainfall rate [mm/hr]', va='center', rotation='vertical', fontsize = 15)
     plt.tight_layout()
+    plt.savefig("/nfs/a319/gy17m2a/PhD/Scripts/CatchmentAnalysis/CreateSyntheticRainfallEvents/SyntheticEvents_preLossRemoval/{}/{}_allmethods.jpg".format(duration,duration))
     plt.show()
 
 # Plot
 pdf_plotter_all_rates()
+
 
 ########################################################
 ########################################################
@@ -197,19 +192,58 @@ pdf_plotter_all_rates()
 #### and rate at each minute of time
 ########################################################
 ######################################################## 
-# method = 'single-peak'
+## DIFFERENT METHODS EXPLORED IN SCRIPT
+methods=['single-peak','divide-time','max-spread','subpeak-timing']
+durations = ['1h', '3h', '6h']
+
 # For each method produce a dataframe containing precipitation values for each minute
 # and save these to file
-for method in ['single-peak']:
-    # Find accumulation and rate
-    accum,rate=calc_rainfall_curves(method,total_mm_accum,total_duration_minutes,N_subpeaks,subpeak_duration_minutes)
-    # Make rate same length as accumulation 
-    rate = np.insert(rate, 0, 0, axis=0)
-    # Create as dataframe
-    accum_df = pd.DataFrame({'Min':range(0,361), 'Accumulation': accum, 'Rate (mm/hr)': rate,
-                            'Rate (mm/min)': rate/60})
-    # Write to csv
-    accum_df.to_csv("OneDrive - University of Leeds/PhD/DataAnalysis/FloodModelling/SyntheticRainfall/{}_{}_lossesremoved.csv".format(duration, method))
+for duration in durations:
+    for method in methods:
+        
+        ## PARAMETER SETTINGS
+        N_subpeaks= 3
+        total_duration_minutes= int(duration[0]) * 60
+        subpeak_duration_minutes=total_duration_minutes/6
+        if duration == '1h':
+            total_mm_accum= 38.7
+        elif duration == '3h':
+            total_mm_accum= 51.3
+        elif duration == '6h':
+              total_mm_accum= 59.98
+        default_peak_shape='refh2-summer'
+        
+        # Create datetimes to go with values
+        start = datetime(2022,4,5,0,0,0)
+        end = start + relativedelta(hours=int(duration[0]))
+        seconds = (end - start).total_seconds() + 60
+        step = timedelta(minutes=1)
+        datetimes = []
+        for i in range(0, int(seconds), int(step.total_seconds())):
+            datetimes.append(start + timedelta(seconds=i))       
+        
+        # Find accumulation and rate
+        accum,rate=calc_rainfall_curves(method,total_mm_accum,total_duration_minutes,N_subpeaks,subpeak_duration_minutes)
+        # Make rate same length as accumulation 
+        rate = np.insert(rate, 0, 0, axis=0)
+        # Create as dataframe
+        accum_df = pd.DataFrame({'Dates': datetimes,  'Accumulation': accum, 
+                                 'Rate (mm/hr)': rate, 'Rate (mm/min)': rate/60})
+        # Keep only columns needed for feeding to ReFH2
+        accum_df = accum_df[['Dates','Rate (mm/min)']]
+            
+        # Write to csv
+        accum_df.to_csv("/nfs/a319/gy17m2a/PhD/Scripts/CatchmentAnalysis/CreateSyntheticRainfallEvents/SyntheticEvents_preLossRemoval/{}/{}_{}.csv".format(duration,duration, method),
+                        header = False, index = False)
+        
+        # Plot
+        pdf_plotter_all_rates()
+    
+    
+    
+
+
+
 
 
 
