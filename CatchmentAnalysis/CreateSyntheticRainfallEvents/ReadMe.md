@@ -33,13 +33,13 @@ The standard process for deriving the precipitation inputs includes the followin
     * For Lin Dyke, for a 100 year return period, a rainfall depth of 59.98mm equates to a 6hr duration, 51.32mm for a 3hr duration and 38.7mm for a 1hr duration
 
 <p align="center">
-<img src="FEH_LinDyke.PNG" width="580"  />
-  <img src="FEH_LinDyke_rainfall.PNG" width="420"  />
+<img src="DataAndFigs/FEH_LinDyke.PNG" width="580"  />
+  <img src="DataAndFigs/FEH_LinDyke_rainfall.PNG" width="420"  />
 <p align="center"> Figure 1. <p align="center">
 
 * Convert this rainfall depth, using ReFH2 software, into a design rainfall hyetograph at the required time step (e.g. Figure 1)
 <p align="center">
-<img src="refh2_example.jpg" width="500"  />
+<img src="DataAndFigs/refh2_example.jpg" width="500"  />
 <p align="center"> Figure 2. Example ReFH2 design storm hyetograph for a 6hr duration storm with a 17 year return period <p align="center">
 
 * Extract the data on the net rainfall after losses have been subtracted from ReFH2
