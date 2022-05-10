@@ -7,7 +7,9 @@
 3. [ Generating synthetic storms](#synthetic_storms)  
   a. [ Overview of methodology. ](#method_overview)  
   b. [ Details on options for multi peaked storms ](#details_options)  
-  c. [ Defining antecedent conditions ](#antecedent_conditions)  
+  c. [ Removing losses with ReFH2](#loss_removal)
+     a. [ Defining antecedent conditions ](#antecedent_conditions)  
+  
 
 <a name="motiv"></a>
 ## Motivation
@@ -115,4 +117,10 @@ For each of the three days previous to the rainfall event being modelled, this i
   * Or could try testing by experimenting with ReFH2
   * Could look at impact of using more than 3 days antecedent conditions - or of splitting the same rainfall amount differently over the X number of days of antecedent conditions provided and see if this makes a difference to the amount of losses subtracted (additional stage would be whether if there is a difference in the net rainfall after losses if this translates into a difference in flooding outcome)
  -->
+ 
+<a name="loss_removal"></a>  
+### Removing losses with ReFH2
+
+When hyetographs are produced using the standard FSR profiles using ReFH2, the rainfall data is produced with losses subtracted. To make our synthetic profiles equivalent to this, it is possible to feed them back into ReFH2 as observed rainfall data, alonfside 
   
+Feed these design storm hyetographs into ReFH2 as observed rainfall data, alongside data on antecedent conditions, and extract the data on the net rainfall after losses have been subtracted from ReFH2
