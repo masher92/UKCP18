@@ -120,7 +120,8 @@ For each of the three days previous to the rainfall event being modelled, this i
 <a name="loss_removal"></a>  
 ### Removing losses with ReFH2
 
+  
 <p align="center">
-<img src="LinDyke_DataAndFigs/ReFH2_LinDyke_RemovingLosses.PNG.png" width="350"  />
- <img src="LinDyke_DataAndFigs/ReFH2_LinDyke_RemovingLosses2.PNG.png" width="350"  />
+<img src="LinDyke_DataAndFigs/ReFH2_LinDyke_RemovingLosses.PNG" width="350"  />
+ <img src="LinDyke_DataAndFigs/ReFH2_LinDyke_RemovingLosses2.PNG" width="350"  />
 <p align="center"> Figure 5.  <p align="center">
