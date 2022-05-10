@@ -123,5 +123,5 @@ For each of the three days previous to the rainfall event being modelled, this i
   
 <p align="center">
 <img src="LinDyke_DataAndFigs/ReFH2_LinDyke_RemovingLosses.PNG" width="410"  />
- <img src="LinDyke_DataAndFigs/ReFH2_LinDyke_RemovingLosses2.PNG" width="400"  />
+ <img src="LinDyke_DataAndFigs/ReFH2_LinDyke_RemovingLosses2.PNG" width="450"  />
 <p align="center"> Figure 5.  <p align="center">
