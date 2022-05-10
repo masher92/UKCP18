@@ -78,7 +78,7 @@ Three different possible approaches are considered for constructing a multi-peak
 - 'Sub-peak timing'  
   - Divide the single peak into 3 sections so that each has the same volume of rainfall. Then calculate the "average arrival time" of the rainfall in each subpeak (using these as the centre for the multiple peaks). Peak timing calculated so that Nth part of rainfall falls on average at the same time as in the single peak consider each minute as a block with constant rainfall rate for simplicity (don't understand this)
 
-Figure 4 visualises these 3 methods alongside an equivalent single peaked storm for 1h, 3h and 6h durations.
+Figure 3 visualises these 3 methods alongside an equivalent single peaked storm for 1h, 3h and 6h durations.
 
 <p align="center">
 <img src="LinDyke_DataAndFigs/SyntheticEvents_preLossRemoval/1h/1h_allmethods.jpg" width="300"  />
@@ -103,7 +103,7 @@ To calculate appropriate antecedent conditions, the CEH-GEAR precipitation data 
 
 <p align="center">
 <img src="LinDyke_DataAndFigs/LinDyke_cells.png" width="350"  />
-<p align="center"> Figure 1. <p align="center">
+<p align="center"> Figure 4.  The cells within the Lin Dyke catchment <p align="center">
 
 Using the hourly values for June, July and August for the period covered by the data (1990-2014), an average daily rainfall amount is calculated. For the Lin Dyke catchment this is 0.51mm.
 
