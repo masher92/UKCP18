@@ -94,3 +94,22 @@ Figure 2 visualises these 3 methods alongside an equivalent single peaked storm 
  Does using multiple peaks make sense for a 1hr storm? SB: Even for the 6-hour rainfall events, most of the rainfall occurs in a much shorter period (maybe an hour or so). With a 1-hour duration, the peaks become very narrow to begin with, so splitting a single hour up into sub-peaks may not be so realistic. For 3 hours, it probably still makes sense.
 
  where I’ve been using ReFH2 to generate inputs to Hec-Ras I have been using the 6th column – ‘Total net rain mm (100 year) – urbanised model’, which has had some kind of losses removed from it, and is what I believe you are supposed to use as input to the flood model.  -->
+
+<a name="antecedent_conditions"></a>  
+### Defining antecedent conditions
+  
+ The design storm hyetograph input to Hec-Ras is expected to be the net rainfall after losses have been subtracted. When FEH rainfall depths and ReFH2 design storm profiles are provided, ReFH2 calculates the net rainfall after losses have been subtracted. It is also possible to import observed rainfall data into ReFH2, alongside antecedent rainfall conditions for at least the 3 days prior to the event, and the rainfall data with losses subtracted will be returned.
+
+To calculate appropriate antecedent conditions, the CEH-GEAR precipitation data is extracted for the cells which are found within the catchment area (Figure 1)
+
+
+<p align="center">
+<img src="LinDyke_cells.png" width="350"  />
+<p align="center"> Figure 1. <p align="center">
+
+Using the hourly values for June, July and August for the period covered by the data (1990-2014), an average daily rainfall amount is calculated. For the Lin Dyke catchment this is 0.51mm.
+
+For each of the three days previous to the rainfall event being modelled, this is set as the daily rainfall amount. Three days is the minimum number of days of antecedent data that is required.
+
+Questions about standard practice for
+  
