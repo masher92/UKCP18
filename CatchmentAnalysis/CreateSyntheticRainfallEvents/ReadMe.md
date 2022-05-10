@@ -123,6 +123,6 @@ For each of the three days previous to the rainfall event being modelled, this i
 Observed rainfall can be loaded into ReFH2, alongside the antecedent conditions, as seen in Figure 5a. On the next page, the export buttons on the right hand side can be used to export the data produced using this rainfall data (ensuring that the correct rainfall data is selected from the drop down menu at the top left). This exported data contains a column "Total net rain mm (Observed rainfall - 05/04/2022) - as 100% rural model" or "Total net rain mm (Observed rainfall - 05/04/2022) - urbanised model" which can be used as the input to Hec-Ras
 
 <p align="center">
-<img src="LinDyke_DataAndFigs/ReFH2_LinDyke_RemovingLosses.PNG" width="410"  />
- <img src="LinDyke_DataAndFigs/ReFH2_LinDyke_RemovingLosses2.PNG" width="450"  />
+<img src="LinDyke_DataAndFigs/ReFH2_LinDyke_RemovingLosses.PNG" width="450"  />
+ <img src="LinDyke_DataAndFigs/ReFH2_LinDyke_RemovingLosses2.PNG" width="490"  />
 <p align="center"> Figure 5. a.  <p align="center">
