@@ -46,7 +46,7 @@ The standard process for deriving a design storm using the FSR design storm prof
 * Extract the data on the net rainfall after losses have been subtracted from ReFH2
 * Feed in this net rainfall data as the precipitation input to Hec-RAS   
    
-<a name="synthetic_designstorms"></a>
+<a name="synthetic_storms"></a>
 ## Generating synthetic design storm hyetographs
 
 <a name="method_overview"></a>
