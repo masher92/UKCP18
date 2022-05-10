@@ -5,8 +5,8 @@
 1. [ Motivation. ](#motiv)
 2. [ Generating FSR design storms with ReFH2. ](#fsr_designstorms)
 3. [ Generating synthetic storms](#synthetic_storms)  
-  a. [ Comparing geostatistical and linear model performance. ](#workflowa)  
-  b. [ Exploring the impact of sampling strategy ](#workflowb)  
+  a. [ Overview of methodology. ](#method_overview)  
+  b. [ Details on options fo multi peaked storms ](#workflowb)  
 4. [ Next stages. ](#nextup)
 5. [ References. ](#ref)
 
@@ -46,7 +46,11 @@ The standard process for deriving a design storm using the FSR design storm prof
 * Extract the data on the net rainfall after losses have been subtracted from ReFH2
 * Feed in this net rainfall data as the precipitation input to Hec-RAS   
    
-### Approach to generating synthetic design storm hyetographs
+<a name="synthetic_designstorms"></a>
+## Generating synthetic design storm hyetographs
+
+<a name="method_overview"></a>
+### Overview of methodology  
 In order to generate synthetic design storm hyetographs:
 * Use the FEH DDF model to estimate the design rainfall depth (in mm) for the required duration and return period for the 1km grid cell within which the modelling area is found
 * Generate synthetic design storm hyetographs which preserve the total event rainfall volume and duration, but splitting this rainfall volume into multiple peaks (see below)
