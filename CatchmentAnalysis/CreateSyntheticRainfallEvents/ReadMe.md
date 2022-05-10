@@ -78,13 +78,13 @@ Three different possible approaches are considered for constructing a multi-peak
 - 'Sub-peak timing'  
   - Divide the single peak into 3 sections so that each has the same volume of rainfall. Then calculate the "average arrival time" of the rainfall in each subpeak (using these as the centre for the multiple peaks). Peak timing calculated so that Nth part of rainfall falls on average at the same time as in the single peak consider each minute as a block with constant rainfall rate for simplicity (don't understand this)
 
-Figure 2 visualises these 3 methods alongside an equivalent single peaked storm for 1h, 3h and 6h durations.
+Figure 4 visualises these 3 methods alongside an equivalent single peaked storm for 1h, 3h and 6h durations.
 
 <p align="center">
 <img src="LinDyke_DataAndFigs/SyntheticEvents_preLossRemoval/1h/1h_allmethods.jpg" width="300"  />
 <img src="LinDyke_DataAndFigs/SyntheticEvents_preLossRemoval/3h/3h_allmethods.jpg" width="300" />
 <img src="LinDyke_DataAndFigs/SyntheticEvents_preLossRemoval/6h/6h_allmethods.jpg" width="300"  />    
-<p align="center"> Figure 1. 4 methods (1= single peak, 2=divide-time, 3=max-spread, 4=sub-peak timing), for 1hr (left), 3hr (middle) and 6hr (right).  <p align="center">
+<p align="center"> Figure 3. Shows the synthetic rainfall events (pre loss removal) produced using the four methods (1= single peak, 2=divide-time, 3=max-spread, 4=sub-peak timing), for 1hr (left), 3hr (middle) and 6hr (right).  <p align="center">
 
  <!-- Script initially calculates a rate in mm/hr, can divide this by 60 to get a rate in mm/min
  Best to use 1 minute data to drive the model
