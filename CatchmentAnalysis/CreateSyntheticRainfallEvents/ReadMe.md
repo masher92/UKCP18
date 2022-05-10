@@ -8,8 +8,6 @@
   a. [ Overview of methodology. ](#method_overview)  
   b. [ Details on options for multi peaked storms ](#details_options)  
   c. [ Defining antecedent conditions ](#antecedent_conditions)  
-4. [ Next stages. ](#nextup)
-5. [ References. ](#ref)
 
 <a name="motiv"></a>
 ## Motivation
