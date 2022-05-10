@@ -103,7 +103,6 @@ Figure 2 visualises these 3 methods alongside an equivalent single peaked storm 
 
 To calculate appropriate antecedent conditions, the CEH-GEAR precipitation data is extracted for the cells which are found within the catchment area (Figure 1)
 
-
 <p align="center">
 <img src="LinDyke_cells.png" width="350"  />
 <p align="center"> Figure 1. <p align="center">
@@ -112,5 +111,10 @@ Using the hourly values for June, July and August for the period covered by the 
 
 For each of the three days previous to the rainfall event being modelled, this is set as the daily rainfall amount. Three days is the minimum number of days of antecedent data that is required.
 
-Questions about standard practice for
+<!-- ## Questions about standard practice for defining antecedent conditions?
+  * How is it usually done? https://refhdocs.hydrosolutions.co.uk/Initial-Conditions-Design-Estimates/
+  * Could try find out exact method from manual to replicate
+  * Or could try testing by experimenting with ReFH2
+  * Could look at impact of using more than 3 days antecedent conditions - or of splitting the same rainfall amount differently over the X number of days of antecedent conditions provided and see if this makes a difference to the amount of losses subtracted (additional stage would be whether if there is a difference in the net rainfall after losses if this translates into a difference in flooding outcome)
+ -->
   
