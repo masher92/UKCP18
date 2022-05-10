@@ -121,6 +121,7 @@ For each of the three days previous to the rainfall event being modelled, this i
 <a name="loss_removal"></a>  
 ### Removing losses with ReFH2
 
-When hyetographs are produced using the standard FSR profiles using ReFH2, the rainfall data is produced with losses subtracted. To make our synthetic profiles equivalent to this, it is possible to feed them back into ReFH2 as observed rainfall data, alonfside 
-  
-Feed these design storm hyetographs into ReFH2 as observed rainfall data, alongside data on antecedent conditions, and extract the data on the net rainfall after losses have been subtracted from ReFH2
+<p align="center">
+<img src="LinDyke_DataAndFigs/ReFH2_LinDyke_RemovingLosses.PNG.png" width="350"  />
+ <img src="LinDyke_DataAndFigs/ReFH2_LinDyke_RemovingLosses2.PNG.png" width="350"  />
+<p align="center"> Figure 5.  <p align="center">
