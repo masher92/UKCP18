@@ -33,13 +33,13 @@ The standard process for deriving a design storm using the FSR design storm prof
     * For Lin Dyke, for a 100 year return period, a rainfall depth of 59.98mm equates to a 6hr duration, 51.32mm for a 3hr duration and 38.7mm for a 1hr duration
 
 <p align="center">
-<img src="DataAndFigs/FEH_LinDyke.PNG" width="580"  />
-  <img src="DataAndFigs/FEH_LinDyke_rainfall.PNG" width="420"  />
+<img src="LinDyke_DataAndFigs/FEH_LinDyke.PNG" width="580"  />
+  <img src="LinDyke_DataAndFigs/FEH_LinDyke_rainfall.PNG" width="420"  />
 <p align="center"> Figure 1. <p align="center">
 
 * Convert this rainfall depth, using ReFH2 software, into a design rainfall hyetograph at the required time step (e.g. Figure 1)
 <p align="center">
-<img src="DataAndFigs/refh2_example.jpg" width="500"  />
+<img src="LinDyke_DataAndFigs/refh2_example.jpg" width="500"  />
 <p align="center"> Figure 2. Example ReFH2 design storm hyetograph for a 6hr duration storm with a 17 year return period <p align="center">
 
 * Extract the data on the net rainfall after losses have been subtracted from ReFH2
@@ -81,9 +81,9 @@ Three different possible approaches are considered for constructing a multi-peak
 Figure 2 visualises these 3 methods alongside an equivalent single peaked storm for 1h, 3h and 6h durations.
 
 <p align="center">
-<img src="SyntheticEvents_preLossRemoval/1h/1h_allmethods.jpg" width="300"  />
-<img src="SyntheticEvents_preLossRemoval/3h/3h_allmethods.jpg" width="300" />
-<img src="SyntheticEvents_preLossRemoval/6h/6h_allmethods.jpg" width="300"  />    
+<img src="LinDyke_DataAndFigs/SyntheticEvents_preLossRemoval/1h/1h_allmethods.jpg" width="300"  />
+<img src="LinDyke_DataAndFigs/SyntheticEvents_preLossRemoval/3h/3h_allmethods.jpg" width="300" />
+<img src="LinDyke_DataAndFigs/SyntheticEvents_preLossRemoval/6h/6h_allmethods.jpg" width="300"  />    
 <p align="center"> Figure 1. 4 methods (1= single peak, 2=divide-time, 3=max-spread, 4=sub-peak timing), for 1hr (left), 3hr (middle) and 6hr (right).  <p align="center">
 
  <!-- Script initially calculates a rate in mm/hr, can divide this by 60 to get a rate in mm/min
@@ -102,7 +102,7 @@ Figure 2 visualises these 3 methods alongside an equivalent single peaked storm 
 To calculate appropriate antecedent conditions, the CEH-GEAR precipitation data is extracted for the cells which are found within the catchment area (Figure 1)
 
 <p align="center">
-<img src="LinDyke_cells.png" width="350"  />
+<img src="LinDyke_DataAndFigs/LinDyke_cells.png" width="350"  />
 <p align="center"> Figure 1. <p align="center">
 
 Using the hourly values for June, July and August for the period covered by the data (1990-2014), an average daily rainfall amount is calculated. For the Lin Dyke catchment this is 0.51mm.
