@@ -7,7 +7,7 @@
 3. [ Generating synthetic storms](#synthetic_storms)  
   a. [ Overview of methodology. ](#method_overview)  
   b. [ Details on options for multi peaked storms ](#details_options)  
-  c. [ Removing losses with ReFH2](#loss_removal)
+  c. [ Removing losses with ReFH2](#loss_removal)  
      a. [ Defining antecedent conditions ](#antecedent_conditions)  
   
 
