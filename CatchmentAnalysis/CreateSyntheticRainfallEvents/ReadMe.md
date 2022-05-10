@@ -12,7 +12,7 @@ Evidence indicates that these profiles are not particularly representative of re
 
 It is unclear, however, how these variations might impact on the flooding outcome. Thus, the objective of this piece of work is to formulate design storm hyetographs using different profiles, to use these to run the flood model and to observe the extent to which this impacts the outomces. 
 
-### Standard approach to generating design storm hyetograph for Lin Dyke
+## Standard approach to generating design storm hyetograph for Lin Dyke
 
 The standard process for deriving the precipitation inputs includes the following stages:
 * Use the FEH DDF model to estimate the design rainfall depth (in mm) for the required duration and return period for the catchment
@@ -33,7 +33,6 @@ The standard process for deriving the precipitation inputs includes the followin
 * Extract the data on the net rainfall after losses have been subtracted from ReFH2
 * Feed in this net rainfall data as the precipitation input to Hec-RAS   
    
-   
 ### Approach to generating synthetic design storm hyetographs
 In order to generate synthetic design storm hyetographs:
 * Use the FEH DDF model to estimate the design rainfall depth (in mm) for the required duration and return period for the 1km grid cell within which the modelling area is found
@@ -41,6 +40,7 @@ In order to generate synthetic design storm hyetographs:
 * Feed these design storm hyetographs into ReFH2 as observed rainfall data, alongside data on antecedent conditions, and extract the data on the net rainfall after losses have been subtracted from ReFH2
 * Feed in this net rainfall data as the precipitation input to Hec-RAS
 
+## Generating synthetic hyetographs
 Several methods are explored for generating synthetic design storm hyetographs which preserve the total event rainfall volume and duration, but splitting this rainfall volume into multiple peaks. For now, an event with 3 peaks will be considered.
 
 The following parameters must be accounted for to construct multiple peaks:
