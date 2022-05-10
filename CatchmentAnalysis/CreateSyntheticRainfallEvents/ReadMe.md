@@ -6,7 +6,7 @@
 2. [ Generating FSR design storms with ReFH2. ](#fsr_designstorms)
 3. [ Generating synthetic storms](#synthetic_storms)  
   a. [ Overview of methodology. ](#method_overview)  
-  b. [ Details on options fo multi peaked storms ](#details_options)  
+  b. [ Details on options for multi peaked storms ](#details_options)  
 4. [ Next stages. ](#nextup)
 5. [ References. ](#ref)
 
@@ -58,7 +58,7 @@ In order to generate synthetic design storm hyetographs:
 * Feed in this net rainfall data as the precipitation input to Hec-RAS
 
 <a name="details_options"></a>  
-### Generating synthetic hyetographs
+### Options for defining synthetic multi-peaked events
 Several methods are explored for generating synthetic design storm hyetographs which preserve the total event rainfall volume and duration, but splitting this rainfall volume into multiple peaks. For now, an event with 3 peaks will be considered.
 
 The following parameters must be accounted for to construct multiple peaks:
