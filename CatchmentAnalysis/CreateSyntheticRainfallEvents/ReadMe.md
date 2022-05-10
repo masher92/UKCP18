@@ -3,8 +3,8 @@
 ## Table of contents
 
 1. [ Motivation. ](#motiv)
-2. [ Generating standard design storms with ReFH2. ](#standard_designstorms)
-3. [ Generating synthetic storms](#synthetic_storms)
+2. [ Generating FSR design storms with ReFH2. ](#fsr_designstorms)
+3. [ Generating synthetic storms](#synthetic_storms)  
   a. [ Comparing geostatistical and linear model performance. ](#workflowa)  
   b. [ Exploring the impact of sampling strategy ](#workflowb)  
 4. [ Next stages. ](#nextup)
@@ -24,10 +24,10 @@ Evidence indicates that these profiles are not particularly representative of re
 
 It is unclear, however, how these variations might impact on the flooding outcome. Thus, the objective of this piece of work is to formulate design storm hyetographs using different profiles, to use these to run the flood model and to observe the extent to which this impacts the outomces. 
 
-<a name="designstorms_refh2"></a>
-## Generating design storms with ReFH2
+<a name="fsr_designstorms"></a>
+## Generating FSR design storms with ReFH2
 
-The standard process for deriving the precipitation inputs includes the following stages:
+The standard process for deriving a design storm using the FSR design storm profiles is as follows:
 * Use the FEH DDF model to estimate the design rainfall depth (in mm) for the required duration and return period for the catchment
     * The FEH web service allows a catchment boundary to be determined (Figure 1a)
     * For the catchment it calculates the rainfall depth associated with a particular duration and return period (Figure 1b)
