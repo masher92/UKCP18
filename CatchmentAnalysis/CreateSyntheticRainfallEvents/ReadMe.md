@@ -1,5 +1,17 @@
-## Creating synthetic rainfall events
-### Background
+# Creating synthetic rainfall events
+
+## Table of contents
+
+1. [ Motivation. ](#motiv)
+2. [ Installation. ](#install)
+3. [ Workflow. ](#workflow)  
+  a. [ Comparing geostatistical and linear model performance. ](#workflowa)  
+  b. [ Exploring the impact of sampling strategy ](#workflowb)  
+4. [ Next stages. ](#nextup)
+5. [ References. ](#ref)
+
+<a name="motiv"></a>
+## Motivation
 One research objective is to explore and identify the pluvial flood model sensitivity to alterations in the temporal pattern of the design storm rainfall inputs (e.g. the distribution of rainfall over time).
 
 This sensitivity will be tested using a 2D flood model, built in Hec-Ras, which covers the Lin Dyke catchment in east Leeds. The model takes a rainfall input and simulates the movement of this water overland, according to a topographic profile, defined in a Digital Elevation Model. This rainfall input is in the format of a design storm hyetograph which represents the distribution of rainfall intensity over time. 
