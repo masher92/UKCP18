@@ -8,7 +8,7 @@
   a. [ Overview of methodology. ](#method_overview)  
   b. [ Details on options for multi peaked storms ](#details_options)  
   c. [ Removing losses with ReFH2](#loss_removal)  
-         i. [ Defining antecedent conditions ](#antecedent_conditions)  
+         1. [ Defining antecedent conditions ](#antecedent_conditions)  
   
 
 <a name="motiv"></a>
