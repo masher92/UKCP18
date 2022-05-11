@@ -12,6 +12,7 @@ from datetime import timedelta
 from dateutil.relativedelta import relativedelta
 from datetime import datetime
 
+
 def make_peak(total_duration_minutes,peak_duration,peak_mm_accum,peak_time,peak_shape):
     a_sum=0.1
     b_sum=0.815
@@ -132,9 +133,6 @@ def pdf_plotter():
     plt.tight_layout()
     plt.show()
     
-# Plot
-pdf_plotter()
-
 ########################################################
 ########################################################
 #### Function to plot the rate plot individually for each
@@ -152,11 +150,6 @@ def pdf_plotter_rate(method):
     ax.set_xlabel('time [mins]')
     plt.tight_layout()
     plt.show()
-
-# Plot for each method
-for method in methods:
-    pdf_plotter_rate(method)
-
 
 ########################################################
 ########################################################
@@ -181,9 +174,6 @@ def pdf_plotter_all_rates():
     plt.tight_layout()
     plt.savefig("/nfs/a319/gy17m2a/PhD/Scripts/CatchmentAnalysis/CreateSyntheticRainfallEvents/SyntheticEvents_preLossRemoval/{}/{}_allmethods.jpg".format(duration,duration))
     plt.show()
-
-# Plot
-pdf_plotter_all_rates()
 
 
 ########################################################
@@ -231,17 +221,37 @@ for duration in durations:
                                  'Rate (mm/hr)': rate, 'Rate (mm/min)': rate/60})
         # Keep only columns needed for feeding to ReFH2
         accum_df = accum_df[['Dates','Rate (mm/min)']]
-            
+        
         # Write to csv
-        accum_df.to_csv("/nfs/a319/gy17m2a/PhD/Scripts/CatchmentAnalysis/CreateSyntheticRainfallEvents/SyntheticEvents_preLossRemoval/{}/{}_{}.csv".format(duration,duration, method),
+        accum_df.to_csv("LinDyke_DataAndFigs/SyntheticEvents_preLossRemoval/{}/{}_{}.csv".format(duration,duration, method),
                         header = False, index = False)
         
         # Plot
-        pdf_plotter_all_rates()
+        #pdf_plotter_all_rates()
     
-    
-    
+## Antecedent conditions
+dates = []
+for i in[3,2,1]:
+    print(i)
+    dates.append(accum_df['Dates'][0] - timedelta(days=i))
 
+antecedent_rainfall = pd.DataFrame({'Date': dates, "rainfall":0.51})
+antecedent_rainfall.to_csv("LinDyke_DataAndFigs/lindyke_daily_antecedent_conditions.csv", index = False)   
+
+#############################################################################
+#############################################################################
+# Plot
+#############################################################################
+#############################################################################
+# Plot for each method
+for method in methods:
+    pdf_plotter_rate(method)
+# Plot
+pdf_plotter_all_rates()
+ 
+    
+# Plot
+pdf_plotter()
 
 
 
