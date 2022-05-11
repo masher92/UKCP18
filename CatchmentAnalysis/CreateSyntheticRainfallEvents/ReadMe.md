@@ -128,7 +128,7 @@ Observed rainfall can be loaded into ReFH2, alongside the antecedent conditions,
 <p align="center"> Figure 5. a.  <p align="center">
   
   
-The plot in Figure 6 shows the rainfall data after losses have been removed (using both the rural and urban model) for each of the methods.
+The plot in Figure 6 shows the rainfall data for a 6 hour storm after losses have been removed (using both the rural and urban model) for each of the methods.
   
 <p align="center">
 <img src="LinDyke_DataAndFigs/4methods_pre-post_loss_removal.png" width="650"  />
