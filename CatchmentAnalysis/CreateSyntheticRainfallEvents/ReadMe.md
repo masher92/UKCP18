@@ -126,3 +126,11 @@ Observed rainfall can be loaded into ReFH2, alongside the antecedent conditions,
 <img src="LinDyke_DataAndFigs/ReFH2_LinDyke_RemovingLosses.PNG" width="450"  />
  <img src="LinDyke_DataAndFigs/ReFH2_LinDyke_RemovingLosses2.PNG" width="490"  />
 <p align="center"> Figure 5. a.  <p align="center">
+  
+  
+  
+<p align="center">
+<img src="LinDyke_DataAndFigs/4methods_pre-post_loss_removal.png" width="650"  />
+<p align="center"> Figure 6.   <p align="center">
+  
+  
