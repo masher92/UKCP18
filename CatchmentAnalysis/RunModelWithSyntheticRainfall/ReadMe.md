@@ -1,6 +1,5 @@
 # Run model with synthetic rainfall events
 
-
 ## Table of contents
 
 1. [ Run model in Hec-Ras. ](#runmodel)
@@ -23,6 +22,7 @@ The Lin Dyke model is ran for a 6hr duration storm using the four different meth
 ### 3. Process outputs in QGIS
 
 ```Layer -> Add Layer -> Add Raster Layer```
+``` Processing -> Toolbox -> Raster layer unique values report ```
 
 The outputs 
 
