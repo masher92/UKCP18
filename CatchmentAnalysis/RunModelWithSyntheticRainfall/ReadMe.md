@@ -3,24 +3,26 @@
 
 ## Table of contents
 
-1. [ Motivation. ](#motiv)
-2. [ Generating FSR design storms with ReFH2. ](#fsr_designstorms)
+1. [ Run model in Hec-Ras. ](#runmodel)
+2. [ Post process model outputs in Hec-Ras. ](#postprocess)
 3. [ Generating synthetic storms](#synthetic_storms)  
   a. [ Overview of methodology. ](#method_overview)  
   b. [ Details on options for multi peaked storms ](#details_options)  
   c. [ Defining antecedent conditions ](#antecedent_conditions)    
   d. [ Removing losses with ReFH2](#loss_removal)  
 
-
+<a name="runmodel"></a>
 ### 1. Run model in Hec-Ras
 
-The Lin Dyke model is ran for a 6hr duration storm using the four different methods of distributing the rainfall over the event duration.
+The Lin Dyke model is ran for a 6hr duration storm using the four different methods of distributing the rainfall over the event duration. 
 
-### 2. Post process model outputs in Hec-Ras
-
+<a name="postprocess"></a>
+### 2. Post process model outputs in Hec-Ras Ras Mapper
 
 
 ### 3. Process outputs in QGIS
+
+```Layer -> Add Layer -> Add Raster Layer```
 
 The outputs 
 
