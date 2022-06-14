@@ -4,12 +4,10 @@
 
 1. [ Run model in Hec-Ras. ](#runmodel)
 2. [ Post process model outputs in Hec-Ras. ](#postprocess)
-3. [ Generating synthetic storms](#synthetic_storms)  
-  a. [ Overview of methodology. ](#method_overview)  
-  b. [ Details on options for multi peaked storms ](#details_options)  
-  c. [ Defining antecedent conditions ](#antecedent_conditions)    
-  d. [ Removing losses with ReFH2](#loss_removal)  
-
+3. [ Process outputs in QGIS](#qgis)  
+4. [ Plot results in Python](#python)  
+<!--   a. [ Overview of methodology. ](#method_overview)  
+ -->
 <a name="runmodel"></a>
 ### 1. Run model in Hec-Ras
 
@@ -18,7 +16,9 @@ The Lin Dyke model is ran for a 6hr duration storm using the four different meth
 <a name="postprocess"></a>
 ### 2. Post process model outputs in Hec-Ras Ras Mapper
 
-The results of running the Hec-Ras model are then processed using Hec-Ras mapper. This invovles the following stages:
+The results of running the Hec-Ras model are then processed using Hec-Ras mapper. Currently, this processing only involves filtering out cells with flood depths of less than 0.1m (setting the value of these cells to NoData), and rounding the remaining depth values to 2 decimal places. 
+
+This involves the following stages:
 * Tools -> Create calculated layer -> + Layer -> Map Type: 'Depth', Animation Behaviour: 'Fixed Profile', Profile: 'Max' -> Change variable name to depth
 * Open scripts (to select an existing script, alternatively  write one from scratch)
 * Layer created under 'Map layers' heading
@@ -27,15 +27,19 @@ The results of running the Hec-Ras model are then processed using Hec-Ras mapper
     * Right click layer and select image display properties
     * Double click on colour bar and change colour ramp to ‘Depth’
     * Change number of values to 4, and change the values to 0, 1, 2 and 3
+* Save layer as a raster:
+  * Right click -> Export layer -> Export as raster   
 
-
+<a name="qgis"></a>
 ### 3. Process outputs in QGIS
 
-```Layer -> Add Layer -> Add Raster Layer```
-``` Processing -> Toolbox -> Raster layer unique values report ```
+QGIS is used to count the number of cells of each depth within the Lin Dyke area. This involves the following stages:
+* Layer -> Add Layer -> Add Raster Layer
+* Processing -> Toolbox -> Raster layer unique values report -> Define a location to save the 'unique values table' to
 
-The outputs 
+This outputs csv files containing depth values, a count of the number of cells with that value, and the area of the cells covered by that depth
 
+<a name="python"></a>
 ### 4. Plot results in Python
 
 <p align="center">
