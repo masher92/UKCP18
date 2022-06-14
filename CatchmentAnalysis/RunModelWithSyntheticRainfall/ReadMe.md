@@ -42,12 +42,13 @@ This outputs csv files containing depth values, a count of the number of cells w
 <a name="python"></a>
 ### 4. Plot results in Python
 
-Python is then used to plot the number of flooded cells (>0.1m) which result from running the Lin Dyke model with the four different methods for producing a 6hr duration rainfall event (Figure 1) 
+The number of flooded cells (>0.1m) which result from running the Lin Dyke model with the four different methods for producing a 6hr duration rainfall event are plotted (Figure 1) 
 
 <p align="center">
 <img src="Figs/6hr_TotalNumFloodedCells.png" width="350"  />
 <p align="center"> Figure 1. The total number of cells with a flood depth >0.1m for each method <p align="center">
-                                              
+ 
+ The depths are split into categories and the number of flooded cells in each depth category are also plotted 
                                               
 <p align="center">
 <img src="Figs/6hr_NumOfCellsFlooded.png"  width="300"  />
