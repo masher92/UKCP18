@@ -59,5 +59,5 @@ blue_patch = mpatches.Patch(color='dodgerblue', label='Pre-loss removal')
 gold_patch = mpatches.Patch(color='gold', label='Losses removed (rural model)')
 plt.legend(handles=[blue_patch, green_patch, gold_patch], loc="lower center", fontsize= 14, bbox_to_anchor=(0.4, -0.95))
 
-plt.savefig("LinDyke_DataAndFigs/4methods_pre-post_loss_removal.png")
+plt.savefig("LinDyke_DataAndFigs/4methods_pre-post_loss_removal2.png",dpi=1000,bbox_inches = "tight")
 

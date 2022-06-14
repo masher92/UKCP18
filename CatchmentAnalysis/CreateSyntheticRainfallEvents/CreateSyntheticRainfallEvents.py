@@ -169,10 +169,10 @@ def pdf_plotter_all_rates():
     #axs[0].legend(methods,loc='lower right')
         #axs[i].set_ylabel('rainfall rate [mm/hr]')
     #axs[3].set_xlabel('time [mins]')
-    fig.text(0.5, 0.0, 'Time [mins]', ha='center', fontsize = 15)
-    fig.text(0.0, 0.5, 'Rainfall rate [mm/hr]', va='center', rotation='vertical', fontsize = 15)
+    fig.text(0.5, 0.0, 'Time [mins]', ha='center', fontsize = 12)
+    fig.text(0.0, 0.5, 'Rainfall rate [mm/hr]', va='center', rotation='vertical', fontsize = 12)
     plt.tight_layout()
-    plt.savefig("/nfs/a319/gy17m2a/PhD/Scripts/CatchmentAnalysis/CreateSyntheticRainfallEvents/SyntheticEvents_preLossRemoval/{}/{}_allmethods.jpg".format(duration,duration))
+    #plt.savefig("CatchmentAnalysis/CreateSyntheticRainfallEvents/LinDyke_DataAndFigs/SyntheticEvents_preLossRemoval/{}/{}_allmethods.jpg".format(duration,duration))
     plt.show()
 
 
@@ -223,8 +223,8 @@ for duration in durations:
         accum_df = accum_df[['Dates','Rate (mm/min)']]
         
         # Write to csv
-        accum_df.to_csv("LinDyke_DataAndFigs/SyntheticEvents_preLossRemoval/{}/{}_{}.csv".format(duration,duration, method),
-                        header = False, index = False)
+        #accum_df.to_csv("CatchmentAnalysis/CreateSyntheticRainfalLEvents/LinDyke_DataAndFigs/SyntheticEvents_preLossRemoval/{}/{}_{}.csv".format(duration,duration, method),
+         #               header = False, index = False)
         
         # Plot
         #pdf_plotter_all_rates()
@@ -236,7 +236,7 @@ for i in[3,2,1]:
     dates.append(accum_df['Dates'][0] - timedelta(days=i))
 
 antecedent_rainfall = pd.DataFrame({'Date': dates, "rainfall":0.51})
-antecedent_rainfall.to_csv("LinDyke_DataAndFigs/lindyke_daily_antecedent_conditions.csv", index = False)   
+# antecedent_rainfall.to_csv("LinDyke_DataAndFigs/lindyke_daily_antecedent_conditions.csv", index = False)   
 
 #############################################################################
 #############################################################################
@@ -246,9 +246,10 @@ antecedent_rainfall.to_csv("LinDyke_DataAndFigs/lindyke_daily_antecedent_conditi
 # Plot for each method
 for method in methods:
     pdf_plotter_rate(method)
+
 # Plot
 pdf_plotter_all_rates()
- 
+
     
 # Plot
 pdf_plotter()
