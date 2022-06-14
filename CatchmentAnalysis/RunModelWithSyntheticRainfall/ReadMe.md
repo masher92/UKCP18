@@ -14,7 +14,7 @@
 The Lin Dyke model is ran for a 6hr duration storm using the four different methods of distributing the rainfall over the event duration. 
 
 <a name="postprocess"></a>
-### 2. Post process model outputs in Hec-Ras Ras Mapper
+### 2. Post process model outputs in Hec-Ras Mapper
 
 The results of running the Hec-Ras model are then processed using Hec-Ras mapper. Currently, this processing only involves filtering out cells with flood depths of less than 0.1m (setting the value of these cells to NoData), and rounding the remaining depth values to 2 decimal places. 
 
