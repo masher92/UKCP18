@@ -27,7 +27,7 @@ The outputs
 ### 4. Plot results in Python
 
 <p align="center">
-<img src="Figs/6hr_TotalNumFloodedCells.png" width="580"  />
+<img src="Figs/6hr_TotalNumFloodedCells.png" width="350"  />
 <p align="center"> Figure 1. <p align="center">
                                               
                                               
