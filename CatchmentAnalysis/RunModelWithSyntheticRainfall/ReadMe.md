@@ -23,6 +23,11 @@ The results of running the Hec-Ras model are then processed using Hec-Ras mapper
 * Open scripts (to select an existing script, alternatively  write one from scratch)
 * Layer created under 'Map layers' heading
 * Move the layer above OpenStreetMaps in the ordering (otherwise won't see it)
+* Image display properties:
+    * Right click layer and select image display properties
+    * Double click on colour bar and change colour ramp to ‘Depth’
+    * Change number of values to 4, and change the values to 0, 1, 2 and 3
+
 
 ### 3. Process outputs in QGIS
 
