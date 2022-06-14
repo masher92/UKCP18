@@ -18,6 +18,11 @@ The Lin Dyke model is ran for a 6hr duration storm using the four different meth
 <a name="postprocess"></a>
 ### 2. Post process model outputs in Hec-Ras Ras Mapper
 
+The results of running the Hec-Ras model are then 
+
+
+```Tools -> Create calculated layer -> + Layer -> Map Type: “Depth”, Animation Behaviour: ‘Fixed Profile’, Profile: ‘Max’ ```
+
 
 ### 3. Process outputs in QGIS
 
