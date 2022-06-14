@@ -28,7 +28,6 @@ The outputs
 
 <p align="center">
 <img src="Figs/6hr_TotalNumFloodedCells.png" width="580"  />
-  <img src="LinDyke_DataAndFigs/FEH_LinDyke_rainfall.PNG" width="420"  />
 <p align="center"> Figure 1. <p align="center">
                                               
                                               
