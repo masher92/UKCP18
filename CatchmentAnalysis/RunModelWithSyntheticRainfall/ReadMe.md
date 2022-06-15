@@ -22,22 +22,22 @@ This involves the following stages:
 * Tools -> Create calculated layer -> + Layer -> Map Type: 'Depth', Animation Behaviour: 'Fixed Profile', Profile: 'Max' -> Change variable name to depth
 * Open scripts (to select an existing script, alternatively  write one from scratch)
 * Layer created under 'Map layers' heading
+* Save layer as a raster:
+  * Right click -> Export layer -> Export as raster   
 * Move the layer above OpenStreetMaps in the ordering (otherwise won't see it)
 * Image display properties:
     * Right click layer and select image display properties
     * Double click on colour bar and change colour ramp to ‘Depth’
-    * Change number of values to 4, and change the values to 0, 1, 2 and 3
-* Save layer as a raster:
-  * Right click -> Export layer -> Export as raster   
+    * Change number of values to 7, and change values to 0, 0.15, 0.3, 0.6, 0.9, 1.20, 20
 
 <p align="center">
 <img src="Figs/Hec-Ras_6hr_dt_u_depths_morethan0.1.PNG"  width="250"  />
-<img src="Figs/Hec-Ras_6hr_ms_u_depths_morethan0.1.PNG"  width="250" />/
+<img src="Figs/Hec-Ras_6hr_ms_u_depths_morethan0.1.PNG"  width="250" />
   
  <p align="center">
 <img src="Figs/Hec-Ras_6hr_sp_u_depths_morethan0.1.PNG" width="250" />
 <img src="Figs/Hec-Ras_6hr_sp-t_u_depths_morethan0.1.PNG"  width="250" />
-<p align="center"> Figure 3. Shows the synthetic rainfall events (pre loss removal) produced using the four methods (1= single peak, 2=divide-time, 3=max-spread, 4=sub-peak timing), for 1hr (left), 3hr (middle) and 6hr (right).  <p align="center">        
+<p align="center"> Figure 1. The   <p align="center">        
 
 <a name="qgis"></a>
 ### 3. Process outputs in QGIS
@@ -51,15 +51,15 @@ This outputs csv files containing depth values, a count of the number of cells w
 <a name="python"></a>
 ### 4. Plot results in Python
 
-The number of flooded cells (>0.1m) which result from running the Lin Dyke model with the four different methods for producing a 6hr duration rainfall event are plotted (Figure 1) 
+The number of flooded cells (>0.1m) which result from running the Lin Dyke model with the four different methods for producing a 6hr duration rainfall event are plotted (Figure 2) 
 
 <p align="center">
 <img src="Figs/6hr_TotalNumFloodedCells.png" width="350"  />
-<p align="center"> Figure 1. The total number of cells with a flood depth >0.1m for each method <p align="center">
+<p align="center"> Figure 2. The total number of cells with a flood depth >0.1m for each method <p align="center">
  
  The depths are split into categories and the number of flooded cells in each depth category are also plotted 
                                               
 <p align="center">
 <img src="Figs/6hr_NumOfCellsFlooded.png"  width="300"  />
 <img src="Figs/6hr_PropOfCellsFlooded.png"  width="300" />
-<p align="center"> Figure 3. Shows the synthetic rainfall events (pre loss removal) produced using the four methods (1= single peak, 2=divide-time, 3=max-spread, 4=sub-peak timing), for 1hr (left), 3hr (middle) and 6hr (right).  <p align="center">                                              
+<p align="center"> Figure 3. The total number of cells within each depth range for each method <p align="center">                                              
