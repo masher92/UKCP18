@@ -30,14 +30,14 @@ This involves the following stages:
     * Double click on colour bar and change colour ramp to ‘Depth’
     * Change number of values to 7, and change values to 0, 0.15, 0.3, 0.6, 0.9, 1.20, 20
 
+Figure 1 shows the dsitribution of flooded cells for each method from Hec-Ras mapper.  
 <p align="center">
 <img src="Figs/Hec-Ras_6hr_dt_u_depths_morethan0.1.PNG"  width="250"  />
 <img src="Figs/Hec-Ras_6hr_ms_u_depths_morethan0.1.PNG"  width="250" />
-  
  <p align="center">
 <img src="Figs/Hec-Ras_6hr_sp_u_depths_morethan0.1.PNG" width="250" />
 <img src="Figs/Hec-Ras_6hr_sp-t_u_depths_morethan0.1.PNG"  width="250" />
-<p align="center"> Figure 1. The   <p align="center">        
+<p align="center"> Figure 1. The spatial distribution of flooded cells for each method  <p align="center">        
 
 <a name="qgis"></a>
 ### 3. Process outputs in QGIS
