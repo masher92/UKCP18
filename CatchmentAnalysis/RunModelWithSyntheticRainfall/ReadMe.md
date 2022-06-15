@@ -33,7 +33,8 @@ In each case, this involves the following stages:
     * Right click layer and select image display properties
     * Double click on colour bar and change colour ramp to ‘Depth’
       * For (1): Change number of values to 7, and change values to 0, 0.15, 0.3, 0.6, 0.9, 1.20, 20
-      * For (2): Change number of values to 3, and change values to 0, 1, 2, 3
+      * For (2): Change number of values to 3, and change values to 0 (0.1-0.3m), 1 (0.3-0.6m), 2 (0.6-1.2m), 3 (1.2m+)
+      * For (3): Change number of values to 3, and change values to 0 (divide-time), 1 (maximum spread), 2 (single peak), 3 (sub-peak timing)
      
 Figure 1 shows the distribution of flooded cells for each method from Hec-Ras mapper.  
 <p align="center">
