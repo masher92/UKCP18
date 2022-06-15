@@ -16,7 +16,7 @@ The Lin Dyke model is ran for a 6hr duration storm using the four different meth
 <a name="postprocess"></a>
 ### 2. Post process model outputs in Hec-Ras Mapper
 
-The results of running the Hec-Ras model are then processed using Hec-Ras mapper. Currently, this processing only involves filtering out cells with flood depths of less than 0.1m (setting the value of these cells to NoData), and rounding the remaining depth values to 2 decimal places. 
+The results of running the Hec-Ras model are then processed using Hec-Ras mapper. Currently, the data is processed in two ways: (1) filtering out cells with flood depths of less than 0.1m (setting the value of these cells to NoData), and rounding the remaining depth values to 2 decimal places; and (2) categorising the cells according to which of the following flood depth categories they are in 0.1-0.3m, 0.3-0.6m, 0.6-1.2m, 1.2m+. 
 
 This involves the following stages:
 * Tools -> Create calculated layer -> + Layer -> Map Type: 'Depth', Animation Behaviour: 'Fixed Profile', Profile: 'Max' -> Change variable name to depth
@@ -28,8 +28,9 @@ This involves the following stages:
 * Image display properties:
     * Right click layer and select image display properties
     * Double click on colour bar and change colour ramp to ‘Depth’
-    * Change number of values to 7, and change values to 0, 0.15, 0.3, 0.6, 0.9, 1.20, 20
-
+      * For (1): Change number of values to 7, and change values to 0, 0.15, 0.3, 0.6, 0.9, 1.20, 20
+      * For (2): Change number of values to 3, and change values to 0, 1, 2, 3
+      * 
 Figure 1 shows the dsitribution of flooded cells for each method from Hec-Ras mapper.  
 <p align="center">
 <img src="Figs/Hec-Ras_6hr_dt_u_depths_morethan0.1.PNG"  width="250"  />
