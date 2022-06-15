@@ -30,8 +30,8 @@ This involves the following stages:
     * Double click on colour bar and change colour ramp to ‘Depth’
       * For (1): Change number of values to 7, and change values to 0, 0.15, 0.3, 0.6, 0.9, 1.20, 20
       * For (2): Change number of values to 3, and change values to 0, 1, 2, 3
-      * 
-Figure 1 shows the dsitribution of flooded cells for each method from Hec-Ras mapper.  
+     
+Figure 1 shows the distribution of flooded cells for each method from Hec-Ras mapper.  
 <p align="center">
 <img src="Figs/Hec-Ras_6hr_dt_u_depths_morethan0.1.PNG"  width="250"  />
 <img src="Figs/Hec-Ras_6hr_ms_u_depths_morethan0.1.PNG"  width="250" />
