@@ -45,7 +45,12 @@ Figure 1 shows the distribution of flooded cells for each method from Hec-Ras ma
 <img src="Figs/Hec-Ras_6hr_sp-t_u_depths_morethan0.1.PNG"  width="250" />
 <p align="center"> Figure 1. The spatial distribution of flooded cells for each method  <p align="center">        
 
-<a name="qgis"></a>
+ Figure 2 shows the method which has the maximum flood depth in each cell
+ <p align="center">
+<img src="Figs/Hec-Hec-Ras_6hr_worstcase_category.PNG" width="250" />
+<p align="center"> Figure 2.  <p align="center">   
+ 
+ <a name="qgis"></a>
 ### 3. Process outputs in QGIS
 
 QGIS is used to count the number of cells of each depth within the Lin Dyke area. This involves the following stages:
