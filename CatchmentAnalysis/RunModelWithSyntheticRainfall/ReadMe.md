@@ -82,7 +82,7 @@ The depths are split into categories and the number of flooded cells in each dep
 The 
  <p align="center">
 <img src="Figs/Hec-Ras_6hr_worstcase_category.PNG" width="400" />
-<img src="Figs/"  width=400" />
+<img src="Figs/6hr_MethodDeepestFlooding.png"  width=400" />
  
 
                                                                                                                          
