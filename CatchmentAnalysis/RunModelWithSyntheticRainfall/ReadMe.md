@@ -78,8 +78,8 @@ The depths are split into categories and the number of flooded cells in each dep
 <img src="Figs/6hr_NumOfCellsFlooded.png"  width="400"  />
 <img src="Figs/6hr_PropOfCellsFlooded.png"  width=400" />
 
+Each cell is coloured according to the method which resulted in the deepest floowing in that cell (0 = divide-time, 1 = maximum spread, 2 = single peak, 3 = subpeak-timing). The number of cells within each of the methods is also plotted.
 
-The 
  <p align="center">
 <img src="Figs/Hec-Ras_6hr_worstcase_category.PNG" width="400" />
 <img src="Figs/6hr_MethodDeepestFlooding.png"  width=400" />
