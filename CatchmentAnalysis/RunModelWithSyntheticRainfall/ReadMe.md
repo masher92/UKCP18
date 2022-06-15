@@ -51,13 +51,13 @@ This outputs csv files containing depth values, a count of the number of cells w
 <a name="python"></a>
 ### 4. Plot results in Python
 
-The number of flooded cells (>0.1m) which result from running the Lin Dyke model with the four different methods for producing a 6hr duration rainfall event are plotted (Figure 2) 
+The number of flooded cells (>0.1m) which result from running the Lin Dyke model with the four different methods for producing a 6hr duration rainfall event are plotted (Figure 2). This shows that there is not a massive variation in the number of flooded cells between the four methods. The most flooded cells are found using the subpeak-timing method, which has around 6.5% more flooded cells than the single-peak method, which has the lowest value. 
 
 <p align="center">
 <img src="Figs/6hr_TotalNumFloodedCells.png" width="350"  />
 <p align="center"> Figure 2. The total number of cells with a flood depth >0.1m for each method <p align="center">
  
- The depths are split into categories and the number of flooded cells in each depth category are also plotted 
+The depths are split into categories and the number of flooded cells in each depth category, as well as the proportion of all flooded cells in each depth category, are also plotted
                                               
 <p align="center">
 <img src="Figs/6hr_NumOfCellsFlooded.png"  width="300"  />
