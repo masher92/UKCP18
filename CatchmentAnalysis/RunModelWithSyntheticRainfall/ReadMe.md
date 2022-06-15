@@ -31,10 +31,10 @@ This involves the following stages:
   * Right click -> Export layer -> Export as raster   
 
 <p align="center">
-<img src="Figs/Hec-Ras_6hr_dt_u_depths_morethan0.1.PNG"  width="300"  />
-<img src="Figs/Hec-Ras_6hr_ms_u_depths_morethan0.1.PNG"  width="300" />
-<img src="Figs/Hec-Ras_6hr_sp_u_depths_morethan0.1.PNG" width="300" />
-<img src="Figs/Hec-Ras_6hr_sp-t_u_depths_morethan0.1.PNG"  width="300" />
+<img src="Figs/Hec-Ras_6hr_dt_u_depths_morethan0.1.PNG"  width="250"  />
+<img src="Figs/Hec-Ras_6hr_ms_u_depths_morethan0.1.PNG"  width="250" />/
+<img src="Figs/Hec-Ras_6hr_sp_u_depths_morethan0.1.PNG" width="250" />
+<img src="Figs/Hec-Ras_6hr_sp-t_u_depths_morethan0.1.PNG"  width="250" />
 <p align="center"> Figure 3. Shows the synthetic rainfall events (pre loss removal) produced using the four methods (1= single peak, 2=divide-time, 3=max-spread, 4=sub-peak timing), for 1hr (left), 3hr (middle) and 6hr (right).  <p align="center">        
 
 <a name="qgis"></a>
