@@ -47,7 +47,7 @@ Figure 1 shows the distribution of flooded cells for each method from Hec-Ras ma
 
  Figure 2 shows the method which has the maximum flood depth in each cell
  <p align="center">
-<img src="Figs/Hec-Hec-Ras_6hr_worstcase_category.PNG" width="250" />
+<img src="Figs/Hec-Ras_6hr_worstcase_category.PNG" width="250" />
 <p align="center"> Figure 2.  <p align="center">   
  
  <a name="qgis"></a>
