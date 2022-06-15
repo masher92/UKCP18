@@ -2,11 +2,12 @@
 
 ## Table of contents
 
-1. [ Run model in Hec-Ras. ](#runmodel)
-   a. asdad
-3. [ Post process model outputs in Hec-Ras. ](#postprocess)
-4. [ Process outputs in QGIS](#qgis)  
-5. [ Plot results in Python](#python)  
+1. [ Processing methodology](#processing)  
+  a.  [ Run model in Hec-Ras. ](#runmodel) 
+  b. [ Post process model outputs in Hec-Ras. ](#postprocess)
+  c. [ Process outputs in QGIS](#qgis)  
+  d. [ Plot results in Python](#python)  2
+2. [ Run model in Hec-Ras. ](#results)
 <!--   a. [ Overview of methodology. ](#method_overview)  
  -->
 <a name="runmodel"></a>
