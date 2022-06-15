@@ -9,13 +9,14 @@
   d. [ Plot results in Python](#python)   
 2. [ Run model in Hec-Ras. ](#results)  
 
+## 1. Processing Methodology
 <a name="runmodel"></a>
-### 1. Run model in Hec-Ras
+### a. Run model in Hec-Ras
 
 The Lin Dyke model is ran for a 6hr duration storm using the four different methods of distributing the rainfall over the event duration. The details of the four methods are in https://github.com/masher92/UKCP18/tree/master/CatchmentAnalysis/CreateSyntheticRainfallEvents
 
 <a name="postprocess"></a>
-### 2. Post process model outputs in Hec-Ras Mapper
+### b. Post process model outputs in Hec-Ras Mapper
 
 The results of running the Hec-Ras model are then processed using Hec-Ras mapper. 
 Currently, the data is processed in three ways: 
@@ -38,7 +39,7 @@ In each case, this involves the following stages:
       * For (3): Change number of values to 3, and change values to 0 (divide-time), 1 (maximum spread), 2 (single peak), 3 (sub-peak timing)
 
  <a name="qgis"></a>
-### 3. Process outputs in QGIS
+### c. Process outputs in QGIS
 
 QGIS is used to count the number of cells of each depth within the Lin Dyke area. This involves the following stages:
 * Layer -> Add Layer -> Add Raster Layer
@@ -47,7 +48,12 @@ QGIS is used to count the number of cells of each depth within the Lin Dyke area
 This outputs csv files containing depth values, a count of the number of cells with that value, and the area of the cells covered by that depth
 
 <a name="python"></a>
-### 4. Plot results in Python
+### d. Plot results in Python
+
+Python is used to process and plot the results
+
+<a name="results"></a>
+## 2. Results
 
 The number of flooded cells (>0.1m) which result from running the Lin Dyke model with the four different methods for producing a 6hr duration rainfall event are plotted (Figure 2). This shows that there is not a massive variation in the number of flooded cells between the four methods. The most flooded cells are found using the subpeak-timing method, which has around 6.5% more flooded cells than the single-peak method, which has the lowest value. 
  
