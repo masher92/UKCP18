@@ -19,7 +19,7 @@ for method_name, file_location in methods.items():
     # Read in file
     method_file = pd.read_csv(file_location, encoding = 'unicode_escape')
     # Cut by depth bins
-    method_file['depth_range']= pd.cut(method_file.value, bins=[0, 0.01, ,0.15,0.30,0.60, 0.9, 1.2,99], right=False)
+    method_file['depth_range']= pd.cut(method_file.value, bins=[0,0.15,0.30,0.60, 0.9, 1.2,99], right=False)
     depth_groups = method_file.groupby(['depth_range']).sum()
     depth_groups = depth_groups.reset_index()
     # Find the sum
@@ -66,7 +66,27 @@ plt.xticks(y_pos, methods.keys())
 # plt.xlabel('Method')
 plt.ylabel('Number of flooded cells')
 
+#########################
+((totals_df['subpeak-timing'] - totals_df['single-peak'])/totals_df['subpeak-timing'])*100
 
 ########################
 method_file = pd.read_csv("6hr_ms_u_uniquevaluesreport_nopreprocessing.csv", encoding = 'unicode_escape')
+
+#########################
+# Worst case
+#########################
+worst_case = pd.read_csv("6hr_worstcase.csv", encoding = 'unicode_escape')
+worst_case2 = pd.read_csv("6hr_worstcase_method2.csv", encoding = 'unicode_escape')
+
+
+# Create bars
+plt.bar(np.arange(len(worst_case2)), worst_case2['count'], color=colors,
+        width = 0.9)
+# Create names on the x-axis
+plt.xticks(y_pos, methods.keys())
+# plt.xlabel('Method')
+plt.ylabel("Number of cells")
+
+
+
 
