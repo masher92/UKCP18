@@ -60,6 +60,6 @@ The number of flooded cells (>0.1m) which result from running the Lin Dyke model
 The depths are split into categories and the number of flooded cells in each depth category, as well as the proportion of all flooded cells in each depth category, are also plotted
                                               
 <p align="center">
-<img src="Figs/6hr_NumOfCellsFlooded.png"  width="300"  />
-<img src="Figs/6hr_PropOfCellsFlooded.png"  width="300" />
-<p align="center"> Figure 3. The total number of cells within each depth range for each method <p align="center">                                              
+<img src="Figs/6hr_NumOfCellsFlooded.png"  width="400"  />
+<img src="Figs/6hr_PropOfCellsFlooded.png"  width=400" />
+<p align="center"> Figure 3. The number and proportion of cells within each depth range for each method <p align="center">                                              
