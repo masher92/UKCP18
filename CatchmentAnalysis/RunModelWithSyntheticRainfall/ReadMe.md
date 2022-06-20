@@ -3,11 +3,11 @@
 ## Table of contents
 
 1. [ Processing methodology](#processing)  
-  a.  [ Run model in Hec-Ras. ](#runmodel)   
-  b. [ Post process model outputs in Hec-Ras. ](#postprocess)  
+  a.  [ Run model in Hec-Ras](#runmodel)   
+  b. [ Post process model outputs in Hec-Ras](#postprocess)  
   c. [ Process outputs in QGIS](#qgis)   
   d. [ Plot results in Python](#python)   
-2. [ Run model in Hec-Ras. ](#results)  
+2. [ Results ](#results)  
 
 ## 1. Processing Methodology
   <a name="runmodel"></a>
