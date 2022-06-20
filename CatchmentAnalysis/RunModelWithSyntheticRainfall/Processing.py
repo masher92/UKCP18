@@ -19,7 +19,7 @@ for method_name, file_location in methods.items():
     # Read in file
     method_file = pd.read_csv(file_location, encoding = 'unicode_escape')
     # Cut by depth bins
-    method_file['depth_range']= pd.cut(method_file.value, bins=[0,0.15,0.30,0.60, 0.9, 1.2,99], right=False)
+    method_file['depth_range']= pd.cut(method_file.value, bins=[0,0.15,0.30,0.60, 0.9, 1.2,5,99], right=False)
     depth_groups = method_file.groupby(['depth_range']).sum()
     depth_groups = depth_groups.reset_index()
     # Find the sum
@@ -31,9 +31,9 @@ for method_name, file_location in methods.items():
     proportions_df[method_name] = depth_groups['Proportion']
 
 counts_df.reset_index(inplace=True)
-counts_df['index'] = ['0-0.15m', '0.15-0.3m', '0.3-0.6m', '0.6-0.9m', '0.9-1.2m', '1.2m+']
+counts_df['index'] = ['0-0.15m', '0.15-0.3m', '0.3-0.6m', '0.6-0.9m', '0.9-1.2m', '1.2-5m', '1.2m+']
 proportions_df.reset_index(inplace=True)
-proportions_df['index'] = ['0-0.15m', '0.15-0.3m', '0.3-0.6m', '0.6-0.9m', '0.9-1.2m', '1.2m+']
+proportions_df['index'] = ['0-0.15m', '0.15-0.3m', '0.3-0.6m', '0.6-0.9m', '0.9-1.2m', '1.2-5m', '1.2m+']
 
 # Set colors for plots
 colors = ['black', 'lightslategrey', 'darkslategrey', 'darkgreen']
@@ -109,7 +109,7 @@ for method_name, file_location in methods.items():
     # Read in file
     method_file = pd.read_csv(file_location, encoding = 'unicode_escape')
     # Cut by depth bins
-    method_file['depth_range']= pd.cut(method_file.value, bins=[0,0.25,0.50,2,3,700], right=False)
+    method_file['depth_range']= pd.cut(method_file.value, bins=[0,0.25,0.50,2,3,10,700], right=False)
     depth_groups = method_file.groupby(['depth_range']).sum()
     depth_groups = depth_groups.reset_index()
     # Find the sum
@@ -121,9 +121,9 @@ for method_name, file_location in methods.items():
     proportions_df[method_name] = depth_groups['Proportion']
 
 counts_df.reset_index(inplace=True)
-counts_df['index'] = ['0-0.25m/s', '0.25-0.5m/s', '0.5-2m/s', '2-3m/s','3-700m/s']
+counts_df['index'] = ['0-0.25m/s', '0.25-0.5m/s', '0.5-2m/s', '2-3m/s','3-10m/s','10-700m/s']
 proportions_df.reset_index(inplace=True)
-proportions_df['index'] = ['0-0.25m/s', '0.25-0.5m/s', '0.5-2m/s','2-3m/s', '3-700m/s']
+proportions_df['index'] = ['0-0.25m/s', '0.25-0.5m/s', '0.5-2m/s','2-3m/s','3-10m/s','10-700m/s']
 
 # Set colors for plots
 colors = ['black', 'lightslategrey', 'darkslategrey', 'darkgreen']
