@@ -88,5 +88,56 @@ plt.xticks(y_pos, methods.keys())
 plt.ylabel("Number of cells")
 
 
+###############################################################################
+###############################################################################
+# Velocity
+###############################################################################
+###############################################################################
+
+
+# Create dictionary mapping method name to csv file containing values
+methods = {'divide-time':"6hr_dt_u_uniquevaluesreport_velocity.csv",
+           'max-spread': "6hr_ms_u_uniquevaluesreport_velocity.csv",
+           'single-peak': "6hr_sp_u_uniquevaluesreport_velocity.csv",
+           "subpeak-timing": "6hr_sp-t_u_uniquevaluesreport_velocity.csv"}
+
+counts_df = pd.DataFrame()
+proportions_df = pd.DataFrame()
+
+# Loop through methods and populate dataframes
+for method_name, file_location in methods.items():
+    # Read in file
+    method_file = pd.read_csv(file_location, encoding = 'unicode_escape')
+    # Cut by depth bins
+    method_file['depth_range']= pd.cut(method_file.value, bins=[0,0.25,0.50,2,3,700], right=False)
+    depth_groups = method_file.groupby(['depth_range']).sum()
+    depth_groups = depth_groups.reset_index()
+    # Find the sum
+    total_n_cells = depth_groups['count'].sum()
+    # Find the number of cells in each group as a proportion of the total
+    depth_groups['Proportion'] = round((depth_groups['count']/total_n_cells) *100,1)
+    # Add values to dataframes
+    counts_df[method_name] = depth_groups['count']
+    proportions_df[method_name] = depth_groups['Proportion']
+
+counts_df.reset_index(inplace=True)
+counts_df['index'] = ['0-0.25m/s', '0.25-0.5m/s', '0.5-2m/s', '2-3m/s','3-700m/s']
+proportions_df.reset_index(inplace=True)
+proportions_df['index'] = ['0-0.25m/s', '0.25-0.5m/s', '0.5-2m/s','2-3m/s', '3-700m/s']
+
+# Set colors for plots
+colors = ['black', 'lightslategrey', 'darkslategrey', 'darkgreen']
+
+# plot count bar chart
+counts_df.plot(x='index',kind='bar', stacked=False, width=0.8, legend = True, color = colors)
+plt.xticks(rotation=30)
+plt.xlabel('Flood depth')
+plt.ylabel('Number of cells')
+
+# plot proportions bar chart
+proportions_df.plot(x='index', kind='bar', stacked=False, width=0.8, legend = True, color = colors)
+plt.xticks(rotation=30)
+plt.xlabel('Flood depth')
+plt.ylabel('Proportion of cells')
 
 
