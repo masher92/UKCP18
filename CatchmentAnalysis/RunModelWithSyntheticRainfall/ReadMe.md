@@ -54,7 +54,7 @@
 
 <a name="results"></a>
 ## 2. Results
-### Flood extent and depth
+### <ins> Flood extent and depth </ins>
 
 The distribution of flooded cells (>0.1m) for each method plotted in Hec-Ras mapper are shown below  
 <p align="center">
