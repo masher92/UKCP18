@@ -54,6 +54,7 @@
 
 <a name="results"></a>
 ## 2. Results
+### Flood extent and depth
 
 The distribution of flooded cells (>0.1m) for each method plotted in Hec-Ras mapper are shown below  
 <p align="center">
@@ -84,7 +85,7 @@ Each cell is coloured according to the method which resulted in the deepest floo
 <img src="Figs/Hec-Ras_6hr_worstcase_category.PNG" width="400" />
 <img src="Figs/6hr_MethodDeepestFlooding.png"  width=500" />
  
-
+### <ins> Flood velocity </ins>
                                                                                                                          
                                                                                                                               
 
