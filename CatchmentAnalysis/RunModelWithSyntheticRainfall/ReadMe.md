@@ -17,6 +17,12 @@
 
   The Lin Dyke model is ran for a 6hr duration storm using the four different methods of distributing the rainfall over the event duration. The details of the four methods are in https://github.com/masher92/UKCP18/tree/master/CatchmentAnalysis/CreateSyntheticRainfallEvents
 
+For a 6hr duration rainfall event the profiles are as follows (for a single-peak, divide time, max spread and sub-peak timing)
+<p align="center">
+<img src="Figs/6h_methods.png"  width="350"  />
+
+The peak rainfall intensities associated with the methods are: Single peak – 1.1mm/min; divide time – 1.5mm/min; maximum spread – 1.5mm/min; and sub-peak timing – 1.74mm/min
+    
   <a name="postprocess"></a>
   ### b. Post process model outputs in Hec-Ras Mapper
 
