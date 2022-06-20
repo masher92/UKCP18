@@ -86,6 +86,7 @@ Each cell is coloured according to the method which resulted in the deepest floo
 <img src="Figs/6hr_MethodDeepestFlooding.png"  width=500" />
  
 ### <ins> Flood velocity </ins>                                                                                                             
+The velocities are split into categories and the number of flooded cells in each velocity category, as well as the proportion of all flooded cells in each velocity category, are also plotted.
   
 <p align="center">
 <img src="Figs/6hr_NumOfCellsFlooded_velocity.png"  width="400"  />
