@@ -31,9 +31,9 @@ for method_name, file_location in methods.items():
     proportions_df[method_name] = depth_groups['Proportion']
 
 counts_df.reset_index(inplace=True)
-counts_df['index'] = ['0-0.15m', '0.15-0.3m', '0.3-0.6m', '0.6-0.9m', '0.9-1.2m', '1.2-5m', '1.2m+']
+counts_df['index'] = ['0-0.15m', '0.15-0.3m', '0.3-0.6m', '0.6-0.9m', '0.9-1.2m', '1.2-5m', '5m+']
 proportions_df.reset_index(inplace=True)
-proportions_df['index'] = ['0-0.15m', '0.15-0.3m', '0.3-0.6m', '0.6-0.9m', '0.9-1.2m', '1.2-5m', '1.2m+']
+proportions_df['index'] = ['0-0.15m', '0.15-0.3m', '0.3-0.6m', '0.6-0.9m', '0.9-1.2m', '1.2-5m', '5m+']
 
 # Set colors for plots
 colors = ['black', 'lightslategrey', 'darkslategrey', 'darkgreen']
@@ -41,13 +41,13 @@ colors = ['black', 'lightslategrey', 'darkslategrey', 'darkgreen']
 # plot count bar chart
 counts_df.plot(x='index',kind='bar', stacked=False, width=0.8, legend = True, color = colors)
 plt.xticks(rotation=30)
-plt.xlabel('Flood depth')
+plt.xlabel('Flood velocity')
 plt.ylabel('Number of cells')
 
 # plot proportions bar chart
 proportions_df.plot(x='index', kind='bar', stacked=False, width=0.8, legend = True, color = colors)
 plt.xticks(rotation=30)
-plt.xlabel('Flood depth')
+plt.xlabel('Flood velocity')
 plt.ylabel('Proportion of cells')
 
 # Create dataframe with just totals 
