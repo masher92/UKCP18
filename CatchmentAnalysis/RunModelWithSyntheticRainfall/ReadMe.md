@@ -85,9 +85,11 @@ Each cell is coloured according to the method which resulted in the deepest floo
 <img src="Figs/Hec-Ras_6hr_worstcase_category.PNG" width="400" />
 <img src="Figs/6hr_MethodDeepestFlooding.png"  width=500" />
  
-### <ins> Flood velocity </ins>
-                                                                                                                         
-                                                                                                                              
+### <ins> Flood velocity </ins>                                                                                                             
+  
+<p align="center">
+<img src="Figs/6hr_NumOfCellsFlooded_velocity.png"  width="400"  />
+<img src="Figs/6hr_PropOfCellsFlooded_velocity.png"  width=400" />
 
  
                                                                                                                          
