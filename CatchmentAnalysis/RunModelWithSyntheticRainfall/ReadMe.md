@@ -8,6 +8,8 @@
   c. [ Process outputs in QGIS](#qgis)   
   d. [ Plot results in Python](#python)   
 2. [ Results ](#results)  
+  a. [Flood extent and depth](#extentanddepth)   
+  b. [Flood velocity](#velocity)   
 
 ## 1. Processing Methodology
   <a name="runmodel"></a>
@@ -54,6 +56,7 @@
 
 <a name="results"></a>
 ## 2. Results
+<a name="extentanddepth"></a>
 ### <ins> Flood extent and depth </ins>
 
 The distribution of flooded cells (>0.1m) for each method plotted in Hec-Ras mapper are shown below  
@@ -85,7 +88,8 @@ Each cell is coloured according to the method which resulted in the deepest floo
 <img src="Figs/Hec-Ras_6hr_worstcase_category.PNG" width="400" />
 <img src="Figs/6hr_MethodDeepestFlooding.png"  width=500" />
  
-### <ins> Flood velocity </ins>                                                                                                             
+### <ins> Flood velocity </ins>      
+<a name="velocity"></a>
 The velocities are split into categories and the number of flooded cells in each velocity category, as well as the proportion of all flooded cells in each velocity category, are also plotted.
   
 <p align="center">
