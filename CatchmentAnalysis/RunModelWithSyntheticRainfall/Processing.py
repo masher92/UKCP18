@@ -6,10 +6,10 @@ import matplotlib.pyplot as plt
 os.chdir("C:/Users/gy17m2a/OneDrive - University of Leeds/PhD/DataAnalysis/FloodModelling/MeganModel/Calculated Layers")
 
 # Create dictionary mapping method name to csv file containing values
-methods = {'divide-time':"6hr_dt_u_uniquevaluesreport.csv",
-           'max-spread': "6hr_ms_u_uniquevaluesreport.csv",
-           'single-peak': "6hr_sp_u_uniquevaluesreport.csv",
-           "subpeak-timing": "6hr_sp-t_u_uniquevaluesreport.csv"}
+methods = {'divide-time':"6hr_dt_u_uniquevaluesreport_depth.csv",
+           'max-spread': "6hr_ms_u_uniquevaluesreport_depth.csv",
+           'single-peak': "6hr_sp_u_uniquevaluesreport_depth.csv",
+           "subpeak-timing": "6hr_sp-t_u_uniquevaluesreport_depth.csv"}
 
 counts_df = pd.DataFrame()
 proportions_df = pd.DataFrame()
@@ -31,9 +31,9 @@ for method_name, file_location in methods.items():
     proportions_df[method_name] = depth_groups['Proportion']
 
 counts_df.reset_index(inplace=True)
-counts_df['index'] = ['0-0.15m', '0.15-0.3m', '0.3-0.6m', '0.6-0.9m', '0.9-1.2m', '1.2-5m', '5m+']
+counts_df['index'] = ['0.1-0.15m', '0.15-0.3m', '0.3-0.6m', '0.6-0.9m', '0.9-1.2m', '1.2-5m', '5m+']
 proportions_df.reset_index(inplace=True)
-proportions_df['index'] = ['0-0.15m', '0.15-0.3m', '0.3-0.6m', '0.6-0.9m', '0.9-1.2m', '1.2-5m', '5m+']
+proportions_df['index'] = ['0.1-0.15m', '0.15-0.3m', '0.3-0.6m', '0.6-0.9m', '0.9-1.2m', '1.2-5m', '5m+']
 
 # Set colors for plots
 colors = ['black', 'lightslategrey', 'darkslategrey', 'darkgreen']
@@ -57,7 +57,6 @@ totals_df.drop(columns = 'index', inplace = True)
 
 # PLot
 y_pos = np.arange(len(methods.keys()))
-
 # Create bars
 plt.bar(y_pos, totals_df.iloc[[0]].values.tolist()[0], color=colors,
         width = 0.9)
@@ -109,7 +108,7 @@ for method_name, file_location in methods.items():
     # Read in file
     method_file = pd.read_csv(file_location, encoding = 'unicode_escape')
     # Cut by depth bins
-    method_file['depth_range']= pd.cut(method_file.value, bins=[0,0.25,0.50,2,3,10,700], right=False)
+    method_file['depth_range']= pd.cut(method_file.value, bins=[0,0.25,0.50,1,2,3], right=False)
     depth_groups = method_file.groupby(['depth_range']).sum()
     depth_groups = depth_groups.reset_index()
     # Find the sum
@@ -121,9 +120,9 @@ for method_name, file_location in methods.items():
     proportions_df[method_name] = depth_groups['Proportion']
 
 counts_df.reset_index(inplace=True)
-counts_df['index'] = ['0-0.25m/s', '0.25-0.5m/s', '0.5-2m/s', '2-3m/s','3-10m/s','10-700m/s']
+counts_df['index'] = ['0-0.25m/s', '0.25-0.5m/s', '0.5-1m/s','1-2m/s', '2-3m/s']
 proportions_df.reset_index(inplace=True)
-proportions_df['index'] = ['0-0.25m/s', '0.25-0.5m/s', '0.5-2m/s','2-3m/s','3-10m/s','10-700m/s']
+proportions_df['index'] = ['0-0.25m/s', '0.25-0.5m/s', '0.5-1m/s','1-2m/s','2-3m/s']
 
 # Set colors for plots
 colors = ['black', 'lightslategrey', 'darkslategrey', 'darkgreen']
@@ -131,13 +130,13 @@ colors = ['black', 'lightslategrey', 'darkslategrey', 'darkgreen']
 # plot count bar chart
 counts_df.plot(x='index',kind='bar', stacked=False, width=0.8, legend = True, color = colors)
 plt.xticks(rotation=30)
-plt.xlabel('Flood depth')
+plt.xlabel('Flood Velocity')
 plt.ylabel('Number of cells')
 
 # plot proportions bar chart
 proportions_df.plot(x='index', kind='bar', stacked=False, width=0.8, legend = True, color = colors)
 plt.xticks(rotation=30)
-plt.xlabel('Flood depth')
+plt.xlabel('Flood velocity')
 plt.ylabel('Proportion of cells')
 
 

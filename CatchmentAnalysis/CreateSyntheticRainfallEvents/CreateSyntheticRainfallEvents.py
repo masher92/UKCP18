@@ -188,8 +188,9 @@ durations = ['1h', '3h', '6h']
 
 # For each method produce a dataframe containing precipitation values for each minute
 # and save these to file
-for duration in durations:
+for duration in ['6h']:
     for method in methods:
+        print(method, duration)
         
         ## PARAMETER SETTINGS
         N_subpeaks= 3
@@ -228,7 +229,9 @@ for duration in durations:
         
         # Plot
         #pdf_plotter_all_rates()
-    
+        
+        print(accum_df['Rate (mm/min)'].max())
+        
 ## Antecedent conditions
 dates = []
 for i in[3,2,1]:
