@@ -8,3 +8,7 @@
 
 
 ### Python
+* Convert_VRTtoTif.py --> This script converts .vrt versions of the files to .tifs (although I think this stage is no longer required as .tif versions can be downloaded directly from Hec-Ras) 
+* FindDifference.py --> This script creates a raster for each of the 3 methods of creating multiple peaks, where the cell values are the difference between the values for that method and for the single peak method (for both depth and velocity). Also creates a reclassified version with a value of 0 for negative difference values and a value of 1 for positive differences. 
+*  Reclassify.py -->
+*  
