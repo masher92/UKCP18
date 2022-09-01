@@ -56,25 +56,22 @@ breaks_depths = np.array([0,0.1,0.15, 0.3, 0.6, 0.9, 1.2, 1000])
 breaks_velocity = np.array([0,0.25,0.5,2,100])
             
 
-results_dict = {}
-for variable in ["depth", "velocity"]:
-    counts_df = pd.DataFrame()
-    proportions_df = pd.DataFrame()        
+# results_dict = {}
+# for variable in ["depth", "velocity"]:
+#     counts_df = pd.DataFrame()
+#     proportions_df = pd.DataFrame()        
 
-    for method_name, shortening in methods.items():    # Define filepath
-        print(variable, method_name)
-        # Read in the raster files
-        raster = rasterio.open("MeganModel/{}_u/6hr_{}_{}.Resampled.Terrain.tif".format(shortening, method_name, variable)).read(1)
-        # Set -9999 to NA
-        raster[raster < -9998] = np.nan    
-        # Set cell values to Null in cells which have a value <0.1 in the depth raster
-        if remove_little_values == True:
-             raster[raster < 0.1] = np.nan
-             
-
-       
-
-
+#     for method_name, shortening in methods.items():    # Define filepath
+#         print(variable, method_name)
+#         # Read in the raster files
+#         raster = rasterio.open("MeganModel/{}_u/6hr_{}_{}.Resampled.Terrain.tif".format(shortening, method_name, variable)).read(1)
+#         # Set -9999 to NA
+#         raster[raster < -9998] = np.nan    
+#         # Set cell values to Null in cells which have a value <0.1 in the depth raster
+#         if remove_little_values == True:
+#              raster[raster < 0.1] = np.nan
+                 
+    
 ######################################################################################
 ######################################################################################
 # Do processing 
@@ -97,8 +94,9 @@ for raster_name in depth_rasters_dict:
     classified_velocity = np.where(np.isnan(depth_raster), np.nan, classified_velocity)
     
     # Save
-    save_array_as_raster(classified_depth, ".tiff")    
-save_array_as_raster(classified_depth, ".tiff")  
+    save_array_as_raster(classified_depth, "Arcpy/classified_depth.tiff") 
+    save_array_as_raster(classified_velocity, "Arcpy/classified_velocity.tiff")  
+    
     ######################################################################################
     ######################################################################################
     # Find difference between depth/velocity rasters from this method, and the single peak method
