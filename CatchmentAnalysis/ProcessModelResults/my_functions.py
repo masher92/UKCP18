@@ -190,3 +190,42 @@ def plot_classified_depth(input_raster_fp, output_png_fp, labels_depth, norm = N
     # Save the figure
     plt.savefig(output_png_fp, dpi=500,bbox_inches='tight')
     plt.close()
+    
+def plot_difference_levels (input_raster_fp, output_png_fp):
+
+    # Specify catchment area to add to plot
+    my_shp = "MeganModel/CatchmentLinDyke_exported.shp"
+    gdf = gpd.read_file(my_shp)
+
+    # Create discrete cmap
+    colors_list = [mpl.cm.viridis(0.1), mpl.cm.viridis(0.5), mpl.cm.viridis(0.7), mpl.cm.viridis(0.9)]
+    cmap = mpl.colors.ListedColormap(colors_list)
+    cmap.set_over('red')
+    cmap.set_under('green')
+
+    # Create patches for legend
+    patches_list = []
+    labels= ['<-0.1', '-0.1-0.1', '0.1-0.3', '0.3+']
+    for i, color in  enumerate(colors_list):
+        patch =  mpatches.Patch(color=color, label=labels[i])
+        patches_list.append(patch)  
+
+    # plot the new clipped raster      
+    clipped = rasterio.open("Arcpy/classified_depth_singlepeak_{}_diff.tif".format(key))
+
+    # Set up plot instance
+    fig, ax = plt.subplots(figsize=(20, 15))
+    ax = mpl.pyplot.gca()
+    rasterio.plot.show((clipped, 1), ax= ax, cmap = cmap)
+    gdf.plot(ax=ax, facecolor = 'None', edgecolor = 'black', linewidth = 4)
+
+    # Close file (otherwise can't delete it, as ref to it is open)
+    clipped.close()
+
+    plt.axis('off')
+
+    plt.legend(handles=patches_list, handleheight=4, handlelength=5, fontsize =30)
+    
+    # Save the figure
+    plt.savefig(output_png_fp, dpi=500,bbox_inches='tight')
+    plt.close()    
