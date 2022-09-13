@@ -19,6 +19,8 @@ from fiona.crs import from_epsg
 import pycrs
 from pyproj import CRS
 import matplotlib.patches as mpatches
+import contextily as cx
+
 
 def save_array_as_raster(raster, fp_to_save, out_meta):
     src = rasterio.open("MeganModel/6hr_dt_u/6hr_dividetime_velocity.Resampled.Terrain.tif")
@@ -135,11 +137,23 @@ def plot_classified_velocity(input_raster_fp, output_png_fp, labels_velocity, no
     # plot the new clipped raster      
     clipped = rasterio.open(input_raster_fp)
     
-    # Set up plot instance
+    
     fig, ax = plt.subplots(figsize=(20, 15))
-    ax = mpl.pyplot.gca()
-    rasterio.plot.show((clipped, 1), ax= ax, cmap = cmap, norm = norm)
     gdf.plot(ax=ax, facecolor = 'None', edgecolor = 'black', linewidth = 4)
+    # cx.add_basemap(ax, crs=gdf.crs.to_string(), source=cx.providers.Stamen.Toner)
+    # cx.add_basemap(ax, crs=gdf.crs.to_string(), source=cx.providers.Stamen.Terrain)
+#     cx.add_basemap(ax, crs=gdf.crs.to_string(), source=cx.providers.CartoDB.Positron)
+    # cx.add_basemap(ax, crs=gdf.crs.to_string(), source=cx.providers.OpenTopoMap)
+    # cx.add_basemap(ax, crs=gdf.crs.to_string(), source=cx.providers.Stamen.TonerLabels)
+    # cx.add_basemap(ax, crs=gdf.crs.to_string(), source=cx.providers.Stamen.Watercolor, zoom=12)
+    cx.add_basemap(ax, crs = gdf.crs.to_string(), url = cx.providers.OpenStreetMap.Mapnik)
+    rasterio.plot.show((clipped, 1), ax= ax, cmap = cmap, norm = norm)
+    
+#     # Set up plot instance
+#     fig, ax = plt.subplots(figsize=(20, 15))
+#     ax = mpl.pyplot.gca()
+#     rasterio.plot.show((clipped, 1), ax= ax, cmap = cmap, norm = norm)
+#     gdf.plot(ax=ax, facecolor = 'None', edgecolor = 'black', linewidth = 4)
        
     # Close file (otherwise can't delete it, as ref to it is open)
     clipped.close()
@@ -191,7 +205,7 @@ def plot_classified_depth(input_raster_fp, output_png_fp, labels_depth, norm = N
     plt.savefig(output_png_fp, dpi=500,bbox_inches='tight')
     plt.close()
     
-def plot_difference_levels (input_raster_fp, output_png_fp):
+def plot_difference_levels (input_raster_fp, output_png_fp, variable_name):
 
     # Specify catchment area to add to plot
     my_shp = "MeganModel/CatchmentLinDyke_exported.shp"
@@ -205,7 +219,10 @@ def plot_difference_levels (input_raster_fp, output_png_fp):
 
     # Create patches for legend
     patches_list = []
-    labels= ['<-0.1', '-0.1-0.1', '0.1-0.3', '0.3+']
+    if variable_name == 'depth':
+        labels= ['<-0.1m', '-0.1-0.1m', '0.1-0.3m', '0.3m+']
+    elif variable_name =='velocity':
+        labels = ['<-0.1m/s', '-0.1-0.1m/s', '0.1-0.3m/s', '0.3m/s+']
     for i, color in  enumerate(colors_list):
         patch =  mpatches.Patch(color=color, label=labels[i])
         patches_list.append(patch)  
