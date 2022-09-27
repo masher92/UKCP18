@@ -27,7 +27,7 @@ from folium import Map, FeatureGroup, LayerControl
 import numpy.ma as ma
 
 # Specify catchment area to add to plot
-# os.chdir("../../../FloodModelling")
+os.chdir("../../../FloodModelling")
 catchment_shp = "MeganModel/CatchmentLinDyke_exported.shp"
 catchment_gdf = gpd.read_file(catchment_shp)
 
@@ -52,8 +52,8 @@ def colorize(array, cmap):
     normed_data = (array - np.nanmin(array)) / (np.nanmax(array) - np.nanmin(array)) 
     #normed_data = (array - array.min()) / (array.max() - array.min()) 
     cm = plt.cm.get_cmap(cmap)    
-    return cm(normed_data)   
-    
+    return np.uint8(cm(normed_data)  * 255)
+
 def plot_with_folium(dict_of_fps_and_names, cmap, template):
     
     # Set up figure
