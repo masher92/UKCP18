@@ -31,6 +31,46 @@ os.chdir("../../../FloodModelling")
 catchment_shp = "MeganModel/CatchmentLinDyke_exported.shp"
 catchment_gdf = gpd.read_file(catchment_shp)
 
+def create_binned_counts_and_props(variable_name, breaks, labels):
+    # Create dataframes to populate with values
+    counts_df = pd.DataFrame()
+    proportions_df = pd.DataFrame()        
+
+    # Loop through each rainfall scenario
+    # Get the raster containing its values, and count the number of each unique value, and construct into a dataframe
+    for rainfall_scenario_name, rainfall_scenario_shortening in rainfall_scenario_names.items():  
+        raster = prepare_rainfall_scenario_raster(variable_name, rainfall_scenario_name, rainfall_scenario_shortening, remove_little_values)[0]
+        unique, counts = np.unique(raster, return_counts=True)
+        df = pd.DataFrame({'values': unique, 'counts':counts})
+
+        # Add a new column specifying the bin which each value falls within
+        df['bins']= pd.cut(unique, bins=breaks, right=False)
+        
+        # Create a new dataframe showing the number of cells in each of the bins
+        groups = df.groupby(['bins']).sum()
+        groups  = groups.reset_index()
+        
+        # Find the total number of cells
+        total_n_cells = groups ['counts'].sum()
+        # Find the number of cells in each group as a proportion of the total
+        groups['Proportion'] = round((groups['counts']/total_n_cells) *100,1)
+        
+        # Add values to dataframes
+        counts_df[rainfall_scenario_name] = groups['counts']
+        proportions_df[rainfall_scenario_name] = groups['Proportion']
+        
+    # Reset index to show the groups
+    counts_df.reset_index(inplace=True)
+    proportions_df.reset_index(inplace=True)
+    
+    # Set index values
+    counts_df['index'] = labels
+    proportions_df['index'] = labels
+
+    return counts_df, proportions_df
+    
+
+
 def categorise_difference (raster):
     classified_raster = raster.copy()
     classified_raster[np.where( raster < -0.1 )] = 1
@@ -38,7 +78,6 @@ def categorise_difference (raster):
     classified_raster[np.where((0.1 >= raster) & (raster < 0.3)) ] = 3
     classified_raster[np.where( raster >= 0.3  )] = 4
     return classified_raster
-
 
 def prep_for_folium_plotting(input_raster_fp):
     # Open dataset using rioxarray
@@ -67,10 +106,7 @@ def plot_with_folium(dict_of_fps_and_names, cmap, template):
         name="No Base Map",
         show=True
     ).add_to(mapa)
-
-    # Add catchment boundary
-    # folium.GeoJson(data=gdf["geometry"]).add_to(mapa)
-    
+   
     # Add to map
     catchment_boundary_feature_group = FeatureGroup(name='Catchment boundary')
     catchment_boundary_feature_group.add_child(folium.GeoJson(data=catchment_gdf["geometry"], style_function=lambda x, 
@@ -105,23 +141,13 @@ def plot_with_folium(dict_of_fps_and_names, cmap, template):
     mapa.add_child(LayerControl("topright", collapsed = False))
     display(mapa)
 
-
-
 def save_array_as_raster(raster, fp_to_save, out_meta):
     src = rasterio.open("MeganModel/6hr_dt_u/6hr_dividetime_velocity.Resampled.Terrain.tif")
-#     # Save the clipped raster to disk with following command.
-#     with rasterio.open(
-#             fp_to_save, 'w', driver='GTiff', height=raster.shape[0], width=raster.shape[1],
-#                             count=1, dtype=raster.dtype,crs=src.crs, nodata=np.nan, transform=src.transform) as dest_file:
-#         dest_file.write(raster,1)
-#     dest_file.close()     
-    
     with rasterio.open(
             fp_to_save, "w", **out_meta) as dest_file:
         dest_file.write(raster,1)
     dest_file.close()    
     
-
 # Opensa raster, trims it to extent of catchment, saves a trimmed version
 # and returns an arrat contianing the data, also trimmed
 def open_and_clip(input_raster_fp, output_raster_fp):
@@ -167,17 +193,77 @@ def open_and_clip(input_raster_fp, output_raster_fp):
     
     return clipped_array[0,:,:], out_meta
 
-def plot(input_raster_fp, output_png_fp, variable_name, cmap, norm = None):
+def prepare_rainfall_scenario_raster(variable_name, rs_name, rs_shortening, remove_little_values):
     
-    # Specify catchment area to add to plot
-    my_shp = "MeganModel/CatchmentLinDyke_exported.shp"
-    gdf = gpd.read_file(my_shp)
+    # Clip the raster files to the extent of the catchment boundary
+    # Also return out_meta which contains..
+    raster, out_meta = open_and_clip("MeganModel/6hr_{}_u/6hr_{}_{}.Resampled.Terrain.tif".format(rs_shortening, rs_name, variable_name), 
+                           "MeganModel/6hr_{}_u/6hr_{}_{}.Resampled.Terrain_clipped.tif".format(rs_shortening, rs_name, variable_name)) 
+    
+    # If looking at velocity, then also read in depth raster as this is needed to filter out cells where 
+    # the depth is below 0.1m
+    if variable_name == 'velocity':
+            depth_raster = open_and_clip("MeganModel/6hr_{}_u/6hr_{}_{}.Resampled.Terrain.tif".format(rs_shortening, rs_name, 'depth'), 
+                       "MeganModel/6hr_{}_u/6hr_{}_{}.Resampled.Terrain_clipped.tif".format(rs_shortening, rs_name, 'depth'))[0]
 
+    # Set -9999 to NA
+    raster[raster < -9998] = np.nan
+
+    # Set cell values to Null in cells which have a value <0.1 in the depth raster
+    if remove_little_values == True:
+        if variable_name == 'depth':
+                raster[raster < 0.1] = np.nan
+        elif variable_name == 'velocity':
+                raster[depth_raster < 0.1] = np.nan
+    
+    return raster, out_meta
+
+def classify_raster (raster, breaks):
+    
+    # Classify using the specified breaks
+    classified_raster = np.digitize(raster,breaks, right = False)
+    # Set values which are classified as category 5 to np.nan
+    classified_raster = np.where(classified_raster == len(breaks), np.nan, classified_raster)
+    
+    return classified_raster
+
+def plot_classified_raster(variable_name, rainfall_scenario_name, labels, colors_list, norm = None):
+    
+    # Create patches for legend
+    patches_list = []
+    for i, color in  enumerate(colors_list):
+        patch =  mpatches.Patch(color=color, label=labels[i])
+        patches_list.append(patch)  
+    
+    # Create cmap
+    cmap = mpl.colors.ListedColormap(colors_list)
+    
     # plot the new clipped raster      
-    clipped = rasterio.open(input_raster_fp)
+    clipped = rasterio.open("Arcpy/{}_{}_reclassified.tif".format(variable_name, rainfall_scenario_name))
+
+    fig, ax = plt.subplots(figsize=(20, 15))
+    catchment_gdf.plot(ax=ax, facecolor = 'None', edgecolor = 'black', linewidth = 4)
+    cx.add_basemap(ax, crs = catchment_gdf.crs.to_string(), url = cx.providers.OpenStreetMap.Mapnik)
+    rasterio.plot.show((clipped, 1), ax= ax, cmap = cmap, norm = norm)
+
+    # Close file (otherwise can't delete it, as ref to it is open)
+    clipped.close()
+
+    plt.axis('off')
+
+    plt.legend(handles=patches_list, handleheight=3, handlelength=3, fontsize =20)
+    
+    #Save the figure
+    plt.savefig("Arcpy/Figs/{}_{}_reclassified.png".format(variable_name, rainfall_scenario_name), dpi=500,bbox_inches='tight')
+    plt.close()    
+
+def plot_difference(variable_name, rainfall_scenario_name, cmap, norm = None):
+    
+    # plot the new clipped raster      
+    clipped = rasterio.open("Arcpy/{}_singlepeak_{}_diff.tif".format(variable_name, rainfall_scenario_name))
     
     fig, ax = plt.subplots(figsize=(20, 15))
-    gdf.plot(ax=ax, facecolor = 'None', edgecolor = 'black', linewidth = 4)
+    catchment_gdf.plot(ax=ax, facecolor = 'None', edgecolor = 'black', linewidth = 4)
     cx.add_basemap(ax, crs = gdf.crs.to_string(), url = cx.providers.OpenStreetMap.Mapnik)
     rasterio.plot.show((clipped, 1), ax= ax, cmap = cmap, norm = norm)
        
@@ -195,89 +281,12 @@ def plot(input_raster_fp, output_png_fp, variable_name, cmap, norm = None):
     cbar = fig.colorbar(image_hidden, ax=ax, fraction=0.03, pad=0.04)
     cbar.set_label(variable_name, fontsize=16)
     cbar.ax.tick_params(labelsize=15)
+    
     # Save the figure
-    plt.savefig(output_png_fp, dpi=500,bbox_inches='tight')
-    plt.close()
-    # os.remove(out_tif)  
-    
-def plot_classified_velocity(input_raster_fp, output_png_fp, labels_velocity, norm = None):
-    
-    # Specify catchment area to add to plot
-    my_shp = "MeganModel/CatchmentLinDyke_exported.shp"
-    gdf = gpd.read_file(my_shp)
-
-    # Create discrete cmap
-    colors_list = [mpl.cm.cool(0.3), mpl.cm.cool(0.5), mpl.cm.cool(0.7), mpl.cm.cool(0.9)]
-    cmap = mpl.colors.ListedColormap(colors_list)
-
-    # Create patches for legend
-    patches_list = []
-    for i, color in  enumerate(colors_list):
-        patch =  mpatches.Patch(color=color, label=labels_velocity[i])
-        patches_list.append(patch)  
-
-    # plot the new clipped raster      
-    clipped = rasterio.open(input_raster_fp)
-
-    fig, ax = plt.subplots(figsize=(20, 15))
-    gdf.plot(ax=ax, facecolor = 'None', edgecolor = 'black', linewidth = 4)
-    cx.add_basemap(ax, crs = gdf.crs.to_string(), url = cx.providers.OpenStreetMap.Mapnik)
-    rasterio.plot.show((clipped, 1), ax= ax, cmap = cmap, norm = norm)
-
-    # Close file (otherwise can't delete it, as ref to it is open)
-    clipped.close()
-
-    plt.axis('off')
-
-    plt.legend(handles=patches_list, handleheight=3, handlelength=3, fontsize =20)
-    #Save the figure
-    plt.savefig(output_png_fp, dpi=500,bbox_inches='tight')
-    plt.close()
-
-
-def plot_classified_depth(input_raster_fp, output_png_fp, labels_depth, norm = None):
-    
-    # Specify catchment area to add to plot
-    my_shp = "MeganModel/CatchmentLinDyke_exported.shp"
-    gdf = gpd.read_file(my_shp)
-
-    # Create discrete cmap
-    colors_list = [mpl.cm.Blues(0.2), mpl.cm.Blues(0.5), mpl.cm.Blues(0.7),"navy"]
-    #colors_list = ['turquoise','teal', 'blue', 'navy']
-    cmap = mpl.colors.ListedColormap(colors_list)
-    cmap.set_over('red')
-    cmap.set_under('green')
-
-    # Create patches for legend
-    patches_list = []
-    for i, color in  enumerate(colors_list):
-        patch =  mpatches.Patch(color=color, label=labels_depth[i])
-        patches_list.append(patch)  
-    
-    # plot the new clipped raster      
-    clipped = rasterio.open(input_raster_fp)
-    
-    # Set up plot instance
-    fig, ax = plt.subplots(figsize=(20, 15))
-    gdf.plot(ax=ax, facecolor = 'None', edgecolor = 'black', linewidth = 4)
-    cx.add_basemap(ax, crs = gdf.crs.to_string(), url = cx.providers.OpenStreetMap.Mapnik)
-    rasterio.plot.show((clipped, 1), ax= ax, cmap = cmap, norm = norm)
-       
-    # Close file (otherwise can't delete it, as ref to it is open)
-    clipped.close()
-    
-    plt.axis('off')
-    
-    plt.legend(handles=patches_list, handleheight=3, handlelength=3, fontsize =20)
-    # Save the figure
-    plt.savefig(output_png_fp, dpi=500,bbox_inches='tight')
+    plt.savefig("Arcpy/Figs/{}_singlepeak_{}_diff.png".format(variable_name, rainfall_scenario_name), dpi=500,bbox_inches='tight')
     plt.close()
     
-def plot_difference_levels (input_raster_fp, output_png_fp, variable_name, norm = None):
-
-    # Specify catchment area to add to plot
-    my_shp = "MeganModel/CatchmentLinDyke_exported.shp"
-    gdf = gpd.read_file(my_shp)
+def plot_difference_levels (variable_name, rainfall_scenario_name, labels, norm = None):
 
     # Create discrete cmap
     colors_list = [mpl.cm.viridis(0.1), mpl.cm.viridis(0.5), mpl.cm.viridis(0.7), mpl.cm.viridis(0.9)]
@@ -285,23 +294,25 @@ def plot_difference_levels (input_raster_fp, output_png_fp, variable_name, norm 
     cmap.set_over('red')
     cmap.set_under('green')
 
-    # Create patches for legend
-    patches_list = []
+    # Create labels
     if variable_name == 'depth':
         labels= ['<-0.1m', '-0.1-0.1m', '0.1-0.3m', '0.3m+']
     elif variable_name =='velocity':
         labels = ['<-0.1m/s', '-0.1-0.1m/s', '0.1-0.3m/s', '0.3m/s+']
+    
+    # Create patches for legend
+    patches_list = []
     for i, color in  enumerate(colors_list):
         patch =  mpatches.Patch(color=color, label=labels[i])
         patches_list.append(patch)  
 
     # plot the new clipped raster      
-    clipped = rasterio.open(input_raster_fp)
+    clipped = rasterio.open("Arcpy/{}_{}_reclassified.tif".format(variable_name,rainfall_scenario_name))
 
     # Set up plot instance
     fig, ax = plt.subplots(figsize=(20, 15))
-    gdf.plot(ax=ax, facecolor = 'None', edgecolor = 'black', linewidth = 4)
-    cx.add_basemap(ax, crs = gdf.crs.to_string(), url = cx.providers.OpenStreetMap.Mapnik)
+    catchment_gdf.plot(ax=ax, facecolor = 'None', edgecolor = 'black', linewidth = 4)
+    cx.add_basemap(ax, crs = catchment_gdf.crs.to_string(), url = cx.providers.OpenStreetMap.Mapnik)
     rasterio.plot.show((clipped, 1), ax= ax, cmap = cmap, norm = norm)
        
     # Close file (otherwise can't delete it, as ref to it is open)
@@ -312,34 +323,29 @@ def plot_difference_levels (input_raster_fp, output_png_fp, variable_name, norm 
     plt.legend(handles=patches_list, handleheight=3, handlelength=3, fontsize =20)
     
     # Save the figure
-    plt.savefig(output_png_fp, dpi=500,bbox_inches='tight')
+    plt.savefig("Arcpy/Figs/{}_singlepeak_{}_diff_reclassified.png".format(variable_name,rainfall_scenario_name), dpi=500,bbox_inches='tight')
     plt.close()    
 
-def plot_difference_levels_pos_neg (input_raster_fp, output_png_fp, method_name, norm = None):
-
-    # Specify catchment area to add to plot
-    my_shp = "MeganModel/CatchmentLinDyke_exported.shp"
-    gdf = gpd.read_file(my_shp)
+def plot_difference_levels_pos_neg (variable_name, rainfall_scenario_name, norm = None):
 
     # Create discrete cmap
-    colors_list = ["red", "orange", "green"]
+    colors_list = ["red", "grey", "green"]
     cmap = mpl.colors.ListedColormap(colors_list)
 
     # Create patches for legend
     patches_list = []
-    labels= ['{} < single peak'.format(method_name), '{} = single peak'.format(method_name), '{} > single peak'.format(method_name)]
+    labels= ['{} < single peak'.format(rainfall_scenario_name),'{} = single peak'.format(rainfall_scenario_name),'{} > single peak'.format(rainfall_scenario_name)]
     for i, color in  enumerate(colors_list):
-        print("Color")
         patch =  mpatches.Patch(color=color, label=labels[i])
         patches_list.append(patch)  
 
     # plot the new clipped raster      
-    clipped = rasterio.open(input_raster_fp)
+    clipped = rasterio.open("Arcpy/{}_singlepeak_{}_diff_posneg.tif".format(variable_name,rainfall_scenario_name))
 
     # Set up plot instance
     fig, ax = plt.subplots(figsize=(20, 15))
-    gdf.plot(ax=ax, facecolor = 'None', edgecolor = 'black', linewidth = 4)
-    cx.add_basemap(ax, crs = gdf.crs.to_string(), url = cx.providers.OpenStreetMap.Mapnik)
+    catchment_gdf.plot(ax=ax, facecolor = 'None', edgecolor = 'black', linewidth = 4)
+    cx.add_basemap(ax, crs = catchment_gdf.crs.to_string(), url = cx.providers.OpenStreetMap.Mapnik)
     rasterio.plot.show((clipped, 1), ax= ax, cmap = cmap, norm = norm)
 
     # Close file (otherwise can't delete it, as ref to it is open)
@@ -350,11 +356,11 @@ def plot_difference_levels_pos_neg (input_raster_fp, output_png_fp, method_name,
     plt.legend(handles=patches_list, handleheight=3, handlelength=3, fontsize =15)
     
     # Save the figure
-    plt.savefig(output_png_fp, dpi=500,bbox_inches='tight')
+    plt.savefig("Arcpy/Figs/{}_singlepeak_{}_diff_posneg.png".format(variable_name, rainfall_scenario_name), dpi=500,bbox_inches='tight')
     plt.close()
                       
     
-template = """
+template_depth_cats = """
 {% macro html(this, kwargs) %}
 
 <!doctype html>
@@ -447,7 +453,7 @@ template = """
 
 
 # matplotlib.colors.to_hex(matplotlib.cm.cool(0.3))
-template2 = """
+template_velocity_cats = """
 {% macro html(this, kwargs) %}
 
 <!doctype html>
@@ -539,8 +545,8 @@ template2 = """
 {% endmacro %}"""
 
 
-# matplotlib.colors.to_hex(matplotlib.cm.cool(0.3))
-template3 = """
+# mpl.colors.to_hex(matplotlib.cm.cool(0.3))
+template_pos_neg = """
 {% macro html(this, kwargs) %}
 
 <!doctype html>
@@ -578,10 +584,102 @@ template3 = """
 <div class='legend-title'> Difference </div>
 <div class='legend-scale'>
   <ul class='legend-labels'>
-    <li><span style='background:#ff0000;opacity:1;'></span> {} < single peak'.format(method_name) </li>
-    <li><span style='background:#ffa500;opacity:1;'></span> {} = single peak'.format(method_name)  /li>
-    <li><span style='background:#008000;opacity:1;'></span>{} > single peak'.format(method_name)  </li>
+    <li><span style='background:#ff0000;opacity:1;'></span> Method < Single peak' </li>
+    <li><span style='background:#808080;opacity:1;'></span> Method = Single peak'/li>
+    <li><span style='background:#008000;opacity:1;'></span> Method > Single peak' </li>
   </ul>
+</div>
+</div>
+ 
+</body>
+</html>
+
+<style type='text/css'>
+  .maplegend .legend-title {
+    text-align: left;
+    margin-bottom: 5px;
+    font-weight: bold;
+    font-size: 90%;
+    }
+  .maplegend .legend-scale ul {
+    margin: 0;
+    margin-bottom: 5px;
+    padding: 0;
+    float: left;
+    list-style: none;
+    }
+  .maplegend .legend-scale ul li {
+    font-size: 80%;
+    list-style: none;
+    margin-left: 0;
+    line-height: 18px;
+    margin-bottom: 2px;
+    }
+  .maplegend ul.legend-labels li span {
+    display: block;
+    float: left;
+    height: 16px;
+    width: 30px;
+    margin-right: 5px;
+    margin-left: 0;
+    border: 1px solid #999;
+    }
+  .maplegend .legend-source {
+    font-size: 80%;
+    color: #777;
+    clear: both;
+    }
+  .maplegend a {
+    color: #777;
+    }
+</style>
+{% endmacro %}"""
+
+
+# mpl.colors.to_hex(matplotlib.cm.cool(0.3))
+template_difference = """
+{% macro html(this, kwargs) %}
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>jQuery UI Draggable - Default functionality</title>
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
+  <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  
+  <script>
+  $( function() {
+    $( "#maplegend" ).draggable({
+                    start: function (event, ui) {
+                        $(this).css({
+                            left: "auto",
+                            top: "auto",
+                            bottom: "auto"
+                        });
+                    }
+                });
+});
+
+  </script>
+</head>
+<body>
+ 
+<div id='maplegend' class='maplegend' 
+    style='position: fixed; z-index:9999; border:2px solid grey; background-color:rgba(255, 255, 255, 0.8);
+     border-radius:6px; padding: 10px; font-size:14px; left: 20px; bottom: 20px;'>
+
+<div class='legend-title'> Difference </div>
+<div class='legend-scale'>
+  <ul class='legend-labels'>
+     <li><span style='background:#482475;opacity:1;'></span><=0.3m' </li>
+    <li><span style='background:#21918c;opacity:1;'></span>0.3-0.6m' </li>
+    <li><span style='background:#44bf70;opacity:1;'></span>0.6-1.2m' </li>
+    <li><span style='background:#bddf26;opacity:1;'></span>>1.2m' </li>
+    </ul>
 </div>
 </div>
  
