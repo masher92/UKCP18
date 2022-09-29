@@ -4,7 +4,7 @@
 | Bologna | Phone sensing| 10 | Hourly | 11/19 - 08/22 | Monthly csvs: https://tinyurl.com/2p8ty9f2 | 
 | Skopje |Phone sensing | N/A | Hourly | 04/20-04/21 | Monthly csvs: https://tinyurl.com/269y7nst | 
 | Turin |Phone sensing | 8 | Hourly | 11/19 - 08/22 |Monthly csvs: https://tinyurl.com/yc7sdme5 | 
-| Cluj-Napoca, Romania | Phone sensing | 6 | Hourly | 11/19 - 08/22  | Monthly csvs: https://tinyurl.com/2z7a3m3k | 
+| Cluj-Napoca| Phone sensing | 6 | Hourly | 11/19 - 08/22  | Monthly csvs: https://tinyurl.com/2z7a3m3k | 
 | Dublin | Cameras | 23 (some added later) | Hourly  | 2007-2014| Yearly csvs: https://tinyurl.com/2n5he5rv. | 
 | York | Cameras  | 6 | Hourly  | 2009-2022 | One csv: https://tinyurl.com/ymj68ke6 | 
 | Liverpool (Australia) | Cameras / Wifi-sensors| 13 cameras/4 sensors | Not sure | 2021-22 | One csv: https://tinyurl.com/3kekyzs7 (but can only see counts of bikes/cars and not pedestrians||
