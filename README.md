@@ -10,8 +10,8 @@
 | Liverpool (Australia) | Cameras / Wifi-sensors| Not sure | Not sure | 2021-22 | From here: https://tinyurl.com/3kekyzs7 (but can't work out the format of it - i.e. how to separate cars/bikes/people) ||
 | Melbourne | Pedestrian counting sensors which detect movement. | 65 (some added later) | Hourly | 2009-present| One csv: https://tinyurl.com/94cmc7bk |  |
 | Edinburgh | Mostly cycle counters, with some combined pedestrian and cycle counters | 58 | Hourly | 2015-present | Dashboard with data for specific days https://tinyurl.com/yk2dafse |
-| Glasgow | Springboard (fixed footfall sensor) | 7 | Hourly | 2010-present | Yes (from API,   but haven't been able to) Also a dashboard displaying data | https://developer.glasgow.gov.uk/api-details#api=mobility&operation=footfall |  |
-|  | CCTV   cameras | 40 | 15/30 mins | October 2021-present | Yes (from API, but haven't   worked it out) | https://developer.glasgow.gov.uk/api-details#api=cctv&operation=get-get-detection-summaries |
+| Glasgow | Springboard (fixed footfall sensor) | 7 | Hourly | 2010-present | https://developer.glasgow.gov.uk/api-details#api=mobility&operation=footfall |  |
+|  | CCTV   cameras | 40 | 15/30 mins | October 2021-present | https://developer.glasgow.gov.uk/api-details#api=cctv&operation=get-get-detection-summaries |
 | San Diego | Automated counters | 54 counters at 37 sites (some collect walking, some cycling, some both) | Daily (althoughdata is collected every 15 minutes) | 2012-present |  
 | Bath | Cameras | 10 | Hourly | 01/03/17-20/05/19 | No (Bath BID produce weekly summaries of data, but can't see any way to access the raw   data) | 
 |  | O2   mobile network sensor | N/A | Not sure | 25/01/19 - 22/03/20 | No (data from Movement   Strategies - this was from MSc project and presumably acquired for this) | 
