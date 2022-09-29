@@ -5,8 +5,8 @@ There are a number of cities across the globe that have installed systems to mon
 The table below provides details on some of those schemes for which we were able to find information:
 
 | City | Sensor type | Number sensors | Resolution | Time period | Data link | Analysis| 
-|---|---|---|---|---------|---|
-| Leeds | Camera |10 | Hourly | 2014-2022 |  Weekly csvs: https://tinyurl.com/4y3dxxzb | 
+|---|---|---|---|---------|---|---|
+| Leeds | Camera |10 | Hourly | 2014-2022 |  Weekly csvs: https://tinyurl.com/4y3dxxzb | | 
 | Bologna | Phone sensing| 10 | Hourly | 11/19-08/22 |Monthly csvs: https://tinyurl.com/2p8ty9f2 | 
 | Skopje |Phone sensing | 19 | Hourly | 04/20-04/21 |Monthly csvs: https://tinyurl.com/yc6b5xr8 | 
 | Turin |Phone sensing | 8 | Hourly | 11/19-08/22 |Monthly csvs:https://tinyurl.com/yc7sdme5| 
