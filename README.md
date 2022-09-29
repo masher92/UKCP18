@@ -1,18 +1,18 @@
 | City | Sensor type | Number sensors | Time resolution | Period covered | Data available? |  |  |  |
 |---|---|---|---|---|---|---|---|---|
-| Leeds | Camera | 7 (or 10?) | Hourly | 2014-2022 | Yes | Yes | Can download weekly csvs from: https://tinyurl.com/4y3dxxzb |  |
-| Bologna | Mobile phone sensing| 10 | Hourly | 11/19 - 08/22 (~3 years) | Yes | Yes  | Can download one csv for each   month containing hourly data from all sensors from: https://tinyurl.com/2p8ty9f2 | 
-| Skopje |Mobile phone sensing | N/A | Hourly | 04/20-04/21 | Yes | Yes  | Can download one csv for each   month containing hourly data from all sensors from: https://tinyurl.com/269y7nst | 
-| Turin | Mobile phone sensing | 8 | Hourly | 11/19 - 08/22 (~3 years)) | Yes | Yes | Can download one csv for each   month containing hourly data from all sensors from: https://tinyurl.com/yc7sdme5 | 
-| Cluj-Napoca,   Romania | Mobile phone sensing | 6 | Hourly | 11/19 - 08/22 (~3 years) | Yes | Yes | Can download one   csv for each month containing hourly data from all sensors from: https://tinyurl.com/2z7a3m3k | 
+| Leeds | Camera | 7 (or 10?) | Hourly | 2014-2022 | Yes | Yes | Weekly csvs: https://tinyurl.com/4y3dxxzb |  |
+| Bologna | Mobile phone sensing| 10 | Hourly | 11/19 - 08/22 (~3 years) | Yes | Yes  | Monthly csvs: https://tinyurl.com/2p8ty9f2 | 
+| Skopje |Mobile phone sensing | N/A | Hourly | 04/20-04/21 | Yes | Yes  | Monthly csvs: https://tinyurl.com/269y7nst | 
+| Turin | Mobile phone sensing | 8 | Hourly | 11/19 - 08/22 (~3 years)) | Yes | Yes | Monthly csvs: https://tinyurl.com/yc7sdme5 | 
+| Cluj-Napoca,   Romania | Mobile phone sensing | 6 | Hourly | 11/19 - 08/22 (~3 years) | Yes | Yes | Monthly csvs: https://tinyurl.com/2z7a3m3k | 
 | Dublin | Cameras | 23 | Hourly  | 2007-Present (6 cameras). 7 cameras more recent| Yes | Yes | Can download   hourly data for several years. https://tinyurl.com/2n5he5rv. Also data for nearby: https://tinyurl.com/2hsr6krx | 
-| York | Cameras  | 6 | Hourly  | 2009 - present | Yes  | Yes | Can download one csv containing hourly data from all sensors from: https://tinyurl.com/ymj68ke6 | Analysis of York   dataset:   https://github.com/AttitudeAdjuster/Analysis-and-Modelling-of-Urban-Footfall-Data-in-York-City-Centre/blob/master/README.md |
-| Liverpool   (Australia) | Cameras / Wifi-sensors| Not sure | Not sure | 2021-22 | Yes | Yes | From   here: https://tinyurl.com/3kekyzs7 (but can't work out the format of it - i.e.   how to separate cars/bikes/people) | Data being collected as part of   Smart Cities research project at University of Wollongong |
-| Melbourne | Pedestrian counting sensors   which detect movement. | 65 | Hourly | 2009 - present (with only 18   devices originally, and the rest added over time) | Yes | Yes | Can download one csv containing   hourly data from all sensors from:   https://data.melbourne.vic.gov.au/Transport/Pedestrian-Counting-System-Monthly-counts-per-hour/b2ak-trbp |  |
-| Edinburgh | Mostly cycle   counters, with some combined pedestrian and cycle counters | 58 | Hourly | Since 2015?  | Yes - can get   hourly data for particular days on website, not sure how you'd automate bulk   download | No | https://edintraveldata.drakewell.com/publicmultinodemap.asp | Haven't seen any |
+| York | Cameras  | 6 | Hourly  | 2009-2022 | Yes  | Yes | One csv: https://tinyurl.com/ymj68ke6 | Analysis of York dataset: https://tinyurl.com/bdz24use |
+| Liverpool (Australia) | Cameras / Wifi-sensors| Not sure | Not sure | 2021-22 | Yes | Yes | From here: https://tinyurl.com/3kekyzs7 (but can't work out the format of it - i.e. how to separate cars/bikes/people) ||
+| Melbourne | Pedestrian counting sensors which detect movement. | 65 | Hourly | 2009-present (with only 18 devices originally, and the rest added over time) | Yes | Yes | Can download one csv containing hourly data from all sensors from: https://tinyurl.com/94cmc7bk |  |
+| Edinburgh | Mostly cycle counters, with some combined pedestrian and cycle counters | 58 | Hourly | Since 2015?  | Yes - can get   hourly data for particular days on website, not sure how you'd automate bulk   download | No | https://edintraveldata.drakewell.com/publicmultinodemap.asp | Haven't seen any |
 | Glasgow | Springboard (fixed footfall sensor) | 7 | Hourly | 2010-present | Yes (from API,   but haven't been able to) Also a dashboard displaying data | No | https://developer.glasgow.gov.uk/api-details#api=mobility&operation=footfall |  |
 |  | CCTV   cameras | 40 | 15/30 mins | October 2021-present | Yes (from API, but haven't   worked it out) | No | https://developer.glasgow.gov.uk/api-details#api=cctv&operation=get-get-detection-summaries |  |
-| San Diego | Automated   counters | 54 counters at 37   sites (some collect walking, some cycling, some both) | Daily (although   data is collected every 15 minutes) | 2012 - present | No (dashboard,   but can't download) | No | https://data.eco-counter.com/public2/?id=100013755 |  |
-| Bath | Cameras | 10 | Hourly | 01/03/17-20/05/19 | No (Bath BID   produce weekly summaries of data, but can't see any way to access the raw   data) | No | No | 
+| San Diego | Automated counters | 54 counters at 37 sites (some collect walking, some cycling, some both) | Daily (althoughdata is collected every 15 minutes) | 2012-present | No (dashboard,   but can't download) | No | https://data.eco-counter.com/public2/?id=100013755 |  |
+| Bath | Cameras | 10 | Hourly | 01/03/17-20/05/19 | No (Bath BID produce weekly summaries of data, but can't see any way to access the raw   data) | No | No | 
 |  | O2   mobile network sensor | N/A | Not sure | 25/01/19 - 22/03/20 | No (data from Movement   Strategies - this was from MSc project and presumably acquired for this) | No | N/A | 
 | Helsinki | Bluetooth | N/A |   |   | No | No |   | 
