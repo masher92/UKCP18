@@ -1,5 +1,5 @@
 | City | Sensor type | Number sensors | Time resolution | Period covered | Data link |  |
-|---|---|---|---|---|---|---|---|---|
+|---|---|---|---|---|---|---|
 | Leeds | Camera | 7 (or 10?) | Hourly | 2014-2022 | Yes | Yes | Weekly csvs: https://tinyurl.com/4y3dxxzb |  |
 | Bologna | Mobile phone sensing| 10 | Hourly | 11/19 - 08/22 (~3 years) | Yes | Yes  | Monthly csvs: https://tinyurl.com/2p8ty9f2 | 
 | Skopje |Mobile phone sensing | N/A | Hourly | 04/20-04/21 | Yes | Yes  | Monthly csvs: https://tinyurl.com/269y7nst | 
