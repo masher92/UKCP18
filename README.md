@@ -1,7 +1,7 @@
 | City | Sensor type | Number sensors | Resolution | Time period | Data link | 
 |---|---|---|---|---|---|
 | Leeds | Camera |10 | Hourly | 2014-2022 |  Weekly csvs: https://tinyurl.com/4y3dxxzb | 
-| Bologna | Mobile phone sensing| 10 | Hourly | 11/19 - 08/22 (~3 years) | Monthly csvs: https://tinyurl.com/2p8ty9f2 | 
+| Bologna | Mobile sensing| 10 | Hourly | 11/19 - 08/22 (~3 years) | Monthly csvs: https://tinyurl.com/2p8ty9f2 | 
 | Skopje |Mobile phone sensing | N/A | Hourly | 04/20-04/21 | Monthly csvs: https://tinyurl.com/269y7nst | 
 | Turin | Mobile phone sensing | 8 | Hourly | 11/19 - 08/22 (~3 years)) |Monthly csvs: https://tinyurl.com/yc7sdme5 | 
 | Cluj-Napoca,   Romania | Mobile phone sensing | 6 | Hourly | 11/19 - 08/22 (~3 years) | Monthly csvs: https://tinyurl.com/2z7a3m3k | 
