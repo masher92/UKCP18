@@ -10,7 +10,7 @@
 | Liverpool (Australia) | Cameras / Wifi-sensors| 13 cameras/4 sensors | Not sure | 2021-22 | One csv: https://tinyurl.com/3kekyzs7 (but can only see counts of bikes/cars and not pedestrians||
 | Melbourne | Sensor detecting movement. | 65 (some added later) | Hourly | 2009-present| One csv: https://tinyurl.com/94cmc7bk |
 | Edinburgh | Drakewell counters; not documented how they work | 58 (including cycle counters) | Hourly | 2015-present | Dashboard with data for specific days https://tinyurl.com/yk2dafse.<br/>Raw data not available  |
-| Glasgow | Springboard (fixed footfall sensor) | 7 | Hourly | 2010-present | https://tinyurl.com/y24bpa36 | 
+| Glasgow | Springboard (fixed footfall sensor) | 7 | Hourly | 2010-present | Data: https://tinyurl.com/y24bpa36 (not sure on format as date is not specified | 
 |  | CCTV   cameras | 40 | 15/30 mins | October 2021-present | Daily data: https://tinyurl.com/ms5nyzb3 (not sure how to get 15/30 min data) |
 | San Diego | Infrared sensor using body temp | 11 walking counters (more for cycling) | 15 mins | 2012-present | Dashboard: https://tinyurl.com/5xmz9e9k.<br/>Raw data not available | 
 | Bath | Cameras | 10 | Hourly | 03/17-05/19 | Data summary: https://tinyurl.com/yck2asyp.<br/>Raw data not available | 
