@@ -14,5 +14,5 @@
 |  | CCTV   cameras | 40 | 15/30 mins | October 2021-present | https://tinyurl.com/ms5nyzb3 |
 | San Diego | Infrared sensor using body temp | 11 walking counters (more for cycling) | 15 mins | 2012-present | Dashboard: https://tinyurl.com/5xmz9e9k. Raw data not available | 
 | Bath | Cameras | 10 | Hourly | 01/03/17-20/05/19 | Data summary: https://tinyurl.com/yck2asyp. Raw data not available | 
-|  | O2   mobile network sensor | 1 | 25/01/19 - 22/03/20 | Data analysis: https://tinyurl.com/2p8xxt8h . Raw data not available| 
+|       | Phone sensing | 1 | Daily | 25/01/19 - 22/03/20 | Data analysis: https://tinyurl.com/2p8xxt8h. Raw data not available| 
 | Helsinki | Bluetooth | N/A | | 
