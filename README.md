@@ -13,7 +13,7 @@ The table below provides details on some of those schemes for which we were able
 | Cluj-Napoca| Phone sensing | 6 | Hourly | 11/19-08/22  |Monthly csvs: https://tinyurl.com/2z7a3m3k | 
 | Dublin | Cameras | 23 (some added later) | Hourly  | 2007-2014| Yearly csvs: https://tinyurl.com/2n5he5rv.<br/>Existing Analysis: https://tinyurl.com/5n8ht2zt |
 | York | Cameras  | 6 | Hourly  | 2009-2022 | One csv: https://tinyurl.com/ymj68ke6.<br/>Existing Analysis: https://tinyurl.com/bdz24use| 
-| Liverpool (Australia) | Cameras / Wifi-sensors| 13 cameras/4 sensors | Not sure | 2021-22 | One csv: https://tinyurl.com/3kekyzs7 (but can only see counts of bikes/cars and not pedestrians||
+| Liverpool (Australia) | Cameras / Wifi-sensors| 13 cameras/4 sensors | Not sure | 2021-22 | One csv: https://tinyurl.com/3kekyzs7 (only includes bikes/cars and not pedestrians||
 | Melbourne | Sensor detecting movement. | 65 (some added later) | Hourly | 2009-present| One csv: https://tinyurl.com/94cmc7bk |
 | Edinburgh | Drakewell counters; not documented how they work | 58 (including cycle counters) | Hourly | 2015-present | Dashboard with data for specific days https://tinyurl.com/yk2dafse.<br/>Raw data not available  |
 | Glasgow | Springboard (fixed footfall sensor) | 7 | Hourly | 2010-present | Data: https://tinyurl.com/y24bpa36 (not sure on format as date is not specified | 
