@@ -2,6 +2,7 @@
 
 There are a number of cities across the globe that have installed systems to monitor the number of pedestrians (/and or cyclists) who pass by various locations in the city over time.
 
+The table below provides details on some of those schemes for which we were able to find information:
 
 | City | Sensor type | Number sensors | Resolution | Time period     | Data link | 
 |---|---|---|---|---------|---|
