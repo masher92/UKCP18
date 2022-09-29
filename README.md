@@ -3,7 +3,7 @@
 | Leeds | Camera |10 | Hourly | 2014-2022 |  Weekly csvs: https://tinyurl.com/4y3dxxzb | 
 | Bologna | Phone sensing| 10 | Hourly | 11/19 - 08/22 |Monthly csvs: https://tinyurl.com/2p8ty9f2 | 
 | Skopje |Phone sensing | 19 | Hourly | 04/20-04/21 |Monthly csvs: https://tinyurl.com/yc6b5xr8 | 
-| Turin |Phone sensing | 8 | Hourly | 11/19 - 08/22 |Monthly csvs: https://tinyurl.com/yc7sdme5| 
+| Turin |Phone sensing | 8 | Hourly | 11/19 - 08/22 |Monthly csvs:https://tinyurl.com/yc7sdme5| 
 | Cluj-Napoca| Phone sensing | 6 | Hourly | 11/19 - 08/22  |Monthly csvs: https://tinyurl.com/2z7a3m3k | 
 | Dublin | Cameras | 23 (some added later) | Hourly  | 2007-2014| Yearly csvs: https://tinyurl.com/2n5he5rv. | 
 | York | Cameras  | 6 | Hourly  | 2009-2022 | One csv: https://tinyurl.com/ymj68ke6 | 
