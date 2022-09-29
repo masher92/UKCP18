@@ -1,3 +1,8 @@
+### City pedestrian counting schemes
+
+There are a number of cities across the globe that have installed systems to monitor the number of pedestrians (/and or cyclists) who pass by various locations in the city over time.
+
+
 | City | Sensor type | Number sensors | Resolution | Time period     | Data link | 
 |---|---|---|---|---------|---|
 | Leeds | Camera |10 | Hourly | 2014-2022 |  Weekly csvs: https://tinyurl.com/4y3dxxzb | 
