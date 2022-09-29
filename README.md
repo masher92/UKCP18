@@ -1,5 +1,5 @@
 | City | Sensor type | Number sensors | Time resolution | Period covered | Data link | 
-|---|---|---|---|---|---|---|
+|---|---|---|---|---|---|
 | Leeds | Camera | 7 (or 10?) | Hourly | 2014-2022 |  Weekly csvs: https://tinyurl.com/4y3dxxzb | 
 | Bologna | Mobile phone sensing| 10 | Hourly | 11/19 - 08/22 (~3 years) | Monthly csvs: https://tinyurl.com/2p8ty9f2 | 
 | Skopje |Mobile phone sensing | N/A | Hourly | 04/20-04/21 | Monthly csvs: https://tinyurl.com/269y7nst | 
@@ -15,4 +15,4 @@
 | San Diego | Automated counters | 54 counters at 37 sites (some collect walking, some cycling, some both) | Daily (althoughdata is collected every 15 minutes) | 2012-present |  
 | Bath | Cameras | 10 | Hourly | 01/03/17-20/05/19 | No (Bath BID produce weekly summaries of data, but can't see any way to access the raw   data) | 
 |  | O2   mobile network sensor | N/A | Not sure | 25/01/19 - 22/03/20 | No (data from Movement   Strategies - this was from MSc project and presumably acquired for this) | 
-| Helsinki | Bluetooth | N/A |   | 
+| Helsinki | Bluetooth | N/A | | 
