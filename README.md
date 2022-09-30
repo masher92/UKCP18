@@ -22,3 +22,5 @@ The table below provides details on some of those schemes for which we were able
 | Bath | Cameras | 10 | Hourly | 03/17-05/19 | Data summary: https://tinyurl.com/yck2asyp.<br/>Raw data not available. <br/>Existing Analysis: https://tinyurl.com/2p93hztd | 
 |       | Phone sensing | 1 | Daily | 01/19-03/20 | Data analysis: https://tinyurl.com/2p8xxt8h.<br/>Raw data not available| 
 | Helsinki | Bluetooth | N/A |    ||Data heat map: https://tinyurl.com/bdfjhssm.<br/>Raw data not available | 
+
+The location of the sensors in each city can be viewed here: https://nbviewer.org/github/masher92/footfall/blob/master/Locations_with_sensors.ipynb?flush_cache=True
