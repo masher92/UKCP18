@@ -23,4 +23,5 @@ The table below provides details on some of those schemes for which we were able
 |       | Phone sensing | 1 | Daily | 01/19-03/20 | Data analysis: https://tinyurl.com/2p8xxt8h.<br/>Raw data not available| 
 | Helsinki | Bluetooth | N/A |    ||Data heat map: https://tinyurl.com/bdfjhssm.<br/>Raw data not available | 
 
-The location of the sensors in each city can be viewed here: https://nbviewer.org/github/masher92/footfall/blob/master/Locations_with_sensors.ipynb?flush_cache=True
+
+The location of the sensors in the cities for which data can be accessed can be viewed here: https://nbviewer.org/github/masher92/footfall/blob/master/Locations_with_sensors.ipynb?flush_cache=True
