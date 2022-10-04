@@ -34,7 +34,13 @@ First step in performing a simulation is putting together a Plan.  Plan is a com
 
  <a name="runmode"></a>
 ## 2.Running a model in Hec-Ras
-  <a name="extentanddepth"></a>
+
+1. Open Hec-Ras 
+2. File -> Open Project -> Double click the .prj file
+3. Create unsteady flow file
+	a. Edit -> Unsteady Flow data 
+	b. Double click 'Precipitation
+
 ### <ins> Flood extent and depth </ins>
 
 
