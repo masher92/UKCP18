@@ -5,11 +5,6 @@
 1. [ Hec-Ras file structure](#filestructure)  
 2. [ Opening a Hec-Ras Project](#openproject)
 3. [ Create an unsteady flow file](#unsteadyflow)
-  a.  [ Run model in Hec-Ras](#runmodel)   
-  b. [ Post process model outputs in Hec-Ras](#postprocess)  
-  c. [ Process outputs in QGIS](#qgis)   
-  d. [ Plot results in Python](#python)   
-
 
 <a name="filestructure"></a>
 ## 1.Hec-Ras file structure
