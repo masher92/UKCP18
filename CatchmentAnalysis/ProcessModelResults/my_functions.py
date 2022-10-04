@@ -31,7 +31,7 @@ os.chdir("../../../FloodModelling")
 catchment_shp = "MeganModel/CatchmentLinDyke_exported.shp"
 catchment_gdf = gpd.read_file(catchment_shp)
 
-def create_binned_counts_and_props(variable_name, breaks, labels):
+def create_binned_counts_and_props(rainfall_scenario_names, variable_name, breaks, labels):
     # Create dataframes to populate with values
     counts_df = pd.DataFrame()
     proportions_df = pd.DataFrame()        
@@ -239,7 +239,7 @@ def plot_classified_raster(variable_name, rainfall_scenario_name, labels, colors
     cmap = mpl.colors.ListedColormap(colors_list)
     
     # plot the new clipped raster      
-    clipped = rasterio.open("Arcpy/{}_{}_reclassified.tif".format(variable_name, rainfall_scenario_name))
+    clipped = rasterio.open("Arcpy/{}_{}_classified.tif".format(variable_name, rainfall_scenario_name))
 
     fig, ax = plt.subplots(figsize=(20, 15))
     catchment_gdf.plot(ax=ax, facecolor = 'None', edgecolor = 'black', linewidth = 4)
@@ -254,7 +254,7 @@ def plot_classified_raster(variable_name, rainfall_scenario_name, labels, colors
     plt.legend(handles=patches_list, handleheight=3, handlelength=3, fontsize =20)
     
     #Save the figure
-    plt.savefig("Arcpy/Figs/{}_{}_reclassified.png".format(variable_name, rainfall_scenario_name), dpi=500,bbox_inches='tight')
+    plt.savefig("Arcpy/Figs/{}_{}_classified.png".format(variable_name, rainfall_scenario_name), dpi=500,bbox_inches='tight')
     plt.close()    
 
 def plot_difference(variable_name, rainfall_scenario_name, cmap, norm = None):
@@ -307,7 +307,7 @@ def plot_difference_levels (variable_name, rainfall_scenario_name, labels, norm 
         patches_list.append(patch)  
 
     # plot the new clipped raster      
-    clipped = rasterio.open("Arcpy/{}_{}_reclassified.tif".format(variable_name,rainfall_scenario_name))
+    clipped = rasterio.open("Arcpy/{}_{}_classified.tif".format(variable_name,rainfall_scenario_name))
 
     # Set up plot instance
     fig, ax = plt.subplots(figsize=(20, 15))
@@ -323,7 +323,7 @@ def plot_difference_levels (variable_name, rainfall_scenario_name, labels, norm 
     plt.legend(handles=patches_list, handleheight=3, handlelength=3, fontsize =20)
     
     # Save the figure
-    plt.savefig("Arcpy/Figs/{}_singlepeak_{}_diff_reclassified.png".format(variable_name,rainfall_scenario_name), dpi=500,bbox_inches='tight')
+    plt.savefig("Arcpy/Figs/{}_singlepeak_{}_diff_classified.png".format(variable_name,rainfall_scenario_name), dpi=500,bbox_inches='tight')
     plt.close()    
 
 def plot_difference_levels_pos_neg (variable_name, rainfall_scenario_name, norm = None):
