@@ -18,7 +18,6 @@ There are a number of files required by Hec-Ras to run:
 	* Plan files combine a geometry and an unsteady flow file
 	* They can be opened by going to ‘Perform an unsteady flow’ button, then selecting ‘File’ -> ‘Open plan’
 *	.u01 etc. are unsteady flow files 
-  *	Precipitation data can be accessed by ‘Edit’ -> ‘Unsteady flow data’ -> ‘Precipitation’ is at the bottom 
 *	.hdf are results files
 
 First step in performing a simulation is putting together a Plan.  Plan is a combination of geometry and flow data (boundary conditions (wherever water comes from and goes to a boundary condition is needed). This defines:
