@@ -4,8 +4,8 @@
 
 1. [ Hec-Ras file structure](#filestructure)  
 2. [ Opening a Hec-Ras Project](#openproject)
-3. [ Create an unsteady flow file](#unsteadyflow)
-4. [ Run model](#runmodel)
+3. [ Creating an unsteady flow file](#unsteadyflow)
+4. [ Running model](#runmodel)
 
 <a name="filestructure"></a>
 ## 1. Hec-Ras file structure
@@ -28,7 +28,7 @@ There are a number of files required by Hec-Ras to run:
 2. File -> Open Project -> Double click the .prj file
 
 <a name="unsteadyflow"></a>
-## 3. Create unsteady flow file
+## 3. Creating unsteady flow file
 
 First step in performing a simulation is putting together a Plan.  Plan is a combination of geometry and flow data (boundary conditions (wherever water comes from and goes to a boundary condition is needed). This defines:
 *	Geometry and unsteady flow data
@@ -50,7 +50,7 @@ This steps required to put together a plan:
 10. How to save?       
 
 <a name="runmodel"></a>
-## 4. Run model                                                                                                              
+## 4. Running model                                                                                                              
 To RUN model:
 1. Press Run - > ‘Unsteady Flow Analysis’ button
 2. File -> Open Plan -> Select plan that you want to run
