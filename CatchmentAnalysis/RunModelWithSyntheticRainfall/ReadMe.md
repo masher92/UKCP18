@@ -48,6 +48,7 @@ First step in performing a simulation is putting together a Plan.  Plan is a com
 4. Select No.Ordinates and increase to 300
 5. Press Plot Data to check plotting
 6. Had problem with dates being funny, and skipping certain time steps. But when you check table which you can produce from within the plotting window, the dates become normal. Closing the window and reopening it again also seemed to resolve the data issue
-
- 
+7. Close this window
+8. In main Hec-Ras window select View/edit geometric data button (three from the left on top panel, with little lines)
+9. Select the 2D flow area button the left hand side and select “Generate computation points on regular interval with all break lines”
                                                                                                                          
