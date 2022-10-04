@@ -8,7 +8,7 @@
 4. [ Run model](#runmodel)
 
 <a name="filestructure"></a>
-## 1.Hec-Ras file structure
+## 1. Hec-Ras file structure
 
 There are a number of files required by Hec-Ras to run:
 *	.prj is the project file
@@ -22,7 +22,7 @@ There are a number of files required by Hec-Ras to run:
 *	.hdf are results files
 
 <a name="openproject"></a>
-## 2.Opening a Hec-Ras Project
+## 2. Opening a Hec-Ras Project
 
 1. Open Hec-Ras 
 2. File -> Open Project -> Double click the .prj file
