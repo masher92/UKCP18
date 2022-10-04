@@ -52,7 +52,12 @@ This steps required to put together a plan:
 <a name="runmodel"></a>
 ## 4. Run model                                                                                                              
 To RUN model:
-	a. Press Run - > ‘Unsteady Flow Analysis’ button
-	b. File -> Open Plan -> Select plan that you want to run
-	c. Options - > Computation options and tolerances -> Advanced time step control. Complete as follows:   
-	
+1. Press Run - > ‘Unsteady Flow Analysis’ button
+2. File -> Open Plan -> Select plan that you want to run
+3. Options - > Computation options and tolerances -> Advanced time step control. Complete as follows:   
+	* Maximum courant: 2.
+	* Minimum courant 0.75
+	* Number of steps below minimum before doubling: 4
+	* Maximum number of doubling base time step: 5 (32 min)
+	* Maximum number of halving base time step: 10 (0.06 secs)
+4. Press compute
