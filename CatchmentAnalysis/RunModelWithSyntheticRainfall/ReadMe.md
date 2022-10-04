@@ -13,9 +13,9 @@ There are a number of files required by Hec-Ras to run:
 *	.prj is the project file
 * .g01 etc. are geometry files.
 	* These describe how water will move through the river system. 
-  *	They include the 2D flow area, land use, topography and channel structures
-*	.p01 etc. are plan files (each file p01, p02 etc is a different plan)
-  *	Plan files combine a geometry and an unsteady flow file
+  	* They include the 2D flow area, land use, topography and channel structures
+* .p01 etc. are plan files (each file p01, p02 etc is a different plan)
+	* Plan files combine a geometry and an unsteady flow file
 	* They can be opened by going to ‘Perform an unsteady flow’ button, then selecting ‘File’ -> ‘Open plan’
 *	.u01 etc. are unsteady flow files 
   *	Precipitation data can be accessed by ‘Edit’ -> ‘Unsteady flow data’ -> ‘Precipitation’ is at the bottom 
