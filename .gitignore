@@ -9,3 +9,4 @@ Regridding/ReadMe.pdf
 /Notes/*
 *.xlsx
 *.ipynb_checkpoints*
+.ipynb_checkpoints
