@@ -3,7 +3,8 @@
 ## Table of contents
 
 1. [ Hec-Ras file structure](#filestructure)  
-2. [ Run model in Hec-Ras](#runmodel)  
+2. [ Opening a Hec-Ras Project](#openproject)
+3. [ Create an unsteady flow file](#unsteadyflow)
   a.  [ Run model in Hec-Ras](#runmodel)   
   b. [ Post process model outputs in Hec-Ras](#postprocess)  
   c. [ Process outputs in QGIS](#qgis)   
@@ -32,17 +33,21 @@ First step in performing a simulation is putting together a Plan.  Plan is a com
 *	Computation settings
 *	Simulation options
 
- <a name="runmode"></a>
-## 2.Running a model in Hec-Ras
+<a name="openproject"></a>
+## 2.Opening a Hec-Ras Project
 
 1. Open Hec-Ras 
 2. File -> Open Project -> Double click the .prj file
-3. Create unsteady flow file
-	a. Edit -> Unsteady Flow data 
-	b. Double click 'Precipitation
 
-### <ins> Flood extent and depth </ins>
+<a name="unsteadyflow"></a>
+## 3. Create unsteady flow file
 
+1. Edit -> Unsteady Flow data 
+2. Double click 'Precipitation
+3. Change data time interval to 1 minute
+4. Select No.Ordinates and increase to 300
+5. Press Plot Data to check plotting
+6. Had problem with dates being funny, and skipping certain time steps. But when you check table which you can produce from within the plotting window, the dates become normal. Closing the window and reopening it again also seemed to resolve the data issue
 
  
                                                                                                                          
