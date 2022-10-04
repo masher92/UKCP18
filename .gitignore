@@ -8,3 +8,4 @@ Regridding/ReadMe.pdf
 *desktop.ini
 /Notes/*
 *.xlsx
+*.ipynb_checkpoints*
