@@ -2,7 +2,7 @@
 
 ## Table of contents
 
-1. [ Processing methodology](#processing)  
+1. [ How to use Hec-Ras](#usinghecras)  
   a.  [ Run model in Hec-Ras](#runmodel)   
   b. [ Post process model outputs in Hec-Ras](#postprocess)  
   c. [ Process outputs in QGIS](#qgis)   
@@ -11,7 +11,29 @@
   a. [Flood extent and depth](#extentanddepth)   
   b. [Flood velocity](#velocity)   
 
-## 1. Processing Methodology
+## 1.How to use Hec-Ras
+
+There are a number of files required by Hec-Ras to run:
+*	.prj is the project file
+*	.g01 etc. are geometry files.
+  *	These describe how water will move through the river system. 
+  *	They include the 2D flow area, land use, topography and channel structures
+*	.p01 etc. are plan files (each file p01, p02 etc is a different plan)
+  *	Plan files combine a geometry and an unsteady flow file
+	* They can be opened by going to ‘Perform an unsteady flow’ button, then selecting ‘File’ -> ‘Open plan’
+*	.u01 etc. are unsteady flow files 
+  *	Precipitation data can be accessed by ‘Edit’ -> ‘Unsteady flow data’ -> ‘Precipitation’ is at the bottom 
+*	.hdf are results files
+
+First step in performing a simulation is putting together a Plan.  Plan is a combination of geometry and flow data (boundary conditions (wherever water comes from and goes to a boundary condition is needed). This defines:
+*	Geometry and unsteady flow data
+*	Description
+*	Simulation time window
+*	Computation settings
+*	Simulation options
+
+
+
   <a name="runmodel"></a>
   ### a. Run model in Hec-Ras
 
