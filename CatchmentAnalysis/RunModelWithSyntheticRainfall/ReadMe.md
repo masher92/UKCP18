@@ -5,6 +5,7 @@
 1. [ Hec-Ras file structure](#filestructure)  
 2. [ Opening a Hec-Ras Project](#openproject)
 3. [ Create an unsteady flow file](#unsteadyflow)
+4. [ Run model](#runmodel)
 
 <a name="filestructure"></a>
 ## 1.Hec-Ras file structure
@@ -36,6 +37,7 @@ First step in performing a simulation is putting together a Plan.  Plan is a com
 *	Computation settings
 *	Simulation options
 
+This steps required to put together a plan:
 1. Edit -> Unsteady Flow data 
 2. Double click 'Precipitation
 3. Change data time interval to 1 minute
@@ -45,4 +47,12 @@ First step in performing a simulation is putting together a Plan.  Plan is a com
 7. Close this window
 8. In main Hec-Ras window select View/edit geometric data button (three from the left on top panel, with little lines)
 9. Select the 2D flow area button the left hand side and select “Generate computation points on regular interval with all break lines”
-                                                                                                                         
+10. How to save?       
+
+<a name="runmodel"></a>
+## 4. Run model                                                                                                              
+To RUN model:
+	a. Press Run - > ‘Unsteady Flow Analysis’ button
+	b. File -> Open Plan -> Select plan that you want to run
+	c. Options - > Computation options and tolerances -> Advanced time step control. Complete as follows:   
+	
