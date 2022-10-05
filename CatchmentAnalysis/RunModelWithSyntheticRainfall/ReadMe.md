@@ -47,7 +47,7 @@ This steps required to put together a plan:
 7. Close this window
 8. In main Hec-Ras window select View/edit geometric data button (three from the left on top panel, with little lines)
 9. Select the 2D flow area button the left hand side and select “Generate computation points on regular interval with all break lines”
-10. How to save?       
+10. To save: Select run -> Unsteady Flow Analysis -> Save plan as    
 
 <a name="runmodel"></a>
 ## 4. Running model                                                                                                              
