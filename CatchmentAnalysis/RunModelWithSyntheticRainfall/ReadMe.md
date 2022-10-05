@@ -42,6 +42,7 @@ This steps required to put together a plan:
 2. Double click 'Precipitation
 3. Change data time interval to 1 minute
 4. Select No.Ordinates and increase to 300
+5. Paste in data from excel files using column "Total net rain mm (Observed rainfall - 05/04/2022) - urbanised model"
 5. Press Plot Data to check plotting
 6. Had problem with dates being funny, and skipping certain time steps. But when you check table which you can produce from within the plotting window, the dates become normal. Closing the window and reopening it again also seemed to resolve the data issue
 7. Close this window
