@@ -11,7 +11,7 @@
 ## 1. Hec-Ras file structure
 
 There are a number of files required by Hec-Ras to run:
-*	.prj is the project file
+* .prj is the project file
 * .g01 etc. are geometry files.
 	* These describe how water will move through the river system. 
   	* They include the 2D flow area, land use, topography and channel structures
@@ -37,18 +37,22 @@ First step in performing a simulation is putting together a Plan.  Plan is a com
 *	Computation settings
 *	Simulation options
 
-This steps required to put together a plan:
-1. Edit -> Unsteady Flow data 
-2. Double click 'Precipitation
-3. Change data time interval to 1 minute
-4. Select No.Ordinates and increase to 300
-5. Paste in data from excel files using column "Total net rain mm (Observed rainfall - 05/04/2022) - urbanised model"
-5. Press Plot Data to check plotting
-6. Had problem with dates being funny, and skipping certain time steps. But when you check table which you can produce from within the plotting window, the dates become normal. Closing the window and reopening it again also seemed to resolve the data issue
-7. Close this window
-8. In main Hec-Ras window select View/edit geometric data button (three from the left on top panel, with little lines)
-9. Select the 2D flow area button the left hand side and select “Generate computation points on regular interval with all break lines”
-10. To save: Select run -> Unsteady Flow Analysis -> Save plan as    
+These are the steps required to put together a plan:
+1. Run -> Unsteady Flow Analysis
+2. Set Starting and Ending Date to 01Jan2022, StartingTime to 1200 and EndingTime to 2400
+3. Set ComputationInterval, MappingOutputInterval, HydrographOutputInterval, DetailedOutputInterval all to 1 minute
+4. File -> Save Plan As
+5. (Whilst this window is still open), from main Hec-Ras window select Edit Unsteady Flow Data
+6. Double click 'Precipitation
+7. Select Use Simulation Time and ensure this is set to start at 01Jan2022 at 1200
+8. Change data time interval to 1 minute
+9. Select No.Ordinates and increase to 300
+10. Paste in data from excel files using column "Total net rain mm (Observed rainfall - 05/04/2022) - urbanised model"
+11. Press Plot Data to check plotting
+12. Had problem with dates being funny, and skipping certain time steps. But when you check table which you can produce from within the plotting window, the dates become normal. Closing the window and reopening it again also seemed to resolve the data issue
+14. In main Hec-Ras window select View/edit geometric data button (three from the left on top panel, with little lines)
+15. Select the 2D flow area button the left hand side and select “Generate computation points on regular interval with all break lines”
+16. To save in the Run -> Unsteady Flow Analysis window-> Save plan as    
 
 <a name="runmodel"></a>
 ## 4. Running model                                                                                                              
