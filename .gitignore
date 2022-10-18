@@ -1,1 +1,21 @@
+<<<<<<< HEAD
 MelbourneAnalysis/Data/*
+=======
+*.dat
+results/	results/
+!**/__pycache__/
+Outputs/
+__pycache__
+Regridding/ReadMe.pdf
+*.pdf
+*desktop.ini
+/Notes/*
+*.xlsx
+*.ipynb_checkpoints*
+.ipynb_checkpoints
+**/*.ipynb_checkpoints/
+**/**/*.ipynb_checkpoints/
+
+.*  # ignore all hidden files and folders
+!/.gitignore  # explicitly do not ignore .gitignore
+>>>>>>> ba0953b0f2ea3f638cc02d5bb9f133ae291a52e4
