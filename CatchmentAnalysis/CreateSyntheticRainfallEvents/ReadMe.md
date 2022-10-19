@@ -120,6 +120,14 @@ For each of the three days previous to the rainfall event being modelled, this i
 <a name="loss_removal"></a>  
 ### Removing losses with ReFH2
 
+* Select 'Add' under Observed rainfall on the left
+* Select rainfall data from file (this must be in a format with no column names, otherwise it will reject it)
+* Add antecedent rainfall data from file (this must be in a format with no column names, otherwise it will reject it)
+* Select next
+* Select 'Observed rainfall - 05/04/22' (or equivalent) from the top down menu at the top left
+* Select 'export' and then 'this event' above the plot of 'Observed rainfall - 05/04/22 - as rural' to export the rainfall with rural model losses remove
+* Select 'export' and then 'this event' above the plot of 'Observed rainfall - 05/04/22 - urbanised' to export the rainfall with urban model losses remove
+
 Observed rainfall can be loaded into ReFH2, alongside the antecedent conditions, as seen in Figure 5a. On the next page, the export buttons on the right hand side can be used to export the data produced using this rainfall data (ensuring that the correct rainfall data is selected from the drop down menu at the top left). This exported data contains a column "Total net rain mm (Observed rainfall - 05/04/2022) - as 100% rural model" or "Total net rain mm (Observed rainfall - 05/04/2022) - urbanised model" which can be used as the input to Hec-Ras
 
 <p align="center">
