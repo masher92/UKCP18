@@ -31,7 +31,7 @@ os.chdir("../../../FloodModelling")
 catchment_shp = "MeganModel/CatchmentLinDyke_exported.shp"
 catchment_gdf = gpd.read_file(catchment_shp)
 
-def create_binned_counts_and_props(rainfall_scenario_names, variable_name, breaks, labels):
+def create_binned_counts_and_props(rainfall_scenario_names, variable_name, breaks, labels, remove_little_values):
     # Create dataframes to populate with values
     counts_df = pd.DataFrame()
     proportions_df = pd.DataFrame()        
@@ -197,14 +197,14 @@ def prepare_rainfall_scenario_raster(variable_name, rs_name, rs_shortening, remo
     
     # Clip the raster files to the extent of the catchment boundary
     # Also return out_meta which contains..
-    raster, out_meta = open_and_clip("MeganModel/6hr_{}_u/6hr_{}_{}.Resampled.Terrain.tif".format(rs_shortening, rs_name, variable_name), 
-                           "MeganModel/6hr_{}_u/6hr_{}_{}.Resampled.Terrain_clipped.tif".format(rs_shortening, rs_name, variable_name)) 
+    raster, out_meta = open_and_clip("Megans Model/{}/6hr_{}_{}.Resampled.Terrain.tif".format(rs_shortening, rs_name, variable_name), 
+                           "Megans Model/{}/6hr_{}_{}.Resampled.Terrain_clipped.tif".format(rs_shortening, rs_name, variable_name)) 
     
     # If looking at velocity, then also read in depth raster as this is needed to filter out cells where 
     # the depth is below 0.1m
     if variable_name == 'velocity':
-            depth_raster = open_and_clip("MeganModel/6hr_{}_u/6hr_{}_{}.Resampled.Terrain.tif".format(rs_shortening, rs_name, 'depth'), 
-                       "MeganModel/6hr_{}_u/6hr_{}_{}.Resampled.Terrain_clipped.tif".format(rs_shortening, rs_name, 'depth'))[0]
+            depth_raster = open_and_clip("Megans Model/{}/6hr_{}_{}.Resampled.Terrain.tif".format(rs_shortening, rs_name, 'depth'), 
+                       "Megans Model/{}/6hr_{}_{}.Resampled.Terrain_clipped.tif".format(rs_shortening, rs_name, 'depth'))[0]
 
     # Set -9999 to NA
     raster[raster < -9998] = np.nan

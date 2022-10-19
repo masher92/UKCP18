@@ -25,13 +25,17 @@ from branca.element import Template, MacroElement
 import folium
 from folium import Map, FeatureGroup, LayerControl
 import numpy.ma as ma
+from pathlib import Path
+
+# Define whether to filter out values <0.1
+remove_little_values = True
 
 # Specify catchment area to add to plot
-os.chdir("../../../FloodModelling")
+os.chdir("../../../../FloodModelling")
 catchment_shp = "MeganModel/CatchmentLinDyke_exported.shp"
 catchment_gdf = gpd.read_file(catchment_shp)
 
-def create_binned_counts_and_props(rainfall_scenario_names, variable_name, breaks, labels):
+def create_binned_counts_and_props(rainfall_scenario_names, variable_name, breaks, labels, remove_little_values):
     # Create dataframes to populate with values
     counts_df = pd.DataFrame()
     proportions_df = pd.DataFrame()        
@@ -68,8 +72,7 @@ def create_binned_counts_and_props(rainfall_scenario_names, variable_name, break
     proportions_df['index'] = labels
 
     return counts_df, proportions_df
-    
-
+   
 
 def categorise_difference (raster):
     classified_raster = raster.copy()
@@ -142,11 +145,11 @@ def plot_with_folium(dict_of_fps_and_names, cmap, template):
     display(mapa)
 
 def save_array_as_raster(raster, fp_to_save, out_meta):
-    src = rasterio.open("MeganModel/6hr_dt_u/6hr_dividetime_velocity.Resampled.Terrain.tif")
+    #src = rasterio.open("MeganModel/6hr_dt_u/6hr_dividetime_velocity.Resampled.Terrain.tif")
     with rasterio.open(
             fp_to_save, "w", **out_meta) as dest_file:
         dest_file.write(raster,1)
-    dest_file.close()    
+    dest_file.close()      
     
 # Opensa raster, trims it to extent of catchment, saves a trimmed version
 # and returns an arrat contianing the data, also trimmed
@@ -219,7 +222,7 @@ def classify_raster (raster, breaks):
     
     return classified_raster
 
-def plot_classified_raster(variable_name, rainfall_scenario_name, labels, colors_list, norm = None):
+def plot_classified_raster(fp_for_classified_raster, labels, colors_list, norm = None):
     
     # Create patches for legend
     patches_list = []
@@ -231,7 +234,7 @@ def plot_classified_raster(variable_name, rainfall_scenario_name, labels, colors
     cmap = mpl.colors.ListedColormap(colors_list)
     
     # plot the new clipped raster      
-    clipped = rasterio.open("Arcpy/{}_{}_classified.tif".format(variable_name, rainfall_scenario_name))
+    clipped = rasterio.open(fp_for_classified_raster)
 
     fig, ax = plt.subplots(figsize=(20, 15))
     catchment_gdf.plot(ax=ax, facecolor = 'None', edgecolor = 'black', linewidth = 4)
@@ -245,9 +248,17 @@ def plot_classified_raster(variable_name, rainfall_scenario_name, labels, colors
 
     plt.legend(handles=patches_list, handleheight=3, handlelength=3, fontsize =20)
     
-    #Save the figure
-    plt.savefig("Arcpy/Figs/{}_{}_classified.png".format(variable_name, rainfall_scenario_name), dpi=500,bbox_inches='tight')
+    # Create file path for saving figure to
+    figs_dir = fp_for_classified_raster.split('/', 3)[0] + '/Figs/' + fp_for_classified_raster.split('/', 3)[1] +'/'
+    Path(figs_dir).mkdir(parents=True, exist_ok=True)
+    plot_fp = figs_dir + fp_for_classified_raster.split('/')[2].replace(".tif", ".png")
+
+    # Save the figure
+    plt.savefig(plot_fp, dpi=500,bbox_inches='tight')
+    
     plt.close()    
+    
+   
 
 def plot_difference(variable_name, rainfall_scenario_name, cmap, norm = None):
     
@@ -278,7 +289,7 @@ def plot_difference(variable_name, rainfall_scenario_name, cmap, norm = None):
     plt.savefig("Arcpy/Figs/{}_singlepeak_{}_diff.png".format(variable_name, rainfall_scenario_name), dpi=500,bbox_inches='tight')
     plt.close()
     
-def plot_difference_levels (variable_name, rainfall_scenario_name, labels, norm = None):
+def plot_difference_levels (fp_for_classified_diff_raster, labels, norm = None):
 
     # Create discrete cmap
     colors_list = [mpl.cm.viridis(0.1), mpl.cm.viridis(0.5), mpl.cm.viridis(0.7), mpl.cm.viridis(0.9)]
@@ -287,19 +298,19 @@ def plot_difference_levels (variable_name, rainfall_scenario_name, labels, norm 
     cmap.set_under('green')
 
     # Create labels
-    if variable_name == 'depth':
+    if 'depth' in fp_for_classified_diff_raster:
         labels= ['<-0.1m', '-0.1-0.1m', '0.1-0.3m', '0.3m+']
-    elif variable_name =='velocity':
+    else:
         labels = ['<-0.1m/s', '-0.1-0.1m/s', '0.1-0.3m/s', '0.3m/s+']
-    
-    # Create patches for legend
+   
+   # Create patches for legend
     patches_list = []
     for i, color in  enumerate(colors_list):
         patch =  mpatches.Patch(color=color, label=labels[i])
         patches_list.append(patch)  
 
     # plot the new clipped raster      
-    clipped = rasterio.open("Arcpy/{}_{}_classified.tif".format(variable_name,rainfall_scenario_name))
+    clipped = rasterio.open(fp_for_classified_diff_raster)
 
     # Set up plot instance
     fig, ax = plt.subplots(figsize=(20, 15))
@@ -314,11 +325,16 @@ def plot_difference_levels (variable_name, rainfall_scenario_name, labels, norm 
 
     plt.legend(handles=patches_list, handleheight=3, handlelength=3, fontsize =20)
     
+    # Create file path for saving figure to
+    figs_dir = fp_for_classified_diff_raster.split('/', 3)[0] + '/Figs/' + fp_for_classified_diff_raster.split('/', 3)[1] +'/'
+    Path(figs_dir).mkdir(parents=True, exist_ok=True)
+    plot_fp = figs_dir + fp_for_classified_diff_raster.split('/')[2].replace(".tif", ".png")
+    
     # Save the figure
-    plt.savefig("Arcpy/Figs/{}_singlepeak_{}_diff_classified.png".format(variable_name,rainfall_scenario_name), dpi=500,bbox_inches='tight')
-    plt.close()    
+    plt.savefig(plot_fp, dpi=500,bbox_inches='tight')
+    plt.close()   
 
-def plot_difference_levels_pos_neg (variable_name, rainfall_scenario_name, norm = None):
+def plot_difference_levels_pos_neg (fp_for_posneg_diff_raster, norm = None):
 
     # Create discrete cmap
     colors_list = ["red", "grey", "green"]
@@ -326,13 +342,15 @@ def plot_difference_levels_pos_neg (variable_name, rainfall_scenario_name, norm 
 
     # Create patches for legend
     patches_list = []
-    labels= ['{} < single peak'.format(rainfall_scenario_name),'{} = single peak'.format(rainfall_scenario_name),'{} > single peak'.format(rainfall_scenario_name)]
+    labels= ['{} < single peak'.format(fp_for_posneg_diff_raster.split('/')[1]),
+             '{} = single peak'.format(fp_for_posneg_diff_raster.split('/')[1]),
+             '{} > single peak'.format(fp_for_posneg_diff_raster.split('/')[1])]
     for i, color in  enumerate(colors_list):
         patch =  mpatches.Patch(color=color, label=labels[i])
         patches_list.append(patch)  
 
     # plot the new clipped raster      
-    clipped = rasterio.open("Arcpy/{}_singlepeak_{}_diff_posneg.tif".format(variable_name,rainfall_scenario_name))
+    clipped = rasterio.open(fp_for_posneg_diff_raster)
 
     # Set up plot instance
     fig, ax = plt.subplots(figsize=(20, 15))
@@ -344,13 +362,16 @@ def plot_difference_levels_pos_neg (variable_name, rainfall_scenario_name, norm 
     clipped.close()
 
     plt.axis('off')
-
     plt.legend(handles=patches_list, handleheight=3, handlelength=3, fontsize =15)
     
+    # Create file path for saving figure to
+    figs_dir = fp_for_posneg_diff_raster.split('/', 3)[0] + '/Figs/' + fp_for_posneg_diff_raster.split('/', 3)[1] +'/'
+    Path(figs_dir).mkdir(parents=True, exist_ok=True)
+    plot_fp = figs_dir + fp_for_posneg_diff_raster.split('/')[2].replace(".tif", ".png")
+    
     # Save the figure
-    plt.savefig("Arcpy/Figs/{}_singlepeak_{}_diff_posneg.png".format(variable_name, rainfall_scenario_name), dpi=500,bbox_inches='tight')
-    plt.close()
-                      
+    plt.savefig(plot_fp, dpi=500,bbox_inches='tight')
+    plt.close()  
     
 template_depth_cats = """
 {% macro html(this, kwargs) %}
