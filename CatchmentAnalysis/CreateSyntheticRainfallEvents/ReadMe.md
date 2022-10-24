@@ -50,6 +50,10 @@ In order to generate synthetic design storm hyetographs:
 <a name="details_options"></a>  
 ### Options for defining synthetic multi-peaked events
 
+Two options are explored here for generating synthetic rainfall events with different temporal distributions. 
+* Multiple peaked events: https://github.com/masher92/UKCP18/tree/master/CatchmentAnalysis/CreateSyntheticRainfallEvents/MultiplePeaks
+* Events using summary profiles derived from analysis of UK extremes: https://github.com/masher92/UKCP18/tree/master/CatchmentAnalysis/CreateSyntheticRainfallEvents/RobertoProfiles
+
 <a name="antecedent_conditions"></a>  
 ### Defining antecedent conditions
   
