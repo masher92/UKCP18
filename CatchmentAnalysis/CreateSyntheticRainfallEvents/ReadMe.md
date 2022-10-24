@@ -57,7 +57,9 @@ Two options are explored here for generating synthetic rainfall events with diff
 <a name="antecedent_conditions"></a>  
 ### Defining antecedent conditions
   
- The design storm hyetograph input to Hec-Ras is expected to be the net rainfall after losses have been subtracted. When FEH rainfall depths and ReFH2 design storm profiles are provided, ReFH2 calculates the net rainfall after losses have been subtracted. It is also possible to import observed rainfall data into ReFH2, alongside antecedent rainfall conditions for at least the 3 days prior to the event, and the rainfall data with losses subtracted will be returned.
+The design storm hyetograph input to Hec-Ras is expected to be the net rainfall after losses have been subtracted. When FEH rainfall depths and ReFH2 design storm profiles are provided, ReFH2 calculates the net rainfall after losses have been subtracted. It is also possible to import observed rainfall data into ReFH2, alongside antecedent rainfall conditions for at least the 3 days prior to the event, and the rainfall data with losses subtracted will be returned.
+
+The antecedent conditions for Lin Dyke are defined at https://github.com/masher92/UKCP18/tree/master/CatchmentAnalysis/CreateSyntheticRainfallEvents/DeriveAntecedentConditions 
 
 To calculate appropriate antecedent conditions, the CEH-GEAR precipitation data is extracted for the cells which are found within the catchment area (Figure 4)
 
@@ -87,3 +89,5 @@ Losses can be removed from synthetic rainfall profiles using ReFH2 following thi
 * Select 'export' and then 'this event' above the plot of 'Observed rainfall - 05/04/22 - as rural' to export the rainfall with rural model losses remove
 * Select 'export' and then 'this event' above the plot of 'Observed rainfall - 05/04/22 - urbanised' to export the rainfall with urban model losses remove
 * Columns "Total net rain mm (Observed rainfall - 05/04/2022) - as 100% rural model" or "Total net rain mm (Observed rainfall - 05/04/2022) - urbanised model" can be used as the input to Hec-Ras 
+  
+An exploration of the impact of removing the losses is at https://github.com/masher92/UKCP18/blob/master/CatchmentAnalysis/CreateSyntheticRainfallEvents/RemoveLosses.ipynb
