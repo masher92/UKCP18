@@ -29,10 +29,9 @@ It is unclear, however, how these variations might impact on the flooding outcom
 
 The standard process for deriving a design storm using the FSR design storm profiles is as follows:
 * Use the FEH DDF model to estimate the design rainfall depth (in mm) for the required duration and return period for the catchment
-    * The FEH web service allows a catchment boundary to be determined (Figure 1a)
-    * For the catchment it calculates the rainfall depth associated with a particular duration and return period (Figure 1b)
+    * The FEH web service allows a catchment boundary to be determined
+    * For the catchment it calculates the rainfall depth associated with a particular duration and return period
     * For Lin Dyke, for a 100 year return period, a rainfall depth of 59.98mm equates to a 6hr duration, 51.32mm for a 3hr duration and 38.7mm for a 1hr duration
-
 * Convert this rainfall depth, using ReFH2 software, into a design rainfall hyetograph at the required time step (e.g. Figure 1)
 * Extract the data on the net rainfall after losses have been subtracted from ReFH2
 * Feed in this net rainfall data as the precipitation input to Hec-RAS   
@@ -44,57 +43,28 @@ The standard process for deriving a design storm using the FSR design storm prof
 ### Overview of methodology  
 In order to generate synthetic design storm hyetographs:
 * Use the FEH DDF model to estimate the design rainfall depth (in mm) for the required duration and return period for the 1km grid cell within which the modelling area is found
-* Generate synthetic design storm hyetographs which preserve the total event rainfall volume and duration, but splitting this rainfall volume into multiple peaks (see below)
+* Generate synthetic design storm hyetographs which preserve the total event rainfall volume and duration, but splitting this rainfall volume over time differently (according to one of two methods)
 * Feed these design storm hyetographs into ReFH2 as observed rainfall data, alongside data on antecedent conditions, and extract the data on the net rainfall after losses have been subtracted from ReFH2
 * Feed in this net rainfall data as the precipitation input to Hec-RAS
 
 <a name="details_options"></a>  
 ### Options for defining synthetic multi-peaked events
-Several methods are explored for generating synthetic design storm hyetographs which preserve the total event rainfall volume and duration, but splitting this rainfall volume into multiple peaks. For now, an event with 3 peaks will be considered.
 
-The following parameters must be accounted for to construct multiple peaks:
-  1. The rainfall volume for each peak  
-    * Suggestion: Divide the total volume by the number of peaks so each peak has an equal volume and there is the same total rainfall.
-  2. The shape of each peak  
-    * Suggestion: Use the same shape, but different peak rainfall height so it gives the desired volume given a start-to-end duration for the peak.
-  3. The start-to-end duration of each peak  
-    * This is a parameter we can play with, but probably we will mainly look at short durations.
-  4. The spacing between peaks  
-    * What is a "fair" spacing for comparison so that the overall "event duration" is the same (i.e. the total length of the event including the non rain periods)?
-
-Three different possible approaches are considered for constructing a multi-peaked hyetograph (with 3 peaks):
-- 'Divide-time'  
-  - The first peak starts at the same time as the single peak, and the last peak finishes at the same time,  and there is a third peak located in the middle.
-- 'Max-spread'  
-  - The centre of the peaks are equally spread out over the duration of the event. There is the same amount of time between the start of the event and the 1st peak, the 1st peak and the 2nd peak, the 2nd peak and the 3rd peak, and the 3rd peak and the end of the event. (i.e. centre of the peaks at t=(1/6)*d, (3/6)*d, and (5/6)*d)
-- 'Sub-peak timing'  
-  - Divide the single peak into 3 sections so that each has the same volume of rainfall. Then calculate the "average arrival time" of the rainfall in each subpeak (using these as the centre for the multiple peaks). Peak timing calculated so that Nth part of rainfall falls on average at the same time as in the single peak consider each minute as a block with constant rainfall rate for simplicity (don't understand this)
-
-Figure 3 visualises these 3 methods alongside an equivalent single peaked storm for 1h, 3h and 6h durations.
-
-<p align="center">
-<img src="LinDyke_DataAndFigs/SyntheticEvents_preLossRemoval/1h/1h_allmethods.jpg" width="300"  />
-<img src="LinDyke_DataAndFigs/SyntheticEvents_preLossRemoval/3h/3h_allmethods.jpg" width="300" />
-<img src="LinDyke_DataAndFigs/SyntheticEvents_preLossRemoval/6h/6h_allmethods.jpg" width="300"  />    
-<p align="center"> Figure 3. Shows the synthetic rainfall events (pre loss removal) produced using the four methods (1= single peak, 2=divide-time, 3=max-spread, 4=sub-peak timing), for 1hr (left), 3hr (middle) and 6hr (right).  <p align="center">
-
- <!-- Script initially calculates a rate in mm/hr, can divide this by 60 to get a rate in mm/min
- Best to use 1 minute data to drive the model
- Input for Hec-Ras = mm/timestep.
-
- Does using multiple peaks make sense for a 1hr storm? SB: Even for the 6-hour rainfall events, most of the rainfall occurs in a much shorter period (maybe an hour or so). With a 1-hour duration, the peaks become very narrow to begin with, so splitting a single hour up into sub-peaks may not be so realistic. For 3 hours, it probably still makes sense.
-
- where I’ve been using ReFH2 to generate inputs to Hec-Ras I have been using the 6th column – ‘Total net rain mm (100 year) – urbanised model’, which has had some kind of losses removed from it, and is what I believe you are supposed to use as input to the flood model.  -->
+Two options are explored here for generating synthetic rainfall events with different temporal distributions. 
+* Multiple peaked events: https://github.com/masher92/UKCP18/tree/master/CatchmentAnalysis/CreateSyntheticRainfallEvents/MultiplePeaks
+* Events using summary profiles derived from analysis of UK extremes: https://github.com/masher92/UKCP18/tree/master/CatchmentAnalysis/CreateSyntheticRainfallEvents/RobertoProfiles
 
 <a name="antecedent_conditions"></a>  
 ### Defining antecedent conditions
   
- The design storm hyetograph input to Hec-Ras is expected to be the net rainfall after losses have been subtracted. When FEH rainfall depths and ReFH2 design storm profiles are provided, ReFH2 calculates the net rainfall after losses have been subtracted. It is also possible to import observed rainfall data into ReFH2, alongside antecedent rainfall conditions for at least the 3 days prior to the event, and the rainfall data with losses subtracted will be returned.
+The design storm hyetograph input to Hec-Ras is expected to be the net rainfall after losses have been subtracted. When FEH rainfall depths and ReFH2 design storm profiles are provided, ReFH2 calculates the net rainfall after losses have been subtracted. It is also possible to import observed rainfall data into ReFH2, alongside antecedent rainfall conditions for at least the 3 days prior to the event, and the rainfall data with losses subtracted will be returned.
+
+The antecedent conditions for Lin Dyke are defined at https://github.com/masher92/UKCP18/tree/master/CatchmentAnalysis/CreateSyntheticRainfallEvents/DeriveAntecedentConditions 
 
 To calculate appropriate antecedent conditions, the CEH-GEAR precipitation data is extracted for the cells which are found within the catchment area (Figure 4)
 
 <p align="center">
-<img src="LinDyke_DataAndFigs/LinDyke_cells.png" width="350"  />
+<img src="DeriveAntecedentConditions/CellsUsedInAntecedentConditions.png" width="350"  />
 <p align="center"> Figure 4.  The cells within the Lin Dyke catchment <p align="center">
 
 Using the hourly values for June, July and August for the period covered by the data (1990-2014), an average daily rainfall amount is calculated. For the Lin Dyke catchment this is 0.51mm.
@@ -110,7 +80,7 @@ For each of the three days previous to the rainfall event being modelled, this i
  
 <a name="loss_removal"></a>  
 ### Removing losses with ReFH2
-
+Losses can be removed from synthetic rainfall profiles using ReFH2 following this procedure:
 * Select 'Add' under Observed rainfall on the left
 * Select rainfall data from file (this must be in a format with no column names, otherwise it will reject it)
 * Add antecedent rainfall data from file (this must be in a format with no column names, otherwise it will reject it)
@@ -118,19 +88,6 @@ For each of the three days previous to the rainfall event being modelled, this i
 * Select 'Observed rainfall - 05/04/22' (or equivalent) from the top down menu at the top left
 * Select 'export' and then 'this event' above the plot of 'Observed rainfall - 05/04/22 - as rural' to export the rainfall with rural model losses remove
 * Select 'export' and then 'this event' above the plot of 'Observed rainfall - 05/04/22 - urbanised' to export the rainfall with urban model losses remove
-
-Observed rainfall can be loaded into ReFH2, alongside the antecedent conditions, as seen in Figure 5a. On the next page, the export buttons on the right hand side can be used to export the data produced using this rainfall data (ensuring that the correct rainfall data is selected from the drop down menu at the top left). This exported data contains a column "Total net rain mm (Observed rainfall - 05/04/2022) - as 100% rural model" or "Total net rain mm (Observed rainfall - 05/04/2022) - urbanised model" which can be used as the input to Hec-Ras
-
-<p align="center">
-<img src="LinDyke_DataAndFigs/ReFH2_LinDyke_RemovingLosses.PNG" width="450"  />
- <img src="LinDyke_DataAndFigs/ReFH2_LinDyke_RemovingLosses2.PNG" width="490"  />
-<p align="center"> Figure 5. a.  <p align="center">
+* Columns "Total net rain mm (Observed rainfall - 05/04/2022) - as 100% rural model" or "Total net rain mm (Observed rainfall - 05/04/2022) - urbanised model" can be used as the input to Hec-Ras 
   
-  
-The plot in Figure 6 shows the rainfall data for a 6 hour storm after losses have been removed (using both the rural and urban model) for each of the methods.
-  
-<p align="center">
-<img src="LinDyke_DataAndFigs/4methods_pre-post_loss_removal.png" width="650"  />
-<p align="center"> Figure 6.   <p align="center">
-  
-  
+An exploration of the impact of removing the losses is at https://github.com/masher92/UKCP18/blob/master/CatchmentAnalysis/CreateSyntheticRainfallEvents/RemoveLosses.ipynb
