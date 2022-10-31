@@ -5,6 +5,7 @@ import pandas as pd
 from datetime import timedelta
 from dateutil.relativedelta import relativedelta
 from datetime import datetime
+import math
 
 default_peak_shape='refh2-summer'
 
@@ -13,7 +14,7 @@ def find_clusters_with_max (difference_df, variable_name, column_name):
     print("Max difference in {} in clusters: ".format(variable_name),difference_df[column_name].nlargest(2).index[0],
           "and ", difference_df[column_name].nlargest(2).index[1])
 
-def find_difference_stats(dictionary_of_data, rainfall_depth_column):
+def find_difference_stats(dictionary_of_data, rainfall_depth_column, single_peak):
 
     # Create dataframe to populate with difference stats
     difference_stats = pd.DataFrame(None)
