@@ -35,38 +35,39 @@ os.chdir("../../../../FloodModelling")
 catchment_shp = "MeganModel/CatchmentLinDyke_exported.shp"
 catchment_gdf = gpd.read_file(catchment_shp)
 
-def create_binned_counts_and_props(rainfall_scenario_names, variable_name, breaks, labels, remove_little_values):
+def create_binned_counts_and_props(fps, variable_name, breaks, labels, remove_little_values):
     # Create dataframes to populate with values
     counts_df = pd.DataFrame()
     proportions_df = pd.DataFrame()        
 
     # Loop through each rainfall scenario
     # Get the raster containing its values, and count the number of each unique value, and construct into a dataframe
-    for rainfall_scenario_name, rainfall_scenario_shortening in rainfall_scenario_names.items():  
-        raster = prepare_rainfall_scenario_raster(variable_name, rainfall_scenario_name, rainfall_scenario_shortening, remove_little_values)[0]
+    for fp in fps  :
+        # Classify depth/velocity rasters into depth/velocity bins
+        raster = prepare_rainfall_scenario_raster(fp.format(variable_name), remove_little_values)[0]
         unique, counts = np.unique(raster, return_counts=True)
         df = pd.DataFrame({'values': unique, 'counts':counts})
 
         # Add a new column specifying the bin which each value falls within
         df['bins']= pd.cut(unique, bins=breaks, right=False)
-        
+
         # Create a new dataframe showing the number of cells in each of the bins
         groups = df.groupby(['bins']).sum()
         groups  = groups.reset_index()
-        
+
         # Find the total number of cells
         total_n_cells = groups ['counts'].sum()
         # Find the number of cells in each group as a proportion of the total
         groups['Proportion'] = round((groups['counts']/total_n_cells) *100,1)
-        
+
         # Add values to dataframes
-        counts_df[rainfall_scenario_name] = groups['counts']
-        proportions_df[rainfall_scenario_name] = groups['Proportion']
-        
+        counts_df[fp.split('/')[1]] = groups['counts']
+        proportions_df[fp.split('/')[1]] = groups['Proportion']
+
     # Reset index to show the groups
     counts_df.reset_index(inplace=True)
     proportions_df.reset_index(inplace=True)
-    
+
     # Set index values
     counts_df['index'] = labels
     proportions_df['index'] = labels
@@ -186,7 +187,7 @@ def open_and_clip(input_raster_fp):
     out_meta = data.meta.copy()
     # Parse the EPSG value from the CRS so that we can create a Proj4 string using PyCRS library 
     # (to ensure that the projection information is saved correctly) [this bit didn't work so specified manually]
-    epsg_code = int(data.crs.data['init'][5:])
+    #epsg_code = int(data.crs.data['init'][5:])
     # Now we need to update the metadata with new dimensions, transform (affine) and CRS (as Proj4 text)
     out_meta.update({"driver": "GTiff","height": clipped_array.shape[1],"width": clipped_array.shape[2], 
                      "transform": out_transform, "crs": CRS('EPSG:27700')})#pycrs.parser.from_epsg_code(epsg_code).to_proj4()})
@@ -372,6 +373,62 @@ def plot_difference_levels_pos_neg (fp_for_posneg_diff_raster, norm = None):
     # Save the figure
     plt.savefig(plot_fp, dpi=500,bbox_inches='tight')
     plt.close()  
+
+    
+def make_totals_bar_plot (ax, totals_df, y_name):
+    y_pos = np.arange(len(totals_df.columns))
+    ax.bar( y_pos, totals_df.iloc[[0]].values.tolist()[0], color=colors,
+            width = 0.9)
+    # Create names on the x-axis
+    ax.set_xticks(y_pos, rainfall_scenario_names.keys(), fontsize =15, rotation = 45)
+    ax.set_ylabel(y_name, fontsize =20)
+
+    xlocs, xlabs = plt.xticks()
+    xlocs=[i+1 for i in range(0,10)]
+    xlabs=[i/2 for i in range(0,10)]
+
+    for i, v in enumerate(totals_df.iloc[[0]].values.tolist()[0]):
+        ax.text(xlocs[i] - 1.12, v * 1.015, str(ls[i]), fontsize = 20)
+    
+def make_bar_plot_by_category (ax, df_to_plot, variable, variable_unit, ylabel):
+           
+    # Setting up plotting
+    width, DistBetweenBars, Num = 0.2, 0.01, 4 # width of each bar, distance between bars, number of bars in a group
+    # calculate the width of the grouped bars (including the distance between the individual bars)
+    WithGroupedBars = Num* width + (Num-1)*DistBetweenBars
+
+    for i in range(Num):
+        ax.bar(np.arange(len(df_to_plot))-WithGroupedBars/2 + (width+DistBetweenBars)*i, df_to_plot.iloc[:,i+1], width, 
+                color = colors[i])
+    ax.set_xticks(np.arange(len(df_to_plot['index'])), df_to_plot['index'], rotation=30, fontsize = 12)
+    ax.set_xlabel('Flood {} ({})'.format(variable,variable_unit), fontsize = 15)
+    ax.set_ylabel(ylabel, fontsize = 15)
+    
+    # Put legend on top left plot
+    if ax == axs[0,0]:
+        plt.legend(df_to_plot.columns[1:], fontsize=15, frameon = True)    
+    
+    
+def make_props_plot (ax, proportions_df, variable, variable_unit, labels):
+    
+    # reformat the dataframe for stacked plotting
+    reformatted_df  =proportions_df.T[1:]
+
+    # Plot
+    reformatted_df.plot(ax=ax, kind='bar', edgecolor='white', linewidth=3, stacked = True, width =0.8, rot =45,
+                         xlabel = 'Flood {} ({})'.format(variable, variable_unit),
+                            ylabel = 'Proportion of flooded cells', fontsize = 12)
+    plt.rcParams.update({'font.size': 14})
+    ax.legend(bbox_to_anchor=(1.01, 1), loc='upper left')
+       
+    
+def make_spatial_plot(ax, fp):
+    img = Image.open(fp)
+    ax.imshow(img)
+    ax.axis('off')   
+         
+        
+    
     
 template_depth_cats = """
 {% macro html(this, kwargs) %}
