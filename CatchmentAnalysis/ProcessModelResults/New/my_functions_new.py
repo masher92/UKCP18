@@ -259,7 +259,52 @@ def plot_classified_raster(fp_for_classified_raster, labels, colors_list, norm =
     
     plt.close()    
     
-   
+def find_worst_case_method(variable_name):
+    # Read in the datasets
+    singlepeak = prepare_rainfall_scenario_raster(sp_fp.format(variable_name), remove_little_values)[0].flatten()
+    dividetime = prepare_rainfall_scenario_raster(fps[2].format(variable_name), remove_little_values)[0].flatten()
+    subpeaktiming =prepare_rainfall_scenario_raster(fps[1].format(variable_name), remove_little_values)[0].flatten()
+    maxspread = prepare_rainfall_scenario_raster(fps[0].format(variable_name), remove_little_values)[0].flatten()
+
+    # Create a list to store the index for each cell of the scenario that produced the maximum value
+    rainfall_scenario_max_producing_numbers = []
+    # Assign a number for each of the scenarios (0:singlepeak, 1:dividetime, 2:subpeaktiming, 3:maxspread)
+    rainfall_scenario_numbers = [0,1,2,3]
+    # Loop through each cell in the array:
+    ls = []
+    for i, x in enumerate(zip(singlepeak,dividetime, subpeaktiming,maxspread)):
+        print(i)
+        ls.append(i)
+        # Find the number related to the scenario which produced the maximum
+        index_of_max = np.argmax(x)
+        # Check that the max being referrred to is not np.nan
+        # if it is, then append np.nan to the list of indexes, to indicate no values were the maximum
+        if np.isnan(x[index_of_max]):
+              rainfall_scenario_max_producing_numbers.append(np.nan)
+        # If it's not np.nan
+        else:
+            # Check that the maximum value is not equal to any of the other values
+            # If there is another equivalent value then add a flag to the list storing whether there are any matching values
+            matches = []
+            for number in rainfall_scenario_numbers:
+                if number != index_of_max:
+                    if x[number] == x[index_of_max]:
+                        matches.append('yes')
+            # If matches is empty (i.e. there are no matching values to the maxium) then give the index of 
+            # the scenario which was the maximum 
+            if not matches:
+                rainfall_scenario_max_producing_numbers.append(index_of_max)
+            # If matches is not empty (i.e. there are values matching the maximum) then return 4 (no one 
+            # scenario can be deemed the worst case)
+            elif matches:
+                rainfall_scenario_max_producing_numbers.append(4)      
+    
+    # Find the number of counts of each value
+    unique, counts = np.unique(rainfall_scenario_max_producing_numbers, return_counts=True)
+    worst_case_method_df = pd.DataFrame({'values': unique, 'counts':counts})
+    
+    # Store in a dictionary
+    return worst_case_method_df   
 
 def plot_difference(variable_name, rainfall_scenario_name, cmap, norm = None):
     
@@ -373,7 +418,14 @@ def plot_difference_levels_pos_neg (fp_for_posneg_diff_raster, norm = None):
     # Save the figure
     plt.savefig(plot_fp, dpi=500,bbox_inches='tight')
     plt.close()  
-
+    
+def plot_worst_case_bars (ax, worst_case_method_df):
+    # Remove the np.nan values
+    worst_case_method_df = worst_case_method_df.iloc[:5,1]
+    # Set scenario names as index
+    worst_case_method_df.index = ["singlepeak", "dividetime", "subpeaktiming", "maxspread", "no maximum"]
+    # Plot
+    worst_case_method_df.plot(ax= ax, kind ='bar',width=  0.9, rot =45, ylabel = 'Number of cells')  
     
 def make_totals_bar_plot (ax, totals_df, y_name):
     y_pos = np.arange(len(totals_df.columns))
