@@ -15,6 +15,7 @@ Regridding/ReadMe.pdf
 .ipynb_checkpoints
 **/*.ipynb_checkpoints/
 **/**/*.ipynb_checkpoints/
+*.npy
 
 .*  # ignore all hidden files and folders
 !/.gitignore  # explicitly do not ignore .gitignore

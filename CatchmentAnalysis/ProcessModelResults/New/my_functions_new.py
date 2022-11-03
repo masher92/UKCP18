@@ -427,12 +427,12 @@ def plot_worst_case_bars (ax, worst_case_method_df):
     # Plot
     worst_case_method_df.plot(ax= ax, kind ='bar',width=  0.9, rot =45, ylabel = 'Number of cells')  
     
-def make_totals_bar_plot (ax, totals_df, y_name):
+def make_totals_bar_plot (ax, totals_df, y_name, ls, colors):
     y_pos = np.arange(len(totals_df.columns))
     ax.bar( y_pos, totals_df.iloc[[0]].values.tolist()[0], color=colors,
             width = 0.9)
     # Create names on the x-axis
-    ax.set_xticks(y_pos, rainfall_scenario_names.keys(), fontsize =15, rotation = 45)
+    ax.set_xticks(y_pos, totals_df_area.columns, fontsize =15, rotation = 45)
     ax.set_ylabel(y_name, fontsize =20)
 
     xlocs, xlabs = plt.xticks()
@@ -442,7 +442,7 @@ def make_totals_bar_plot (ax, totals_df, y_name):
     for i, v in enumerate(totals_df.iloc[[0]].values.tolist()[0]):
         ax.text(xlocs[i] - 1.12, v * 1.015, str(ls[i]), fontsize = 20)
     
-def make_bar_plot_by_category (ax, df_to_plot, variable, variable_unit, ylabel):
+def make_bar_plot_by_category (ax, df_to_plot, variable, variable_unit, ylabel, colors):
            
     # Setting up plotting
     width, DistBetweenBars, Num = 0.2, 0.01, 4 # width of each bar, distance between bars, number of bars in a group
@@ -465,6 +465,11 @@ def make_props_plot (ax, proportions_df, variable, variable_unit, labels):
     
     # reformat the dataframe for stacked plotting
     reformatted_df  =proportions_df.T[1:]
+    
+    if variable  == 'velocity':
+        reformatted_df.columns = labels_velocity
+    else:
+        reformatted_df.columns = labels_depth
 
     # Plot
     reformatted_df.plot(ax=ax, kind='bar', edgecolor='white', linewidth=3, stacked = True, width =0.8, rot =45,
@@ -472,6 +477,7 @@ def make_props_plot (ax, proportions_df, variable, variable_unit, labels):
                             ylabel = 'Proportion of flooded cells', fontsize = 12)
     plt.rcParams.update({'font.size': 14})
     ax.legend(bbox_to_anchor=(1.01, 1), loc='upper left')
+       
        
     
 def make_spatial_plot(ax, fp):
