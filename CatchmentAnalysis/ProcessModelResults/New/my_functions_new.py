@@ -26,6 +26,7 @@ import folium
 from folium import Map, FeatureGroup, LayerControl
 import numpy.ma as ma
 from pathlib import Path
+from PIL import Image
 
 # Define whether to filter out values <0.1
 remove_little_values = True
@@ -259,7 +260,7 @@ def plot_classified_raster(fp_for_classified_raster, labels, colors_list, norm =
     
     plt.close()    
     
-def find_worst_case_method(variable_name):
+def find_worst_case_method(fps, sp_fp, variable_name):
     # Read in the datasets
     singlepeak = prepare_rainfall_scenario_raster(sp_fp.format(variable_name), remove_little_values)[0].flatten()
     dividetime = prepare_rainfall_scenario_raster(fps[2].format(variable_name), remove_little_values)[0].flatten()
@@ -273,7 +274,6 @@ def find_worst_case_method(variable_name):
     # Loop through each cell in the array:
     ls = []
     for i, x in enumerate(zip(singlepeak,dividetime, subpeaktiming,maxspread)):
-        print(i)
         ls.append(i)
         # Find the number related to the scenario which produced the maximum
         index_of_max = np.argmax(x)
@@ -432,15 +432,15 @@ def make_totals_bar_plot (ax, totals_df, y_name, ls, colors):
     ax.bar( y_pos, totals_df.iloc[[0]].values.tolist()[0], color=colors,
             width = 0.9)
     # Create names on the x-axis
-    ax.set_xticks(y_pos, totals_df_area.columns, fontsize =15, rotation = 45)
-    ax.set_ylabel(y_name, fontsize =20)
+    ax.set_xticks(y_pos, totals_df_area.columns, fontsize =10, rotation = 45)
+    ax.tick_params(axis= 'both', which = 'major', labelsize =10)
 
     xlocs, xlabs = plt.xticks()
     xlocs=[i+1 for i in range(0,10)]
     xlabs=[i/2 for i in range(0,10)]
 
     for i, v in enumerate(totals_df.iloc[[0]].values.tolist()[0]):
-        ax.text(xlocs[i] - 1.12, v * 1.015, str(ls[i]), fontsize = 20)
+        ax.text(xlocs[i] - 1.12, v * 1.015, str(ls[i]), fontsize = 10)
     
 def make_bar_plot_by_category (ax, df_to_plot, variable, variable_unit, ylabel, colors):
            
