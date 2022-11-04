@@ -61,11 +61,11 @@ The design storm hyetograph input to Hec-Ras is expected to be the net rainfall 
 
 The antecedent conditions for Lin Dyke are defined at https://github.com/masher92/UKCP18/tree/master/CatchmentAnalysis/CreateSyntheticRainfallEvents/DeriveAntecedentConditions 
 
-To calculate appropriate antecedent conditions, the CEH-GEAR precipitation data is extracted for the cells which are found within the catchment area (Figure 4)
+To calculate appropriate antecedent conditions, the CEH-GEAR precipitation data is extracted for the cells which are found within the catchment area (below)
 
 <p align="center">
 <img src="DeriveAntecedentConditions/CellsUsedInAntecedentConditions.png" width="350"  />
-<p align="center"> Figure 4.  The cells within the Lin Dyke catchment <p align="center">
+<p align="center"> The cells within the Lin Dyke catchment <p align="center">
 
 Using the hourly values for June, July and August for the period covered by the data (1990-2014), an average daily rainfall amount is calculated. For the Lin Dyke catchment this is 0.51mm.
 
