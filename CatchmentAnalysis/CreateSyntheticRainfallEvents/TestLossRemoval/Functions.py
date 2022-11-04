@@ -175,7 +175,7 @@ def singlepeak_plot(ax, options, cols_dict, include_post_loss_removal = True):
     # Include the ReFH2 design rainfall post loss removal
     pre_loss_removal = pd.read_csv(roberto_profiles_fp + "PostLossRemoval/6hr_100yrRP/SinglePeak_6h1_1min_100yr/Urban.csv")
     pre_loss_removal['Time'] = post_loss_removal_df['Time'][0:360]
-    ax.plot(pre_loss_removal['Time'], pre_loss_removal['Total net rain mm (100 year) - urbanised model'], color = 'green')
+    ax.plot(pre_loss_removal['Time'], pre_loss_removal['Total net rain mm (100 year) - urbanised model'], color = 'dodgerblue')
     
     patch = mpatches.Patch(color='dodgerblue', label='RefH2 loss removal', linestyle = 'dashed')
     patches.append(patch)
