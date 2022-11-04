@@ -27,5 +27,17 @@ These suggest that the parameter Cini, which describes the initial depth of wate
 
 Cini is calculated based upon BFIHOST (a measure of catchment responsiveness based upon geology) and SAAR (the standard average rainfall between 1960 and 1990). It also says in (2.) that Cini is estimated within ReFH2 through the application of the DAYMOD daily soil moisture accounting procedure.
 
+### <ins> Preparing the data </ins>
+The data for this analysis was generated using ReFH2. 
+Creating observed events:
+* Load in catchment XML file, move to next screen
+* Select 'Add' under Observed rainfall on the left
+* Select rainfall data from file (this must be in a format with no column names, otherwise it will reject it)
+* Add antecedent rainfall data from file (this must be in a format with no column names, otherwise it will reject it)
+* Select next
+* Select 'Observed rainfall - 05/04/22' (or equivalent) from the top down menu at the top left
+* Select 'Summer' under conditions
+* Select 'export' and then 'this event' above the plot of 'Observed rainfall - 05/04/22 - as rural' to export the rainfall with rural model losses remove
+* Select 'export' and then 'this event' above the plot of 'Observed rainfall - 05/04/22 - urbanised' to export the rainfall with urban model losses remove
+* Columns "Total net rain mm (Observed rainfall - 05/04/2022) - as 100% rural model" or "Total net rain mm (Observed rainfall - 05/04/2022) - urbanised model" can be used as the input to Hec-Ras
 
-### <ins> Method </ins>
