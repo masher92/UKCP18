@@ -18,6 +18,40 @@ def clean_dfs (df):
     df['Time'] =  np.array(range(total_duration_minutes))
     return df
 
+def plot_results_losses(by_day_or_percentile, cols_dict, lists, titles) :
+    
+    fig = plt.figure(constrained_layout=True, figsize = (6,6))
+    if by_day_or_percentile == 'percentile':
+        (subfig1, subfig2, subfig3, subfig4) = fig.subfigures(4,1) 
+    else:
+        (subfig1, subfig2, subfig3) = fig.subfigures(3,1) 
+    (ax1, ax2) = subfig1.subplots(1, 2,sharey=True)      
+    (ax3, ax4) = subfig2.subplots(1, 2,sharey=True)    
+    (ax5, ax6) = subfig3.subplots(1, 2,sharey=True)    
+    if by_day_or_percentile == 'percentile':
+        (ax7, ax8) = subfig4.subplots(1, 2,sharey=True)   
+    # Plot    
+    make_plot_losses(ax1, 1, lists[0],cols_dict, 'upper right')
+    make_plot_losses(ax2, 5, lists[0],cols_dict, 'upper left')
+
+    make_plot_losses(ax3, 1, lists[1], cols_dict, 'upper right')
+    make_plot_losses(ax4,5,lists[1], cols_dict, 'upper left')
+
+    make_plot_losses(ax5,1, lists[2], cols_dict , 'upper right')
+    make_plot_losses(ax6,5, lists[2], cols_dict, 'upper left')
+    
+    if by_day_or_percentile == 'percentile':
+        make_plot_losses(ax7, 1, lists[3], cols_dict, 'upper right')
+        make_plot_losses(ax8,5,lists[3], cols_dict, 'upper left')
+
+    # Add subfigure titles
+    subfig1.suptitle(titles[0], fontsize = 11)
+    subfig2.suptitle(titles[1], fontsize = 11)    
+    subfig3.suptitle(titles[2], fontsize = 11)
+    
+    if by_day_or_percentile == 'percentile':
+        subfig3.suptitle(titles[2], fontsize = 11)
+
 def plot_results(by_day_or_percentile, cols_dict, lists, titles) :
     
     fig = plt.figure(constrained_layout=True, figsize = (20,12))
@@ -108,7 +142,33 @@ def make_plot (ax, cluster_num, options, colors_dict, legend_position, include_p
     
     if cluster_num == 5 and include_pre_losses == True:
         ax.legend(handles=patches, loc=legend_position, fontsize= 10)
-
+        
+def make_plot_losses (ax, cluster_num, options, colors_dict, legend_position):
+    # Create the patches for legend
+    patches = []
+    # Plot each of the antecedent condition options, and add a patch for to patches list for legend
+    for number,option in enumerate(options):
+        if 'days' in list(colors_dict.keys())[0]:
+            color = colors_dict[option.split('_')[1]]
+        else: 
+            color = colors_dict[option.split('_')[0]]
+        # Add to patches
+        patch = mpatches.Patch(color=color, label=options[number])
+        patches.append(patch)
+        # Read in data, clean it and plot it
+        post_loss_removal_df = pd.read_csv(roberto_profiles_fp + "PostLossRemoval/6hr_100yrRP/{}/cluster{}_urban_summer.csv".format(option, cluster_num))
+        post_loss_removal_df = clean_dfs(post_loss_removal_df)
+        post_loss_removal_df['losses'] =round(post_loss_removal_df['Total net rain mm (Observed rainfall - 01/01/2022) - urbanised model']/post_loss_removal_df['Observed rainfall - 01/01/2022 00:00']*100,2)
+        
+        ax.plot(post_loss_removal_df['Time'], post_loss_removal_df['losses'], color = color)
+    ax.set_title("Cluster {}".format(cluster_num))    
+    ax.set_xlabel("Minutes", fontsize = 7)
+    ax.set_ylabel("Proportion of rainfall lost", fontsize = 7)
+        
+    if cluster_num == 5 :
+        ax.legend(handles=patches, loc=legend_position, fontsize= 7)  
+        
+        
 def make_plot_old (axs, ax_num, cluster_num, options, colors, legend_position, include_pre_losses= True):
     ax = axs.flatten()[ax_num]
     # Create the patches for legend
@@ -137,26 +197,7 @@ def make_plot_old (axs, ax_num, cluster_num, options, colors, legend_position, i
     if ax_num == 1:
         ax.legend(handles=patches, loc=legend_position, fontsize= 10)
 
-def make_plot_losses (ax, cluster_num, options, colors, legend_position):
-    # Create the patches for legend
-    patches = []
-    # Plot each of the antecedent condition options, and add a patch for to patches list for legend
-    for number,option in enumerate(options):
-        # Add to patches
-        patch = mpatches.Patch(color=colors[number], label=options[number])
-        patches.append(patch)
-        # Read in data, clean it and plot it
-        post_loss_removal_df = pd.read_csv(roberto_profiles_fp + "PostLossRemoval/6hr_100yrRP/{}/cluster{}_urban_summer.csv".format(option, cluster_num))
-        post_loss_removal_df = clean_dfs(post_loss_removal_df)
-        post_loss_removal_df['losses'] = post_loss_removal_df['Observed rainfall - 01/01/2022 00:00'] - post_loss_removal_df['Total net rain mm (Observed rainfall - 01/01/2022) - urbanised model']
-        
-        ax.plot(post_loss_removal_df['Time'], post_loss_removal_df['losses'], color = colors[number])
-        
-    ax.set_xlabel("Minutes")
-    ax.set_ylabel("Rainfall (mm)")
-    
-    if ax == axs[0]:
-        ax.legend(handles=patches, loc=legend_position, fontsize= 10)        
+     
         
         
 def singlepeak_plot(ax, options, cols_dict, include_post_loss_removal = True):
