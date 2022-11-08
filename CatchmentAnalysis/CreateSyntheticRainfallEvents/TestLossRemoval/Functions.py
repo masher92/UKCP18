@@ -20,7 +20,7 @@ def clean_dfs (df):
 
 def plot_results_losses(by_day_or_percentile, cols_dict, lists, titles) :
     
-    fig = plt.figure(constrained_layout=True, figsize = (6,6))
+    fig = plt.figure(constrained_layout=True, figsize = (6,8))
     if by_day_or_percentile == 'percentile':
         (subfig1, subfig2, subfig3, subfig4) = fig.subfigures(4,1) 
     else:
@@ -125,7 +125,7 @@ def make_plot (ax, cluster_num, options, colors_dict, legend_position, include_p
         patch = mpatches.Patch(color=color, label=options[number])
         patches.append(patch)
         # Read in data, clean it and plot it
-        post_loss_removal_df = pd.read_csv(roberto_profiles_fp + "PostLossRemoval/6hr_100yrRP/{}/cluster{}_urban_summer.csv".format(option, cluster_num))
+        post_loss_removal_df = pd.read_csv("PostLossRemoval/{}/cluster{}_urban_summer.csv".format(option, cluster_num))
         post_loss_removal_df = clean_dfs(post_loss_removal_df)
         ax.plot(post_loss_removal_df['Time'], post_loss_removal_df[post_loss_removal_df.columns[5]], color = color)
         
@@ -156,7 +156,7 @@ def make_plot_losses (ax, cluster_num, options, colors_dict, legend_position):
         patch = mpatches.Patch(color=color, label=options[number])
         patches.append(patch)
         # Read in data, clean it and plot it
-        post_loss_removal_df = pd.read_csv(roberto_profiles_fp + "PostLossRemoval/6hr_100yrRP/{}/cluster{}_urban_summer.csv".format(option, cluster_num))
+        post_loss_removal_df = pd.read_csv("PostLossRemoval/{}/cluster{}_urban_summer.csv".format(option, cluster_num))
         post_loss_removal_df = clean_dfs(post_loss_removal_df)
         post_loss_removal_df['losses'] =round(post_loss_removal_df['Total net rain mm (Observed rainfall - 01/01/2022) - urbanised model']/post_loss_removal_df['Observed rainfall - 01/01/2022 00:00']*100,2)
         
@@ -167,37 +167,7 @@ def make_plot_losses (ax, cluster_num, options, colors_dict, legend_position):
         
     if cluster_num == 5 :
         ax.legend(handles=patches, loc=legend_position, fontsize= 7)  
-        
-        
-def make_plot_old (axs, ax_num, cluster_num, options, colors, legend_position, include_pre_losses= True):
-    ax = axs.flatten()[ax_num]
-    # Create the patches for legend
-    patches = []
-    # Plot each of the antecedent condition options, and add a patch for to patches list for legend
-    for number,option in enumerate(options):
-        # Add to patches
-        patch = mpatches.Patch(color=colors[number], label=options[number])
-        patches.append(patch)
-        # Read in data, clean it and plot it
-        post_loss_removal_df = pd.read_csv(roberto_profiles_fp + "PostLossRemoval/6hr_100yrRP/{}/cluster{}_urban_summer.csv".format(option, cluster_num))
-        post_loss_removal_df = clean_dfs(post_loss_removal_df)
-        ax.plot(post_loss_removal_df['Time'], post_loss_removal_df[post_loss_removal_df.columns[5]], color = colors[number])
-        
-    # Include a line before the losses were removed
-    if include_pre_losses == True:
-        pre_loss_removal = pd.read_csv(roberto_profiles_fp + "PreLossRemoval/6hr_100yrRP/cluster{}.csv".format(cluster_num), names = ['Time', 'Rainfall'])
-        pre_loss_removal['Time'] = post_loss_removal_df['Time'][0:360]
-        ax.plot(pre_loss_removal['Time'], pre_loss_removal['Rainfall'], color = 'black', linestyle = 'dashed')
-        patch = mpatches.Patch(color='black', label='Pre Loss Removal', linestyle = 'dashed')
-        patches.append(patch)
-    
-    ax.set_xlabel("Minutes")
-    ax.set_ylabel("Rainfall (mm)")
-    
-    if ax_num == 1:
-        ax.legend(handles=patches, loc=legend_position, fontsize= 10)
-
-     
+          
         
         
 def singlepeak_plot(ax, options, cols_dict, include_post_loss_removal = True):
@@ -209,12 +179,12 @@ def singlepeak_plot(ax, options, cols_dict, include_post_loss_removal = True):
         patch = mpatches.Patch(color= cols_dict[option.split('_')[0]], label=options[number])
         patches.append(patch)
         # Read in data, clean it and plot it
-        post_loss_removal_df = pd.read_csv(roberto_profiles_fp + "PostLossRemoval/6hr_100yrRP/{}/singlepeak_urban_summer.csv".format(option))
+        post_loss_removal_df = pd.read_csv("PostLossRemoval/{}/singlepeak_urban_summer.csv".format(option))
         post_loss_removal_df = clean_dfs(post_loss_removal_df)
         ax.plot(post_loss_removal_df['Time'], post_loss_removal_df[post_loss_removal_df.columns[5]], color = cols_dict[option.split('_')[0]])
     
     # Include the ReFH2 design rainfall post loss removal
-    pre_loss_removal = pd.read_csv(roberto_profiles_fp + "PostLossRemoval/6hr_100yrRP/SinglePeak_6h1_1min_100yr/Urban.csv")
+    pre_loss_removal = pd.read_csv("PostLossRemoval/SinglePeak_6h1_1min_100yr/Urban.csv")
     pre_loss_removal['Time'] = post_loss_removal_df['Time'][0:360]
     ax.plot(pre_loss_removal['Time'], pre_loss_removal['Total net rain mm (100 year) - urbanised model'], color = 'dodgerblue')
     
