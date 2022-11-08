@@ -12,3 +12,8 @@ Various percentiles of daily rainfall over the whole catchment are then calculat
 * The 99th percentile rainfall (18.3mm)
 
 These values are then converted into the format required by ReFH2 (although for some reason ReFH2 does not like the formatting of the datetime). So, had to manually type in values and then copy/paste into different spreadsheets.
+
+NB:
+* There was originally a mistake in this whereby was only calculating statistics over JJA data
+* This has now been corrected to include whole year
+* Also, values derived for JJA (e.g. 0.51mm for the mean) also were not correct even for JJA. This was because to go from hourly values to daily values I interpolated the data, and this filled in a load of values between August and June which were all assigned a value of 0, thus skewing the results
