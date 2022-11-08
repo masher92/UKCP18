@@ -35,9 +35,9 @@ Creating observed events:
 * Select rainfall data from file (this must be in a format with no column names, otherwise it will reject it)
 * Add antecedent rainfall data from file (this must be in a format with no column names, otherwise it will reject it)
 * Select next
-* Select 'Observed rainfall - 05/04/22' (or equivalent) from the top down menu at the top left
+* Select 'Observed rainfall - 01/08/22' (or equivalent) from the top down menu at the top left
 * Select 'Summer' under conditions
-* Select 'export' and then 'this event' above the plot of 'Observed rainfall - 05/04/22 - as rural' to export the rainfall with rural model losses remove
-* Select 'export' and then 'this event' above the plot of 'Observed rainfall - 05/04/22 - urbanised' to export the rainfall with urban model losses remove
-* Columns "Total net rain mm (Observed rainfall - 05/04/2022) - as 100% rural model" or "Total net rain mm (Observed rainfall - 05/04/2022) - urbanised model" can be used as the input to Hec-Ras
+* Select 'export' and then 'this event' above the plot of 'Observed rainfall - 01/08/22 - as rural' to export the rainfall with rural model losses remove
+* Select 'export' and then 'this event' above the plot of 'Observed rainfall - 01/08/22 - urbanised' to export the rainfall with urban model losses remove
+* Columns "Total net rain mm (Observed rainfall - 05/04/2022) - as 100% rural model" or "Total net rain mm (Observed rainfall - 01/08/2022) - urbanised model" can be used as the input to Hec-Ras
 
