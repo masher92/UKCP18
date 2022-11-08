@@ -1,3 +1,5 @@
+NB: LOSS REMOVAL NEEDS TO BE REDONE, AND MODELS RERUN BECAUSE THE LOSS REMOVAL PROCESS USED WAS WRONG (ON SEVERAL COUNTS)
+
 Several methods are explored for generating synthetic design storm hyetographs which preserve the total event rainfall volume and duration, but splitting this rainfall volume into multiple peaks. For now, an event with 3 peaks will be considered.
 
 # Constructing multiple peaks
