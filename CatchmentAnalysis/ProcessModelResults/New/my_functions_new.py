@@ -33,7 +33,7 @@ remove_little_values = True
 
 # Specify catchment area to add to plot
 os.chdir("../../../../FloodModelling")
-catchment_shp = "MeganModel/CatchmentLinDyke_exported.shp"
+catchment_shp = "MeganModel_v3/CatchmentLinDyke_exported.shp"
 catchment_gdf = gpd.read_file(catchment_shp)
 
 def create_binned_counts_and_props(fps, variable_name, breaks, labels, remove_little_values):
