@@ -8,7 +8,7 @@ from matplotlib.patches import Patch
 from matplotlib.ticker import PercentFormatter
 import matplotlib.ticker as mtick
 import os
-import fiona
+# import fiona
 import rasterio.plot
 import matplotlib as mpl
 from rasterio.plot import show
@@ -33,7 +33,7 @@ remove_little_values = True
 
 # Specify catchment area to add to plot
 os.chdir("../../../../FloodModelling")
-catchment_shp = "MeganModel_v3/CatchmentLinDyke_exported.shp"
+catchment_shp = "MeganModel_v1/CatchmentLinDyke_exported.shp"
 catchment_gdf = gpd.read_file(catchment_shp)
 
 def create_binned_counts_and_props(fps, variable_name, breaks, labels, remove_little_values):
