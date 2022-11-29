@@ -16,7 +16,7 @@ from rasterio.plot import show_hist
 from rasterio.mask import mask
 from shapely.geometry import box
 import geopandas as gpd
-from fiona.crs import from_epsg
+# from fiona.crs import from_epsg
 import pycrs
 from pyproj import CRS
 import matplotlib.patches as mpatches
@@ -27,13 +27,15 @@ from folium import Map, FeatureGroup, LayerControl
 import numpy.ma as ma
 from pathlib import Path
 from PIL import Image
+import re
+
+model_directory = '../../../../FloodModelling/MeganModel_new/'
 
 # Define whether to filter out values <0.1
 remove_little_values = True
 
 # Specify catchment area to add to plot
-os.chdir("../../../../FloodModelling")
-catchment_shp = "MeganModel_v1/CatchmentLinDyke_exported.shp"
+catchment_shp = "../../../../FloodModelling/MeganModel_new/CatchmentLinDyke_exported.shp"
 catchment_gdf = gpd.read_file(catchment_shp)
 
 def create_binned_counts_and_props(fps, variable_name, breaks, labels, remove_little_values):
@@ -62,8 +64,9 @@ def create_binned_counts_and_props(fps, variable_name, breaks, labels, remove_li
         groups['Proportion'] = round((groups['counts']/total_n_cells) *100,1)
 
         # Add values to dataframes
-        counts_df[fp.split('/')[1]] = groups['counts']
-        proportions_df[fp.split('/')[1]] = groups['Proportion']
+        method_name = re.search('{}(.*)/'.format(model_directory), fp).group(1)
+        counts_df[method_name] = groups['counts']
+        proportions_df[method_name] = groups['Proportion']
 
     # Reset index to show the groups
     counts_df.reset_index(inplace=True)
@@ -202,16 +205,14 @@ def prepare_rainfall_scenario_raster(input_raster_fp, remove_little_values):
     raster, out_meta = open_and_clip(input_raster_fp) 
     
     # If looking at velocity, then also read in depth raster as this is needed to filter out cells where 
-    # the depth is below 0.1m
-    if 'depth' not in input_raster_fp:
-        depth_raster = open_and_clip(input_raster_fp.replace('depth', 'velocity'))[0]
-
+    # the depth is below 0.1m   
     # Set cell values to Null in cells which have a value <0.1 in the depth raster
     if remove_little_values == True:
-        if "depth" in input_raster_fp:
-            raster[raster < 0.1] = np.nan
+        if "Depth" in input_raster_fp:
+            raster = np.where(raster <0.1, np.nan, raster)    
         else:
-            raster[depth_raster < 0.1] = np.nan
+            depth_raster = open_and_clip(input_raster_fp.replace('Velocity', 'Depth'))[0]
+            raster = np.where(depth_raster <0.1, np.nan, raster)
     
     return raster, out_meta
 
@@ -223,42 +224,7 @@ def classify_raster (raster, breaks):
     classified_raster = np.where(classified_raster == len(breaks), np.nan, classified_raster)
     
     return classified_raster
-
-def plot_classified_raster(fp_for_classified_raster, labels, colors_list, norm = None):
-    
-    # Create patches for legend
-    patches_list = []
-    for i, color in  enumerate(colors_list):
-        patch =  mpatches.Patch(color=color, label=labels[i])
-        patches_list.append(patch)  
-    
-    # Create cmap
-    cmap = mpl.colors.ListedColormap(colors_list)
-    
-    # plot the new clipped raster      
-    clipped = rasterio.open(fp_for_classified_raster)
-
-    fig, ax = plt.subplots(figsize=(20, 15))
-    catchment_gdf.plot(ax=ax, facecolor = 'None', edgecolor = 'black', linewidth = 4)
-    cx.add_basemap(ax, crs = catchment_gdf.crs.to_string(), url = cx.providers.OpenStreetMap.Mapnik)
-    rasterio.plot.show((clipped, 1), ax= ax, cmap = cmap, norm = norm)
-
-    # Close file (otherwise can't delete it, as ref to it is open)
-    clipped.close()
-
-    plt.axis('off')
-
-    plt.legend(handles=patches_list, handleheight=3, handlelength=3, fontsize =20)
-    
-    # Create file path for saving figure to
-    figs_dir = fp_for_classified_raster.split('/', 3)[0] + '/Figs/' + fp_for_classified_raster.split('/', 3)[1] +'/'
-    Path(figs_dir).mkdir(parents=True, exist_ok=True)
-    plot_fp = figs_dir + fp_for_classified_raster.split('/')[2].replace(".tif", ".png")
-
-    # Save the figure
-    plt.savefig(plot_fp, dpi=500,bbox_inches='tight')
-    
-    plt.close()    
+  
     
 def find_worst_case_method(fps, sp_fp, variable_name):
     # Read in the datasets
@@ -306,35 +272,85 @@ def find_worst_case_method(fps, sp_fp, variable_name):
     # Store in a dictionary
     return worst_case_method_df   
 
-def plot_difference(variable_name, rainfall_scenario_name, cmap, norm = None):
+# def plot_difference(variable_name, rainfall_scenario_name, cmap, norm = None):
+    
+#     # plot the new clipped raster      
+#     clipped = rasterio.open("Arcpy/{}_singlepeak_{}_diff.tif".format(variable_name, rainfall_scenario_name))
+    
+#     fig, ax = plt.subplots(figsize=(20, 15))
+#     catchment_gdf.plot(ax=ax, facecolor = 'None', edgecolor = 'black', linewidth = 4)
+#     cx.add_basemap(ax, crs = gdf.crs.to_string(), url = cx.providers.OpenStreetMap.Mapnik)
+#     rasterio.plot.show((clipped, 1), ax= ax, cmap = cmap, norm = norm)
+       
+#     # use imshow so that we have something to map the colorbar to
+#     raster = clipped.read(1)
+#     image_hidden = ax.imshow(raster, cmap=cmap)
+
+#     # plot on the same axis with rio.plot.show
+#     show((clipped, 1),  ax=ax, cmap=cmap) 
+    
+#     # Close file (otherwise can't delete it, as ref to it is open)
+#     clipped.close()
+    
+#     # # add colorbar using the now hidden image
+#     cbar = fig.colorbar(image_hidden, ax=ax, fraction=0.03, pad=0.04)
+#     cbar.set_label(variable_name, fontsize=16)
+#     cbar.ax.tick_params(labelsize=15)
+    
+#     # Save the figure
+#     plt.savefig("Arcpy/Figs/{}_singlepeak_{}_diff.png".format(variable_name, rainfall_scenario_name), dpi=500,bbox_inches='tight')
+#     plt.close()
+
+def make_props_plot (ax, proportions_df, variable, variable_unit, labels):
+    
+    # reformat the dataframe for stacked plotting
+    reformatted_df  =proportions_df.T[1:]
+    reformatted_df.columns = labels
+
+    # Plot
+    reformatted_df.plot(ax=ax, kind='bar', edgecolor='white', linewidth=3, stacked = True, width =0.8, rot =45,
+                         xlabel = 'Flood {} ({})'.format(variable, variable_unit),
+                            ylabel = 'Proportion of flooded cells', fontsize = 12)
+    plt.rcParams.update({'font.size': 14})
+    ax.legend(bbox_to_anchor=(1.01, 1), loc='upper left')
+    
+    
+def plot_classified_raster(fp_for_classified_raster, labels, colors_list, norm = None):
+    
+    # Create patches for legend
+    patches_list = []
+    for i, color in  enumerate(colors_list):
+        patch =  mpatches.Patch(color=color, label=labels[i])
+        patches_list.append(patch)  
+    
+    # Create cmap
+    cmap = mpl.colors.ListedColormap(colors_list)
     
     # plot the new clipped raster      
-    clipped = rasterio.open("Arcpy/{}_singlepeak_{}_diff.tif".format(variable_name, rainfall_scenario_name))
-    
+    clipped = rasterio.open(fp_for_classified_raster)
+
     fig, ax = plt.subplots(figsize=(20, 15))
     catchment_gdf.plot(ax=ax, facecolor = 'None', edgecolor = 'black', linewidth = 4)
-    cx.add_basemap(ax, crs = gdf.crs.to_string(), url = cx.providers.OpenStreetMap.Mapnik)
+    cx.add_basemap(ax, crs = catchment_gdf.crs.to_string(), url = cx.providers.OpenStreetMap.Mapnik)
     rasterio.plot.show((clipped, 1), ax= ax, cmap = cmap, norm = norm)
-       
-    # use imshow so that we have something to map the colorbar to
-    raster = clipped.read(1)
-    image_hidden = ax.imshow(raster, cmap=cmap)
 
-    # plot on the same axis with rio.plot.show
-    show((clipped, 1),  ax=ax, cmap=cmap) 
-    
     # Close file (otherwise can't delete it, as ref to it is open)
     clipped.close()
+
+    plt.axis('off')
+
+    plt.legend(handles=patches_list, handleheight=3, handlelength=3, fontsize =20)
     
-    # # add colorbar using the now hidden image
-    cbar = fig.colorbar(image_hidden, ax=ax, fraction=0.03, pad=0.04)
-    cbar.set_label(variable_name, fontsize=16)
-    cbar.ax.tick_params(labelsize=15)
-    
+    # Create file path for saving figure to
+    method_name = re.search('{}(.*)/'.format(model_directory), fp_for_classified_raster).group(1)
+    figs_dir = 'Figs/{}/'.format(method_name)
+    Path(figs_dir).mkdir(parents=True, exist_ok=True)
+    plot_fp = figs_dir + re.search('6h_.*/(.*).tif', fp_for_classified_raster).group(1) + ".png"
+
     # Save the figure
-    plt.savefig("Arcpy/Figs/{}_singlepeak_{}_diff.png".format(variable_name, rainfall_scenario_name), dpi=500,bbox_inches='tight')
-    plt.close()
-    
+    plt.savefig(plot_fp, dpi=500,bbox_inches='tight')
+    plt.close()  
+
 def plot_difference_levels (fp_for_classified_diff_raster, labels, norm = None):
 
     # Create discrete cmap
@@ -366,16 +382,14 @@ def plot_difference_levels (fp_for_classified_diff_raster, labels, norm = None):
        
     # Close file (otherwise can't delete it, as ref to it is open)
     clipped.close()
-
     plt.axis('off')
-
     plt.legend(handles=patches_list, handleheight=3, handlelength=3, fontsize =20)
     
     # Create file path for saving figure to
-    figs_dir = fp_for_classified_diff_raster.split('/', 3)[0] + '/Figs/' + fp_for_classified_diff_raster.split('/', 3)[1] +'/'
-    Path(figs_dir).mkdir(parents=True, exist_ok=True)
-    plot_fp = figs_dir + fp_for_classified_diff_raster.split('/')[2].replace(".tif", ".png")
-    
+    method_name = re.search('{}(.*)/'.format(model_directory), fp_for_classified_diff_raster).group(1)
+    figs_dir = 'Figs/{}/'.format(method_name)
+    plot_fp = figs_dir + re.search('6h_.*/(.*).tif', fp_for_classified_diff_raster).group(1) + ".png"
+                                 
     # Save the figure
     plt.savefig(plot_fp, dpi=500,bbox_inches='tight')
     plt.close()   
@@ -411,10 +425,9 @@ def plot_difference_levels_pos_neg (fp_for_posneg_diff_raster, norm = None):
     plt.legend(handles=patches_list, handleheight=3, handlelength=3, fontsize =15)
     
     # Create file path for saving figure to
-    figs_dir = fp_for_posneg_diff_raster.split('/', 3)[0] + '/Figs/' + fp_for_posneg_diff_raster.split('/', 3)[1] +'/'
-    Path(figs_dir).mkdir(parents=True, exist_ok=True)
-    plot_fp = figs_dir + fp_for_posneg_diff_raster.split('/')[2].replace(".tif", ".png")
-    
+    method_name = re.search('{}(.*)/'.format(model_directory), fp_for_posneg_diff_raster).group(1)
+    figs_dir = 'Figs/{}/'.format(method_name)
+    plot_fp = figs_dir + re.search('6h_.*/(.*).tif', fp_for_posneg_diff_raster).group(1) + ".png"                                 
     # Save the figure
     plt.savefig(plot_fp, dpi=500,bbox_inches='tight')
     plt.close()  
@@ -466,7 +479,7 @@ def make_props_plot (ax, proportions_df, variable, variable_unit, labels):
     # reformat the dataframe for stacked plotting
     reformatted_df  =proportions_df.T[1:]
     
-    if variable  == 'velocity':
+    if variable  == 'Velocity':
         reformatted_df.columns = labels_velocity
     else:
         reformatted_df.columns = labels_depth
