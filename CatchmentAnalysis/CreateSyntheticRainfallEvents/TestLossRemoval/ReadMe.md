@@ -28,7 +28,7 @@ These suggest that the parameter Cini, which describes the initial depth of wate
 Cini is calculated based upon BFIHOST (a measure of catchment responsiveness based upon geology) and SAAR (the standard average rainfall between 1960 and 1990). It also says in (2.) that Cini is estimated within ReFH2 through the application of the DAYMOD daily soil moisture accounting procedure.
 
 ### <ins> Preparing the data </ins>
-The data for this analysis was generated using ReFH2. 
+The data for this analysis was generated using ReFH2.  
 Creating observed events:
 * Load in catchment XML file, move to next screen
 * Select 'Add' under Observed rainfall on the left
