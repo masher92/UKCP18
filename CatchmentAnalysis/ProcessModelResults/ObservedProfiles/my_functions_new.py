@@ -186,7 +186,9 @@ def open_and_clip(input_raster_fp):
     # # Set -9999 to NA
     if np.isnan(np.sum(clipped_array)) == True:
         clipped_array[clipped_array < -9998] = np.nan
+        clipped_array[clipped_array < -9999] = np.nan
     else:
+        clipped_array = clipped_array.astype('float') 
         clipped_array[clipped_array ==0] = np.nan
 
     # Modify the metadata. Let’s start by copying the metadata from the original data file.
