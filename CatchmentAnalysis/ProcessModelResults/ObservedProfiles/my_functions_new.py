@@ -29,7 +29,7 @@ from pathlib import Path
 from PIL import Image
 import re
 
-model_directory = '../../../../FloodModelling/MeganModel_new/'
+model_directory = '../../../../FloodModelling/MeganModel_New/'
 
 # Define whether to filter out values <0.1
 remove_little_values = True
@@ -77,8 +77,101 @@ def create_binned_counts_and_props(fps, variable_name, breaks, labels, remove_li
     proportions_df['index'] = labels
 
     return counts_df, proportions_df
-   
 
+def find_percentage_diff (totals_df, fps):
+    percent_diffs_formatted_for_plot = []
+    percent_diffs= []
+    for fp in fps:
+        rainfall_scenario_name = fp.split('/')[6]
+        if rainfall_scenario_name!= '6h_sp':
+            percent_diffs.append(round(abs(totals_df[rainfall_scenario_name]/totals_df['6h_sp'] - 1).values[0]*100,1)) 
+            percent_diffs_formatted_for_plot.append((totals_df[rainfall_scenario_name]/totals_df['6h_sp'] - 1).values[0])
+    # Convert values to strings, and add a + sign for positive values
+    # Include an empty entry for the single peak scenario
+    percent_diffs_formatted_for_plot =[''] + ['+' + str(round((list_item *100),2)) + '%' if list_item > 0 else str(round((list_item *100),2)) + '%'  for list_item in percent_diffs_formatted_for_plot]
+    return percent_diffs, percent_diffs_formatted_for_plot
+
+def create_totals_df (velocity_counts):
+    totals_df =pd.DataFrame(velocity_counts.sum(numeric_only=True)).T
+    totals_df = totals_df.iloc[[len(totals_df)-1]]
+    # Convert this to the total flooded area for each method
+    totals_df_area = (totals_df * 25)/1000000
+    return totals_df_area
+
+def plot_totals(totals_df, percent_diffs, percent_diffs_formatted_for_plot):
+    fig, axs = plt.subplots(nrows=1, ncols=2, constrained_layout=True, figsize = (20,14))
+    y_pos = np.arange(len(totals_df.columns))
+    colors = ['black', 'darkred', 'darkred', 'darkred', 'darkblue', 'darkblue', 'darkblue', 'orange', 'orange', 'orange',
+             'darkgreen', 'darkgreen', 'darkgreen', 'purple', 'purple', 'purple']
+
+    ##############################
+    # Plot number of flooded cells
+    ##############################
+    plt.subplot(221)
+    plt.bar(y_pos, totals_df.iloc[[0]].values.tolist()[0], width = 0.9, color = colors)
+    # Create names on the x-axis
+    plt.xticks(y_pos, short_ids, fontsize =20, rotation = 75)
+    # plt.xlabel('Method')
+    plt.ylabel('Number of flooded cells', fontsize =20)
+
+    xlocs, xlabs = plt.xticks(y_pos)
+    xlocs=[i+1 for i in range(0,19)]
+    xlabs=[i/2 for i in range(0,19)]
+
+    for i, v in enumerate(totals_df.iloc[[0]].values.tolist()[0]):
+        plt.text(xlocs[i] - 1.2, v * 1.025, str(percent_diffs_formatted_for_plot[i]), fontsize = 19, rotation =90)
+
+    # ##############################
+    # # Plot flooded extent in m2
+    # ##############################
+    plt.subplot(222)
+    plt.bar(np.arange(len(percent_diffs)), percent_diffs, width = 0.9, color = colors[1:])
+    # Create names on the x-axis
+    plt.xticks(np.arange(len(percent_diffs)), short_ids[1:], fontsize =20, rotation = 75)
+    # plt.xlabel('Method')
+    plt.ylabel('Percentage difference from single peak', fontsize =20);
+
+def create_binned_counts_and_props_urban(fps, variable_name, breaks, labels, remove_little_values):
+    # Create dataframes to populate with values
+    counts_df = pd.DataFrame()
+    proportions_df = pd.DataFrame()        
+
+    # Loop through each rainfall scenario
+    # Get the raster containing its values, and count the number of each unique value, and construct into a dataframe
+    for fp in fps:
+
+        raster = prepare_rainfall_scenario_raster(fp.format(variable_name), remove_little_values)[0]
+        # Create a dataframe with each row relating to a cell and its landcover and depth/velocity value
+        raster_and_landcover = pd.DataFrame({'landcovercategory':  landcover_mod.flatten(), 'value': raster.flatten()})
+        # Get just the urban rows
+        urban_flooding = raster_and_landcover[raster_and_landcover['landcovercategory']==10].copy()  
+        # Add a column assigning a bin based on the depth/velocity value
+        urban_flooding['bins']= pd.cut(urban_flooding['value'], bins=breaks, right=False)
+
+        # Create a new dataframe showing the number of cells in each of the bins
+        groups = urban_flooding.groupby(['bins']).count()
+        groups  = groups.reset_index()
+        # Find the total number of cells
+        total_n_cells = groups['value'].sum()
+        # Find the number of cells in each group as a proportion of the total
+        groups['Proportion'] = round((groups['value']/total_n_cells) *100,1)
+
+        # Add values to dataframes
+        method_name = re.search('{}(.*)/'.format(model_directory), fp).group(1)
+        counts_df[method_name] = groups["value"]
+        proportions_df[method_name] = groups['Proportion']
+
+    # Reset index to show the groups
+    counts_df.reset_index(inplace=True)
+    proportions_df.reset_index(inplace=True)
+
+    # Set index values
+    counts_df['index'] = labels
+    proportions_df['index'] = labels
+
+    return counts_df, proportions_df    
+    
+    
 def categorise_difference (raster):
     classified_raster = raster.copy()
     classified_raster[np.where( raster < -0.1 )] = 1
