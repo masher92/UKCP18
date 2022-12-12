@@ -1,12 +1,14 @@
 import itertools
 import pandas as pd
 import numpy as np
+import rioxarray as rxr
 
-def create_colours_df (short_ids):
+def create_colours_df (short_ids_by_loading, short_ids):
     lst = ['darkblue', 'paleturquoise', 'grey', 'indianred', 'darkred']
     colours =['black'] + list(itertools.chain.from_iterable(itertools.repeat(x, 3) for x in lst))
-    colours_df = pd.DataFrame({ 'short_id': short_ids, "colour": colours})
+    colours_df = pd.DataFrame({ 'short_id': short_ids_by_loading, "colour": colours})
     colours_df = colours_df.reindex(colours_df['short_id'].map(dict(zip(short_ids, range(len(short_ids))))).sort_values().index)
+    colours_df.reset_index(inplace=True, drop=True)
     return colours_df
 
 def scatter_plot_with_trend_line(ax, short_ids, x,y,xlabel,ylabel):
@@ -61,11 +63,11 @@ def bar_plot_props (ax, props_df, variable_name, short_ids_order, colours_df):
 
 def plot_totals(cluster_results, short_ids, title):
     
-    cluster_results = cluster_results.reindex(totals_df['short_id'].map(dict(zip(short_ids, range(len(short_ids))))).sort_values().index)
+    cluster_results = cluster_results.reindex(cluster_results['Cluster_num'].map(dict(zip(short_ids, range(len(short_ids))))).sort_values().index)
     cluster_results.reset_index(inplace=True, drop=True)
     
     fig, axs = plt.subplots(nrows=1, ncols=3, figsize = (28,7))
-    y_pos = np.arange(len(totals_df['short_id']))
+    y_pos = np.arange(len(cluster_results['Cluster_num']))
 
     ##############################
     # Plot number of flooded cells
@@ -295,4 +297,60 @@ def make_spatial_plot(ax, fp):
     img = Image.open(fp)
     ax.imshow(img)
     ax.axis('off')   
-             
+    
+    
+def plot_with_folium(dict_of_fps_and_names, cmap, template):
+    
+    # Set up figure
+    f = folium.Figure(width=800, height=700)
+    
+    # Create base map - location figures were from clat, clon, but wanted to create map before loop
+    mapa = folium.Map(location=[53.768306874761016, -1.3756056884868098],zoom_start=13).add_to(f)
+    folium.TileLayer(
+        tiles = 'https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}',
+        attr="No Base Map",
+        name="No Base Map",
+        show=True
+    ).add_to(mapa)
+   
+    # Add to map
+    catchment_boundary_feature_group = FeatureGroup(name='Catchment boundary')
+    catchment_boundary_feature_group.add_child(folium.GeoJson(data=catchment_gdf["geometry"], style_function=lambda x, 
+                                                              fillColor='#00000000', color='Black': {
+            "fillColor": '#00000000',"color": 'Black',}))
+        
+    # Add raster data
+    for name,fp in dict_of_fps_and_names.items():
+        # read in with xarray and convert projection
+        xarray_dataarray = prep_for_folium_plotting(fp)
+        # Get coordinates needed in plotting
+        clat, clon = xarray_dataarray.y.values.mean(), xarray_dataarray.x.values.mean()
+        mlat, mlon = xarray_dataarray.y.values.min(), xarray_dataarray.x.values.min()
+        xlat, xlon = xarray_dataarray.y.values.max(), xarray_dataarray.x.values.max()
+        # Apply colormap
+        data  = ma.masked_invalid(xarray_dataarray.values)
+        colored_data = colorize(data.data, cmap=cmap)
+        # Add to map
+        feature_group1 = FeatureGroup(name=name)
+        feature_group1.add_child(folium.raster_layers.ImageOverlay(colored_data,
+                                  [[mlat, mlon], [xlat, xlon]],
+                                  opacity=1,interactive=True, popup=name))
+        mapa.add_child(feature_group1)
+    
+    # Add legend
+    macro = MacroElement()
+    macro._template = Template(template)
+    mapa.get_root().add_child(macro)
+    
+    # Add layer control button
+    mapa.add_child(catchment_boundary_feature_group)
+    mapa.add_child(LayerControl("topright", collapsed = False))
+    display(mapa)    
+
+def prep_for_folium_plotting(input_raster_fp):
+    # Open dataset using rioxarray
+    xarray_dataarray = rxr.open_rasterio(input_raster_fp).squeeze()
+    # reproject
+    xarray_dataarray.rio.set_crs("EPSG:27700")
+    xarray_dataarray = xarray_dataarray.rio.reproject("EPSG:4326", nodata = np.nan)
+    return xarray_dataarray

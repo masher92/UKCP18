@@ -1,4 +1,16 @@
 
+# Impact of rainfall temporal distribution on flooding in Lin Dyke catchment
+
+
+## Project Summary
+
+Research suggests that the temporal distribution of rainfall within a storm event can influence the nature and severity of flooding resulting from that storm event....
+
+Testing this using synthetic rainfall events derived from FEH/ReFH2. Standard profiles usually have one peak, testing three methods for splitting the total rainfall amount normally concentrated in this one peak into multiple peaks 
+
+Analysing impact on the extent, depth and velocity of flooding, and the spatial distribution of these variables over the catchment
+
+
 
 ## Land Cover
 Uses the CEH 2019 Land cover classification map (this isn't the most recent version, but is what Megan used).  
