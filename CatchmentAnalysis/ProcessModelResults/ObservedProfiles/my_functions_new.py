@@ -80,58 +80,41 @@ def create_binned_counts_and_props(fps, variable_name, breaks, labels, remove_li
 
 def find_percentage_diff (totals_df, fps):
     percent_diffs_formatted_for_plot = []
-    percent_diffs= []
+    percent_diffs_abs = []
+    percent_diffs = []
+
+    sp_value = totals_df.loc[totals_df['short_id'] == '6h_sp']['FloodedArea']
+
     for fp in fps:
         rainfall_scenario_name = fp.split('/')[6]
         if rainfall_scenario_name!= '6h_sp':
-            percent_diffs.append(round(abs(totals_df[rainfall_scenario_name]/totals_df['6h_sp'] - 1).values[0]*100,1)) 
-            percent_diffs_formatted_for_plot.append((totals_df[rainfall_scenario_name]/totals_df['6h_sp'] - 1).values[0])
+            # FInd value for this scenario
+            this_scenario_value = totals_df.loc[totals_df['short_id'] == rainfall_scenario_name]['FloodedArea']
+            this_scenario_value.reset_index(drop=True, inplace=True)
+            # FInd % difference between single peak and this scenario
+            percent_diffs.append(round((this_scenario_value/sp_value-1)*100,2)[0])
+            percent_diffs_abs.append(round(abs((this_scenario_value/sp_value-1)[0])*100,2))
+            percent_diffs_formatted_for_plot.append(round((this_scenario_value/sp_value-1)*100,2)[0])
     # Convert values to strings, and add a + sign for positive values
     # Include an empty entry for the single peak scenario
-    percent_diffs_formatted_for_plot =[''] + ['+' + str(round((list_item *100),2)) + '%' if list_item > 0 else str(round((list_item *100),2)) + '%'  for list_item in percent_diffs_formatted_for_plot]
-    return percent_diffs, percent_diffs_formatted_for_plot
+    percent_diffs_df = pd.DataFrame({'percent_diff_formatted':[''] +['+' + str(round((list_item),2)) + '%' if list_item > 0 else str(round((list_item),2)) +
+     '%'  for list_item in percent_diffs_formatted_for_plot] ,
+             'percent_diffs':[0] + percent_diffs, 'percent_diffs_abs':[0] + percent_diffs_abs })
+    return percent_diffs_df
+
 
 def create_totals_df (velocity_counts):
     totals_df =pd.DataFrame(velocity_counts.sum(numeric_only=True)).T
     totals_df = totals_df.iloc[[len(totals_df)-1]]
     # Convert this to the total flooded area for each method
     totals_df_area = (totals_df * 25)/1000000
+    totals_df_area = totals_df_area.T
+    totals_df_area.reset_index(inplace=True)
+    totals_df_area.rename(columns={'index': 'short_id', 0: 'FloodedArea'}, inplace = True)
     return totals_df_area
 
-def plot_totals(totals_df, percent_diffs, percent_diffs_formatted_for_plot):
-    fig, axs = plt.subplots(nrows=1, ncols=2, constrained_layout=True, figsize = (20,14))
-    y_pos = np.arange(len(totals_df.columns))
-    colors = ['black', 'darkred', 'darkred', 'darkred', 'darkblue', 'darkblue', 'darkblue', 'orange', 'orange', 'orange',
-             'darkgreen', 'darkgreen', 'darkgreen', 'purple', 'purple', 'purple']
 
-    ##############################
-    # Plot number of flooded cells
-    ##############################
-    plt.subplot(221)
-    plt.bar(y_pos, totals_df.iloc[[0]].values.tolist()[0], width = 0.9, color = colors)
-    # Create names on the x-axis
-    plt.xticks(y_pos, short_ids, fontsize =20, rotation = 75)
-    # plt.xlabel('Method')
-    plt.ylabel('Number of flooded cells', fontsize =20)
-
-    xlocs, xlabs = plt.xticks(y_pos)
-    xlocs=[i+1 for i in range(0,19)]
-    xlabs=[i/2 for i in range(0,19)]
-
-    for i, v in enumerate(totals_df.iloc[[0]].values.tolist()[0]):
-        plt.text(xlocs[i] - 1.2, v * 1.025, str(percent_diffs_formatted_for_plot[i]), fontsize = 19, rotation =90)
-
-    # ##############################
-    # # Plot flooded extent in m2
-    # ##############################
-    plt.subplot(222)
-    plt.bar(np.arange(len(percent_diffs)), percent_diffs, width = 0.9, color = colors[1:])
-    # Create names on the x-axis
-    plt.xticks(np.arange(len(percent_diffs)), short_ids[1:], fontsize =20, rotation = 75)
-    # plt.xlabel('Method')
-    plt.ylabel('Percentage difference from single peak', fontsize =20);
-
-def create_binned_counts_and_props_urban(fps, variable_name, breaks, labels, remove_little_values):
+def create_binned_counts_and_props_urban(fps, variable_name, breaks, labels, remove_little_values, landcover_mod):
     # Create dataframes to populate with values
     counts_df = pd.DataFrame()
     proportions_df = pd.DataFrame()        
@@ -411,235 +394,6 @@ def find_worst_case_method(fps, short_ids, variable_name):
 #     # Store in a dictionary
 #     return worst_case_method_df   
 
-# def plot_difference(variable_name, rainfall_scenario_name, cmap, norm = None):
-    
-#     # plot the new clipped raster      
-#     clipped = rasterio.open("Arcpy/{}_singlepeak_{}_diff.tif".format(variable_name, rainfall_scenario_name))
-    
-#     fig, ax = plt.subplots(figsize=(20, 15))
-#     catchment_gdf.plot(ax=ax, facecolor = 'None', edgecolor = 'black', linewidth = 4)
-#     cx.add_basemap(ax, crs = gdf.crs.to_string(), url = cx.providers.OpenStreetMap.Mapnik)
-#     rasterio.plot.show((clipped, 1), ax= ax, cmap = cmap, norm = norm)
-       
-#     # use imshow so that we have something to map the colorbar to
-#     raster = clipped.read(1)
-#     image_hidden = ax.imshow(raster, cmap=cmap)
-
-#     # plot on the same axis with rio.plot.show
-#     show((clipped, 1),  ax=ax, cmap=cmap) 
-    
-#     # Close file (otherwise can't delete it, as ref to it is open)
-#     clipped.close()
-    
-#     # # add colorbar using the now hidden image
-#     cbar = fig.colorbar(image_hidden, ax=ax, fraction=0.03, pad=0.04)
-#     cbar.set_label(variable_name, fontsize=16)
-#     cbar.ax.tick_params(labelsize=15)
-    
-#     # Save the figure
-#     plt.savefig("Arcpy/Figs/{}_singlepeak_{}_diff.png".format(variable_name, rainfall_scenario_name), dpi=500,bbox_inches='tight')
-#     plt.close()
-
-def make_props_plot (ax, proportions_df, variable, variable_unit, labels):
-    
-    # reformat the dataframe for stacked plotting
-    reformatted_df  =proportions_df.T[1:]
-    reformatted_df.columns = labels
-
-    # Plot
-    reformatted_df.plot(ax=ax, kind='bar', edgecolor='white', linewidth=3, stacked = True, width =0.8, rot =45,
-                         xlabel = 'Flood {} ({})'.format(variable, variable_unit),
-                            ylabel = 'Proportion of flooded cells', fontsize = 12)
-    plt.rcParams.update({'font.size': 14})
-    ax.legend(bbox_to_anchor=(1.01, 1), loc='upper left')
-    
-    
-def plot_classified_raster(fp_for_classified_raster, labels, colors_list, norm = None):
-    
-    # Create patches for legend
-    patches_list = []
-    for i, color in  enumerate(colors_list):
-        patch =  mpatches.Patch(color=color, label=labels[i])
-        patches_list.append(patch)  
-    
-    # Create cmap
-    cmap = mpl.colors.ListedColormap(colors_list)
-    
-    # plot the new clipped raster      
-    clipped = rasterio.open(fp_for_classified_raster)
-
-    fig, ax = plt.subplots(figsize=(20, 15))
-    catchment_gdf.plot(ax=ax, facecolor = 'None', edgecolor = 'black', linewidth = 4)
-    cx.add_basemap(ax, crs = catchment_gdf.crs.to_string(), url = cx.providers.OpenStreetMap.Mapnik)
-    rasterio.plot.show((clipped, 1), ax= ax, cmap = cmap, norm = norm)
-
-    # Close file (otherwise can't delete it, as ref to it is open)
-    clipped.close()
-
-    plt.axis('off')
-
-    plt.legend(handles=patches_list, handleheight=3, handlelength=3, fontsize =20)
-    
-    # Create file path for saving figure to
-    method_name = re.search('{}(.*)/'.format(model_directory), fp_for_classified_raster).group(1)
-    figs_dir = 'Figs/{}/'.format(method_name)
-    Path(figs_dir).mkdir(parents=True, exist_ok=True)
-    plot_fp = figs_dir + re.search('6h_.*/(.*).tif', fp_for_classified_raster).group(1) + ".png"
-
-    # Save the figure
-    plt.savefig(plot_fp, dpi=500,bbox_inches='tight')
-    plt.close()  
-
-def plot_difference_levels (fp_for_classified_diff_raster, labels, norm = None):
-
-    # Create discrete cmap
-    colors_list = [mpl.cm.viridis(0.1), mpl.cm.viridis(0.5), mpl.cm.viridis(0.7), mpl.cm.viridis(0.9)]
-    cmap = mpl.colors.ListedColormap(colors_list)
-    cmap.set_over('red')
-    cmap.set_under('green')
-
-    # Create labels
-    if 'depth' in fp_for_classified_diff_raster:
-        labels= ['<-0.1m', '-0.1-0.1m', '0.1-0.3m', '0.3m+']
-    else:
-        labels = ['<-0.1m/s', '-0.1-0.1m/s', '0.1-0.3m/s', '0.3m/s+']
-   
-   # Create patches for legend
-    patches_list = []
-    for i, color in  enumerate(colors_list):
-        patch =  mpatches.Patch(color=color, label=labels[i])
-        patches_list.append(patch)  
-
-    # plot the new clipped raster      
-    clipped = rasterio.open(fp_for_classified_diff_raster)
-
-    # Set up plot instance
-    fig, ax = plt.subplots(figsize=(20, 15))
-    catchment_gdf.plot(ax=ax, facecolor = 'None', edgecolor = 'black', linewidth = 4)
-    cx.add_basemap(ax, crs = catchment_gdf.crs.to_string(), url = cx.providers.OpenStreetMap.Mapnik)
-    rasterio.plot.show((clipped, 1), ax= ax, cmap = cmap, norm = norm)
-       
-    # Close file (otherwise can't delete it, as ref to it is open)
-    clipped.close()
-    plt.axis('off')
-    plt.legend(handles=patches_list, handleheight=3, handlelength=3, fontsize =20)
-    
-    # Create file path for saving figure to
-    method_name = re.search('{}(.*)/'.format(model_directory), fp_for_classified_diff_raster).group(1)
-    figs_dir = 'Figs/{}/'.format(method_name)
-    plot_fp = figs_dir + re.search('6h_.*/(.*).tif', fp_for_classified_diff_raster).group(1) + ".png"
-                                 
-    # Save the figure
-    plt.savefig(plot_fp, dpi=500,bbox_inches='tight')
-    plt.close()   
-
-def plot_difference_levels_pos_neg (fp_for_posneg_diff_raster, norm = None):
-
-    # Create discrete cmap
-    colors_list = ["red", "grey", "green"]
-    cmap = mpl.colors.ListedColormap(colors_list)
-
-    # Create patches for legend
-    patches_list = []
-    labels= ['{} < single peak'.format(fp_for_posneg_diff_raster.split('/')[1]),
-             '{} = single peak'.format(fp_for_posneg_diff_raster.split('/')[1]),
-             '{} > single peak'.format(fp_for_posneg_diff_raster.split('/')[1])]
-    for i, color in  enumerate(colors_list):
-        patch =  mpatches.Patch(color=color, label=labels[i])
-        patches_list.append(patch)  
-
-    # plot the new clipped raster      
-    clipped = rasterio.open(fp_for_posneg_diff_raster)
-
-    # Set up plot instance
-    fig, ax = plt.subplots(figsize=(20, 15))
-    catchment_gdf.plot(ax=ax, facecolor = 'None', edgecolor = 'black', linewidth = 4)
-    cx.add_basemap(ax, crs = catchment_gdf.crs.to_string(), url = cx.providers.OpenStreetMap.Mapnik)
-    rasterio.plot.show((clipped, 1), ax= ax, cmap = cmap, norm = norm)
-
-    # Close file (otherwise can't delete it, as ref to it is open)
-    clipped.close()
-
-    plt.axis('off')
-    plt.legend(handles=patches_list, handleheight=3, handlelength=3, fontsize =15)
-    
-    # Create file path for saving figure to
-    method_name = re.search('{}(.*)/'.format(model_directory), fp_for_posneg_diff_raster).group(1)
-    figs_dir = 'Figs/{}/'.format(method_name)
-    plot_fp = figs_dir + re.search('6h_.*/(.*).tif', fp_for_posneg_diff_raster).group(1) + ".png"                                 
-    # Save the figure
-    plt.savefig(plot_fp, dpi=500,bbox_inches='tight')
-    plt.close()  
-    
-def plot_worst_case_bars (ax, worst_case_method_df):
-    # Remove the np.nan values
-    worst_case_method_df = worst_case_method_df.iloc[:5,1]
-    # Set scenario names as index
-    worst_case_method_df.index = ["singlepeak", "dividetime", "subpeaktiming", "maxspread", "no maximum"]
-    # Plot
-    worst_case_method_df.plot(ax= ax, kind ='bar',width=  0.9, rot =45, ylabel = 'Number of cells')  
-    
-def make_totals_bar_plot (ax, totals_df, y_name, ls, colors):
-    y_pos = np.arange(len(totals_df.columns))
-    ax.bar( y_pos, totals_df.iloc[[0]].values.tolist()[0], color=colors,
-            width = 0.9)
-    # Create names on the x-axis
-    ax.set_xticks(y_pos, totals_df_area.columns, fontsize =10, rotation = 45)
-    ax.tick_params(axis= 'both', which = 'major', labelsize =10)
-
-    xlocs, xlabs = plt.xticks()
-    xlocs=[i+1 for i in range(0,10)]
-    xlabs=[i/2 for i in range(0,10)]
-
-    for i, v in enumerate(totals_df.iloc[[0]].values.tolist()[0]):
-        ax.text(xlocs[i] - 1.12, v * 1.015, str(ls[i]), fontsize = 10)
-    
-def make_bar_plot_by_category (ax, df_to_plot, variable, variable_unit, ylabel, colors):
-           
-    # Setting up plotting
-    width, DistBetweenBars, Num = 0.2, 0.01, 4 # width of each bar, distance between bars, number of bars in a group
-    # calculate the width of the grouped bars (including the distance between the individual bars)
-    WithGroupedBars = Num* width + (Num-1)*DistBetweenBars
-
-    for i in range(Num):
-        ax.bar(np.arange(len(df_to_plot))-WithGroupedBars/2 + (width+DistBetweenBars)*i, df_to_plot.iloc[:,i+1], width, 
-                color = colors[i])
-    ax.set_xticks(np.arange(len(df_to_plot['index'])), df_to_plot['index'], rotation=30, fontsize = 12)
-    ax.set_xlabel('Flood {} ({})'.format(variable,variable_unit), fontsize = 15)
-    ax.set_ylabel(ylabel, fontsize = 15)
-    
-    # Put legend on top left plot
-    if ax == axs[0,0]:
-        plt.legend(df_to_plot.columns[1:], fontsize=15, frameon = True)    
-    
-    
-def make_props_plot (ax, proportions_df, variable, variable_unit, labels):
-    
-    # reformat the dataframe for stacked plotting
-    reformatted_df  =proportions_df.T[1:]
-    
-    if variable  == 'Velocity':
-        reformatted_df.columns = labels_velocity
-    else:
-        reformatted_df.columns = labels_depth
-
-    # Plot
-    reformatted_df.plot(ax=ax, kind='bar', edgecolor='white', linewidth=3, stacked = True, width =0.8, rot =45,
-                         xlabel = 'Flood {} ({})'.format(variable, variable_unit),
-                            ylabel = 'Proportion of flooded cells', fontsize = 12)
-    plt.rcParams.update({'font.size': 14})
-    ax.legend(bbox_to_anchor=(1.01, 1), loc='upper left')
-       
-       
-    
-def make_spatial_plot(ax, fp):
-    img = Image.open(fp)
-    ax.imshow(img)
-    ax.axis('off')   
-         
-        
-    
-    
 template_depth_cats = """
 {% macro html(this, kwargs) %}
 

@@ -1,3 +1,24 @@
+import itertools
+import pandas as pd
+import numpy as np
+
+def create_colours_df (short_ids):
+    lst = ['darkblue', 'paleturquoise', 'grey', 'indianred', 'darkred']
+    colours =['black'] + list(itertools.chain.from_iterable(itertools.repeat(x, 3) for x in lst))
+    colours_df = pd.DataFrame({ 'short_id': short_ids, "colour": colours})
+    colours_df = colours_df.reindex(colours_df['short_id'].map(dict(zip(short_ids, range(len(short_ids))))).sort_values().index)
+    return colours_df
+
+def scatter_plot_with_trend_line(ax, short_ids, x,y,xlabel,ylabel):
+    ax.scatter(x, y)
+    z = np.polyfit(x, y, 1)
+    p = np.poly1d(z)
+    ax.plot(x,p(x),"r--")
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+    for i, txt in enumerate(short_ids):
+        ax.annotate(txt, (x[i], y[i]))
+
 def make_props_plot (ax, proportions_df, variable, variable_unit, labels):
     
     # reformat the dataframe for stacked plotting
@@ -12,15 +33,17 @@ def make_props_plot (ax, proportions_df, variable, variable_unit, labels):
     ax.legend(bbox_to_anchor=(1.01, 1), loc='upper left')
 
 
-def bar_plot_props (ax, props_df, variable_name, short_ids_order, colours):
+def bar_plot_props (ax, props_df, variable_name, short_ids_order, colours_df):
     
     labels = props_df['index']
     x = np.arange(len(props_df['index']))
     width = 0.3
         
     props_df = props_df[short_ids_order].copy()
-    colours_formatted_ls = colours[short_ids_order].copy()         
-    colours_formatted_ls = colours_formatted_ls.loc['colour'].tolist()
+    
+    colours_df =colours_df.reindex(colours_df['short_id'].map(dict(zip(short_ids_order, range(len(short_ids_order))))).sort_values().index)
+    colours_df.reset_index(inplace=True, drop=True)
+    
     # counts_df plotting
     width, DistBetweenBars, Num = 0.05, 0.01, 16 # width of each bar, distance between bars, number of bars in a group
     # calculate the width of the grouped bars (including the distance between the individual bars)
@@ -29,79 +52,65 @@ def bar_plot_props (ax, props_df, variable_name, short_ids_order, colours):
     # Proportions_df plotting
     for i in range(Num):
         ax.bar(np.arange(len(props_df))-WithGroupedBars/2 + (width+DistBetweenBars)*i, props_df.iloc[:,i], width, 
-                color = colours_formatted_ls[i])
+                color = colours_df['colour'][i])
     ax.set_xticks(np.arange(len(labels)))
     ax.set_xticklabels(labels, rotation=30, fontsize = 12)
     ax.set_xlabel('Flood {}'.format(variable_name), fontsize = 15)
     ax.set_ylabel('Proportion of cells', fontsize = 15)
     ax.yaxis.set_major_formatter(mtick.PercentFormatter())
+
+def plot_totals(cluster_results, short_ids, title):
     
-def plot_totals(totals_df, percent_diffs_df, short_ids_order, plot_title, colours):
+    cluster_results = cluster_results.reindex(totals_df['short_id'].map(dict(zip(short_ids, range(len(short_ids))))).sort_values().index)
+    cluster_results.reset_index(inplace=True, drop=True)
     
-    patches_list = []
-    labels= ['FEH','F2', 'F1', 'C', 'B1', 'B2']
-    colors = ['black', 'darkblue', 'lightblue', 'grey', 'indianred', 'darkred']
-    for i, color in  enumerate(colors):
-        patch =  mpatches.Patch(color=color, label=labels[i])
-        patches_list.append(patch)  
-    patches_list
-    
-    percent_diffs_df = percent_diffs_df[short_ids_order].copy()
-    totals_df = totals_df[short_ids_order].copy()
-    colours_formatted = colours[short_ids_order].copy() 
-    colours_formatted_ls = colours_formatted.loc['colour'].tolist()
-    
-    fig, axs = plt.subplots(nrows=1, ncols=3, constrained_layout=True, figsize = (30,16))
-    y_pos = np.arange(len(totals_df.columns))
+    fig, axs = plt.subplots(nrows=1, ncols=3, figsize = (28,7))
+    y_pos = np.arange(len(totals_df['short_id']))
 
     ##############################
     # Plot number of flooded cells
     ##############################
-    plt.subplot(231)
-    plt.bar(y_pos, totals_df.iloc[[0]].values.tolist()[0], width = 0.9, color = colours_formatted_ls, label = labels)
+    axs[0].bar(y_pos, cluster_results['TotalFloodedArea'].values.tolist(), width = 0.9, color = cluster_results['colour'])
     # Create names on the x-axis
-    plt.xticks(y_pos, short_ids_order, fontsize =20, rotation = 75)
-    # plt.xlabel('Method')
-    plt.ylabel('Number of flooded cells', fontsize =20)
+    axs[0].set_xticks(y_pos)
+    axs[0].set_xticklabels(short_ids, fontsize =20, rotation = 75)
+    axs[0].set_ylabel('Number of flooded cells', fontsize =20)
+    axs[0].tick_params(axis='both', which='major', labelsize=15)
 
     xlocs, xlabs = plt.xticks(y_pos)
     xlocs=[i+1 for i in range(0,19)]
     xlabs=[i/2 for i in range(0,19)]
-
-    for i, v in enumerate(totals_df.iloc[[0]].values.tolist()[0]):
-        plt.text(xlocs[i] - 1.2, v * 1.025, str(percent_diffs_df.T['percent_diffs_formatted'][i]), fontsize = 19, rotation =90)
+    
+    for i, v in enumerate(cluster_results['TotalFloodedArea'].values.tolist()):
+        axs[0].text(xlocs[i] - 1.2, v * 1.025, str(cluster_results["%Diff_FloodedArea_fromSP_formatted"][i]), fontsize = 19, rotation =90)
 
     ##############################
-    # Plot flooded extent in m2
-    # ##############################
-    percent_diffs_df_no_sp = percent_diffs_df.T
-    # Remove the single peak from the order
-    percent_diffs_df_no_sp= percent_diffs_df_no_sp.drop('6h_sp')
-    short_ids_order = [x for x in short_ids_order if x != '6h_sp']
+    # Plot percent difference from single peak
+    ##############################
+    axs[1].bar(np.arange(len(cluster_results['%Diff_FloodedArea_fromSP'][1:])), cluster_results['%Diff_FloodedArea_fromSP'][1:], width = 0.9, color = cluster_results['colour'][1:])
+    # Create names on the x-axis
+    axs[1].set_xticks(y_pos[:-1])
+    axs[1].set_xticklabels(short_ids[1:], fontsize =20, rotation = 75)
+    axs[1].set_ylabel('Number of flooded cells', fontsize =20)
+    axs[1].tick_params(axis='both', which='major', labelsize=15)    
 
-    plt.subplot(232)
-    plt.bar(np.arange(len(percent_diffs_df_no_sp['percent_diffs'])), percent_diffs_df_no_sp['percent_diffs'], 
-            width = 0.9, color = colours_formatted_ls[1:], label = labels)
+    ##############################
+    # Plot percent diffference (absoloute)
+    ##############################
+    axs[2].bar(np.arange(len(cluster_results['Abs%Diff_FloodedArea_fromSP'][1:])), cluster_results['Abs%Diff_FloodedArea_fromSP'][1:], width = 0.9, color = cluster_results['colour'][1:])
     # Create names on the x-axis
-    plt.xticks(np.arange(len(percent_diffs_df_no_sp['percent_diffs'])), short_ids_order, fontsize =20, rotation = 75)
-    # plt.xlabel('Method')
-    plt.ylabel('Percentage difference from single peak', fontsize =20)
-    fig.suptitle(plot_title, fontsize = 30);
+    axs[2].set_xticks(y_pos[:-1])
+    axs[2].set_xticklabels(short_ids[1:], fontsize =20, rotation = 75)
+    axs[2].set_ylabel('% difference from single peak', fontsize =20)
+    axs[2].tick_params(axis='both', which='major', labelsize=15)
     
-    #
-    plt.subplot(233)
-    plt.bar(np.arange(len(percent_diffs_df_no_sp['percent_diffs_abs'])), percent_diffs_df_no_sp['percent_diffs_abs'], 
-            width = 0.9, color = colours_formatted_ls[1:], label = labels)
-    # Create names on the x-axis
-    plt.xticks(np.arange(len(percent_diffs_df_no_sp['percent_diffs_abs'])), short_ids_order, fontsize =20, rotation = 75)
-    # plt.xlabel('Method')
-    plt.ylabel('Percentage difference from single peak', fontsize =20)
-    plt.legend()
-    #fig.suptitle("a big long suptitle that runs into the title\n"*2, y=1.05);
-    fig.suptitle(plot_title, fontsize = 30);
-    plt.legend(handles=patches_list, handleheight=3, handlelength=3, fontsize =15, 
-                bbox_to_anchor=(1.2,0.8), ncol=1)  
+    # Make legend
+    colors = ['black','darkblue', 'paleturquoise', 'grey', 'indianred', 'darkred']
+    texts = ['FEH','F2','F1','C', 'B1', 'B2'] 
+    patches = [ mpatches.Patch(color=colors[i], label="{:s}".format(texts[i]) ) for i in range(len(texts)) ]
+    plt.legend(handles=patches, bbox_to_anchor=(1.1, 0.5), loc='center', ncol=1, prop={'size': 15} )
     
+    fig.suptitle(title, fontsize = 25)   
     
 def plot_difference_levels (fp_for_classified_diff_raster, labels, norm = None):
 
