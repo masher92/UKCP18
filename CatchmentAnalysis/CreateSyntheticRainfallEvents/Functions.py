@@ -14,8 +14,7 @@ def find_clusters_with_max (difference_df, variable_name, column_name):
     print("Max difference in {} in clusters: ".format(variable_name),difference_df[column_name].nlargest(2).index[0],
           "and ", difference_df[column_name].nlargest(2).index[1])
 
-def find_difference_stats(dictionary_of_data, rainfall_depth_column, single_peak):
-
+def find_difference_stats(dictionary_of_data, rainfall_depth_column, rainfall_depth_column_sp, single_peak):
     # Create dataframe to populate with difference stats
     difference_stats = pd.DataFrame(None)
     # Loop through clusters, calculate stats, format as a row and add to the dataframe
@@ -23,21 +22,21 @@ def find_difference_stats(dictionary_of_data, rainfall_depth_column, single_peak
         # Get data for this cluster
         cluster = dictionary_of_data[cluster_number]
         # FInd RMSE
-        RMSE = math.sqrt(np.square(np.subtract(single_peak['rainfall_depth_this_min'], cluster[rainfall_depth_column])).mean() )
+        RMSE = math.sqrt(np.square(np.subtract(single_peak[rainfall_depth_column_sp], cluster[rainfall_depth_column])).mean() )
         # Find the maximum rain rate
         max_rain_rate = cluster[rainfall_depth_column].max()
         # Find the difference between the max rain rate in this cluster and for the single-peaked profile
-        max_rain_rate_diff = single_peak['rainfall_depth_this_min'].max() - max_rain_rate
+        max_rain_rate_diff = single_peak[rainfall_depth_column_sp].max() - max_rain_rate
         # Find minute in which maximum rain rate occurs
         minute_of_max_rain_rate = cluster[rainfall_depth_column].idxmax()
         # Find the difference between the timing of max rain rate in this cluster and for the single-peaked profile
-        minute_of_max_rain_rate_diff = abs(single_peak['rainfall_depth_this_min'].idxmax() - minute_of_max_rain_rate)
+        minute_of_max_rain_rate_diff = abs(single_peak[rainfall_depth_column_sp].idxmax() - minute_of_max_rain_rate)
         # Format as row, and add to dataframe
         row = pd.DataFrame({'Cluster': cluster_number, 'max_rain_rate': max_rain_rate, 'Max_rain_rate_diff':max_rain_rate_diff, 
                           'Max_rain_rate_timing': minute_of_max_rain_rate,  'Max_rain_rate_timing_diff': minute_of_max_rain_rate_diff,
                             'RMSE': RMSE}, index =[cluster_number])
         difference_stats = difference_stats.append(row)
-        
+
     return difference_stats
 
 
