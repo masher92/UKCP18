@@ -19,8 +19,6 @@ import geopandas as gpd
 # from fiona.crs import from_epsg
 import pycrs
 from pyproj import CRS
-import matplotlib.patches as mpatches
-import contextily as cx
 from branca.element import Template, MacroElement
 import folium
 from folium import Map, FeatureGroup, LayerControl

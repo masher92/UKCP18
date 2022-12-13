@@ -2,6 +2,23 @@ import itertools
 import pandas as pd
 import numpy as np
 import rioxarray as rxr
+import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
+import matplotlib as mpl
+import contextily as cx
+import matplotlib as mpl
+
+''' Gets the depth/velocity counts and props data back into the format that the original plotting
+function expected it in'''
+def reformat_counts_and_props(column_names):
+    counts  = cluster_results[column_names]
+    counts.columns = [col.replace('_{}'.format(column_names[0].split('_')[1]), '') for col in counts.columns]
+    if 'urban' in velocity_counts.columns[1]:
+        counts.columns = [col.replace('_urban', '') for col in counts.columns]
+    counts = counts.T
+    counts.columns = short_ids
+
+    return counts
 
 def create_colours_df (short_ids_by_loading, short_ids):
     lst = ['darkblue', 'paleturquoise', 'grey', 'indianred', 'darkred']
@@ -11,16 +28,23 @@ def create_colours_df (short_ids_by_loading, short_ids):
     colours_df.reset_index(inplace=True, drop=True)
     return colours_df
 
-def scatter_plot_with_trend_line(ax, short_ids, x,y,xlabel,ylabel):
+def scatter_plot_with_trend_line(ax, short_ids, x,y,xlabel,ylabel, add_r2 = False):
     ax.scatter(x, y)
     z = np.polyfit(x, y, 1)
     p = np.poly1d(z)
+    m, b, r_value, p_value, std_err = stats.linregress(x,y)
+    ax.plot(x, m*x + b)
+    if add_r2 == True:
+        ax.annotate('R\N{SUPERSCRIPT TWO} = ' + str("{:.2f}".format(r_value**2))
+                    + ', P value = ' + str("{:.2f}".format(p_value**2)) , 
+                     xy=(x.min() + (x.min()/150), y.max() - (y.max()/150)),
+                   color = 'darkred')
     ax.plot(x,p(x),"r--")
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
     for i, txt in enumerate(short_ids):
         ax.annotate(txt, (x[i], y[i]))
-
+        
 def make_props_plot (ax, proportions_df, variable, variable_unit, labels):
     
     # reformat the dataframe for stacked plotting
@@ -34,11 +58,10 @@ def make_props_plot (ax, proportions_df, variable, variable_unit, labels):
     plt.rcParams.update({'font.size': 14})
     ax.legend(bbox_to_anchor=(1.01, 1), loc='upper left')
 
-
-def bar_plot_props (ax, props_df, variable_name, short_ids_order, colours_df):
+def bar_plot_props (ax, props_df, variable_name, short_ids_order, colours_df, title):
     
-    labels = props_df['index']
-    x = np.arange(len(props_df['index']))
+    labels = props_df.index
+    x = np.arange(len(props_df.index))
     width = 0.3
         
     props_df = props_df[short_ids_order].copy()
@@ -60,6 +83,8 @@ def bar_plot_props (ax, props_df, variable_name, short_ids_order, colours_df):
     ax.set_xlabel('Flood {}'.format(variable_name), fontsize = 15)
     ax.set_ylabel('Proportion of cells', fontsize = 15)
     ax.yaxis.set_major_formatter(mtick.PercentFormatter())
+    
+    fig.suptitle(title, fontsize = 25)   
 
 def plot_totals(cluster_results, short_ids, title):
     
@@ -76,7 +101,7 @@ def plot_totals(cluster_results, short_ids, title):
     # Create names on the x-axis
     axs[0].set_xticks(y_pos)
     axs[0].set_xticklabels(short_ids, fontsize =20, rotation = 75)
-    axs[0].set_ylabel('Number of flooded cells', fontsize =20)
+    axs[0].set_ylabel('Total flooded area', fontsize =20)
     axs[0].tick_params(axis='both', which='major', labelsize=15)
 
     xlocs, xlabs = plt.xticks(y_pos)
@@ -93,7 +118,7 @@ def plot_totals(cluster_results, short_ids, title):
     # Create names on the x-axis
     axs[1].set_xticks(y_pos[:-1])
     axs[1].set_xticklabels(short_ids[1:], fontsize =20, rotation = 75)
-    axs[1].set_ylabel('Number of flooded cells', fontsize =20)
+    axs[1].set_ylabel('Total flooded area', fontsize =20)
     axs[1].tick_params(axis='both', which='major', labelsize=15)    
 
     ##############################
@@ -113,6 +138,41 @@ def plot_totals(cluster_results, short_ids, title):
     plt.legend(handles=patches, bbox_to_anchor=(1.1, 0.5), loc='center', ncol=1, prop={'size': 15} )
     
     fig.suptitle(title, fontsize = 25)   
+
+    
+def plot_diff_hazard_cats(fp_for_diff_raster, labels_hazard_diff):
+    # Create discrete cmap
+    colors_list = ['darkred', 'red', 'grey', 'lightblue', 'blue', 'navy']
+    cmap = mpl.colors.ListedColormap(colors_list)
+
+    # Create patches for legend
+    patches_list = []
+    for i, color in  enumerate(colors_list):
+        patch =  mpatches.Patch(color=color, label=labels_hazard_diff[i])
+        patches_list.append(patch)  
+
+    # plot the new clipped raster      
+    clipped = rasterio.open(fp_for_diff_raster)
+    # Set up plot instance
+    fig, ax = plt.subplots(figsize=(20, 15))
+    catchment_gdf.plot(ax=ax, facecolor = 'None', edgecolor = 'black', linewidth = 4)
+    cx.add_basemap(ax, crs = catchment_gdf.crs.to_string(), url = cx.providers.OpenStreetMap.Mapnik)
+    rasterio.plot.show((clipped, 1), ax= ax, cmap = cmap)
+
+    # Close file (otherwise can't delete it, as ref to it is open)
+    clipped.close()
+    plt.axis('off')
+    plt.legend(handles=patches_list, handleheight=3, handlelength=3, fontsize =12)
+    
+    # Create file path for saving figure to
+    method_name = re.search('{}(.*)/'.format(model_directory), fp_for_diff_raster).group(1)
+    figs_dir = 'Figs/{}/'.format(method_name)
+    plot_fp = figs_dir + re.search('6h_.*/(.*).tif', fp_for_diff_raster).group(1) + ".png"
+    
+    # Save the figure
+    print(plot_fp)
+    plt.savefig(plot_fp, dpi=500,bbox_inches='tight')
+    plt.close()           
     
 def plot_difference_levels (fp_for_classified_diff_raster, labels, norm = None):
 
@@ -232,13 +292,10 @@ def plot_difference_levels_pos_neg (fp_for_posneg_diff_raster, norm = None):
     plt.savefig(plot_fp, dpi=500,bbox_inches='tight')
     plt.close()  
     
-def plot_worst_case_bars (ax, worst_case_method_df):
-    # Remove the np.nan values
-    worst_case_method_df = worst_case_method_df.iloc[:5,1]
-    # Set scenario names as index
-    worst_case_method_df.index = ["singlepeak", "dividetime", "subpeaktiming", "maxspread", "no maximum"]
-    # Plot
-    worst_case_method_df.plot(ax= ax, kind ='bar',width=  0.9, rot =45, ylabel = 'Number of cells')  
+def plot_worst_case_bars (ax, worst_case_method_df, col):
+    worst_case_method_df = cluster_results[['Cluster_num', col]]
+    worst_case_method_df.index = cluster_results['Cluster_num']
+    worst_case_method_df.plot(ax= ax, kind ='bar',width=  0.9, rot =45, ylabel = 'Number of cells') 
     
 def make_totals_bar_plot (ax, totals_df, y_name, ls, colors):
     y_pos = np.arange(len(totals_df.columns))
