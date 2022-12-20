@@ -63,7 +63,7 @@ These are the steps required to put together a plan in Hec-Ras:
 
 <a name="runmodel"></a>
 ## 4. Running model                                                                                                              
-To RUN model:
+To run model:
 1. Press Run - > ‘Unsteady Flow Analysis’ button
 2. File -> Open Plan -> Select plan that you want to run
 3. Options - > Computation options and tolerances -> Advanced time step control. Complete as follows:   
@@ -73,3 +73,9 @@ To RUN model:
 	* Maximum number of doubling base time step: 5 (32 min)
 	* Maximum number of halving base time step: 10 (0.06 secs)
 4. Press compute
+
+Can also run multiple plans, by:
+* Run -> Run multiple plans
+* Selecting the plans you want
+
+*I also set-up a script for running the models, which works, but probably doesn't offer any real advantage over the Hec-Ras capability to run multiple plans. This is RunHecRas_pyHMT2D.ipynb*
