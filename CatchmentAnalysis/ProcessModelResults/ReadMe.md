@@ -1,6 +1,16 @@
 # Post process model outputs in Python
-### Process outputs in QGIS
+The directory contains two subdirectories. One contains analysis of outputs of running model with observed profiles (based on work by Robrto Villalobos-Herrera) and the other containing analysis of outputs of running model with synthetic profiles, based on the volume of rainfall in an FEH event for this catchment, but with this volume split over multiple peaks.
 
+It also contains a script "ProcessLandCoverData.ipynb" which is to classify each cell as either Urban or Non-Urban, for use in the rest of the analysis.
+
+### Process outputs in Hec-Ras
+* Need to save the outputs as .tif
+* This can be done from within Hec-Ras for each scenario individually:
+   * Open Ras Mapper
+   * Right click on Depth (max) and select 'Export Layer' and 'Export raster' and define the name to save it as. This saves a version of the file in both *.vrt and *.Resampled.Terrain.tif formats
+* Or, can be automated for all results layers. 
+   * Tools -> Create Multiple Maps -> Dragging down to select all options on left -> Then select relevant option(s) in other two columns
+   * OR -> Project -> Manage Results Maps -> And select the results map you want for each layer -> Select 'Compute/Update stored maps' to produce them
 
 ### Process outputs in QGIS
 
