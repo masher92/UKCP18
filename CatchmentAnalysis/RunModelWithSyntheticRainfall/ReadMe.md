@@ -1,6 +1,8 @@
 # Run model with synthetic rainfall events
 This contains instructions from setting up and running the Hec-Ras model within Hec-Ras, and also references an (unsuccesful) attempt to automate the process of setting up and running the Hec-Ras model. 
 
+The Lin Dyke model is ran for a 6hr duration storm using the FEh single peak profile, 15 profiles based on observed rainfall and 3 synthetic profiles with multipole peaks. The details of the methods are in https://github.com/masher92/UKCP18/tree/master/CatchmentAnalysis/CreateSyntheticRainfallEvents
+
 ## Table of contents
 
 1. [ Hec-Ras file structure](#filestructure)  
