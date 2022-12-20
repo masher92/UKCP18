@@ -1,5 +1,5 @@
 # Run model with synthetic rainfall events
-This contains instructions from setting up and running the Hec-Ras model within Hec-Ras, and also reference to (unsuccesful) attempts to automate the process of setting up and running the Hec-Ras model. 
+This contains instructions from setting up and running the Hec-Ras model within Hec-Ras, and also references an (unsuccesful) attempt to automate the process of setting up and running the Hec-Ras model. 
 
 ## Table of contents
 
@@ -59,7 +59,7 @@ These are the steps required to put together a plan in Hec-Ras:
 15. Select the 2D flow area button the left hand side and select “Generate computation points on regular interval with all break lines”
 16. To save in the Run -> Unsteady Flow Analysis window-> Save plan as    
 
-It is also possible to edit the plan files and geometry files in a text editor. I thought that this might make it possible to set up plan files using each of our rainfall scenarios using a Python script which edited the precipitation data in each iteration, whilst keeping the other aspects constant. This is implemented in CreatePlan_and_UnsteadyFlowFiles.ipynb. However, this didn't work as even those these text files appeared to be identical to those produced by Hec-Ras they were not being recognised. I think this is something to do with the fact that when you produce the files in Hec-Ras it stores some internal reference to the name of the scenario, which if doesn't exist then it doesn't think to look for the files (although, not sure if this is correct or not). So, reverted to manually entering the data into Hec-Ras. CreatePlan_and_UnsteadyFlowFiles.ipynb does include some code to read in the plan files created in Hec-Ras and cross check their precipitation values against precipitation values in the csv files. 
+<ins> It is also possible to edit the plan files and geometry files in a text editor. I thought that this might make it possible to set up plan files using each of our rainfall scenarios using a Python script which edited the precipitation data in each iteration, whilst keeping the other aspects constant. This is implemented in CreatePlan_and_UnsteadyFlowFiles.ipynb. However, this didn't work as even those these text files appeared to be identical to those produced by Hec-Ras they were not being recognised. I think this is something to do with the fact that when you produce the files in Hec-Ras it stores some internal reference to the name of the scenario, which if doesn't exist then it doesn't think to look for the files (although, not sure if this is correct or not). So, reverted to manually entering the data into Hec-Ras. CreatePlan_and_UnsteadyFlowFiles.ipynb does include some code to read in the plan files created in Hec-Ras and cross check their precipitation values against precipitation values in the csv files.</ins> 
 
 <a name="runmodel"></a>
 ## 4. Running model                                                                                                              
