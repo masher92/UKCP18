@@ -21,6 +21,14 @@ There are a number of files required by Hec-Ras to run:
 *	.u01 etc. are unsteady flow files 
 *	.hdf are results files
 
+There are also a number of files created when the model is ran:
+* .b01
+* .bco01
+* .IC.01
+
+
+
+
 <a name="openproject"></a>
 ## 2. Opening a Hec-Ras Project
 
