@@ -1,4 +1,5 @@
 # Run model with synthetic rainfall events
+This contains instructions from setting up and running the Hec-Ras model within Hec-Ras, and also reference to (unsuccesful) attempts to automate the process of setting up and running the Hec-Ras model. 
 
 ## Table of contents
 
