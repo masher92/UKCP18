@@ -4,7 +4,7 @@ The directory contains two subdirectories. One contains analysis of outputs of r
 It also contains a script "ProcessLandCoverData.ipynb" which is to classify each cell as either Urban or Non-Urban, for use in the rest of the analysis.
 
 ### Process outputs in Hec-Ras
-* Need to save the outputs as .tif
+The initial required stage is to export the outputs from Hec-Ras as .tif files.  
 * This can be done from within Hec-Ras for each scenario individually:
    * Open Ras Mapper
    * Right click on Depth (max) and select 'Export Layer' and 'Export raster' and define the name to save it as. This saves a version of the file in both *.vrt and *.Resampled.Terrain.tif formats
@@ -12,13 +12,46 @@ It also contains a script "ProcessLandCoverData.ipynb" which is to classify each
    * Tools -> Create Multiple Maps -> Dragging down to select all options on left -> Then select relevant option(s) in other two columns
    * OR -> Project -> Manage Results Maps -> And select the results map you want for each layer -> Select 'Compute/Update stored maps' to produce them
 
-### Process outputs in QGIS
+### Processing-1.ipynb
+* Reads in .tif files for velocity and depth
+* Creates a hazard raster based on a combination of depth and velocity from Megan's report which is based on *XXX*
+* Classifies both depth, velocity and hazard according to categories from Megan's report which are based on *XXX*
+* Creates a plot of these classified depth/velocity/hazard rasters
+* Finds the difference between the (unclassified) depth, velocity and hazard rasters for each rainfall scenario and the FEH single peak scenario
+* Classifies the difference rasters according to categories from Megan's report which are based on *XXX*
+* Creates a plot of these classified difference depth/velocity/hazard rasters
+* Creates a version of the classified difference raster which just shows whether each scenario leads to deeper/faster flooding in each cell than in the FEH single peak scenario
 
-### Plot results
+### Processing-2.ipynb
+* Creates a .csv file stored in Data/allclusters_summary.csv which contains for each scenario:
+    * MaxRainfallIntensity (the maximum intensity values over the course of the event)
+    * MaxRainfallIntensityMinute (the minute in which this maximum value occurs)
+    * TotalFloodedArea	
+    * %Diff_FloodedArea_fromSP	
+    * %Diff_FloodedArea_fromSP_formatted	
+    * Abs%Diff_FloodedArea_fromSP	
+    * UrbanFloodedArea	
+    * %Diff_UrbanFloodedArea_fromSP	
+    * %Diff_UrbanFloodedArea_fromSP_formatted	
+    * Abs%Diff_UrbanFloodedArea_fromSP	
+    * WorstCaseDepth_ncells	
+    * WorstCaseVelocity_ncells
+    * The proportion and number of cells in each depth/velocity/hazard category, and which have moved hazard category by 1,2,3 categories lower or higher
 
+### Analysis.ipynb
+Plots:
+* Relationship between the number of flooded cells in urban and non-urban areas
+* Relationship between the total flooded area & the rainfall scenario used
+    * Plot the maximum peak intensity value against the flooded area
+* Relationship between flood severity & the rainfall scenario used
+    * Plot the proportion of the total flooded cells in various depth/velocity/hazard categories
+    * Plot the maximum peak intensity value against the flooded area
+* Method leading to deepest/fastest flooding in each cell 
 
 # Post process model outputs in Hec-Ras Mapper
-   
+  
+Originally, the processing of the results was done in Hec-Ras mapper using the method below. 
+  
 The results of running the Hec-Ras model can be processed using Hec-Ras mapper. This involves 3 main stages:
 1. Filtering out cells with flood depths of less than 0.1m (setting the value of these cells to NoData), and rounding the remaining depth values to 2 decimal places;
 2. Categorising the cells according to which of the following flood depth categories they are in 0.1-0.3m, 0.3-0.6m, 0.6-1.2m, 1.2m+
