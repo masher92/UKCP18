@@ -12,6 +12,14 @@ The initial required stage is to export the outputs from Hec-Ras as .tif files.
    * Tools -> Create Multiple Maps -> Dragging down to select all options on left -> Then select relevant option(s) in other two columns
    * OR -> Project -> Manage Results Maps -> And select the results map you want for each layer -> Select 'Compute/Update stored maps' to produce them
 
+### Time series values at profile lines
+* Create profile line, moving from left bank to right bank (looking downstream)
+* Ensure all the layers are selected (both depth and velocity)
+* Right click on profile line and select 'Plot Timeseries' -> Depth/Velocity
+* Click on table and right click and select to remove the rounding
+* Copy and paste the data to export it
+
+
 ### Processing-1.ipynb
 * Reads in .tif files for velocity and depth
 * Creates a hazard raster based on a combination of depth and velocity from Megan's report which is based on *XXX*
