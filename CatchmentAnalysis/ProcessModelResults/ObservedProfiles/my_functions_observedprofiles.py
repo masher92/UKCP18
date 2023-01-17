@@ -408,6 +408,7 @@ def scatter_plot_with_trend_line(ax, short_ids, x,y,xlabel,ylabel,  colors, add_
     ax.set_ylabel(ylabel)
     for i, txt in enumerate(short_ids):
         ax.annotate(txt, (x[i], y[i]))
+    ax.set_title("{} against\n {}".format(xlabel, ylabel), fontsize = 8)
         
 def make_props_plot (ax, proportions_df, variable, variable_unit, labels):
     
