@@ -231,7 +231,7 @@ def create_totals_df (velocity_counts):
     totals_df =pd.DataFrame(velocity_counts.sum(numeric_only=True)).T
     totals_df = totals_df.iloc[[len(totals_df)-1]]
     # Convert this to the total flooded area for each method
-    totals_df_area = (totals_df * 25)/1000000
+    totals_df_area = (totals_df * 1)/1000000
     totals_df_area = totals_df_area.T
     totals_df_area.reset_index(inplace=True)
     totals_df_area.rename(columns={'index': 'short_id', 0: 'FloodedArea'}, inplace = True)
@@ -251,7 +251,12 @@ def save_array_as_raster(raster, fp_to_save, out_meta):
             fp_to_save, "w", **out_meta) as dest_file:
         dest_file.write(raster,1)
     dest_file.close()      
-    
+
+def getFeatures(gdf):
+    """Function to parse features from GeoDataFrame in such a manner that rasterio wants them"""
+    import json
+    return [json.loads(gdf.to_json())['features'][0]['geometry']]
+
 # Opensa raster, trims it to extent of catchment, saves a trimmed version
 # and returns an arrat contianing the data, also trimmed
 def open_and_clip(input_raster_fp):
@@ -268,10 +273,6 @@ def open_and_clip(input_raster_fp):
 
     # Next we need to get the coordinates of the geometry in such a format
     # that rasterio wants them. This can be conducted easily with following function
-    def getFeatures(gdf):
-        """Function to parse features from GeoDataFrame in such a manner that rasterio wants them"""
-        import json
-        return [json.loads(gdf.to_json())['features'][0]['geometry']]
     # Get the geometry coordinates by using the function.
     coords = getFeatures(geo)
 
@@ -386,11 +387,14 @@ def reformat_counts_and_props(cluster_results, column_names,short_ids):
 ######################################################################
 def create_colours_df (short_ids_by_loading, short_ids):
     lst = ['darkblue', 'paleturquoise', 'grey', 'indianred', 'darkred']
+    loading_lst = ['F2', 'F1', 'C', 'B1', 'B2']
     colours =['black'] + list(itertools.chain.from_iterable(itertools.repeat(x, 3) for x in lst))
-    colours_df = pd.DataFrame({ 'short_id': short_ids_by_loading, "colour": colours})
+    loadings =['FEH'] + list(itertools.chain.from_iterable(itertools.repeat(x, 3) for x in loading_lst))
+    colours_df = pd.DataFrame({ 'short_id': short_ids_by_loading, "colour": colours, 'loading':loadings})
     colours_df = colours_df.reindex(colours_df['short_id'].map(dict(zip(short_ids, range(len(short_ids))))).sort_values().index)
     colours_df.reset_index(inplace=True, drop=True)
     return colours_df
+
 
 def scatter_plot_with_trend_line(ax, short_ids, x,y,xlabel,ylabel,  colors, add_r2 = False):
     ax.scatter(x, y, color = colors)
@@ -423,7 +427,38 @@ def make_props_plot (ax, proportions_df, variable, variable_unit, labels):
     plt.rcParams.update({'font.size': 14})
     ax.legend(bbox_to_anchor=(1.01, 1), loc='upper left')
 
+def bar_plot_counts (fig, ax, counts_df, variable_name, short_ids_order, colours_df, title):
+    
+    labels = counts_df.index
+    x = np.arange(len(counts_df.index))
+    width = 0.3
+        
+    counts_df = counts_df[short_ids_order].copy()
+    
+    colours_df =colours_df.reindex(colours_df['short_id'].map(dict(zip(short_ids_order, range(len(short_ids_order))))).sort_values().index)
+    colours_df.reset_index(inplace=True, drop=True)
+    
+    # counts_df plotting
+    width, DistBetweenBars, Num = 0.05, 0.01, 16 # width of each bar, distance between bars, number of bars in a group
+    # calculate the width of the grouped bars (including the distance between the individual bars)
+    WithGroupedBars = Num*width + (Num-1)*DistBetweenBars        
+        
+    # Proportions_df plotting
+    for i in range(Num):
+        ax.bar(np.arange(len(counts_df))-WithGroupedBars/2 + (width+DistBetweenBars)*i, counts_df.iloc[:,i], width, 
+                color = colours_df['colour'][i])
+    ax.set_xticks(np.arange(len(labels)))
+    ax.set_xticklabels(labels, rotation=30, fontsize = 12)
+    ax.set_xlabel('Flood {}'.format(variable_name), fontsize = 15)
+    ax.set_ylabel('Number of cells', fontsize = 15)
+    
+    # Make legend
+    colors = ['black','darkblue', 'paleturquoise', 'grey', 'indianred', 'darkred']
+    texts = ['FEH','F2','F1','C', 'B1', 'B2'] 
+    patches = [ mpatches.Patch(color=colors[i], label="{:s}".format(texts[i]) ) for i in range(len(texts)) ]
+    plt.legend(handles=patches, bbox_to_anchor=(1.15, 0.5), loc='center', ncol=1, prop={'size': 15} )  
 
+    
 def bar_plot_props (fig, ax, props_df, variable_name, short_ids_order, colours_df, title):
     
     labels = props_df.index
@@ -450,7 +485,13 @@ def bar_plot_props (fig, ax, props_df, variable_name, short_ids_order, colours_d
     ax.set_ylabel('Proportion of cells', fontsize = 15)
     ax.yaxis.set_major_formatter(mtick.PercentFormatter())
     
-    fig.suptitle(title, fontsize = 25)   
+    # Make legend
+    colors = ['black','darkblue', 'paleturquoise', 'grey', 'indianred', 'darkred']
+    texts = ['FEH','F2','F1','C', 'B1', 'B2'] 
+    patches = [ mpatches.Patch(color=colors[i], label="{:s}".format(texts[i]) ) for i in range(len(texts)) ]
+    plt.legend(handles=patches, bbox_to_anchor=(1.15, 0.5), loc='center', ncol=1, prop={'size': 15} )
+    
+    fig.suptitle(title, fontsize = 25)     
 
 def plot_totals(cluster_results, short_ids, title):
     colors = cluster_results['colour']

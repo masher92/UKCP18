@@ -108,48 +108,60 @@ def plot_rainfall_depth_each_min(cluster):
     ax3.set_xlabel('time [mins]')
     ax3.title.set_text("Cumulative rainfall depth (mm)")
 
-
-def make_peak(total_duration_minutes,peak_duration,peak_mm_accum,peak_time,peak_shape):
+def make_peak(total_duration_minutes,peak_duration,peak_mm_accum,peak_mid_time,peak_shape,peak_before_frac=0.5):
     a_sum=0.1
     b_sum=0.815
     if(peak_shape=='refh2-summer'):
         peak_accum_curve_mm=np.zeros(total_duration_minutes+1)
         for time in range(total_duration_minutes+1):
-            # calculate normalised time, -1 being start and 1 end of peak
-            n_time=2.0*(time-peak_time)/peak_duration
+            # calculate the actual time of the shifted peak
+            peak_after_frac=1-peak_before_frac
+            shifted_peak_time=peak_mid_time+(peak_before_frac-0.5)*peak_duration
+            duration_before_peak=peak_before_frac*peak_duration
+            duration_after_peak=peak_after_frac*peak_duration
+            # also calculate normalised fraction
+            if(time<shifted_peak_time):
+                n_time=(time-shifted_peak_time)/duration_before_peak
+            else:
+                n_time=(time-shifted_peak_time)/duration_after_peak
             if(n_time<-1.0):
                 peak_accum_curve_mm[time]=0.0
+            elif(n_time<0.0):
+                peak_accum_curve_mm[time]=peak_mm_accum*(peak_before_frac-peak_before_frac*(1-a_sum**((np.abs(n_time))**b_sum))/(1-a_sum))
+            elif(n_time<=1.0):
+                peak_accum_curve_mm[time]=peak_mm_accum*(peak_before_frac+peak_after_frac*(1-a_sum**((np.abs(n_time))**b_sum))/(1-a_sum))
             elif(n_time>1.0):
                 peak_accum_curve_mm[time]=peak_mm_accum
             else:
-                peak_accum_curve_mm[time]=peak_mm_accum*(0.5+np.sign(n_time)*0.5*(1-a_sum**((np.abs(n_time))**b_sum))/(1-a_sum))
+                raise Exception('Problem getting the peak shape right')
     else:
         raise Exception('Peak shape not defined')
     return peak_accum_curve_mm
 
 # This subroutine calculates the
 # In principle, accommodate for peaks with different shapes
-def make_peaks(total_duration_minutes,peak_durations,peak_mm_accums,peak_times,peak_shapes):
+def make_peaks(total_duration_minutes,peak_durations,peak_mm_accums,peak_times,peak_shapes,peak_before_frac=0.5):
     total_accum=np.zeros(total_duration_minutes+1)
     for i_peak in range(len(peak_durations)):
         peak_duration=peak_durations[i_peak]
         peak_mm_accum=peak_mm_accums[i_peak]
         peak_time=peak_times[i_peak]
         peak_shape=peak_shapes[i_peak]
-        total_accum=total_accum+make_peak(total_duration_minutes,peak_duration,peak_mm_accum,peak_time,peak_shape)
+        total_accum=total_accum+make_peak(total_duration_minutes,peak_duration,peak_mm_accum,peak_time,peak_shape,peak_before_frac)
     return total_accum
 
-def calc_rainfall_curves(method,total_mm_accum,total_duration_minutes,N_subpeaks,subpeak_duration_minutes):
+def calc_rainfall_curves(method,total_mm_accum,total_duration_minutes,N_subpeaks,subpeak_duration_minutes,peak_before_frac=0.5):
     subpeak_mm_accum=total_mm_accum/N_subpeaks
     if(subpeak_duration_minutes*N_subpeaks>total_duration_minutes and method=='divide-time'):
         print(f"Total length of subpeaks longer than total_duration, divide-time method not sensible")
         return
-    if(method=='single-peak'):
+    if (method=='single-peak') or 'sp' in method:
         # accumulation curve following REFH2 methodology.
         peak_durations=[total_duration_minutes]
         peak_mm_accums=[total_mm_accum]
         peak_times=[total_duration_minutes/2.] #central times
-        peak_shapes=[default_peak_shape]
+        peak_shapes=[default_peak_shape]       
+        
     elif(method=='divide-time'):
         # accumulation: first peak starts at start, last peak ends at end
         peak_durations=[subpeak_duration_minutes]*N_subpeaks
@@ -162,6 +174,7 @@ def calc_rainfall_curves(method,total_mm_accum,total_duration_minutes,N_subpeaks
         peak_mm_accums=[subpeak_mm_accum]*N_subpeaks
         peak_times=subpeak_duration_minutes/2.0+((total_duration_minutes-subpeak_duration_minutes)/(N_subpeaks-1))*(np.array(range(N_subpeaks)))
         peak_shapes=[default_peak_shape]*N_subpeaks
+        
     elif(method=='subpeak-timing'):
         # accumulation: peak timing calculated so that Nth part of rainfall
         # falls on average at the same time as in the single peak
@@ -170,7 +183,7 @@ def calc_rainfall_curves(method,total_mm_accum,total_duration_minutes,N_subpeaks
         peak_mm_accums=[subpeak_mm_accum]*N_subpeaks
         peak_shapes=[default_peak_shape]*N_subpeaks
         # calculate the single peak, as a reference
-        ref_accum=make_peak(total_duration_minutes,total_duration_minutes,total_mm_accum,total_duration_minutes/2.,default_peak_shape)
+        ref_accum=make_peak(total_duration_minutes,total_duration_minutes,total_mm_accum,total_duration_minutes/2.,default_peak_shape,peak_before_frac)
         # calculate peak times for each peak individually
         peak_times=np.zeros(N_subpeaks)
         for i_peak in range(len(peak_durations)):
@@ -202,9 +215,10 @@ def calc_rainfall_curves(method,total_mm_accum,total_duration_minutes,N_subpeaks
                     raise Exception('Unexpected condition in subpeak-timing routine')
             # calculate average time of rainfall arrival
             peak_times[i_peak]=prec_time_total/(accum_end_peak-accum_start_peak)
-    accum=make_peaks(total_duration_minutes,peak_durations,peak_mm_accums,peak_times,peak_shapes)
+    accum=make_peaks(total_duration_minutes,peak_durations,peak_mm_accums,peak_times,peak_shapes,peak_before_frac)
     rate=(accum[1:]-accum[:-1])*60. # convert to mm/hr
     return accum,rate
+
 
 ########################################################
 ########################################################
