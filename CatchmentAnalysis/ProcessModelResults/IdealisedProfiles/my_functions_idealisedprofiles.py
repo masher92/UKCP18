@@ -152,7 +152,7 @@ def create_binned_counts_and_props_hazard_cat_change(fps):
     for num, df in enumerate([counts_df,proportions_df]):
         # Some categories might be missing which causes this to throw an error
         df['Cluster_num']= ['Hazard_2CatsLower', 'Hazard_1CatsLower', 'Hazard_SameCat', 'Hazard_1CatsHigher', 'Hazard_2CatsHigher', 'Hazard_3CatsHigher']
-#         df['values']
+        del df['values']
         df = df.set_index('Cluster_num').T
         if num == 0:
             df = df.add_suffix('_countcells')
@@ -171,8 +171,7 @@ def create_binned_counts_and_props_urban(fps, variable_name, breaks, labels, rem
 
     # Loop through each rainfall scenario
     # Get the raster containing its values, and count the number of each unique value, and construct into a dataframe
-    for fp in fps:
-
+    for fp in fps  :
         raster = prepare_rainfall_scenario_raster(fp.format(variable_name), remove_little_values)[0]
         # Create a dataframe with each row relating to a cell and its landcover and depth/velocity value
         raster_and_landcover = pd.DataFrame({'landcovercategory':  landcover_mod.flatten(), 'value': raster.flatten()})
@@ -202,8 +201,7 @@ def create_binned_counts_and_props_urban(fps, variable_name, breaks, labels, rem
     counts_df['index'] = labels
     proportions_df['index'] = labels
 
-    return counts_df, proportions_df    
-
+    return counts_df, proportions_df  
 def find_percentage_diff (totals_df, fps):
     percent_diffs_formatted_for_plot = []
     percent_diffs_abs = []
@@ -329,7 +327,7 @@ def classify_raster (raster, breaks):
 
 def find_worst_case_method(fps, short_ids, variable_name):
     scenario_ls =[]
-    for fp in fps[1:]:
+    for fp in fps  :
         scenario = prepare_rainfall_scenario_raster(fp.format(variable_name), remove_little_values)[0].flatten()
         scenario_ls.append(scenario)
 
@@ -359,7 +357,7 @@ def find_worst_case_method(fps, short_ids, variable_name):
             # If matches is empty (i.e. there are no matching values to the maxium) then give the index of 
             # the scenario which was the maximum 
             if not matches:
-                rainfall_scenario_max_producing_numbers.append(short_ids[1:][index_of_max])
+                rainfall_scenario_max_producing_numbers.append(short_ids[index_of_max])
             # If matches is not empty (i.e. there are values matching the maximum) then return 4 (no one 
             # scenario can be deemed the worst case)
             elif matches:
@@ -387,10 +385,8 @@ def reformat_counts_and_props(cluster_results, column_names,short_ids):
 ######################################################################
 ######################################################################
 def create_colours_df (short_ids_by_loading, short_ids):
-    lst = ['darkblue', 'paleturquoise', 'grey',  'indianred', 'darkred']
-    loading_lst = ['F2', 'F1',  'B1', 'B2']
-    colours =['black'] + list(itertools.chain.from_iterable(itertools.repeat(x, 2) for x in lst))
-    loadings =['FEH'] + list(itertools.chain.from_iterable(itertools.repeat(x, 2) for x in loading_lst))
+    colours = ['black'] + ['darkblue']*2 + ['paleturquoise']*2 + ['grey']+  ['indianred']*2 + ['darkred']*2
+    loadings = ['FEH'] + ['F2']*2 + ['F1']*2 + ['C']+  ['B1']*2 + ['B2']*2
     colours_df = pd.DataFrame({ 'short_id': short_ids_by_loading, "colour": colours, 'loading':loadings})
     colours_df = colours_df.reindex(colours_df['short_id'].map(dict(zip(short_ids, range(len(short_ids))))).sort_values().index)
     colours_df.reset_index(inplace=True, drop=True)
@@ -439,7 +435,7 @@ def bar_plot_counts (fig, ax, counts_df, variable_name, short_ids_order, colours
     colours_df.reset_index(inplace=True, drop=True)
     
     # counts_df plotting
-    width, DistBetweenBars, Num = 0.05, 0.01, len(velocity_props.columns) # width of each bar, distance between bars, number of bars in a group
+    width, DistBetweenBars, Num = 0.05, 0.01, len(counts_df.columns) # width of each bar, distance between bars, number of bars in a group
     # calculate the width of the grouped bars (including the distance between the individual bars)
     WithGroupedBars = Num*width + (Num-1)*DistBetweenBars        
         
@@ -470,7 +466,7 @@ def bar_plot_props (fig, ax, props_df, variable_name, short_ids_order, colours_d
     colours_df.reset_index(inplace=True, drop=True)
     
     # counts_df plotting
-    width, DistBetweenBars, Num = 0.05, 0.01, len(velocity_props.columns) # width of each bar, distance between bars, number of bars in a group
+    width, DistBetweenBars, Num = 0.05, 0.01, len(props_df.columns) # width of each bar, distance between bars, number of bars in a group
     # calculate the width of the grouped bars (including the distance between the individual bars)
     WithGroupedBars = Num*width + (Num-1)*DistBetweenBars        
         
@@ -492,6 +488,32 @@ def bar_plot_props (fig, ax, props_df, variable_name, short_ids_order, colours_d
     
     fig.suptitle(title, fontsize = 25)    
 
+    
+def bar_plot_props_by_loading_cat(fig, ax, props_df, variable_name, short_ids_order, colours_df, title):
+    test_df = pd.DataFrame()
+    for loading in ['FEH','F2', 'F1', 'B1', 'B2']:
+        ls_names = []
+        for short_id in colours_df[colours_df['loading']==loading]['short_id']:
+            ls_names.append(short_id)
+            test_df[loading] = props_df[ls_names].mean(axis=1)
+
+    # counts_df plotting
+    width, DistBetweenBars, Num = 0.15, 0.01, len(test_df.columns) # width of each bar, distance between bars, number of bars in a group
+    # calculate the width of the grouped bars (including the distance between the individual bars)
+    WithGroupedBars = Num*width + (Num-1)*DistBetweenBars        
+
+    # Proportions_df plotting
+    for i in range(Num):
+        ax.bar(np.arange(len(test_df))-WithGroupedBars/2 + (width+DistBetweenBars)*i, test_df.iloc[:,i], width, 
+                color = ['black','darkblue', 'paleturquoise', 'grey', 'indianred', 'darkred'][i])
+
+    ax.set_xticks(np.arange(len(test_df.index)))
+    ax.set_xticklabels(test_df.index, rotation=30, fontsize = 12)
+    ax.set_xlabel('Flood {}'.format(variable_name), fontsize = 15)
+    ax.set_ylabel('Proportion of cells', fontsize = 15)
+    ax.yaxis.set_major_formatter(mtick.PercentFormatter())    
+    
+    
 def plot_totals(cluster_results, short_ids, title):
     colors = cluster_results['colour']
     cluster_results = cluster_results.reindex(cluster_results['Cluster_num'].map(dict(zip(short_ids, range(len(short_ids))))).sort_values().index)

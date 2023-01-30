@@ -9,6 +9,27 @@ import math
 
 default_peak_shape='refh2-summer'
 
+def plot_profile_shape_prelossremoval(ax, method, folder_fp):
+    total_duration_minutes=360
+    pre_loss_removal = pd.read_csv(folder_fp + "6hr_100yrRP/PreLossRemoval/{}.csv".format(method), names =['Time', 'Rain'])
+    pre_loss_removal['Time'] =  np.array(range(total_duration_minutes))   
+    
+    ax.plot(pre_loss_removal['Time'], pre_loss_removal['Rain'], color = 'green')
+    ax.set_title(method, fontsize = 18)
+    ax.set_xlabel('Time [mins]', fontsize = 14)
+    
+def plot_profile_shape_postlossremoval(ax, method, folder_fp):
+    total_duration_minutes=360 
+    post_loss_removal = pd.read_csv(folder_fp + "6hr_100yrRP/PostLossRemoval/{}_urban.csv".format(method))
+    # Filter to only include those within the first 6 hours
+    post_loss_removal = post_loss_removal[:360]
+    # Convert date to datetime
+    post_loss_removal['Time'] =  np.array(range(total_duration_minutes))     
+    # PLot
+    ax.plot(post_loss_removal['Time'], post_loss_removal['Total net rain mm (Observed rainfall - 01/08/2022) - urbanised model'], color = 'green')
+    ax.set_title(method, fontsize = 18)
+    ax.set_xlabel('Time [mins]', fontsize = 14)
+
 ##### Used in DifferenceBetweenRobertoProfiles_and_SinglePeak
 def find_clusters_with_max (difference_df, variable_name, column_name):
     print("Max difference in {} in clusters: ".format(variable_name),difference_df[column_name].nlargest(2).index[0],
@@ -39,6 +60,17 @@ def find_difference_stats(dictionary_of_data, rainfall_depth_column, rainfall_de
 
     return difference_stats
 
+def clean_dfs (df):
+    # Convert date to datetime
+    total_duration_minutes = 360
+    df['Time'] = pd.to_datetime(df['Time'])
+    # Filter to only include those within the first 6 hours
+    start_time = df['Time'].loc[0]
+    end_time = start_time + timedelta(hours=6) - timedelta(minutes=1)
+    df = df[(df['Time'] >= start_time) & (df['Time'] <= end_time)].copy()
+    # Dates are flipped between the two, dates are arbitrary anyway, so just make consistent
+    df['Time'] =  np.array(range(total_duration_minutes))
+    return df
 
 def get_one_cluster_one_variable(profiles, cluster_number, duration_bin):
     # Get profiles just for this duration bin

@@ -167,8 +167,6 @@ def make_plot_losses (ax, cluster_num, options, colors_dict, legend_position):
         
     if cluster_num == 5 :
         ax.legend(handles=patches, loc=legend_position, fontsize= 7)  
-          
-        
         
 def singlepeak_plot(ax, options, cols_dict, include_post_loss_removal = True):
     # List to store patches to make legend
