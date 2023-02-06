@@ -187,7 +187,8 @@ def calc_rainfall_curves(method,total_mm_accum,total_duration_minutes,N_subpeaks
     if(subpeak_duration_minutes*N_subpeaks>total_duration_minutes and method=='divide-time'):
         print(f"Total length of subpeaks longer than total_duration, divide-time method not sensible")
         return
-    if (method=='single-peak'):
+    if (method=='single-peak' or method =='6h_sp_fl_0.1'or method =='6h_sp_fl_0.2'or method =='6h_sp_fl_0.3' or method =='6h_sp_fl_0.4'
+       or method =='6h_sp_bl_0.9'or method =='6h_sp_bl_0.6'or method =='6h_sp_bl_0.7'or method =='6h_sp_bl_0.8'):
     # if (method=='single-peak') or 'sp' in method: # this means max spread is calculated as single peak
         # accumulation curve following REFH2 methodology.
         peak_durations=[total_duration_minutes]
