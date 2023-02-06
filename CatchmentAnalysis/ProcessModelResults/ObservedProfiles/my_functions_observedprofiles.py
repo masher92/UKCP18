@@ -151,7 +151,7 @@ def create_binned_counts_and_props_hazard_cat_change(fps):
     both_dfs = pd.DataFrame(columns = ["Cluster_num"])  
     for num, df in enumerate([counts_df,proportions_df]):
         df['Cluster_num']= ['Hazard_3CatsLower','Hazard_2CatsLower', 'Hazard_1CatsLower', 'Hazard_SameCat', 'Hazard_1CatsHigher', 'Hazard_2CatsHigher', 'Hazard_3CatsHigher']
-        df['values']
+        del df['values']
         df = df.set_index('Cluster_num').T
         if num == 0:
             df = df.add_suffix('_countcells')

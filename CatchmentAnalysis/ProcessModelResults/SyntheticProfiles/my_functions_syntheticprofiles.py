@@ -170,22 +170,28 @@ def find_percentage_diff (totals_df, fps):
     percent_diffs = []
 
     sp_value = totals_df.loc[totals_df['short_id'] == '6h_sp']['FloodedArea']
-
+    sp_value.reset_index(drop=True, inplace=True)
+    
+    percent_diffs_formatted_for_plot = []
+    percent_diffs_abs = []
+    percent_diffs = []
+    
     for fp in fps:
-        rainfall_scenario_name = fp.split('/')[6]
-        if rainfall_scenario_name!= '6h_sp':
-            # FInd value for this scenario
-            this_scenario_value = totals_df.loc[totals_df['short_id'] == rainfall_scenario_name]['FloodedArea']
-            this_scenario_value.reset_index(drop=True, inplace=True)
-            # FInd % difference between single peak and this scenario
-            percent_diffs.append(round((this_scenario_value/sp_value-1)*100,2)[0])
-            percent_diffs_abs.append(round(abs((this_scenario_value/sp_value-1)[0])*100,2))
-            percent_diffs_formatted_for_plot.append(round((this_scenario_value/sp_value-1)*100,2)[0])
+            rainfall_scenario_name = fp.split('/')[6]
+            if rainfall_scenario_name!= '6h_sp':
+                # FInd value for this scenario
+                this_scenario_value = totals_df.loc[totals_df['short_id'] == rainfall_scenario_name]['FloodedArea']
+                this_scenario_value.reset_index(drop=True, inplace=True)
+                # FInd % difference between single peak and this scenario
+                percent_diffs.append(round((this_scenario_value/sp_value-1)*100,2)[0])
+                percent_diffs_abs.append(round(abs((this_scenario_value/sp_value-1)[0])*100,2))
+                percent_diffs_formatted_for_plot.append(round((this_scenario_value/sp_value-1)*100,2)[0])
+            # Convert values to strings, and add a + sign for positive values
     # Convert values to strings, and add a + sign for positive values
     # Include an empty entry for the single peak scenario
     percent_diffs_df = pd.DataFrame({'percent_diff_formatted':[''] +['+' + str(round((list_item),2)) + '%' if list_item > 0 else str(round((list_item),2)) +
      '%'  for list_item in percent_diffs_formatted_for_plot] ,
-             'percent_diffs':[0] + percent_diffs, 'percent_diffs_abs':[0] + percent_diffs_abs })
+             'percent_diffs':[0] + percent_diffs, 'percent_diffs_abs':[0] + percent_diffs_abs })            
     return percent_diffs_df
 
 
@@ -193,7 +199,7 @@ def create_totals_df (velocity_counts):
     totals_df =pd.DataFrame(velocity_counts.sum(numeric_only=True)).T
     totals_df = totals_df.iloc[[len(totals_df)-1]]
     # Convert this to the total flooded area for each method
-    totals_df_area = (totals_df * 25)/1000000
+    totals_df_area = (totals_df * 1)/1000000
     totals_df_area = totals_df_area.T
     totals_df_area.reset_index(inplace=True)
     totals_df_area.rename(columns={'index': 'short_id', 0: 'FloodedArea'}, inplace = True)
