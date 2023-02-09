@@ -9,16 +9,16 @@ import math
 
 default_peak_shape='refh2-summer'
 
-def plot_profile_shape_prelossremoval(ax, method, folder_fp):
+def plot_profile_shape_prelossremoval(ax, method, folder_fp, color):
     total_duration_minutes=360
     pre_loss_removal = pd.read_csv(folder_fp + "6hr_100yrRP/PreLossRemoval/{}.csv".format(method), names =['Time', 'Rain'])
     pre_loss_removal['Time'] =  np.array(range(total_duration_minutes))   
     
-    ax.plot(pre_loss_removal['Time'], pre_loss_removal['Rain'], color = 'green')
+    ax.plot(pre_loss_removal['Time'], pre_loss_removal['Rain'], color = color)
     ax.set_title(method, fontsize = 18)
     ax.set_xlabel('Time [mins]', fontsize = 14)
     
-def plot_profile_shape_postlossremoval(ax, method, folder_fp):
+def plot_profile_shape_postlossremoval(ax, method, folder_fp, color):
     total_duration_minutes=360 
     post_loss_removal = pd.read_csv(folder_fp + "6hr_100yrRP/PostLossRemoval/{}_urban.csv".format(method))
     # Filter to only include those within the first 6 hours
@@ -26,7 +26,8 @@ def plot_profile_shape_postlossremoval(ax, method, folder_fp):
     # Convert date to datetime
     post_loss_removal['Time'] =  np.array(range(total_duration_minutes))     
     # PLot
-    ax.plot(post_loss_removal['Time'], post_loss_removal['Total net rain mm (Observed rainfall - 01/08/2022) - urbanised model'], color = 'green')
+    ax.plot(post_loss_removal['Time'], post_loss_removal['Total net rain mm (Observed rainfall - 01/08/2022) - urbanised model'], 
+            color = color)
     ax.set_title(method, fontsize = 18)
     ax.set_xlabel('Time [mins]', fontsize = 14)
 
@@ -188,7 +189,7 @@ def calc_rainfall_curves(method,total_mm_accum,total_duration_minutes,N_subpeaks
         print(f"Total length of subpeaks longer than total_duration, divide-time method not sensible")
         return
     if (method=='single-peak' or method =='6h_sp_fl_0.1'or method =='6h_sp_fl_0.2'or method =='6h_sp_fl_0.3' or method =='6h_sp_fl_0.4'
-       or method =='6h_sp_bl_0.9'or method =='6h_sp_bl_0.6'or method =='6h_sp_bl_0.7'or method =='6h_sp_bl_0.8'):
+       or method =='6h_sp_bl_0.9'or method =='6h_sp_bl_0.6'or method =='6h_sp_bl_0.7'or method =='6h_sp_bl_0.8'or method =='6h_sp_c_0.5'):
     # if (method=='single-peak') or 'sp' in method: # this means max spread is calculated as single peak
         # accumulation curve following REFH2 methodology.
         peak_durations=[total_duration_minutes]
@@ -248,9 +249,11 @@ def calc_rainfall_curves(method,total_mm_accum,total_duration_minutes,N_subpeaks
                     raise Exception('Unexpected condition in subpeak-timing routine')
             # calculate average time of rainfall arrival
             peak_times[i_peak]=prec_time_total/(accum_end_peak-accum_start_peak)
+    
     accum=make_peaks(total_duration_minutes,peak_durations,peak_mm_accums,peak_times,peak_shapes,peak_before_frac)
     rate=(accum[1:]-accum[:-1])*60. # convert to mm/hr
     return accum,rate
+
 
 
 ########################################################
