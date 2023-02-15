@@ -47,6 +47,10 @@ In order to generate synthetic design storm hyetographs:
 * Feed these design storm hyetographs into ReFH2 as observed rainfall data, alongside data on antecedent conditions, and extract the data on the net rainfall after losses have been subtracted from ReFH2
 * Feed in this net rainfall data as the precipitation input to Hec-RAS
 
+<a name="getting_resign_rainfall"></a>  
+### Determining design rainfall volume from ReFH2
+Load the catchment descriptors for Lin Dyke into ReFH2. Skip through to the second page and select Catchment Descriptors -> Model parameters and select 'Summer' from the season. Go back a page and set the duration to 06:01:00 and the timestep to 00:01:00. This results in a total rainfall depth of 59.28mm.
+
 <a name="details_options"></a>  
 ### Options for defining synthetic multi-peaked events
 
