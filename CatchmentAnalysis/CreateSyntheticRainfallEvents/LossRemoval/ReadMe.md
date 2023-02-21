@@ -31,6 +31,7 @@ Cini is calculated based upon BFIHOST (a measure of catchment responsiveness bas
 The data for this analysis was generated using ReFH2.  
 Creating observed events:
 * Load in catchment XML file, move to next screen
+* Skip through to the second page and select Catchment Descriptors -> Model parameters and select 'Summer' from the season.
 * Select Duration as '06:01:00' and the time step as 1 minute
 * Select 'Add' under Observed rainfall on the left
 * Select rainfall data from file (this must be in a format with no column names, otherwise it will reject it)
