@@ -88,7 +88,7 @@ def create_binned_counts_and_props_hazard(fps):
 
     for fp in fps:
         # Define filepath
-        fp = '../../../../FloodModelling/MeganModel_New/{}/hazard_classified.tif'.format(fp.split('New/')[1].split('/{}')[0])
+        fp = fp.replace('{} (Max).Resampled.Terrain', 'hazard_classified')
         # Read in data
         hazard = prepare_rainfall_scenario_raster(fp, remove_little_values)[0]
         # Count the number of each value
@@ -130,7 +130,7 @@ def create_binned_counts_and_props_hazard_cat_change(fps):
         # Add values to dataframes
         method_name = fp.split("/")[6]
         # Read in hazard data 
-        fp = '../../../../FloodModelling/MeganModel_New/{}/hazard_cat_difference.tif'.format(fp.split('New/')[1].split('/{}')[0])
+        fp = fp.replace('{} (Max).Resampled.Terrain', 'hazard_cat_difference')
         hazard = prepare_rainfall_scenario_raster(fp, False)[0]
         unique, counts = np.unique(hazard, return_counts=True)
         df = pd.DataFrame({'values': unique, method_name:counts})
@@ -167,20 +167,19 @@ def create_binned_counts_and_props_hazard_cat_change(fps):
     
     return both_dfs
 
-
 def find_percentage_diff (totals_df, fps):
     percent_diffs_formatted_for_plot = []
     percent_diffs_abs = []
     percent_diffs = []
 
-    sp_value = totals_df.loc[totals_df['short_id'] == '6h_sp']['FloodedArea']
+    sp_value = totals_df.loc[totals_df['short_id'] == '6h_sp_+0']['FloodedArea']
     sp_value.reset_index(drop=True, inplace=True)
     
     percent_diffs_formatted_for_plot = []
     percent_diffs_abs = []
     percent_diffs = []
     
-    for fp in fps:
+    for fp in fps[1:]:
             rainfall_scenario_name = fp.split('/')[6]
             if rainfall_scenario_name!= '6h_sp':
                 # FInd value for this scenario
@@ -197,7 +196,6 @@ def find_percentage_diff (totals_df, fps):
      '%'  for list_item in percent_diffs_formatted_for_plot] ,
              'percent_diffs':[0] + percent_diffs, 'percent_diffs_abs':[0] + percent_diffs_abs })            
     return percent_diffs_df
-
 
 def create_totals_df (velocity_counts):
     totals_df =pd.DataFrame(velocity_counts.sum(numeric_only=True)).T
@@ -403,7 +401,7 @@ def classify_raster (raster, breaks):
 
 def find_worst_case_method(fps, short_ids, variable_name):
     scenario_ls =[]
-    for fp in fps[1:]:
+    for fp in fps:
         scenario = prepare_rainfall_scenario_raster(fp.format(variable_name), remove_little_values)[0].flatten()
         scenario_ls.append(scenario)
     scenario_ls
@@ -434,7 +432,7 @@ def find_worst_case_method(fps, short_ids, variable_name):
             # If matches is empty (i.e. there are no matching values to the maxium) then give the index of 
             # the scenario which was the maximum 
             if not matches:
-                rainfall_scenario_max_producing_numbers.append(short_ids[1:][index_of_max])
+                rainfall_scenario_max_producing_numbers.append(short_ids[index_of_max])
             # If matches is not empty (i.e. there are values matching the maximum) then return 4 (no one 
             # scenario can be deemed the worst case)
             elif matches:
@@ -475,9 +473,8 @@ def scatter_plot_with_trend_line(ax, short_ids, x,y,xlabel,ylabel,  colors, add_
     ax.scatter(x, y, color = colors)
     z = np.polyfit(x, y, 1)
     p = np.poly1d(z)
-    m, b, r_value, p_value, std_err = stats.linregress(x,y)
-#     ax.plot(x, m*x + b)
     if add_r2 == True:
+        m, b, r_value, p_value, std_err = stats.linregress(x,y)
         ax.annotate('R\N{SUPERSCRIPT TWO} = ' + str("{:.2f}".format(r_value**2))
                     + ', P value = ' + str("{:.2f}".format(p_value**2)) , 
                      xy=(x.min() + (x.min()/150), y.max() - (y.max()/150)),
@@ -501,7 +498,7 @@ def make_props_plot (ax, proportions_df, variable, variable_unit, labels):
     plt.rcParams.update({'font.size': 14})
     ax.legend(bbox_to_anchor=(1.01, 1), loc='upper left')
 
-def bar_plot_props (fig, ax, props_df, variable_name, short_ids_order,  title, colors):
+def bar_plot_props (fig, ax, props_df, variable_name, short_ids_order,  colors):
     
     labels = props_df.index
     x = np.arange(len(props_df.index))
@@ -510,7 +507,7 @@ def bar_plot_props (fig, ax, props_df, variable_name, short_ids_order,  title, c
     props_df = props_df[short_ids_order].copy()
     
     # counts_df plotting
-    width, DistBetweenBars, Num = 0.16, 0.01, 5 # width of each bar, distance between bars, number of bars in a group
+    width, DistBetweenBars, Num = 0.16, 0.01, 4 # width of each bar, distance between bars, number of bars in a group
     # calculate the width of the grouped bars (including the distance between the individual bars)
     WithGroupedBars = Num*width + (Num-1)*DistBetweenBars        
         
@@ -524,19 +521,12 @@ def bar_plot_props (fig, ax, props_df, variable_name, short_ids_order,  title, c
     ax.set_ylabel('Proportion of cells', fontsize = 15)
     ax.yaxis.set_major_formatter(mtick.PercentFormatter())
     
-    fig.suptitle(title, fontsize = 25)   
-    
-    colors =colors
-    texts = ['FEH','SP','DT','SPT', 'MS'] 
-    patches = [ mpatches.Patch(color=colors[i], label="{:s}".format(texts[i]) ) for i in range(len(texts)) ]
-    plt.legend(handles=patches, bbox_to_anchor=(1.18, 0.5), loc='center', ncol=1, prop={'size': 15} )
-    
+    patches = [ mpatches.Patch(color=colors[i], label="{:s}".format(short_ids_order[i]) ) for i in range(len(short_ids_order)) ]
+    plt.legend(handles=patches, bbox_to_anchor=(1.23, 0.45), loc='center', ncol=1, prop={'size': 15} )
     
 def plot_totals(cluster_results, short_ids, title):
-    cluster_results = cluster_results.reindex(cluster_results['Cluster_num'].map(dict(zip(short_ids, range(len(short_ids))))).sort_values().index)
-    cluster_results.reset_index(inplace=True, drop=True)
 
-    fig, axs = plt.subplots(nrows=1, ncols=3, figsize = (28,7))
+    fig, axs = plt.subplots(nrows=1, ncols=2, figsize = (9,4))
     y_pos = np.arange(len(cluster_results['Cluster_num']))
 
     ##############################
@@ -545,16 +535,16 @@ def plot_totals(cluster_results, short_ids, title):
     axs[0].bar(y_pos, cluster_results['TotalFloodedArea'].values.tolist(), width = 0.9, color = cluster_results['color'])
     # Create names on the x-axis
     axs[0].set_xticks(y_pos)
-    axs[0].set_xticklabels(short_ids, fontsize =20, rotation = 75)
-    axs[0].set_ylabel('Number of flooded cells', fontsize =20)
-    axs[0].tick_params(axis='both', which='major', labelsize=15)
+    axs[0].set_xticklabels(short_ids, fontsize =10, rotation = 75)
+    axs[0].set_ylabel('Flooded area (km2)', fontsize =10)
+    axs[0].tick_params(axis='both', which='major', labelsize=8)
 
     xlocs, xlabs = plt.xticks(y_pos)
     xlocs=[i+1 for i in range(0,19)]
     xlabs=[i/2 for i in range(0,19)]
 
     for i, v in enumerate(cluster_results['TotalFloodedArea'].values.tolist()):
-        axs[0].text(xlocs[i] - 1.2, v * 1.025, str(cluster_results["%Diff_FloodedArea_fromSP_formatted"][i]), fontsize = 19, rotation =90)
+        axs[0].text(xlocs[i] - 1.2, v * 1.025, str(cluster_results["%Diff_FloodedArea_fromSP_formatted"][i]), fontsize = 10, rotation =90)
 
     ##############################
     # Plot percent difference from single peak
@@ -562,27 +552,13 @@ def plot_totals(cluster_results, short_ids, title):
     axs[1].bar(np.arange(len(cluster_results['%Diff_FloodedArea_fromSP'][1:])), cluster_results['%Diff_FloodedArea_fromSP'][1:], width = 0.9, color = cluster_results['color'][1:])
     # Create names on the x-axis
     axs[1].set_xticks(y_pos[:-1])
-    axs[1].set_xticklabels(short_ids[1:], fontsize =20, rotation = 75)
-    axs[1].set_ylabel('Number of flooded cells', fontsize =20)
-    axs[1].tick_params(axis='both', which='major', labelsize=15)    
-
-    ##############################
-    # Plot percent diffference (absoloute)
-    ##############################
-    axs[2].bar(np.arange(len(cluster_results['Abs%Diff_FloodedArea_fromSP'][1:])), cluster_results['Abs%Diff_FloodedArea_fromSP'][1:], width = 0.9, color = cluster_results['color'][1:])
-    # Create names on the x-axis
-    axs[2].set_xticks(y_pos[:-1])
-    axs[2].set_xticklabels(short_ids[1:], fontsize =20, rotation = 75)
-    axs[2].set_ylabel('% difference from single peak', fontsize =20)
-    axs[2].tick_params(axis='both', which='major', labelsize=15)
+    axs[1].set_xticklabels(short_ids[1:], fontsize =10, rotation = 75)
+    axs[1].set_ylabel('Percent difference from baseline', fontsize =10)
+    axs[1].tick_params(axis='both', which='major', labelsize=8)    
 
     # Make legend
-    colors = cluster_results['color']
-    texts = ['FEH','SP','SP+10%'] 
-    patches = [ mpatches.Patch(color=colors[i], label="{:s}".format(texts[i]) ) for i in range(len(texts)) ]
-    plt.legend(handles=patches, bbox_to_anchor=(1.1, 0.5), loc='center', ncol=1, prop={'size': 15} )
-
-    fig.suptitle(title, fontsize = 25)   
+    patches = [ mpatches.Patch(color=cluster_results['color'][i], label="{:s}".format(short_ids[i]) ) for i in range(len(short_ids)) ]
+    plt.legend(handles=patches, bbox_to_anchor=(1.25, 0.5), loc='center', ncol=1, prop={'size': 10} )
 
     
 def plot_difference_levels (fp_for_classified_diff_raster, labels, norm = None):
