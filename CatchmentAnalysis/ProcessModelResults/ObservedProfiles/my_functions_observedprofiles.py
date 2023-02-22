@@ -30,7 +30,7 @@ import contextily as cx
 import matplotlib as mpl
 from scipy import stats
 
-model_directory = '../../../../FloodModelling/MeganModel_New/'
+model_directory = '../../../../FloodModelling/Model_ObservedProfiles/'
 
 # Define whether to filter out values <0.1
 remove_little_values = True
@@ -65,7 +65,7 @@ def create_binned_counts_and_props(fps, variable_name, breaks, labels, remove_li
         groups['Proportion'] = round((groups['counts']/total_n_cells) *100,1)
 
         # Add values to dataframes
-        method_name = re.search('{}(.*)/'.format(model_directory), fp).group(1)
+        method_name = fp.split("/")[6]
         counts_df[method_name] = groups['counts']
         proportions_df[method_name] = groups['Proportion']
 
@@ -102,7 +102,7 @@ def create_binned_counts_and_props_hazard(fps):
         df['Proportion'] = round((df['counts']/total_n_cells) *100,1)
         
         # Add values to dataframes
-        method_name = re.search('{}(.*)/'.format(model_directory), fp).group(1)
+        method_name =fp.split("/")[6]
         counts_df[method_name] = df['counts']
         proportions_df[method_name] = df['Proportion']
 
@@ -123,7 +123,7 @@ def create_binned_counts_and_props_hazard_cat_change(fps):
 
     for fp in fps[1:]:
         # Add values to dataframes
-        method_name = re.search('{}(.*)/'.format(model_directory), fp).group(1)
+        method_name = fp.split("/")[6]
         # Read in hazard data 
         fp = '../../../../FloodModelling/MeganModel_New/{}/hazard_cat_difference.tif'.format(fp.split('New/')[1].split('/{}')[0])
         hazard = prepare_rainfall_scenario_raster(fp, False)[0]
@@ -189,7 +189,7 @@ def create_binned_counts_and_props_urban(fps, variable_name, breaks, labels, rem
         groups['Proportion'] = round((groups['value']/total_n_cells) *100,1)
 
         # Add values to dataframes
-        method_name = re.search('{}(.*)/'.format(model_directory), fp).group(1)
+        method_name =fp.split("/")[6]
         counts_df[method_name] = groups["value"]
         proportions_df[method_name] = groups['Proportion']
 
@@ -581,7 +581,7 @@ def plot_difference_levels (fp_for_classified_diff_raster, labels, norm = None):
     plt.legend(handles=patches_list, handleheight=3, handlelength=3, fontsize =20)
     
     # Create file path for saving figure to
-    method_name = re.search('{}(.*)/'.format(model_directory), fp_for_classified_diff_raster).group(1)
+    method_name = fp_for_classified_diff_raster.split("/")[6]
     figs_dir = 'Figs/{}/'.format(method_name)
     plot_fp = figs_dir + re.search('6h_.*/(.*).tif', fp_for_classified_diff_raster).group(1) + ".png"
                                  
@@ -616,7 +616,7 @@ def plot_classified_raster(fp_for_classified_raster, labels, colors_list, norm =
     plt.legend(handles=patches_list, handleheight=3, handlelength=3, fontsize =20)
     
     # Create file path for saving figure to
-    method_name = re.search('{}(.*)/'.format(model_directory), fp_for_classified_raster).group(1)
+    method_name = fp_for_classified_raster.split("/")[6]
     figs_dir = 'Figs/{}/'.format(method_name)
     Path(figs_dir).mkdir(parents=True, exist_ok=True)
     plot_fp = figs_dir + re.search('6h_.*/(.*).tif', fp_for_classified_raster).group(1) + ".png"
@@ -657,7 +657,7 @@ def plot_difference_levels_pos_neg (fp_for_posneg_diff_raster, norm = None):
     plt.legend(handles=patches_list, handleheight=3, handlelength=3, fontsize =15)
     
     # Create file path for saving figure to
-    method_name = re.search('{}(.*)/'.format(model_directory), fp_for_posneg_diff_raster).group(1)
+    method_name =  fp_for_posneg_diff_raster.split("/")[6]
     figs_dir = 'Figs/{}/'.format(method_name)
     plot_fp = figs_dir + re.search('6h_.*/(.*).tif', fp_for_posneg_diff_raster).group(1) + ".png"                                 
     # Save the figure
@@ -817,7 +817,7 @@ def plot_diff_hazard_cats( fp_for_diff_raster, labels, colors_list, norm = None)
     plt.legend(handles=patches_list, handleheight=3, handlelength=3, fontsize =20)
 
     # Create file path for saving figure to
-    method_name = re.search('{}(.*)/'.format(model_directory), fp_for_diff_raster).group(1)
+    method_name = fp_for_diff_raster.split("/")[6]
     figs_dir = 'Figs/{}/'.format(method_name)
     Path(figs_dir).mkdir(parents=True, exist_ok=True)
     plot_fp = figs_dir + re.search('6h_.*/(.*).tif', fp_for_diff_raster).group(1) + ".png"
