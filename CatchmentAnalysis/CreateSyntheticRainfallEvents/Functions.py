@@ -9,8 +9,7 @@ import math
 
 default_peak_shape='refh2-summer'
 
-def plot_profile_shape_prelossremoval(ax, method, folder_fp, color):
-    total_duration_minutes=360
+def plot_profile_shape_prelossremoval(ax, method, total_duration_minutes, folder_fp, color):
     pre_loss_removal = pd.read_csv(folder_fp + "6hr_100yrRP/PreLossRemoval/{}.csv".format(method), names =['Time', 'Rain'])
     pre_loss_removal['Time'] =  np.array(range(total_duration_minutes))   
     
@@ -18,11 +17,10 @@ def plot_profile_shape_prelossremoval(ax, method, folder_fp, color):
     ax.set_title(method, fontsize = 18)
     ax.set_xlabel('Time [mins]', fontsize = 14)
     
-def plot_profile_shape_postlossremoval(ax, method, folder_fp, color):
-    total_duration_minutes=360 
+def plot_profile_shape_postlossremoval(ax, method,total_duration_minutes, folder_fp, color):
     post_loss_removal = pd.read_csv(folder_fp + "6hr_100yrRP/PostLossRemoval/{}_urban.csv".format(method))
     # Filter to only include those within the first 6 hours
-    post_loss_removal = post_loss_removal[:360]
+    post_loss_removal = post_loss_removal[:total_duration_minutes]
     # Convert date to datetime
     post_loss_removal['Time'] =  np.array(range(total_duration_minutes))     
     # PLot
@@ -61,13 +59,12 @@ def find_difference_stats(dictionary_of_data, rainfall_depth_column, rainfall_de
 
     return difference_stats
 
-def clean_dfs (df):
+def clean_dfs (df, total_duration_minutes):
     # Convert date to datetime
-    total_duration_minutes = 360
     df['Time'] = pd.to_datetime(df['Time'])
     # Filter to only include those within the first 6 hours
     start_time = df['Time'].loc[0]
-    end_time = start_time + timedelta(hours=6) - timedelta(minutes=1)
+    end_time = start_time + timedelta(hours=6)
     df = df[(df['Time'] >= start_time) & (df['Time'] <= end_time)].copy()
     # Dates are flipped between the two, dates are arbitrary anyway, so just make consistent
     df['Time'] =  np.array(range(total_duration_minutes))
@@ -92,19 +89,30 @@ def find_rainfall_depth_each_min(one_cluster, total_event_rainfall):
     one_cluster['rainfall_this_dur_bin'] = one_cluster['Mean'] * total_event_rainfall
     
     # Set the value for each of the original timesteps as one 30th of the original value
-    one_cluster['rainfall_depth_this_min'] = one_cluster['rainfall_this_dur_bin']/30
-    # Then repeat this 30 times (so the value which was originally over 30 minutes, is now split equally 1/30th in each minute)
+    # For the last row divide it instead by 31 (to make an event of length 361 rather than 360)
+    new_vals = []
+    for index in range(len(one_cluster)):
+        if index == 11 :
+            new_vals.append(one_cluster.iloc[index]['rainfall_this_dur_bin']/31)
+        else:
+            new_vals.append(one_cluster.iloc[index]['rainfall_this_dur_bin']/30)
+    # Set the value for each of the original timesteps as one 30th of the original value
+    one_cluster['rainfall_depth_this_min'] = new_vals
+    
+    # # Then repeat this 30 times (so the value which was originally over 30 minutes, is now split equally 1/30th in each minute)
     one_cluster.reset_index(inplace=True, drop = True)
     one_cluster= one_cluster.loc[one_cluster.index.repeat(30)].reset_index(drop=True)
-    
+    # Add ane xtra veersion of final row as this was supposed to be split over 61 minutes
+    one_cluster.loc[360] = one_cluster.iloc[359]
+
     # Drop unneeded columns
     one_cluster = one_cluster.drop(["Cluster", "Dur_bins", "Variable", "Duration", "Profile_shape", "Cluster_id", "Mean"], axis =1)
-    
-    # Add a starting and ending 0 value
-    #new_row = pd.DataFrame(dict(zip(one_cluster.columns.values, [0,0,0])), index = [0])
-    #one_cluster = pd.concat([new_row,one_cluster.loc[:],new_row]).reset_index(drop=True)
-    
-    # Add a new minutes column
+
+    # # Add a starting and ending 0 value
+    # one_cluster = pd.concat([new_row,one_cluster.loc[:],new_row]).reset_index(drop=True)
+
+    # one_cluster
+    # # Add a new minutes column
     one_cluster.insert(0, 'minute', range(1,len(one_cluster)+1))
     
     return one_cluster
@@ -124,9 +132,9 @@ def add_cumulative_values(one_cluster):
     
     return one_cluster
 
-def plot_rainfall_depth_each_min(cluster):
+def plot_rainfall_depth_each_min(cluster, total_duration_minutes):
     fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize =(15,3))
-    ax1.plot(np.array(range(360))+0.5,cluster['rainfall_rate'])
+    ax1.plot(np.array(range(total_duration_minutes))+0.5,cluster['rainfall_rate'])
     ax1.set_xlabel('time [mins]')
     ax1.set_ylabel('rainfall rate [mm/hr]')
     ax1.title.set_text("Rainfall rate (mm/hr)")
