@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 MelbourneAnalysis/Data/*
 =======
 *.dat
@@ -11,12 +10,15 @@ Regridding/ReadMe.pdf
 *desktop.ini
 /Notes/*
 *.xlsx
+*.csv
 *.ipynb_checkpoints*
 .ipynb_checkpoints
 **/*.ipynb_checkpoints/
 **/**/*.ipynb_checkpoints/
 *.npy
+*.png
+*.PNG
 
 .*  # ignore all hidden files and folders
 !/.gitignore  # explicitly do not ignore .gitignore
->>>>>>> ba0953b0f2ea3f638cc02d5bb9f133ae291a52e4
+
