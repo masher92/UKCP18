@@ -87,7 +87,7 @@ def create_binned_counts_and_props_hazard(fps):
 
     for fp in fps:
         # Define filepath
-        fp = '../../../../FloodModelling/MeganModel_New/{}/hazard_classified.tif'.format(fp.split('New/')[1].split('/{}')[0])
+        fp = fp.replace('{} (Max).Resampled.Terrain', 'hazard_classified')
         # Read in data
         hazard = prepare_rainfall_scenario_raster(fp, remove_little_values)[0]
         # Count the number of each value
@@ -117,6 +117,10 @@ def create_binned_counts_and_props_hazard(fps):
     return counts_df, proportions_df
 
 def create_binned_counts_and_props_hazard_cat_change(fps):
+    
+    replacement_dict = {-3.0: 'Hazard_3CatsLower', -2.0 : 'Hazard_2CatsLower', -1.0 : 'Hazard_1CatsLower', 0: 'Hazard_SameCat',
+        1 : 'Hazard_1CatsHigher', 2: 'Hazard_2CatsHigher', 3: 'Hazard_3CatsHigher'}
+    
     # Create dataframes to populate with values
     counts_df = pd.DataFrame(columns = ["values"])
     proportions_df = pd.DataFrame(columns = ["values"]) 
@@ -125,7 +129,7 @@ def create_binned_counts_and_props_hazard_cat_change(fps):
         # Add values to dataframes
         method_name = fp.split("/")[6]
         # Read in hazard data 
-        fp = '../../../../FloodModelling/MeganModel_New/{}/hazard_cat_difference.tif'.format(fp.split('New/')[1].split('/{}')[0])
+        fp = fp.replace('{} (Max).Resampled.Terrain', 'hazard_cat_difference')
         hazard = prepare_rainfall_scenario_raster(fp, False)[0]
         unique, counts = np.unique(hazard, return_counts=True)
         df = pd.DataFrame({'values': unique, method_name:counts})
@@ -150,8 +154,8 @@ def create_binned_counts_and_props_hazard_cat_change(fps):
     # Join the two dataframes together and reformat
     both_dfs = pd.DataFrame(columns = ["Cluster_num"])  
     for num, df in enumerate([counts_df,proportions_df]):
-        df['Cluster_num']= ['Hazard_3CatsLower','Hazard_2CatsLower', 'Hazard_1CatsLower', 'Hazard_SameCat', 'Hazard_1CatsHigher', 'Hazard_2CatsHigher', 'Hazard_3CatsHigher']
-        del df['values']
+        df=df.replace({"values": replacement_dict})
+        df.rename(columns={'values': 'Cluster_num'}, inplace=True)
         df = df.set_index('Cluster_num').T
         if num == 0:
             df = df.add_suffix('_countcells')
