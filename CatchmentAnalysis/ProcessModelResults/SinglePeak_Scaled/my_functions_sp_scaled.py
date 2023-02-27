@@ -507,7 +507,7 @@ def bar_plot_props (fig, ax, props_df, variable_name, short_ids_order,  colors):
     props_df = props_df[short_ids_order].copy()
     
     # counts_df plotting
-    width, DistBetweenBars, Num = 0.16, 0.01, 4 # width of each bar, distance between bars, number of bars in a group
+    width, DistBetweenBars, Num = 0.16, 0.01, len(props_df.columns) # width of each bar, distance between bars, number of bars in a group
     # calculate the width of the grouped bars (including the distance between the individual bars)
     WithGroupedBars = Num*width + (Num-1)*DistBetweenBars        
         
@@ -526,41 +526,121 @@ def bar_plot_props (fig, ax, props_df, variable_name, short_ids_order,  colors):
     
 def plot_totals(cluster_results, short_ids, title):
 
-    fig, axs = plt.subplots(nrows=1, ncols=2, figsize = (9,4))
+    fig, axs = plt.subplots(nrows=1, ncols=3, figsize = (28,7))
     y_pos = np.arange(len(cluster_results['Cluster_num']))
 
     ##############################
     # Plot number of flooded cells
     ##############################
-    axs[0].bar(y_pos, cluster_results['TotalFloodedArea'].values.tolist(), width = 0.9, color = cluster_results['color'])
+    axs[0].bar(y_pos, cluster_results['TotalFloodedArea'].values.tolist(), width = 0.9, color = cluster_results['colour'])
     # Create names on the x-axis
     axs[0].set_xticks(y_pos)
     axs[0].set_xticklabels(short_ids, fontsize =10, rotation = 75)
-    axs[0].set_ylabel('Flooded area (km2)', fontsize =10)
-    axs[0].tick_params(axis='both', which='major', labelsize=8)
+    axs[0].set_ylabel('Flooded area (km2)', fontsize =20)
+    axs[0].tick_params(axis='both', which='major', labelsize=15)
 
     xlocs, xlabs = plt.xticks(y_pos)
     xlocs=[i+1 for i in range(0,19)]
     xlabs=[i/2 for i in range(0,19)]
 
     for i, v in enumerate(cluster_results['TotalFloodedArea'].values.tolist()):
-        axs[0].text(xlocs[i] - 1.2, v * 1.025, str(cluster_results["%Diff_FloodedArea_fromSP_formatted"][i]), fontsize = 10, rotation =90)
+        axs[0].text(xlocs[i] - 1.2, v * 1.025, str(cluster_results["%Diff_FloodedArea_fromSP_formatted"][i]), 
+                    fontsize = 20, rotation =90)
 
     ##############################
     # Plot percent difference from single peak
     ##############################
-    axs[1].bar(np.arange(len(cluster_results['%Diff_FloodedArea_fromSP'][1:])), cluster_results['%Diff_FloodedArea_fromSP'][1:], width = 0.9, color = cluster_results['color'][1:])
+    axs[1].bar(np.arange(len(cluster_results['%Diff_FloodedArea_fromSP'])), cluster_results['%Diff_FloodedArea_fromSP'], width = 0.9, color = cluster_results['colour'])
     # Create names on the x-axis
-    axs[1].set_xticks(y_pos[:-1])
-    axs[1].set_xticklabels(short_ids[1:], fontsize =10, rotation = 75)
-    axs[1].set_ylabel('Percent difference from baseline', fontsize =10)
-    axs[1].tick_params(axis='both', which='major', labelsize=8)    
+    axs[1].set_xticks(y_pos)
+    axs[1].set_xticklabels(short_ids, fontsize =10, rotation = 75)
+    axs[1].set_ylabel('Percent difference from baseline', fontsize =20)
+    axs[1].tick_params(axis='both', which='major', labelsize=15)    
 
-    # Make legend
-    patches = [ mpatches.Patch(color=cluster_results['color'][i], label="{:s}".format(short_ids[i]) ) for i in range(len(short_ids)) ]
-    plt.legend(handles=patches, bbox_to_anchor=(1.25, 0.5), loc='center', ncol=1, prop={'size': 10} )
-
+    for i, v in enumerate(cluster_results['TotalFloodedArea'].values.tolist()):
+        v_multiplier = 0.8
+        if i== 4:
+            font_color = 'white'
+        else:
+            font_color = 'black'
+        axs[1].text(xlocs[i] - 1, v * v_multiplier, str(round(cluster_results["TotalFloodedArea"][i],3))+'km2', 
+                    fontsize = 20, rotation =90, color=font_color)
     
+    ##############################
+    # Plot percent diffference (absoloute)
+    ##############################
+    axs[2].bar(np.arange(len(cluster_results['Abs%Diff_FloodedArea_fromSP'][1:])), cluster_results['Abs%Diff_FloodedArea_fromSP'][1:], width = 0.9, color = cluster_results['colour'][1:])
+    # Create names on the x-axis
+    axs[2].set_xticks(y_pos[:-1])
+    axs[2].set_xticklabels(short_ids[1:], fontsize =20, rotation = 75)
+    axs[2].set_ylabel('Absoloute % difference from baseline', fontsize =20)
+    axs[2].tick_params(axis='both', which='major', labelsize=15)
+    
+    # Make legend
+    patches = [ mpatches.Patch(color=cluster_results['colour'][i], label="{:s}".format(short_ids[i]) ) for i in range(len(short_ids)) ]
+    plt.legend(handles=patches, bbox_to_anchor=(1.25, 0.5), loc='center', ncol=1, prop={'size': 18} )
+    fig.suptitle(title, fontsize = 20)
+#
+def plot_totals_urban(cluster_results, short_ids, title):
+
+    fig, axs = plt.subplots(nrows=1, ncols=3, figsize = (28,7))
+    y_pos = np.arange(len(cluster_results['Cluster_num']))
+
+    ##############################
+    # Plot number of flooded cells
+    ##############################
+    axs[0].bar(y_pos, cluster_results['UrbanFloodedArea'].values.tolist(), width = 0.9, color = cluster_results['colour'])
+    # Create names on the x-axis
+    axs[0].set_xticks(y_pos)
+    axs[0].set_xticklabels(short_ids, fontsize =10, rotation = 75)
+    axs[0].set_ylabel('Flooded area (km2)', fontsize =20)
+    axs[0].tick_params(axis='both', which='major', labelsize=15)
+
+    xlocs, xlabs = plt.xticks(y_pos)
+    xlocs=[i+1 for i in range(0,19)]
+    xlabs=[i/2 for i in range(0,19)]
+
+    for i, v in enumerate(cluster_results['UrbanFloodedArea'].values.tolist()):
+        axs[0].text(xlocs[i] - 1.2, v * 1.025, str(cluster_results["%Diff_UrbanFloodedArea_fromSP_formatted"][i]), 
+                    fontsize = 20, rotation =90)
+
+    ##############################
+    # Plot percent difference from single peak
+    ##############################
+    axs[1].bar(np.arange(len(cluster_results['%Diff_UrbanFloodedArea_fromSP'])), cluster_results['%Diff_UrbanFloodedArea_fromSP'], width = 0.9, color = cluster_results['colour'])
+    # Create names on the x-axis
+    axs[1].set_xticks(y_pos)
+    axs[1].set_xticklabels(short_ids, fontsize =10, rotation = 75)
+    axs[1].set_ylabel('Percent difference from baseline', fontsize =20)
+    axs[1].tick_params(axis='both', which='major', labelsize=15)    
+
+    for i, v in enumerate(cluster_results['UrbanFloodedArea'].values.tolist()):
+        if i ==4:
+            font_color = 'white'
+        else:
+            font_color = 'black'
+        v_multiplier = 1.2
+        axs[1].text(xlocs[i] - 1, v * v_multiplier, str(round(cluster_results["UrbanFloodedArea"][i],3))+'km2', 
+                    fontsize = 20, color = font_color, rotation =90)
+    
+    ##############################
+    # Plot percent diffference (absoloute)
+    ##############################
+    axs[2].bar(np.arange(len(cluster_results['Abs%Diff_UrbanFloodedArea_fromSP'][1:])), cluster_results['Abs%Diff_UrbanFloodedArea_fromSP'][1:], width = 0.9, color = cluster_results['colour'][1:])
+    # Create names on the x-axis
+    axs[2].set_xticks(y_pos[:-1])
+    axs[2].set_xticklabels(short_ids[1:], fontsize =20, rotation = 75)
+    axs[2].set_ylabel('Absoloute % difference from baseline', fontsize =20)
+    axs[2].tick_params(axis='both', which='major', labelsize=15)
+    
+    # Make legend
+    colors = ['black','darkblue', 'paleturquoise', 'grey', 'indianred', 'darkred']
+    texts = ['F2','F1','C', 'B1', 'B2'] 
+    patches = [ mpatches.Patch(color=colors[i], label="{:s}".format(texts[i]) ) for i in range(len(texts)) ]
+    plt.legend(handles=patches, bbox_to_anchor=(1.18, 0.55), loc='center', ncol=1, prop={'size': 19} )  
+    fig.suptitle(title, fontsize = 25)      
+
+
 def plot_difference_levels (fp_for_classified_diff_raster, labels, norm = None):
 
     # Create discrete cmap
