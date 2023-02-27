@@ -595,13 +595,21 @@ def plot_totals(cluster_results, short_ids, title):
     ##############################
     # Plot percent difference from single peak
     ##############################
-    axs[1].bar(np.arange(len(cluster_results['%Diff_FloodedArea_fromSP'][1:])), cluster_results['%Diff_FloodedArea_fromSP'][1:], width = 0.9, color = cluster_results['colour'][1:])
+    axs[1].bar(np.arange(len(cluster_results['%Diff_FloodedArea_fromSP'])), cluster_results['%Diff_FloodedArea_fromSP'], width = 0.9, color = cluster_results['colour'])
     # Create names on the x-axis
-    axs[1].set_xticks(y_pos[:-1])
-    axs[1].set_xticklabels(short_ids[1:], fontsize =10, rotation = 75)
+    axs[1].set_xticks(y_pos)
+    axs[1].set_xticklabels(short_ids, fontsize =10, rotation = 75)
     axs[1].set_ylabel('Percent difference from baseline', fontsize =20)
     axs[1].tick_params(axis='both', which='major', labelsize=15)    
 
+    for i, v in enumerate(cluster_results['TotalFloodedArea'].values.tolist()):
+        if i >4:
+            v_multiplier = -1.5
+        else:
+            v_multiplier= 0.3
+        axs[1].text(xlocs[i] - 1, v * v_multiplier, str(round(cluster_results["TotalFloodedArea"][i],3))+'km2', 
+                    fontsize = 20, rotation =90)
+    
     ##############################
     # Plot percent diffference (absoloute)
     ##############################
@@ -617,6 +625,7 @@ def plot_totals(cluster_results, short_ids, title):
     texts = ['F2','F1','C', 'B1', 'B2'] 
     patches = [ mpatches.Patch(color=colors[i], label="{:s}".format(texts[i]) ) for i in range(len(texts)) ]
     plt.legend(handles=patches, bbox_to_anchor=(1.18, 0.55), loc='center', ncol=1, prop={'size': 19} )  
+    fig.suptitle(title, fontsize = 25)      
     
 def plot_difference_levels (fp_for_classified_diff_raster, labels, norm = None):
 
