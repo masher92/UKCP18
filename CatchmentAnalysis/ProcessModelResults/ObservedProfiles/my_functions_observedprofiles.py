@@ -212,11 +212,11 @@ def find_percentage_diff (totals_df, fps):
     percent_diffs_abs = []
     percent_diffs = []
 
-    sp_value = totals_df.loc[totals_df['short_id'] == '6h_feh_sp']['FloodedArea']
+    sp_value = totals_df.loc[totals_df['short_id'] == '6h_feh_singlepeak']['FloodedArea']
 
     for fp in fps:
         rainfall_scenario_name = fp.split('/')[6]
-        if rainfall_scenario_name!= '6h_feh_sp':
+        if rainfall_scenario_name!= '6h_feh_singlepeak':
             # FInd value for this scenario
             this_scenario_value = totals_df.loc[totals_df['short_id'] == rainfall_scenario_name]['FloodedArea']
             this_scenario_value.reset_index(drop=True, inplace=True)
