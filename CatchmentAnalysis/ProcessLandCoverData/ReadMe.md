@@ -12,3 +12,10 @@ An official shapefile for Garforth itself couldn't be found, so I created this b
 * Right click layer, and select 'toggle editing' and then select 'Add Poylgon feature' from toolbar at the top
 
 Versions of the results files trimmed to the extents are saved to file.
+
+In the ProcessModelResults section, the results of this work is used to further breakdown the results:
+
+Create_binned_counts_and_props:
+  * This function reads in the results for each rainfall scenario method and counts the number of cells in each velocity/depth category bin
+Create_binned_counts_and_props_urban:
+  * This function reads in the results for each rainfall scenario method, and filters out the cells which are the urban landcover category, and then counts the number of cells in each velocity/depth category bin
