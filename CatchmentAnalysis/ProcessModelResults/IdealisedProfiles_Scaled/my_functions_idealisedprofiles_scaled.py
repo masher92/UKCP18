@@ -65,7 +65,12 @@ def create_binned_counts_and_props(fps, variable_name, breaks, labels, remove_li
         groups['Proportion'] = round((groups['counts']/total_n_cells) *100,1)
 
         # Add values to dataframes
-        method_name = re.search('{}(.*)/'.format(model_directory), fp).group(1)
+        if 'Kippax' in fp:
+            method_name = re.search('{}(.*)/Kippax/'.format(model_directory), fp).group(1)
+        elif 'Garforth' in fp:
+            method_name = re.search('{}(.*)/Garforth/'.format(model_directory), fp).group(1)            
+        else:
+            method_name = re.search('{}(.*)/'.format(model_directory), fp).group(1)
         counts_df[method_name] = groups['counts']
         proportions_df[method_name] = groups['Proportion']
 
@@ -102,7 +107,12 @@ def create_binned_counts_and_props_hazard(fps):
         df['Proportion'] = round((df['counts']/total_n_cells) *100,1)
         
         # Add values to dataframes
-        method_name = fp.split("/")[6]
+        if 'Kippax' in fp:
+            method_name = re.search('{}(.*)/Kippax/'.format(model_directory), fp).group(1)
+        elif 'Garforth' in fp:
+            method_name = re.search('{}(.*)/Garforth/'.format(model_directory), fp).group(1)            
+        else:
+            method_name = re.search('{}(.*)/'.format(model_directory), fp).group(1)
         counts_df[method_name] = df['counts']
         proportions_df[method_name] = df['Proportion']
 
@@ -191,7 +201,12 @@ def create_binned_counts_and_props_urban(fps, variable_name, breaks, labels, rem
         groups['Proportion'] = round((groups['value']/total_n_cells) *100,1)
 
         # Add values to dataframes
-        method_name = fp.split("/")[6]
+        if 'Kippax' in fp:
+            method_name = re.search('{}(.*)/Kippax/'.format(model_directory), fp).group(1)
+        elif 'Garforth' in fp:
+            method_name = re.search('{}(.*)/Garforth/'.format(model_directory), fp).group(1)            
+        else:
+            method_name = re.search('{}(.*)/'.format(model_directory), fp).group(1)
         counts_df[method_name] = groups["value"]
         proportions_df[method_name] = groups['Proportion']
 
@@ -205,16 +220,16 @@ def create_binned_counts_and_props_urban(fps, variable_name, breaks, labels, rem
 
     return counts_df, proportions_df  
 
-def find_percentage_diff (totals_df, fps):
+def find_percentage_diff (totals_df, fps, baseline_short_id):
     percent_diffs_formatted_for_plot = []
     percent_diffs_abs = []
     percent_diffs = []
 
-    sp_value = totals_df.loc[totals_df['short_id'] == '6h_sp_c_0.5_scaled']['FloodedArea']
+    sp_value = totals_df.loc[totals_df['short_id'] == baseline_short_id]['FloodedArea']
 
     for fp in fps:
         rainfall_scenario_name = fp.split('/')[6]
-        if rainfall_scenario_name!= '6h_sp_c_0.5_scaled':
+        if rainfall_scenario_name!= baseline_short_id:
             # FInd value for this scenario
             this_scenario_value = totals_df.loc[totals_df['short_id'] == rainfall_scenario_name]['FloodedArea']
             this_scenario_value.reset_index(drop=True, inplace=True)
@@ -570,10 +585,7 @@ def plot_totals_urban(cluster_results, short_ids, title):
     fig.suptitle(title, fontsize = 25)       
     
 def plot_totals(cluster_results, short_ids, title):
-    colors = cluster_results['colour']
-    cluster_results = cluster_results.reindex(cluster_results['Cluster_num'].map(dict(zip(short_ids, range(len(short_ids))))).sort_values().index)
-    cluster_results.reset_index(inplace=True, drop=True)
-    
+
     fig, axs = plt.subplots(nrows=1, ncols=3, figsize = (28,7))
     y_pos = np.arange(len(cluster_results['Cluster_num']))
 
@@ -583,27 +595,36 @@ def plot_totals(cluster_results, short_ids, title):
     axs[0].bar(y_pos, cluster_results['TotalFloodedArea'].values.tolist(), width = 0.9, color = cluster_results['colour'])
     # Create names on the x-axis
     axs[0].set_xticks(y_pos)
-    axs[0].set_xticklabels(short_ids, fontsize =20, rotation = 75)
+    axs[0].set_xticklabels(short_ids, fontsize =10, rotation = 75)
     axs[0].set_ylabel('Flooded area (km2)', fontsize =20)
     axs[0].tick_params(axis='both', which='major', labelsize=15)
 
     xlocs, xlabs = plt.xticks(y_pos)
     xlocs=[i+1 for i in range(0,19)]
     xlabs=[i/2 for i in range(0,19)]
-    
+
     for i, v in enumerate(cluster_results['TotalFloodedArea'].values.tolist()):
-        axs[0].text(xlocs[i] - 1.2, v * 1.025, str(cluster_results["%Diff_FloodedArea_fromSP_formatted"][i]), fontsize = 19, rotation =90)
+        axs[0].text(xlocs[i] - 1.2, v * 1.025, str(cluster_results["%Diff_FloodedArea_fromSP_formatted"][i]), 
+                    fontsize = 20, rotation =90)
 
     ##############################
     # Plot percent difference from single peak
     ##############################
-    axs[1].bar(np.arange(len(cluster_results['%Diff_FloodedArea_fromSP'][1:])), cluster_results['%Diff_FloodedArea_fromSP'][1:], width = 0.9, color = cluster_results['colour'][1:])
+    axs[1].bar(np.arange(len(cluster_results['%Diff_FloodedArea_fromSP'])), cluster_results['%Diff_FloodedArea_fromSP'], width = 0.9, color = cluster_results['colour'])
     # Create names on the x-axis
-    axs[1].set_xticks(y_pos[:-1])
-    axs[1].set_xticklabels(short_ids[1:], fontsize =20, rotation = 75)
-    axs[1].set_ylabel('% difference from single peak', fontsize =20)
+    axs[1].set_xticks(y_pos)
+    axs[1].set_xticklabels(short_ids, fontsize =10, rotation = 75)
+    axs[1].set_ylabel('Percent difference from baseline', fontsize =20)
     axs[1].tick_params(axis='both', which='major', labelsize=15)    
 
+    for i, v in enumerate(cluster_results['TotalFloodedArea'].values.tolist()):
+        if i >4:
+            v_multiplier = -1
+        else:
+            v_multiplier= 0.12
+        axs[1].text(xlocs[i] - 1, v * v_multiplier, str(round(cluster_results["TotalFloodedArea"][i],3))+'km2', 
+                    fontsize = 20, rotation =90)
+    
     ##############################
     # Plot percent diffference (absoloute)
     ##############################
@@ -611,15 +632,14 @@ def plot_totals(cluster_results, short_ids, title):
     # Create names on the x-axis
     axs[2].set_xticks(y_pos[:-1])
     axs[2].set_xticklabels(short_ids[1:], fontsize =20, rotation = 75)
-    axs[2].set_ylabel('Absoloute % difference from single peak', fontsize =20)
+    axs[2].set_ylabel('Absoloute % difference from baseline', fontsize =20)
     axs[2].tick_params(axis='both', which='major', labelsize=15)
     
     # Make legend
     colors = ['black','darkblue', 'paleturquoise', 'grey', 'indianred', 'darkred']
-    texts = ['FEH','F2','F1','C', 'B1', 'B2'] 
+    texts = ['F2','F1','C', 'B1', 'B2'] 
     patches = [ mpatches.Patch(color=colors[i], label="{:s}".format(texts[i]) ) for i in range(len(texts)) ]
-    plt.legend(handles=patches, bbox_to_anchor=(1.1, 0.5), loc='center', ncol=1, prop={'size': 15} )
-    
+    plt.legend(handles=patches, bbox_to_anchor=(1.18, 0.55), loc='center', ncol=1, prop={'size': 19} )  
     fig.suptitle(title, fontsize = 25)   
     
 def plot_difference_levels (fp_for_classified_diff_raster, labels, norm = None):
