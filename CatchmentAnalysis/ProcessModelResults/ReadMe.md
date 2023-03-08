@@ -1,7 +1,11 @@
 # Post process model outputs in Python
-The directory contains two subdirectories. One contains analysis of outputs of running model with observed profiles (based on work by Robrto Villalobos-Herrera) and the other containing analysis of outputs of running model with synthetic profiles, based on the volume of rainfall in an FEH event for this catchment, but with this volume split over multiple peaks.
-
-It also contains a script "ProcessLandCoverData.ipynb" which is to classify each cell as either Urban or Non-Urban, for use in the rest of the analysis.
+The directory contains multiple subdirectories, each containing analysis of the outputs of running model with a set of profiles. The sets of profiles include:
+* Observed profiles (based on work by Roberto Villalobos-Herrera)
+* Idealised profiles:
+* Idealised profiles (scaled):
+* Idealised profiles (drier antecedent conditions):
+* Synthetic profiles, based on the volume of rainfall in an FEH event for this catchment, but with this volume split over multiple peaks.
+* Single peak (scaled) 
 
 ### Process outputs in Hec-Ras
 The initial required stage is to export the outputs from Hec-Ras as .tif files.  
