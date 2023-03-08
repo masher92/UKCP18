@@ -764,7 +764,7 @@ def plot_difference_levels_pos_neg (fp_for_posneg_diff_raster, norm = None):
     
 def plot_worst_case_bars (ax, cluster_results, short_ids, col):
     y_pos = np.arange(len(cluster_results['Cluster_num']))
-    ax.bar(y_pos, cluster_results[col].values.tolist(), width = 0.9, color = cluster_results['color'])
+    ax.bar(y_pos, cluster_results[col].values.tolist(), width = 0.9, color = cluster_results['colour'])
     ax.set_xticks(y_pos)
     ax.set_xticklabels(short_ids, fontsize =20, rotation = 75)
     ax.set_ylabel('Number of flooded cells', fontsize =20)
@@ -860,3 +860,11 @@ def plot_diff_hazard_cats( fp_for_diff_raster, labels, colors_list, norm = None)
     # Save the figure
     plt.savefig(plot_fp, dpi=500,bbox_inches='tight')
     plt.close()  
+    
+def get_change(current, previous):
+    if current == previous:
+        return 0
+    try:
+        return round((abs(current - previous) / previous) * 100.0,1)
+    except ZeroDivisionError:
+        return float('inf')    
