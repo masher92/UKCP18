@@ -109,24 +109,26 @@ def singlepeak_plot(ax, options, cols, include_post_loss_removal = True, plot_lo
     the_sum = round(pre_loss_removal['Total net rain mm (100 year) - urbanised model'][0:361].sum(),1)
     as_a_percent_of_original = int(the_sum/59.29 * 100)
     pre_loss_removal['%_of_rainfall_removed'] =round(100 - pre_loss_removal['Total net rain mm (100 year) - urbanised model']/pre_loss_removal['100 year design rainfall - FEH 2013 model']*100,2)
-
+    
     # Plot each of the antecedent condition options, and add a patch for to patches list for legend
     for number,option in enumerate(options):
+        
         # Read in data, clean it and plot it
         post_loss_removal_df = pd.read_csv("PostLossRemovalData/ReFH2Profiles/6h/{}_summer_urban.csv".format(option))
         post_loss_removal_df =post_loss_removal_df[0:361]
         post_loss_removal_df['%_of_rainfall_removed'] =round(100 - post_loss_removal_df['Total net rain mm (Observed rainfall - 01/08/2022) - urbanised model']/post_loss_removal_df['Observed rainfall - 01/08/2022 00:00']*100,2)        
         the_sum = round(post_loss_removal_df['Total net rain mm (Observed rainfall - 01/08/2022) - urbanised model'][0:361].sum(),1)
         as_a_percent_of_original = int(the_sum/59.29 * 100)
+        associated_rainfall = dict_of_values[option.split('_')[0]]
         
         if plot_losses == True:
             ax.plot(range(0,total_duration_minutes), post_loss_removal_df['%_of_rainfall_removed'][0:total_duration_minutes],
-                color = cols[number], label = "{}: \ntotal rainfall = {}mm \n% of original = {}%".format(option, the_sum, as_a_percent_of_original))
+                color = cols[number], label = "{}mm ({}): \ntotal rainfall = {}mm \n% of original = {}%".format(associated_rainfall, option.split('_')[0], the_sum, as_a_percent_of_original))
             ax.set_ylabel("% of rainfall removed") 
         else:
             ax.plot(range(0,total_duration_minutes),
                     post_loss_removal_df[post_loss_removal_df.columns[5]], color = cols[number],
-                       label = "{}: \ntotal rainfall = {}mm \n% of original = {}%".format(option, the_sum, as_a_percent_of_original))
+                       label = "{}mm ({}): \ntotal rainfall = {}mm \n% of original = {}%".format(associated_rainfall, option.split('_')[0], the_sum, as_a_percent_of_original))
             ax.set_ylabel("Rainfall (mm)")
             
     if plot_losses == True:       
@@ -143,5 +145,51 @@ def singlepeak_plot(ax, options, cols, include_post_loss_removal = True, plot_lo
 
     # Format plot    
     ax.set_xlabel("Minutes")
-    if ax ==axs[2]:
-        ax.legend(loc="upper right", fontsize=8)    
+    if ax ==axs[0] or ax == axs[1]:
+        ax.legend(loc="upper left", fontsize=8)    
+def singlepeak_plot_ver2(ax, options, cols, include_post_loss_removal = True, plot_losses=False):
+
+    # Include the ReFH2 design rainfall post loss removal
+    pre_loss_removal = pd.read_csv("PostLossRemovalData/ObservedProfiles/SinglePeak_6h1_1min_100yr/Urban.csv")
+    pre_loss_removal = pre_loss_removal[0:361]
+    the_sum = round(pre_loss_removal['Total net rain mm (100 year) - urbanised model'][0:361].sum(),1)
+    as_a_percent_of_original = int(the_sum/59.29 * 100)
+    pre_loss_removal['%_of_rainfall_removed'] =round(100 - pre_loss_removal['Total net rain mm (100 year) - urbanised model']/pre_loss_removal['100 year design rainfall - FEH 2013 model']*100,2)
+    
+    # Plot each of the antecedent condition options, and add a patch for to patches list for legend
+    for number,option in enumerate(options):
+        
+        # Read in data, clean it and plot it
+        post_loss_removal_df = pd.read_csv("PostLossRemovalData/ReFH2Profiles/6h/{}_summer_urban.csv".format(option))
+        post_loss_removal_df =post_loss_removal_df[0:361]
+        post_loss_removal_df['%_of_rainfall_removed'] =round(100 - post_loss_removal_df['Total net rain mm (Observed rainfall - 01/08/2022) - urbanised model']/post_loss_removal_df['Observed rainfall - 01/08/2022 00:00']*100,2)        
+        the_sum = round(post_loss_removal_df['Total net rain mm (Observed rainfall - 01/08/2022) - urbanised model'][0:361].sum(),1)
+        as_a_percent_of_original = int(the_sum/59.29 * 100)
+        associated_rainfall = dict_of_values[option.split('_')[0]]
+        
+        if plot_losses == True:
+            ax.plot(range(0,total_duration_minutes), post_loss_removal_df['%_of_rainfall_removed'][0:total_duration_minutes],
+                color = cols[number], label = "{}mm ({}): \ntotal rainfall = {}mm \n% of original = {}%".format(associated_rainfall, option.split('_')[1], the_sum, as_a_percent_of_original))
+            ax.set_ylabel("% of rainfall removed") 
+        else:
+            ax.plot(range(0,total_duration_minutes),
+                    post_loss_removal_df[post_loss_removal_df.columns[5]], color = cols[number],
+                       label = "{}mm ({}): \ntotal rainfall = {}mm \n% of original = {}%".format(associated_rainfall, option.split('_')[1], the_sum, as_a_percent_of_original))
+            ax.set_ylabel("Rainfall (mm)")
+            
+    if plot_losses == True:       
+        ax.plot(range(0,total_duration_minutes), pre_loss_removal['%_of_rainfall_removed'][0:total_duration_minutes],
+            color = 'black',label = "ReFH2 loss removal: \ntotal rainfall = {}mm \n% of original = {}%".format(the_sum, as_a_percent_of_original))       
+    else:
+        ax.plot(range(0,total_duration_minutes), pre_loss_removal['Total net rain mm (100 year) - urbanised model'], color = 'black',
+            label = "ReFH2 loss removal: \ntotal rainfall = {}mm \n% of original = {}%".format(the_sum, as_a_percent_of_original))
+            
+    # Include data before losses removed
+    if include_post_loss_removal ==True:
+        ax.plot(range(0,total_duration_minutes), pre_loss_removal['100 year design rainfall - FEH 2013 model'], color = 'black',
+            linestyle = 'dotted', label = 'Pre loss removal')
+
+    # Format plot    
+    ax.set_xlabel("Minutes")
+    if ax ==axs[0] or ax == axs[2]:
+        ax.legend(loc="upper left", fontsize=8)            
