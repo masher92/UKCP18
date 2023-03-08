@@ -174,7 +174,7 @@ def create_binned_counts_and_props_hazard_cat_change(fps):
         df = df.set_index('Cluster_num').T
         if num == 0:
             df = df.add_suffix('_countcells')
-        else:f
+        else: 
             df = df.add_suffix('_propcells')
         df['Cluster_num'] = df.index
         both_dfs = pd.merge(both_dfs, df,  how="outer", on = 'Cluster_num')
