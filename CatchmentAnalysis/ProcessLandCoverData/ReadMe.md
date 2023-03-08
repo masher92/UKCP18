@@ -13,9 +13,17 @@ An official shapefile for Garforth itself couldn't be found, so I created this b
 
 Versions of the results files trimmed to the extents are saved to file.
 
-In the ProcessModelResults section, the results of this work is used to further breakdown the results:
+<ins> How is this information used? </ins>
+
+The Processing2.ipynb and Analysis.ipynb have a region variable, which depending on whether set to: '', 'Garforth' or 'Kippax' will perform the analysis for the whole of the region, just the cells within Garforth or Kippax
+
+The results are further broken down to just include the urban cells within all of these areas.
+
+Processing2.ipynb makes use of the functions:
 
 Create_binned_counts_and_props:
   * This function reads in the results for each rainfall scenario method and counts the number of cells in each velocity/depth category bin
+
 Create_binned_counts_and_props_urban:
   * This function reads in the results for each rainfall scenario method, and filters out the cells which are the urban landcover category, and then counts the number of cells in each velocity/depth category bin
+
