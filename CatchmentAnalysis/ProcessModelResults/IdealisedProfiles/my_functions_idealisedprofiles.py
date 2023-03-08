@@ -65,7 +65,12 @@ def create_binned_counts_and_props(fps, variable_name, breaks, labels, remove_li
         groups['Proportion'] = round((groups['counts']/total_n_cells) *100,1)
 
         # Add values to dataframes
-        method_name = re.search('{}(.*)/'.format(model_directory), fp).group(1)
+        if 'Kippax' in fp:
+            method_name = re.search('{}(.*)/Kippax/'.format(model_directory), fp).group(1)
+        elif 'Garforth' in fp:
+            method_name = re.search('{}(.*)/Garforth/'.format(model_directory), fp).group(1)            
+        else:
+            method_name = re.search('{}(.*)/'.format(model_directory), fp).group(1)
         counts_df[method_name] = groups['counts']
         proportions_df[method_name] = groups['Proportion']
 
@@ -102,7 +107,12 @@ def create_binned_counts_and_props_hazard(fps):
         df['Proportion'] = round((df['counts']/total_n_cells) *100,1)
         
         # Add values to dataframes
-        method_name = fp.split("/")[6]
+        if 'Kippax' in fp:
+            method_name = re.search('{}(.*)/Kippax/'.format(model_directory), fp).group(1)
+        elif 'Garforth' in fp:
+            method_name = re.search('{}(.*)/Garforth/'.format(model_directory), fp).group(1)                    
+        else:
+            method_name = re.search('{}(.*)/'.format(model_directory), fp).group(1)
         counts_df[method_name] = df['counts']
         proportions_df[method_name] = df['Proportion']
 
@@ -127,7 +137,12 @@ def create_binned_counts_and_props_hazard_cat_change(fps):
 
     for fp in fps[1:]:
         # Add values to dataframes
-        method_name = fp.split("/")[6]
+        if 'Kippax' in fp:
+            method_name = re.search('{}(.*)/Kippax/'.format(model_directory), fp).group(1)
+        elif 'Garforth' in fp:
+            method_name = re.search('{}(.*)/Garforth/'.format(model_directory), fp).group(1)                    
+        else:
+            method_name = re.search('{}(.*)/'.format(model_directory), fp).group(1)
         # Read in hazard data 
         fp = fp.replace('{} (Max).Resampled.Terrain', 'hazard_cat_difference')
         hazard = prepare_rainfall_scenario_raster(fp, False)[0]
@@ -159,7 +174,7 @@ def create_binned_counts_and_props_hazard_cat_change(fps):
         df = df.set_index('Cluster_num').T
         if num == 0:
             df = df.add_suffix('_countcells')
-        else:
+        else:f
             df = df.add_suffix('_propcells')
         df['Cluster_num'] = df.index
         both_dfs = pd.merge(both_dfs, df,  how="outer", on = 'Cluster_num')
@@ -191,7 +206,12 @@ def create_binned_counts_and_props_urban(fps, variable_name, breaks, labels, rem
         groups['Proportion'] = round((groups['value']/total_n_cells) *100,1)
 
         # Add values to dataframes
-        method_name = fp.split("/")[6]
+        if 'Kippax' in fp:
+            method_name = re.search('{}(.*)/Kippax/'.format(model_directory), fp).group(1)
+        elif 'Garforth' in fp:
+            method_name = re.search('{}(.*)/Garforth/'.format(model_directory), fp).group(1)                    
+        else:
+            method_name = re.search('{}(.*)/'.format(model_directory), fp).group(1)
         counts_df[method_name] = groups["value"]
         proportions_df[method_name] = groups['Proportion']
 
@@ -259,7 +279,7 @@ def getFeatures(gdf):
     import json
     return [json.loads(gdf.to_json())['features'][0]['geometry']]
 
-# Opensa raster, trims it to extent of catchment, saves a trimmed version
+# Opens a raster, trims it to extent of catchment, saves a trimmed version
 # and returns an arrat contianing the data, also trimmed
 def open_and_clip(input_raster_fp):
     # Read in data as array
@@ -434,7 +454,7 @@ def bar_plot_counts (fig, ax, counts_df, variable_name, short_ids_order, colours
         
     counts_df = counts_df[short_ids_order].copy()
     
-    colours_df =colours_df.reindex(colours_df['short_id'].map(dict(zip(short_ids_order, range(len(short_ids_order))))).sort_values().index)
+    colours_df =colours_df.reindex(colours_df['Cluster_num'].map(dict(zip(short_ids_order, range(len(short_ids_order))))).sort_values().index)
     colours_df.reset_index(inplace=True, drop=True)
     
     # counts_df plotting
@@ -465,7 +485,7 @@ def bar_plot_props (fig, ax, props_df, variable_name, short_ids_order, colours_d
         
     props_df = props_df[short_ids_order].copy()
     
-    colours_df =colours_df.reindex(colours_df['short_id'].map(dict(zip(short_ids_order, range(len(short_ids_order))))).sort_values().index)
+    colours_df =colours_df.reindex(colours_df['Cluster_num'].map(dict(zip(short_ids_order, range(len(short_ids_order))))).sort_values().index)
     colours_df.reset_index(inplace=True, drop=True)
     
     # counts_df plotting
