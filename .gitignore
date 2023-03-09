@@ -1,5 +1,3 @@
-MelbourneAnalysis/Data/*
-=======
 *.dat
 results/	results/
 !**/__pycache__/
@@ -18,7 +16,8 @@ Regridding/ReadMe.pdf
 *.npy
 *.png
 *.PNG
-
+**/*.png
+**/*.PNG
 .*  # ignore all hidden files and folders
 !/.gitignore  # explicitly do not ignore .gitignore
 
