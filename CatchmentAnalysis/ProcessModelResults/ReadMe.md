@@ -1,8 +1,13 @@
 # Post process model outputs in Python
-The directory contains two subdirectories. One contains analysis of outputs of running model with observed profiles (based on work by Robrto Villalobos-Herrera) and the other containing analysis of outputs of running model with synthetic profiles, based on the volume of rainfall in an FEH event for this catchment, but with this volume split over multiple peaks.
+The directory contains multiple subdirectories, each containing analysis of the outputs of running model with a set of profiles. The sets of profiles include:
+* Observed profiles (based on work by Roberto Villalobos-Herrera)
+* Idealised profiles (based on shifting approximation of FEH single peak profile towards start/end of event)
+* Idealised profiles (scaled) (same as above, but scaled to maintain constancy of event peak intensity)
+* Idealised profiles (drier antecedent conditions)(as above but using drier antecedent conditions)
+* Synthetic profiles (based on the volume of rainfall in an FEH event for this catchment, but with this volume split over multiple peaks)
+* Single peak (scaled) (based on approximationf FEH single peak, with the total event volume scaled)
 
-It also contains a script "ProcessLandCoverData.ipynb" which is to classify each cell as either Urban or Non-Urban, for use in the rest of the analysis.
-
+## <ins> Stages occurring before analysis in Python </ins>
 ### Process outputs in Hec-Ras
 The initial required stage is to export the outputs from Hec-Ras as .tif files.  
 * This can be done from within Hec-Ras for each scenario individually:
@@ -19,7 +24,7 @@ The initial required stage is to export the outputs from Hec-Ras as .tif files.
 * Click on table and right click and select to remove the rounding
 * Copy and paste the data to export it
 
-
+## <ins> Analysis in Python </ins>
 ### Processing-1.ipynb
 * Reads in .tif files for velocity and depth
 * Creates a hazard raster based on a combination of depth and velocity from Megan's report which is based on *XXX*
