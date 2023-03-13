@@ -15,7 +15,7 @@ Versions of the results files trimmed to the extents are saved to file.
 
 <ins> How is this information used? </ins>
 
-The Processing2.ipynb and Analysis.ipynb have a region variable, which depending on whether set to: '', 'Garforth' or 'Kippax' will perform the analysis for the whole of the region, just the cells within Garforth or Kippax
+In ProcessingModelResults, the Processing2.ipynb and Analysis.ipynb have a region variable, which depending on whether set to: '', 'Garforth' or 'Kippax' will perform the analysis for the whole of the region, just the cells within Garforth or Kippax
 
 The results are further broken down to just include the urban cells within all of these areas.
 
