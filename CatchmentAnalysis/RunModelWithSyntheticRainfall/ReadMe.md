@@ -13,11 +13,13 @@ The Lin Dyke model is ran for a 6hr duration storm using the FEh single peak pro
 
 <a name="themodel"></a>
 ## 1. The Model
-The model is a 2D rain-on-grid flood model, built in Hec-Ras, and ran using the 2D unsteady diffusion wave equation set. It is based on land cover and terrain data both at 1m resolution. It is ran for 12 hours (with a 6 hour event) to ensure that all the processes occurring even after the rainfall event are accounted for. The timestep is set at 1 minute to balance model run time and accuracy, with a variable computational timestep based on keeping the courant condition between 0.75 and 2.
+The model is a 2D rain-on-grid flood model, built in Hec-Ras, and ran using the 2D unsteady diffusion wave equation set. It is based on land cover and terrain data both at 1m resolution. It is ran for 12 hours (with a 6 hour event) to ensure that all the processes occurring even after the rainfall event are accounted for. The timestep is set at 1 minute to balance model run time and accuracy, with a variable computational timestep based on keeping the courant condition between 0.75 and 2.  This is because the Courant should be as close to 1 as possible to generate reliable results.
 
-The model covers the Lin Dyke catchment in east Leeds, and includes two urban areas in Garforth and Kippax. 
+ The external boundary condition is along the entire edge of the 2D Flow Area. It is a normal depth with an assumed slope of 0.001m to allow flow to leave the catchment. Otherwise, the runoff would inaccurately accumulate at the boundary.The 2D Flow Area is the computational mesh for the model. In this case the perimeter has been drawn offset from the perimeter of the catchment, to calculate the runoff more accurately at the edge at the catchment boundary. There can also be issues when generating the mesh if the boundary line is complex, therefore it has been simplified. This can be seen in Figure 5.6, it also shows the mesh at 10m resolution. This is to optimise the time taken to run the model while still preserving details. The mesh has been generated to include a breakline along the main 20 watercourse in the catchment to improve the accuracy of the calculations in the channel. This was assumed from the OS Open Rivers data.
 
-(Get notes from presentation).
+The model covers the Lin Dyke catchment, to the east of Leeds, and includes two urban areas in Kippax and Garforth, as well as some wetlands in the lower reaches of the catchment before finally draining into the Aire. The catchment is a bit of a known local flooding hotspot, and has had several major pluvial flooding incidents in recent years.
+
+Cell size is 1m (see email chain with Mark: "RE: Hec-ras cell size"). But are cells cut in half at the edges? Or does it always just keep a square edge? Do I filter to the catchment boundary, or do I include the boundary area? Zoom in on the Hec-Ras map and check - I tried to do this but connection was slow, but they didn't look square!
 
 <a name="filestructure"></a>
 ## 2. Hec-Ras file structure
