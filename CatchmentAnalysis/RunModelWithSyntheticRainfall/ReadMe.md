@@ -1,17 +1,28 @@
 # Run model with synthetic rainfall events
-This contains instructions from setting up and running the Hec-Ras model within Hec-Ras, and also references an (unsuccesful) attempt to automate the process of setting up and running the Hec-Ras model. 
+This describes the model and contains instructions from setting up and running the model within Hec-Ras, and also references an (unsuccesful) attempt to automate the process of setting up and running the Hec-Ras model. 
 
-The Lin Dyke model is ran for a 6hr duration storm using the FEh single peak profile, 15 profiles based on observed rainfall and 3 synthetic profiles with multipole peaks. The details of the methods are in https://github.com/masher92/UKCP18/tree/master/CatchmentAnalysis/CreateSyntheticRainfallEvents
+The Lin Dyke model is ran for a 6hr duration storm using the FEh single peak profile, 15 profiles based on observed rainfall and 3 synthetic profiles with multiple peaks. The details of the methods are in https://github.com/masher92/UKCP18/tree/master/CatchmentAnalysis/CreateSyntheticRainfallEvents
 
 ## Table of contents
 
-1. [ Hec-Ras file structure](#filestructure)  
-2. [ Opening a Hec-Ras Project](#openproject)
-3. [ Creating an unsteady flow file](#unsteadyflow)
-4. [ Running model](#runmodel)
+1. [ The Model](#themodel)
+2. [ Hec-Ras file structure](#filestructure)  
+3. [ Opening a Hec-Ras Project](#openproject)
+4. [ Creating an unsteady flow file](#unsteadyflow)
+5. [ Running model](#runmodel)
+
+<a name="themodel"></a>
+## 1. The Model
+The model is a 2D rain-on-grid flood model, built in Hec-Ras, and ran using the 2D unsteady diffusion wave equation set. It is based on land cover and terrain data both at 1m resolution. It is ran for 12 hours (with a 6 hour event) to ensure that all the processes occurring even after the rainfall event are accounted for. The timestep is set at 1 minute to balance model run time and accuracy, with a variable computational timestep based on keeping the courant condition between 0.75 and 2.  This is because the Courant should be as close to 1 as possible to generate reliable results.
+
+ The external boundary condition is along the entire edge of the 2D Flow Area. It is a normal depth with an assumed slope of 0.001m to allow flow to leave the catchment. Otherwise, the runoff would inaccurately accumulate at the boundary.The 2D Flow Area is the computational mesh for the model. In this case the perimeter has been drawn offset from the perimeter of the catchment, to calculate the runoff more accurately at the edge at the catchment boundary. There can also be issues when generating the mesh if the boundary line is complex, therefore it has been simplified. This can be seen in Figure 5.6, it also shows the mesh at 10m resolution. This is to optimise the time taken to run the model while still preserving details. The mesh has been generated to include a breakline along the main 20 watercourse in the catchment to improve the accuracy of the calculations in the channel. This was assumed from the OS Open Rivers data.
+
+The model covers the Lin Dyke catchment, to the east of Leeds, and includes two urban areas in Kippax and Garforth, as well as some wetlands in the lower reaches of the catchment before finally draining into the Aire. The catchment is a bit of a known local flooding hotspot, and has had several major pluvial flooding incidents in recent years.
+
+Cell size is 1m (see email chain with Mark: "RE: Hec-ras cell size"). But are cells cut in half at the edges? Or does it always just keep a square edge? Do I filter to the catchment boundary, or do I include the boundary area? Zoom in on the Hec-Ras map and check - I tried to do this but connection was slow, but they didn't look square!
 
 <a name="filestructure"></a>
-## 1. Hec-Ras file structure
+## 2. Hec-Ras file structure
 
 There are a number of files required by Hec-Ras to run:
 * .prj is the project file
@@ -30,13 +41,13 @@ There are also a number of files created when the model is ran:
 * .IC.01
 
 <a name="openproject"></a>
-## 2. Opening a Hec-Ras Project
+## 3. Opening a Hec-Ras Project
 
 1. Open Hec-Ras 
 2. File -> Open Project -> Double click the .prj file
 
 <a name="unsteadyflow"></a>
-## 3. Creating unsteady flow file
+## 4. Creating unsteady flow file
 First step in performing a simulation is putting together a Plan.  Plan is a combination of geometry and flow data (boundary conditions (wherever water comes from and goes to a boundary condition is needed). This defines:
 *	Geometry and unsteady flow data
 *	Description
@@ -61,7 +72,6 @@ These are the steps required to put together a plan in Hec-Ras:
 15. Select the 2D flow area button the left hand side and select “Generate computation points on regular interval with all break lines”
 16. To save in the Run -> Unsteady Flow Analysis window-> Save plan as    
 
-
 Alternative method (I guess for when there is already a plan loaded in Hec-Ras):
 1. Edit -> Unsteady Flow Data -> Double click precipitation
 2. Copy and paste in the post-loss removal precipitation data
@@ -74,7 +84,7 @@ Alternative method (I guess for when there is already a plan loaded in Hec-Ras):
 *Neeraj Sah did have a suggestion for getting around this (check emails) but at this point I felt like I had spent way too much time on this and needed to revert to setting up within Hec-Ras as normal*
 
 <a name="runmodel"></a>
-## 4. Running model                                                                                                              
+## 5. Running model                                                                                                              
 To run model:
 1. Press Run - > ‘Unsteady Flow Analysis’ button
 2. File -> Open Plan -> Select plan that you want to run
