@@ -30,7 +30,7 @@ import contextily as cx
 import matplotlib as mpl
 from scipy import stats
 
-model_directory = '../../../../FloodModelling/Model_IdealisedProfiles/'
+model_directory = '../../../../FloodModelling/LinDykeModels/Model_IdealisedProfiles/'
 
 # Define whether to filter out values <0.1
 remove_little_values = True
@@ -928,3 +928,59 @@ def plot_diff_hazard_cats( fp_for_diff_raster, labels, colors_list, norm = None)
     # Save the figure
     plt.savefig(plot_fp, dpi=500,bbox_inches='tight')
     plt.close()   
+    
+def plot_cat_plot (variable_name, label):
+    # For each method, read in the raster, round the values to X decimal places,
+    # And count the number of each unique value
+    # Store all these values in one dataframe (column for each method)
+    summary_df_permutated = pd.DataFrame()
+    another_test_df = pd.DataFrame()
+    
+    for method_num, short_id in enumerate(methods):
+        # Filepath
+        fp = model_directory + "{}/{} (Max).Resampled.Terrain.tif".format(short_id, '{}')
+        # Read raster
+        raster = prepare_rainfall_scenario_raster(fp.format(variable_name), remove_little_values)[0]
+        raster_rounded = np.around(raster, decimals=3)
+        
+        # Count number of each value 
+        raster_rounded = raster_rounded.flatten()[np.logical_not(np.isnan(raster_rounded.flatten()))]
+        unique, counts = np.unique(raster_rounded, return_counts=True)
+
+        # Create version of df where each column contains the count associated with each depth value
+        if method_num == 0:
+            summary_df = pd.DataFrame({'values': unique, 'counts_{}'.format(short_id):counts})
+        else:
+            this_df = pd.DataFrame({'values': unique, 'counts_{}'.format(short_id):counts})                         
+#             summary_df = pd.merge(summary_df,this_df,on='values',how='outer')
+        #
+        this_df_permutated = pd.DataFrame({'values': unique, 'counts' :counts,
+                              'short_id':short_id, 'present': 1,
+                               "loading": short_ids_by_loading_df[short_ids_by_loading_df['short_id'] ==short_id]['loading'].to_string(index=False)})   
+        summary_df_permutated = pd.concat([summary_df_permutated, this_df_permutated], ignore_index=True)
+
+    sns.catplot(data=summary_df_permutated, x="short_id", y="values", kind="box", hue= 'loading', dodge=False, 
+            palette = sns.color_palette(['grey',"darkblue",'paleturquoise', 'indianred','darkred']))
+    plt.xticks(rotation=45)
+    plt.ylabel(label)
+    plt.title('IdealisedProfiles');  
+    
+def produce_df_of_cell_by_cell_values(methods, landcover_water_flat):
+    all_methods_df = pd.DataFrame()
+
+    for method_num, short_id in enumerate(methods):
+        # Filepath
+        fp = model_directory + "{}/{} (Max).Resampled.Terrain.tif".format(short_id, '{}')
+        # Dataframe where results for this method will be stored
+        one_method_df = pd.DataFrame({"short_id" :methods[method_num], 'Water_class':landcover_water_flat})
+        # Read raster, round to three decimal places
+        for variable_name in ['Depth','Velocity']:
+            raster = prepare_rainfall_scenario_raster(fp.format(variable_name), remove_little_values)[0]
+            raster_rounded = np.around(raster, decimals=3)
+            one_method_df[variable_name]=raster_rounded.flatten()
+        one_method_df = one_method_df.dropna(subset=['Depth', 'Velocity'])
+
+        # Join results for this method with results for all methods  
+        all_methods_df = pd.concat([all_methods_df, one_method_df], axis =0)
+        
+    return all_methods_df    
