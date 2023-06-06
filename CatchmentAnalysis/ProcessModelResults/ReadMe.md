@@ -105,4 +105,10 @@ Also very slow --> is this just my PC?
 Can also just right click at any point on the map and select TimeSeries. Can then get a timeseries of Depth. This is maybe better than using profile lines, because for profiles lines you can only get flow rather than depth (presumably because it couldn't just give one depth value over the whole profile line, whereas flow is calculated across the whole profile).
 Would be useful to establish whether over a profile line this plot for depth varies much.
  
+ 
+ # Calculating area in QGIS
+Search in the Processing Toolbox for the Field Calculator. Select your input layer, give the field a proper name (area for example). Select a datatype (i.e. float) Scroll down to Expression and either click Geometry -> $area or type in $area into the left box. Click Run. Now there is a new (temporary) Layer created. If you look at the Attribute Table you will find a column with the name you gave it ( i.e. area).
+
+32.9 km Wyke Beck, and 22.9km Lin Dyke
+
                                                                                                                          
