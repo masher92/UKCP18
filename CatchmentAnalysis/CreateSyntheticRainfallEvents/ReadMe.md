@@ -84,6 +84,9 @@ For each of the three days previous to the rainfall event being modelled, this i
  
 <a name="loss_removal"></a>  
 ### Removing losses with ReFH2
+
+FOR MY ANALYSIS I HAVE BEEN USING THE JJA MEAN RAINFALL OVER 15 DAYS
+
 Losses can be removed from synthetic rainfall profiles using ReFH2 following this procedure:
 * Select 'Add' under Observed rainfall on the left
 * Select rainfall data from file (this must be in a format with no column names, otherwise it will reject it)
