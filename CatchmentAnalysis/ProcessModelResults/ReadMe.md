@@ -97,6 +97,7 @@ This outputs csv files containing depth values, a count of the number of cells w
 # Using Profile Lines
 *	Select ‘Profile Lines’ at bottom left of window
 *	Select yellow pencil (add Line)
+*	The profile line should be drawn perpendicular to the flow direction left to right looking in the downstream direction for plotting time series data for the flow crossing the line
 *	Have based location of my named Profile Lines on the ones Megan used in her report. Check exact reason for this.
 
 Calculating the timeseries -> Flow over a profile line doesn't work for some of the scenarios. Can't work out why.
