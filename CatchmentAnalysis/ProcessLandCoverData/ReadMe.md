@@ -1,5 +1,7 @@
 ### Process land cover data
 
+Before running this script for Wyke Beck I had to trim the LandCover.tif file in QGIS to the extent of one of the Hec-Ras results files, using the function: ClipRasterByExtent. I don't exactly understand this as the file being clipped is smaller than the file it's being clipped by, but it seems to work (not sure I did something similar with Lin Dyke, as I can't remember)
+
 The landcover data orginally has nine classes (suburban, arable, decidious woodland, freshwater, improved grassland, urban, neutral grassland, calcareous grassland and heather grassland).   
 This is reclassified into two classes (urban (including suburban and urban) and not-urban (the rest).
 

@@ -35,7 +35,15 @@ from scipy import stats
 # Define whether to filter out values <0.1
 remove_little_values = True
 
-def create_binned_counts_and_props(methods, fps, variable_name, breaks, labels, bbox, remove_little_values):
+def create_binned_counts_and_props(methods, fps, filter_by_land_cover, variable_name, bbox, landcover_data=False, remove_little_values = True,):
+
+    if variable_name =='Depth':
+        breaks = np.array([0, 0.3, 0.6, 1.2, 100])  
+        labels = ['<=0.3m', '0.3-0.6m', '0.6-1.2m', '>1.2m']
+    elif variable_name =='Velocity':
+        breaks = np.array([0,0.25,0.5,2,100])
+        labels = ["<=0.25m/s", "0.25-0.5m/s", "0.5-2m/s", ">2m/s"]
+        
     # Create dataframes to populate with values
     counts_df = pd.DataFrame()
     proportions_df = pd.DataFrame()        
@@ -45,11 +53,22 @@ def create_binned_counts_and_props(methods, fps, variable_name, breaks, labels, 
     for num, fp in enumerate(fps)  :
         # Classify depth/velocity rasters into depth/velocity bins
         raster = prepare_rainfall_scenario_raster(fp.format(variable_name), bbox, remove_little_values)[0]
-        unique, counts = np.unique(raster, return_counts=True)
-        df = pd.DataFrame({'values': unique, 'counts':counts})
 
-        # Add a new column specifying the bin which each value falls within
-        df['bins']= pd.cut(unique, bins=breaks, right=False)
+        # If analysing all cells
+        if filter_by_land_cover == '':
+            unique, counts = np.unique(raster, return_counts=True)
+            df = pd.DataFrame({'values': unique, 'counts':counts})
+
+            # Add a new column specifying the bin which each value falls within
+            df['bins']= pd.cut(unique, bins=breaks, right=False)
+
+        # If just analysing urban cells
+        elif filter_by_land_cover == True:
+            raster_and_landcover = pd.DataFrame({'landcovercategory':  landcover_data, 'counts': raster.flatten()})
+            # Get just the relevant rows
+            df = raster_and_landcover[raster_and_landcover['landcovercategory']==10].copy()  
+            # Add a column assigning a bin based on the depth/velocity value
+            df['bins']= pd.cut(df['counts'], bins=breaks, right=False)
 
         # Create a new dataframe showing the number of cells in each of the bins
         groups = df.groupby(['bins']).sum()
@@ -72,10 +91,10 @@ def create_binned_counts_and_props(methods, fps, variable_name, breaks, labels, 
     # Set index values
     counts_df['index'] = labels
     proportions_df['index'] = labels
+    
+    return counts_df,proportions_df
 
-    return counts_df, proportions_df
-
-def create_binned_counts_and_props_hazard(methods, fps, catchment_name_str, bbox):
+def create_binned_counts_and_props_hazard(methods, fps, filter_by_land_cover, catchment_name_str, bbox, landcover_data=False):
 
     # Create dataframes to populate with values
     counts_df = pd.DataFrame()
@@ -86,12 +105,24 @@ def create_binned_counts_and_props_hazard(methods, fps, catchment_name_str, bbox
         fp = fp.replace('{} (Max).{}'.format({}, catchment_name_str),'hazard_classified')
         # Read in data
         hazard = prepare_rainfall_scenario_raster(fp, bbox, remove_little_values)[0]
-        # Count the number of each value
+        
+        # If fdiltering by land cover, then do additional stage of filtering out only cells in that category
+        if filter_by_land_cover != '':
+            # Get dataframe of hazard values, alongside land cover class
+            hazard_and_landcover = pd.DataFrame({'landcovercategory':  landcover_data.flatten(), 'counts': hazard.flatten()})
+            # Keep just the rows in the relevant landcoverclass
+            df = hazard_and_landcover[hazard_and_landcover['landcovercategory']==10].copy()  
+            # remove the NA values (i.e. where there is no flooding)
+            df=df[df.counts.notnull()]
+            # Convert the counts back into an array
+            hazard = np.array(df['counts'])
+       
+        # Count number of cells in each hazard category
         unique, counts = np.unique(hazard, return_counts=True)
         df = pd.DataFrame({'values': unique, 'counts':counts})
         # Remove Nan values
         df = df.dropna()
-
+        
         # Find the total number of cells
         total_n_cells = df ['counts'].sum()
         # Find the number of cells in each group as a proportion of the total
@@ -163,45 +194,6 @@ def create_binned_counts_and_props_hazard_cat_change(methods, fps, catchment_nam
     
     return both_dfs
 
-def create_binned_counts_and_props_urban(methods, fps, variable_name, breaks, labels, bbox, remove_little_values, landcover_mod):
-    # Create dataframes to populate with values
-    counts_df = pd.DataFrame()
-    proportions_df = pd.DataFrame()        
-
-    # Loop through each rainfall scenario
-    # Get the raster containing its values, and count the number of each unique value, and construct into a dataframe
-    for num, fp in enumerate(fps):
-        raster = prepare_rainfall_scenario_raster(fp.format(variable_name), bbox, remove_little_values)[0]
-        # Create a dataframe with each row relating to a cell and its landcover and depth/velocity value
-        raster_and_landcover = pd.DataFrame({'landcovercategory':  landcover_mod.flatten(), 'value': raster.flatten()})
-        # Get just the urban rows
-        urban_flooding = raster_and_landcover[raster_and_landcover['landcovercategory']==10].copy()  
-        # Add a column assigning a bin based on the depth/velocity value
-        urban_flooding['bins']= pd.cut(urban_flooding['value'], bins=breaks, right=False)
-
-        # Create a new dataframe showing the number of cells in each of the bins
-        groups = urban_flooding.groupby(['bins']).count()
-        groups  = groups.reset_index()
-        # Find the total number of cells
-        total_n_cells = groups['value'].sum()
-        # Find the number of cells in each group as a proportion of the total
-        groups['Proportion'] = round((groups['value']/total_n_cells) *100,1)
-
-        # Add values to dataframes
-        method_name = methods[num]
-        
-        counts_df[method_name] = groups["value"]
-        proportions_df[method_name] = groups['Proportion']
-
-    # Reset index to show the groups
-    counts_df.reset_index(inplace=True)
-    proportions_df.reset_index(inplace=True)
-
-    # Set index values
-    counts_df['index'] = labels
-    proportions_df['index'] = labels
-
-    return counts_df, proportions_df  
 
 def find_percentage_diff (methods, reference_method_name, totals_df, fps):
     percent_diffs_formatted_for_plot = []
@@ -217,9 +209,9 @@ def find_percentage_diff (methods, reference_method_name, totals_df, fps):
             this_scenario_value = totals_df.loc[totals_df['short_id'] == rainfall_scenario_name]['FloodedArea']
             this_scenario_value.reset_index(drop=True, inplace=True)
             # FInd % difference between single peak and this scenario
-            percent_diffs.append(round((this_scenario_value/sp_value-1)*100,2)[0])
-            percent_diffs_abs.append(round(abs((this_scenario_value/sp_value-1)[0])*100,2))
-            percent_diffs_formatted_for_plot.append(round((this_scenario_value/sp_value-1)*100,2)[0])
+            percent_diffs.append(round((this_scenario_value/sp_value-1)*100,1)[0])
+            percent_diffs_abs.append(round(abs((this_scenario_value/sp_value-1)[0])*100,1))
+            percent_diffs_formatted_for_plot.append(round((this_scenario_value/sp_value-1)*100,1)[0])
     # Convert values to strings, and add a + sign for positive values
     # Include an empty entry for the single peak scenario
     percent_diffs_df = pd.DataFrame({'percent_diff_formatted':[''] +['+' + str(round((list_item),2)) + '%' if list_item > 0 else str(round((list_item),2)) +
@@ -407,7 +399,7 @@ def create_colours_df_observed (short_ids_by_loading, methods):
 
 def create_colours_df_sp (short_ids_by_loading, short_ids):
     colours_lst = ['black'] + ['#82a2cf', '#566cb8', '#2b36a2', '#00008b']
-    colours_df = pd.DataFrame({ 'short_id': short_ids_by_loading, "colour": colours})
+    colours_df = pd.DataFrame({ 'short_id': short_ids_by_loading, "colour": colours_lst})
     return colours_df
 
 
@@ -532,7 +524,7 @@ def bar_plot_props_by_loading_cat(fig, ax, props_df, variable_name, short_ids_or
     ax.set_ylabel('Proportion of cells', fontsize = 15)
     ax.yaxis.set_major_formatter(mtick.PercentFormatter())   
     
-def plot_totals_1plot(cluster_results, urban_str, short_ids, title, save_dir):
+def plot_totals_1plot(cluster_results, urban_str, title, save_dir):
 
     fig, axs = plt.subplots(figsize = (5,4))
     y_pos = np.arange(len(cluster_results['Cluster_num']))
@@ -552,13 +544,13 @@ def plot_totals_1plot(cluster_results, urban_str, short_ids, title, save_dir):
     xlabs=[i/2 for i in range(0,19)]
 
     for i, v in enumerate(cluster_results['{}FloodedArea'.format(urban_str)].values.tolist()):
-        axs.text(xlocs[i] - 1.2, v * 1.025, str(cluster_results["%Diff_FloodedArea_fromSP_formatted"][i]), 
+        axs.text(xlocs[i] - 1.2, v * 1.025, str(cluster_results["%Diff_{}FloodedArea_fromSP_formatted".format(urban_str)][i]), 
                     fontsize = 12.5, rotation =90)
         
     fig.savefig("{}/FloodedExtent{}_1Plot.PNG".format(save_dir, urban_str), bbox_inches='tight')
 
 
-def plot_totals_3plots(cluster_results, urban_str, short_ids, title, save_dir):
+def plot_totals_3plots(cluster_results, urban_str, title, save_dir):
 
     fig, axs = plt.subplots(nrows=1, ncols=3, figsize = (28,7))
     y_pos = np.arange(len(cluster_results['Cluster_num']))
@@ -912,59 +904,28 @@ def plot_diff_hazard_cats( fp_for_diff_raster, labels, colors_list,catchment_gdf
     plt.savefig(plot_fp, dpi=500,bbox_inches='tight')
     plt.close()   
     
-# def plot_cat_plot (variable_name, label):
-#     # For each method, read in the raster, round the values to X decimal places,
-#     # And count the number of each unique value
-#     # Store all these values in one dataframe (column for each method)
-#     summary_df_permutated = pd.DataFrame()
-#     another_test_df = pd.DataFrame()
-    
-#     for method_num, short_id in enumerate(methods):
-#         # Filepath
-#         fp = model_directory + "{}/{} (Max).Resampled.Terrain.tif".format(short_id, '{}')
-#         # Read raster
-#         raster = prepare_rainfall_scenario_raster(fp.format(variable_name), remove_little_values)[0]
-#         raster_rounded = np.around(raster, decimals=3)
-        
-#         # Count number of each value 
-#         raster_rounded = raster_rounded.flatten()[np.logical_not(np.isnan(raster_rounded.flatten()))]
-#         unique, counts = np.unique(raster_rounded, return_counts=True)
-
-#         # Create version of df where each column contains the count associated with each depth value
-#         if method_num == 0:
-#             summary_df = pd.DataFrame({'values': unique, 'counts_{}'.format(short_id):counts})
-#         else:
-#             this_df = pd.DataFrame({'values': unique, 'counts_{}'.format(short_id):counts})                         
-# #             summary_df = pd.merge(summary_df,this_df,on='values',how='outer')
-#         #
-#         this_df_permutated = pd.DataFrame({'values': unique, 'counts' :counts,
-#                               'short_id':short_id, 'present': 1,
-#                                "loading": short_ids_by_loading_df[short_ids_by_loading_df['short_id'] ==short_id]['loading'].to_string(index=False)})   
-#         summary_df_permutated = pd.concat([summary_df_permutated, this_df_permutated], ignore_index=True)
-
-#     sns.catplot(data=summary_df_permutated, x="short_id", y="values", kind="box", hue= 'loading', dodge=False, 
-#             palette = sns.color_palette(['grey',"darkblue",'paleturquoise', 'indianred','darkred']))
-#     plt.xticks(rotation=45)
-#     plt.ylabel(label)
-#     plt.title('IdealisedProfiles');  
-
 def produce_df_of_cell_by_cell_values(model_directory, catchment_name_str, bbox, methods, landcover_water_flat, landcover_urban_flat):
     all_methods_df = pd.DataFrame()
-
+    variables=['Depth', 'Velocity','Hazard']
     for method_num, short_id in enumerate(methods):
         # Filepath
-        fp = model_directory + "{}/{} (Max).{}.tif".format(short_id, '{}', catchment_name_str)
+        fp = model_directory + "{}/{} (Max).{}.tif".format(short_id,'{}',catchment_name_str)
         if '6h_feh_singlepeak' in fp:
             fp = fp.replace("Model_ObservedProfiles", "Model_FEHProfiles")
-        
         # Dataframe where results for this method will be stored
         one_method_df = pd.DataFrame({"short_id" :methods[method_num], 'Water_class':landcover_water_flat, "urban_class":landcover_urban_flat})
         # Read raster, round to three decimal places
-        for variable_name in ['Depth','Velocity']:
-            raster = prepare_rainfall_scenario_raster(fp.format(variable_name), bbox, remove_little_values)[0]
+        for variable_name in variables:
+            this_fp = fp
+            if variable_name == 'Hazard':
+                this_fp = this_fp.replace('{} (Max).{}'.format('{}', catchment_name_str),'hazard_classified')
+            else:
+                this_fp = this_fp.format(variable_name)
+            
+            raster = prepare_rainfall_scenario_raster(this_fp, bbox, remove_little_values)[0]
             raster_rounded = np.around(raster, decimals=3)
             one_method_df[variable_name]=raster_rounded.flatten()
-        one_method_df = one_method_df.dropna(subset=['Depth', 'Velocity'])
+        one_method_df = one_method_df.dropna(subset=variables)
 
         # Join results for this method with results for all methods  
         all_methods_df = pd.concat([all_methods_df, one_method_df], axis =0)   
