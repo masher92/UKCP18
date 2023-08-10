@@ -92,7 +92,7 @@ def create_binned_counts_and_props(methods, fps, filter_by_land_cover, variable_
     counts_df['index'] = labels
     proportions_df['index'] = labels
     
-    return counts_df,proportions_df
+    return df, counts_df,proportions_df
 
 def create_binned_counts_and_props_hazard(methods, fps, filter_by_land_cover, catchment_name_str, bbox, landcover_data=False):
 

@@ -5,6 +5,7 @@ import seaborn as sns
 
 def plot_flooded_extent_2catchments(cluster_results_ls, urban_str, profiles_name, profiles_name_short,  ylim, percent_adjust,
                                    label_height_adjuster):
+    
     fig, axs = plt.subplots(ncols= 2, nrows=1, sharey=True,figsize = (9,4), gridspec_kw={'hspace': 0.2, 'wspace': 0.03})
     catchment_name_ls = ['LinDyke','WykeBeck', 'LinDyke','WykeBeck']
     ##############################
@@ -32,8 +33,9 @@ def plot_flooded_extent_2catchments(cluster_results_ls, urban_str, profiles_name
         
         if urban_str == '':
             ax.set_ylim(1,ylim)
-        elif urban_str == 'Urban':
+        else :
             ax.set_ylim(0,ylim)
+       
         ax.set_title(catchment_name_ls[number],fontsize=15)
 
     fig.text(0.04, 0.5, 'Flooded area (km2)', fontsize=15, va='center', rotation='vertical')   
