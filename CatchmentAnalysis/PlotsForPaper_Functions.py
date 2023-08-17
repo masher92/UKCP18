@@ -3,8 +3,56 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 
+def plot_flooded_extent_1catchment(cluster_results_ls, urban_str, profiles_name, profiles_name_short,  ylim, percent_adjust,
+                                   label_height_adjuster_x, label_height_adjuster_y):
+    
+    fig, ax = plt.subplots(ncols= 1, sharey=True,figsize = (4,4), gridspec_kw={'hspace': 0.2, 'wspace': 0.03})
+    catchment_name_ls = ['LinDyke','WykeBeck', 'LinDyke','WykeBeck']
+    ##############################
+    # Plot number of flooded cells
+    ##############################
+    number=0
+    cluster_results =  cluster_results_ls[number]
+
+    y_pos = np.arange(len(cluster_results['Cluster_num']))
+    ax.bar(y_pos, cluster_results['{}FloodedArea'.format(urban_str)].values.tolist(), width = 0.9, 
+           color = cluster_results['colour'])
+    # Create names on the x-axis
+    ax.set_xticks(y_pos)
+    ax.set_xticklabels(cluster_results['Cluster_num'], fontsize =10, rotation = 75)
+    ax.tick_params(axis='both', which='major', labelsize=12.5)
+    xlocs, xlabs = plt.xticks(y_pos)
+    xlocs=[i+1 for i in range(0,19)]
+    xlabs=[i/2 for i in range(0,19)]
+
+
+    if catchment_name_ls[number] == 'LinDyke':
+        label_height_adjuster= label_height_adjuster_x
+    elif catchment_name_ls[number] == 'WykeBeck':
+        label_height_adjuster= label_height_adjuster_y
+
+    for i, v in enumerate(cluster_results['{}FloodedArea'.format(urban_str)].values.tolist()):
+        ax.text(xlocs[i] - percent_adjust, v * label_height_adjuster, 
+                str(cluster_results["%Diff_{}FloodedArea_fromSP_formatted".format(urban_str)][i]), 
+                    fontsize = 12.5, rotation =90)
+
+    if urban_str == '':
+        ax.set_ylim(1,ylim)
+    else :
+        ax.set_ylim(0,ylim)
+
+    ax.set_title(catchment_name_ls[number],fontsize=15)
+
+    # fig.text(0.04, 0.5, 'Flooded area (km2)', fontsize=15, va='center', rotation='vertical')   
+    
+    if urban_str != '':
+        urban_str = '_' + urban_str
+    fig.savefig("ProcessModelResults/Outputs/Figs/{}Profiles/{}_CompareCatchments_Extent1Plot{}.PNG".format(profiles_name,
+        profiles_name_short, urban_str), bbox_inches='tight')
+
+
 def plot_flooded_extent_2catchments(cluster_results_ls, urban_str, profiles_name, profiles_name_short,  ylim, percent_adjust,
-                                   label_height_adjuster):
+                                   label_height_adjuster_x, label_height_adjuster_y):
     
     fig, axs = plt.subplots(ncols= 2, nrows=1, sharey=True,figsize = (9,4), gridspec_kw={'hspace': 0.2, 'wspace': 0.03})
     catchment_name_ls = ['LinDyke','WykeBeck', 'LinDyke','WykeBeck']
@@ -25,7 +73,13 @@ def plot_flooded_extent_2catchments(cluster_results_ls, urban_str, profiles_name
         xlocs, xlabs = plt.xticks(y_pos)
         xlocs=[i+1 for i in range(0,19)]
         xlabs=[i/2 for i in range(0,19)]
-
+        
+        
+        if catchment_name_ls[number] == 'LinDyke':
+            label_height_adjuster= label_height_adjuster_x
+        elif catchment_name_ls[number] == 'WykeBeck':
+            label_height_adjuster= label_height_adjuster_y
+            
         for i, v in enumerate(cluster_results['{}FloodedArea'.format(urban_str)].values.tolist()):
             ax.text(xlocs[i] - percent_adjust, v * label_height_adjuster, 
                     str(cluster_results["%Diff_{}FloodedArea_fromSP_formatted".format(urban_str)][i]), 
@@ -39,7 +93,9 @@ def plot_flooded_extent_2catchments(cluster_results_ls, urban_str, profiles_name
         ax.set_title(catchment_name_ls[number],fontsize=15)
 
     fig.text(0.04, 0.5, 'Flooded area (km2)', fontsize=15, va='center', rotation='vertical')   
-    urban_str = '_' + urban_str
+    
+    if urban_str != '':
+        urban_str = '_' + urban_str
     fig.savefig("ProcessModelResults/Outputs/Figs/{}Profiles/{}_CompareCatchments_Extent1Plot{}.PNG".format(profiles_name,
         profiles_name_short, urban_str), bbox_inches='tight')
     

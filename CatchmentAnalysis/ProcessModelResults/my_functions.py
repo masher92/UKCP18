@@ -35,8 +35,10 @@ from scipy import stats
 # Define whether to filter out values <0.1
 remove_little_values = True
 
-def create_binned_counts_and_props(methods, fps, filter_by_land_cover, variable_name, bbox, landcover_data=False, remove_little_values = True,):
-
+def create_binned_counts_and_props(methods, fps, filter_by_land_cover, variable_name, bbox,catchment_gdf, 
+                                   landcover_data=False, remove_little_values = True,):
+    
+    # Set breaks/labels for either velocity and depth
     if variable_name =='Depth':
         breaks = np.array([0, 0.3, 0.6, 1.2, 100])  
         labels = ['<=0.3m', '0.3-0.6m', '0.6-1.2m', '>1.2m']
@@ -50,38 +52,58 @@ def create_binned_counts_and_props(methods, fps, filter_by_land_cover, variable_
 
     # Loop through each rainfall scenario
     # Get the raster containing its values, and count the number of each unique value, and construct into a dataframe
-    for num, fp in enumerate(fps)  :
-        # Classify depth/velocity rasters into depth/velocity bins
-        raster = prepare_rainfall_scenario_raster(fp.format(variable_name), bbox, remove_little_values)[0]
-
+    for num, fp in enumerate(fps) :
+        
+        # Get the results, and mask out values not within the geodataframe
+        with rasterio.open(fp.format(variable_name)) as src:
+            catchment_gdf=catchment_gdf.to_crs(src.crs)
+            out_image, out_transform=mask(src,catchment_gdf.geometry,crop=False)
+            out_meta=src.meta.copy() # copy the metadata of the source DEM
+            raster = out_image[0]
+            # Set -9999 to np.nan
+            raster[raster == -9999.] = np.nan
+            
+            # Remove values <0.1m
+            if remove_little_values == True:
+                if "Depth" in fp:
+                    raster = np.where(raster <0.1, np.nan, raster)    
+                else:
+                    with rasterio.open(fp.format('Depth')) as src:
+                        out_image, out_transform=mask(src,catchment_gdf.geometry,crop=False)
+                        out_meta=src.meta.copy() # copy the metadata of the source DEM
+                        depth_raster = out_image[0]
+                        depth_raster[depth_raster == -9999.] = np.nan
+                        raster = np.where(depth_raster <0.1, np.nan, raster)            
+            
         # If analysing all cells
         if filter_by_land_cover == '':
             unique, counts = np.unique(raster, return_counts=True)
-            df = pd.DataFrame({'values': unique, 'counts':counts})
+            df = pd.DataFrame({'values': unique, 'value':counts})
 
             # Add a new column specifying the bin which each value falls within
             df['bins']= pd.cut(unique, bins=breaks, right=False)
 
-        # If just analysing urban cells
+        # If just analysing certain landcover cells
         elif filter_by_land_cover == True:
-            raster_and_landcover = pd.DataFrame({'landcovercategory':  landcover_data, 'counts': raster.flatten()})
+            raster_and_landcover = pd.DataFrame({'landcovercategory':  landcover_data, 'value': raster.flatten()})
             # Get just the relevant rows
             df = raster_and_landcover[raster_and_landcover['landcovercategory']==10].copy()  
             # Add a column assigning a bin based on the depth/velocity value
-            df['bins']= pd.cut(df['counts'], bins=breaks, right=False)
+            df['bins']= pd.cut(df['value'], bins=breaks, right=False)
 
         # Create a new dataframe showing the number of cells in each of the bins
-        groups = df.groupby(['bins']).sum()
+        groups = df.groupby(['bins']).count()
         groups  = groups.reset_index()
+        groups.rename(columns={"value": "Count"},inplace=True)
 
         # Find the total number of cells
-        total_n_cells = groups ['counts'].sum()
+        total_n_cells = groups['Count'].sum()
         # Find the number of cells in each group as a proportion of the total
-        groups['Proportion'] = round((groups['counts']/total_n_cells) *100,1)
+        groups['Proportion'] = round((groups['Count']/total_n_cells) *100,1)
 
         # Add values to dataframes
         method_name = methods[num]
-        counts_df[method_name] = groups['counts']
+        counts_df[method_name] = groups['Count']
         proportions_df[method_name] = groups['Proportion']
 
     # Reset index to show the groups
@@ -92,9 +114,10 @@ def create_binned_counts_and_props(methods, fps, filter_by_land_cover, variable_
     counts_df['index'] = labels
     proportions_df['index'] = labels
     
-    return df, counts_df,proportions_df
+    return counts_df,proportions_df
 
-def create_binned_counts_and_props_hazard(methods, fps, filter_by_land_cover, catchment_name_str, bbox, landcover_data=False):
+
+def create_binned_counts_and_props_hazard(methods, fps, filter_by_land_cover, catchment_name_str, catchment_gdf,bbox, landcover_data=False):
 
     # Create dataframes to populate with values
     counts_df = pd.DataFrame()
@@ -103,10 +126,34 @@ def create_binned_counts_and_props_hazard(methods, fps, filter_by_land_cover, ca
     for num, fp in enumerate(fps):
         # Define filepath
         fp = fp.replace('{} (Max).{}'.format({}, catchment_name_str),'hazard_classified')
-        # Read in data
-        hazard = prepare_rainfall_scenario_raster(fp, bbox, remove_little_values)[0]
         
-        # If fdiltering by land cover, then do additional stage of filtering out only cells in that category
+        ####################################################
+        # Open hazard results file and trim to catchment boundary
+        ####################################################
+        with rasterio.open(fp) as src:
+            catchment_gdf=catchment_gdf.to_crs(src.crs)
+            out_image, out_transform=mask(src,catchment_gdf.geometry,crop=False)
+            out_meta=src.meta.copy() # copy the metadata of the source DEM
+            hazard = out_image[0]
+            hazard[hazard == -9999.] = np.nan
+            
+            ####################################################
+            # Remove values less than 0.1
+            ####################################################
+            if remove_little_values == True:
+                if "Depth" in fp:
+                    hazard = np.where(hazard <0.1, np.nan, hazard)    
+                else:
+                    with rasterio.open(fp.format('Depth')) as src:
+                        out_image, out_transform=mask(src,catchment_gdf.geometry,crop=False)
+                        out_meta=src.meta.copy() # copy the metadata of the source DEM
+                        depth_raster = out_image[0]
+                        depth_raster[depth_raster == -9999.] = np.nan
+                        hazard = np.where(hazard <0.1, np.nan, hazard)                
+                
+        ####################################################        
+        # If filtering by land cover, then do additional stage of filtering out only cells in that category
+        ####################################################
         if filter_by_land_cover != '':
             # Get dataframe of hazard values, alongside land cover class
             hazard_and_landcover = pd.DataFrame({'landcovercategory':  landcover_data.flatten(), 'counts': hazard.flatten()})
@@ -116,8 +163,10 @@ def create_binned_counts_and_props_hazard(methods, fps, filter_by_land_cover, ca
             df=df[df.counts.notnull()]
             # Convert the counts back into an array
             hazard = np.array(df['counts'])
-       
+            
+        ####################################################
         # Count number of cells in each hazard category
+        ####################################################
         unique, counts = np.unique(hazard, return_counts=True)
         df = pd.DataFrame({'values': unique, 'counts':counts})
         # Remove Nan values
@@ -143,56 +192,72 @@ def create_binned_counts_and_props_hazard(methods, fps, filter_by_land_cover, ca
     proportions_df['index'] = labels_hazard
     return counts_df, proportions_df
 
-def create_binned_counts_and_props_hazard_cat_change(methods, fps, catchment_name_str, bbox):
+# def create_binned_counts_and_props_hazard_cat_change(methods, fps, catchment_name_str, bbox):
     
-    replacement_dict = {-3.0: 'Hazard_3CatsLower', -2.0 : 'Hazard_2CatsLower', -1.0 : 'Hazard_1CatsLower', 0: 'Hazard_SameCat',
-        1 : 'Hazard_1CatsHigher', 2: 'Hazard_2CatsHigher', 3: 'Hazard_3CatsHigher'}
+#     replacement_dict = {-3.0: 'Hazard_3CatsLower', -2.0 : 'Hazard_2CatsLower', -1.0 : 'Hazard_1CatsLower', 0: 'Hazard_SameCat',
+#         1 : 'Hazard_1CatsHigher', 2: 'Hazard_2CatsHigher', 3: 'Hazard_3CatsHigher'}
     
-    # Create dataframes to populate with values
-    counts_df = pd.DataFrame(columns = ["values"])
-    proportions_df = pd.DataFrame(columns = ["values"]) 
+#     # Create dataframes to populate with values
+#     counts_df = pd.DataFrame(columns = ["values"])
+#     proportions_df = pd.DataFrame(columns = ["values"]) 
     
-    for num, fp in enumerate(fps[1:]):
-        # Add values to dataframes
-        method_name = methods[num]
+#     for num, fp in enumerate(fps[1:]):
+#         # Add values to dataframes
+#         method_name = methods[num]
         
-        # Read in hazard data 
-        fp = fp.replace('{} (Max).{}'.format({}, catchment_name_str),'hazard_cat_difference')
-        hazard = prepare_rainfall_scenario_raster(fp,  bbox, False)[0]
-        unique, counts = np.unique(hazard, return_counts=True)
-        df = pd.DataFrame({'values': unique, method_name:counts})
-        # Remove NA columns
-        df = df.dropna()
+#         # Read in hazard data 
+#         fp = fp.replace('{} (Max).{}'.format({}, catchment_name_str),'hazard_cat_difference')
+#         hazard = prepare_rainfall_scenario_raster(fp,  bbox, False)[0]
+#         unique, counts = np.unique(hazard, return_counts=True)
+#         df = pd.DataFrame({'values': unique, method_name:counts})
+#         # Remove NA columns
+#         df = df.dropna()
 
-        # Add to dataframes
-        counts_df= counts_df.merge(df[['values', method_name]], on = 'values', how = 'outer')
+#         # Add to dataframes
+#         counts_df= counts_df.merge(df[['values', method_name]], on = 'values', how = 'outer')
 
-        # Find the total number of cells
-        total_n_cells = df [method_name].sum()
-        # Find the number of cells in each group as a proportion of the total
-        df[method_name] = round((df[method_name]/total_n_cells) *100,1)
+#         # Find the total number of cells
+#         total_n_cells = df [method_name].sum()
+#         # Find the number of cells in each group as a proportion of the total
+#         df[method_name] = round((df[method_name]/total_n_cells) *100,1)
 
-       # Add to dataframes
-        proportions_df= proportions_df.merge(df[['values', method_name]], on = 'values', how = 'outer')
+#        # Add to dataframes
+#         proportions_df= proportions_df.merge(df[['values', method_name]], on = 'values', how = 'outer')
 
-        # Order intoi ascending order
-        proportions_df = proportions_df.sort_values(by='values')
-        counts_df = counts_df.sort_values(by='values')
+#         # Order intoi ascending order
+#         proportions_df = proportions_df.sort_values(by='values')
+#         counts_df = counts_df.sort_values(by='values')
 
-    # Join the two dataframes together and reformat
-    both_dfs = pd.DataFrame(columns = ["Cluster_num"])  
-    for num, df in enumerate([counts_df,proportions_df]):
-        df=df.replace({"values": replacement_dict})
-        df.rename(columns={'values': 'Cluster_num'}, inplace=True)
-        df = df.set_index('Cluster_num').T
-        if num == 0:
-            df = df.add_suffix('_countcells')
-        else: 
-            df = df.add_suffix('_propcells')
-        df['Cluster_num'] = df.index
-        both_dfs = pd.merge(both_dfs, df,  how="outer", on = 'Cluster_num')
+#     # Join the two dataframes together and reformat
+#     both_dfs = pd.DataFrame(columns = ["Cluster_num"])  
+#     for num, df in enumerate([counts_df,proportions_df]):
+#         df=df.replace({"values": replacement_dict})
+#         df.rename(columns={'values': 'Cluster_num'}, inplace=True)
+#         df = df.set_index('Cluster_num').T
+#         if num == 0:
+#             df = df.add_suffix('_countcells')
+#         else: 
+#             df = df.add_suffix('_propcells')
+#         df['Cluster_num'] = df.index
+#         both_dfs = pd.merge(both_dfs, df,  how="outer", on = 'Cluster_num')
     
-    return both_dfs
+#     return both_dfs
+
+def save_clipped_to_gdf(raster, out_meta, catchment_gdf, fp):
+    save_array_as_raster(raster, fp, out_meta)
+    
+    # Mask out values not within the geodataframe
+    with rasterio.open(fp) as src:
+        catchment_gdf=catchment_gdf.to_crs(src.crs)
+        out_image, out_transform=mask(src,catchment_gdf.geometry,crop=False)
+        out_meta=src.meta.copy() # copy the metadata of the source DEM
+        
+    out_meta.update({"driver":"Gtiff", "height":out_image.shape[1], # height starts with shape[1]
+        "width":out_image.shape[2], # width starts with shape[2]
+        "transform":out_transform})
+
+    with rasterio.open(fp,'w',**out_meta) as dst:
+        dst.write(out_image)   
 
 
 def find_percentage_diff (methods, reference_method_name, totals_df, fps):
@@ -205,10 +270,10 @@ def find_percentage_diff (methods, reference_method_name, totals_df, fps):
     for num, fp in enumerate(fps):
         rainfall_scenario_name = methods[num]
         if rainfall_scenario_name!= reference_method_name:
-            # FInd value for this scenario
+            # Find value for this scenario
             this_scenario_value = totals_df.loc[totals_df['short_id'] == rainfall_scenario_name]['FloodedArea']
             this_scenario_value.reset_index(drop=True, inplace=True)
-            # FInd % difference between single peak and this scenario
+            # Find % difference between single peak and this scenario
             percent_diffs.append(round((this_scenario_value/sp_value-1)*100,1)[0])
             percent_diffs_abs.append(round(abs((this_scenario_value/sp_value-1)[0])*100,1))
             percent_diffs_formatted_for_plot.append(round((this_scenario_value/sp_value-1)*100,1)[0])
@@ -370,6 +435,42 @@ def reformat_counts_and_props(cluster_results, column_names,short_ids):
     counts.columns = short_ids
     return counts
 
+
+def get_change(current, previous):
+    if current == previous:
+        return 100.0
+    try:
+        return (abs(current - previous) / previous) * 100.0
+    except ZeroDivisionError:
+        return 0
+
+    
+    
+def find_percentage_diff (methods, reference_method_name, totals_df, fps):
+    percent_diffs_formatted_for_plot = []
+    percent_diffs_abs = []
+    percent_diffs = []
+
+    sp_value = totals_df.loc[totals_df['short_id'] == reference_method_name]['FloodedArea'].values[0]
+
+    for num, fp in enumerate(fps):
+        rainfall_scenario_name = methods[num]
+        if rainfall_scenario_name!= reference_method_name:
+            # FInd value for this scenario
+            this_scenario_value = totals_df.loc[totals_df['short_id'] == rainfall_scenario_name]['FloodedArea'].values[0]
+            # FInd % difference between single peak and this scenario
+            #percent_diffs.append(round((this_scenario_value/sp_value-1)*100,1)[0])
+            percent_diffs.append(get_change(this_scenario_value, sp_value))
+            #percent_diffs.append(round((this_scenario_value/sp_value-1)*100,1))
+            percent_diffs_abs.append(round(abs((this_scenario_value/sp_value-1))*100,1))
+            percent_diffs_formatted_for_plot.append(round((this_scenario_value/sp_value-1)*100,1))
+    # Convert values to strings, and add a + sign for positive values
+    # Include an empty entry for the single peak scenario
+    percent_diffs_df = pd.DataFrame({'percent_diff_formatted':[''] +['+' + str(round((list_item),2)) + '%' if list_item > 0 else str(round((list_item),2)) +
+     '%'  for list_item in percent_diffs_formatted_for_plot] ,
+             'percent_diffs':[0] + percent_diffs, 'percent_diffs_abs':[0] + percent_diffs_abs })
+    return percent_diffs_df    
+    
 ######################################################################
 ######################################################################
 ## Plotting functions
