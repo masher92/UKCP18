@@ -30,12 +30,18 @@ import contextily as cx
 import matplotlib as mpl
 from scipy import stats
 
-#model_directory = '../../../../FloodModelling/{}Models/Model_IdealisedProfiles/'.format(catchment_name)
-
 # Define whether to filter out values <0.1
 remove_little_values = True
 
-def create_binned_counts_and_props(methods, fps, filter_by_land_cover, variable_name, bbox,catchment_gdf, 
+def remove_little_values_fxn(raster, fp, catchment_gdf, crop_or_not):
+        if "Depth" in fp:
+            raster = np.where(raster <0.1, np.nan, raster)    
+        else:
+            depth_raster, out_meta  = open_and_clip_to_catchment(fp.format('Depth'), catchment_gdf, crop_or_not)
+            raster = np.where(depth_raster <0.1, np.nan, raster)      
+        return raster
+
+def create_binned_counts_and_props(methods, fps, filter_by_land_cover, variable_name, catchment_gdf, crop_or_not,
                                    landcover_data=False, remove_little_values = True,):
     
     # Set breaks/labels for either velocity and depth
@@ -54,27 +60,13 @@ def create_binned_counts_and_props(methods, fps, filter_by_land_cover, variable_
     # Get the raster containing its values, and count the number of each unique value, and construct into a dataframe
     for num, fp in enumerate(fps) :
         
-        # Get the results, and mask out values not within the geodataframe
-        with rasterio.open(fp.format(variable_name)) as src:
-            catchment_gdf=catchment_gdf.to_crs(src.crs)
-            out_image, out_transform=mask(src,catchment_gdf.geometry,crop=False)
-            out_meta=src.meta.copy() # copy the metadata of the source DEM
-            raster = out_image[0]
-            # Set -9999 to np.nan
-            raster[raster == -9999.] = np.nan
-            
-            # Remove values <0.1m
-            if remove_little_values == True:
-                if "Depth" in fp:
-                    raster = np.where(raster <0.1, np.nan, raster)    
-                else:
-                    with rasterio.open(fp.format('Depth')) as src:
-                        out_image, out_transform=mask(src,catchment_gdf.geometry,crop=False)
-                        out_meta=src.meta.copy() # copy the metadata of the source DEM
-                        depth_raster = out_image[0]
-                        depth_raster[depth_raster == -9999.] = np.nan
-                        raster = np.where(depth_raster <0.1, np.nan, raster)            
-            
+        # Get the results, and trim to the catchment
+        raster, out_meta  = open_and_clip_to_catchment(fp.format(variable_name), catchment_gdf, crop_or_not)
+        
+        # Remove values <0.1m
+        if remove_little_values == True:
+            raster = remove_little_values_fxn(raster, fp, catchment_gdf, crop_or_not)       
+                        
         # If analysing all cells
         if filter_by_land_cover == '':
             unique, counts = np.unique(raster, return_counts=True)
@@ -116,8 +108,7 @@ def create_binned_counts_and_props(methods, fps, filter_by_land_cover, variable_
     
     return counts_df,proportions_df
 
-
-def create_binned_counts_and_props_hazard(methods, fps, filter_by_land_cover, catchment_name_str, catchment_gdf,bbox, landcover_data=False):
+def create_binned_counts_and_props_hazard(methods, fps, filter_by_land_cover, catchment_name_str, catchment_gdf, crop_or_not, landcover_data=False):
 
     # Create dataframes to populate with values
     counts_df = pd.DataFrame()
@@ -130,26 +121,12 @@ def create_binned_counts_and_props_hazard(methods, fps, filter_by_land_cover, ca
         ####################################################
         # Open hazard results file and trim to catchment boundary
         ####################################################
-        with rasterio.open(fp) as src:
-            catchment_gdf=catchment_gdf.to_crs(src.crs)
-            out_image, out_transform=mask(src,catchment_gdf.geometry,crop=False)
-            out_meta=src.meta.copy() # copy the metadata of the source DEM
-            hazard = out_image[0]
-            hazard[hazard == -9999.] = np.nan
+        # Get the results, and trim to the catchment
+        hazard, out_meta  = open_and_clip_to_catchment(fp, catchment_gdf, crop_or_not)
             
-            ####################################################
-            # Remove values less than 0.1
-            ####################################################
-            if remove_little_values == True:
-                if "Depth" in fp:
-                    hazard = np.where(hazard <0.1, np.nan, hazard)    
-                else:
-                    with rasterio.open(fp.format('Depth')) as src:
-                        out_image, out_transform=mask(src,catchment_gdf.geometry,crop=False)
-                        out_meta=src.meta.copy() # copy the metadata of the source DEM
-                        depth_raster = out_image[0]
-                        depth_raster[depth_raster == -9999.] = np.nan
-                        hazard = np.where(hazard <0.1, np.nan, hazard)                
+        # Remove values <0.1m
+        if remove_little_values == True:
+            hazard = remove_little_values_fxn(hazard, fp, catchment_gdf, crop_or_not)                   
                 
         ####################################################        
         # If filtering by land cover, then do additional stage of filtering out only cells in that category
@@ -243,22 +220,6 @@ def create_binned_counts_and_props_hazard(methods, fps, filter_by_land_cover, ca
     
 #     return both_dfs
 
-def save_clipped_to_gdf(raster, out_meta, catchment_gdf, fp):
-    save_array_as_raster(raster, fp, out_meta)
-    
-    # Mask out values not within the geodataframe
-    with rasterio.open(fp) as src:
-        catchment_gdf=catchment_gdf.to_crs(src.crs)
-        out_image, out_transform=mask(src,catchment_gdf.geometry,crop=False)
-        out_meta=src.meta.copy() # copy the metadata of the source DEM
-        
-    out_meta.update({"driver":"Gtiff", "height":out_image.shape[1], # height starts with shape[1]
-        "width":out_image.shape[2], # width starts with shape[2]
-        "transform":out_transform})
-
-    with rasterio.open(fp,'w',**out_meta) as dst:
-        dst.write(out_image)   
-
 
 def find_percentage_diff (methods, reference_method_name, totals_df, fps):
     percent_diffs_formatted_for_plot = []
@@ -294,7 +255,6 @@ def create_totals_df (velocity_counts, cell_size_in_m2):
     totals_df_area.rename(columns={'index': 'short_id', 0: 'FloodedArea'}, inplace = True)
     return totals_df_area
     
-    
 def categorise_difference (raster):
     classified_raster = raster.copy()
     classified_raster[np.where( raster < -0.1 )] = 1
@@ -303,8 +263,26 @@ def categorise_difference (raster):
     classified_raster[np.where( raster >= 0.3  )] = 4
     return classified_raster
 
+def open_and_clip_to_catchment (input_fp, catchment_gdf, crop_or_not):
+    # Get the results, and mask out values not within the geodataframe
+    with rasterio.open(input_fp) as src:
+        catchment_gdf=catchment_gdf.to_crs(src.crs)
+        out_image, out_transform=mask(src,catchment_gdf.geometry,crop=crop_or_not)
+        out_meta=src.meta.copy() # copy the metadata of the source DEM
+        raster = out_image[0]
+        # Set -9999 to np.nan
+        raster = raster.astype('float') 
+        raster[raster <= -9999] = np.nan
+        raster[raster == 0] = np.nan
+        raster[raster ==-2147483648] = np.nan
+    # Update to match     
+    out_meta.update({"nodata":np.nan,"dtype" :'float64', "driver":"Gtiff", "height":out_image.shape[1], # height starts with shape[1]
+        "width":out_image.shape[2], # width starts with shape[2]
+        "transform":out_transform})
+    
+    return raster, out_meta   
+
 def save_array_as_raster(raster, fp_to_save, out_meta):
-    #src = rasterio.open("MeganModel/6hr_dt_u/6hr_dividetime_velocity.Resampled.Terrain.tif")
     with rasterio.open(
             fp_to_save, "w", **out_meta) as dest_file:
         dest_file.write(raster,1)
@@ -315,62 +293,23 @@ def getFeatures(gdf):
     import json
     return [json.loads(gdf.to_json())['features'][0]['geometry']]
 
-# Opens a raster, trims it to extent of catchment, saves a trimmed version
-# and returns an arrat contianing the data, also trimmed
-def open_and_clip(input_raster_fp, bbox):
-    # Read in data as array
-    data = rasterio.open(input_raster_fp)
-
-    # Insert the bbox into a GeoDataFrame
-    geo = gpd.GeoDataFrame({'geometry': bbox}, index=[0], crs=CRS('EPSG:27700'))     
-    # Re-project into the same coordinate system as the raster data
-    geo = geo.to_crs(crs=CRS('EPSG:27700'))#data.crs.data
-
-    # Next we need to get the coordinates of the geometry in such a format
-    # that rasterio wants them. This can be conducted easily with following function
-    # Get the geometry coordinates by using the function.
-    coords = getFeatures(geo)
-
-    # Clip the raster with the polygon using the coords variable that we just created. Clipping the raster can be done easily 
-    # with the mask function and specifying clip=True.
-    clipped_array, out_transform = mask(data, shapes=coords, crop=True)
-
-    # # Set -9999 to NA
-    if np.isnan(np.sum(clipped_array)) == True:
-        clipped_array[clipped_array < -9998] = np.nan
-        clipped_array[clipped_array < -9999] = np.nan
-    else:
-        clipped_array = clipped_array.astype('float') 
-        clipped_array[clipped_array ==0] = np.nan
-
-    # Modify the metadata. Let’s start by copying the metadata from the original data file.
-    out_meta = data.meta.copy()
-    # Parse the EPSG value from the CRS so that we can create a Proj4 string using PyCRS library 
-    # (to ensure that the projection information is saved correctly) [this bit didn't work so specified manually]
-    #epsg_code = int(data.crs.data['init'][5:])
-    # Now we need to update the metadata with new dimensions, transform (affine) and CRS (as Proj4 text)
-    out_meta.update({"driver": "GTiff","height": clipped_array.shape[1],"width": clipped_array.shape[2], 
-                     "transform": out_transform, "crs": CRS('EPSG:27700')})#pycrs.parser.from_epsg_code(epsg_code).to_proj4()})
-
-    return clipped_array[0,:,:], out_meta
-
-def prepare_rainfall_scenario_raster(input_raster_fp, bbox, remove_little_values):
+# def prepare_rainfall_scenario_raster(input_raster_fp, bbox, remove_little_values):
     
-    # Clip the raster files to the extent of the catchment boundary
-    # Also return out_meta which contains..
-    raster, out_meta = open_and_clip(input_raster_fp, bbox) 
+#     # Clip the raster files to the extent of the catchment boundary
+#     # Also return out_meta which contains..
+#     raster, out_meta = open_and_clip(input_raster_fp, bbox) 
     
-    # If looking at velocity, then also read in depth raster as this is needed to filter out cells where 
-    # the depth is below 0.1m   
-    # Set cell values to Null in cells which have a value <0.1 in the depth raster
-    if remove_little_values == True:
-        if "Depth" in input_raster_fp:
-            raster = np.where(raster <0.1, np.nan, raster)    
-        else:
-            depth_raster = open_and_clip(input_raster_fp.replace('Velocity', 'Depth'), bbox)[0]
-            raster = np.where(depth_raster <0.1, np.nan, raster)
+#     # If looking at velocity, then also read in depth raster as this is needed to filter out cells where 
+#     # the depth is below 0.1m   
+#     # Set cell values to Null in cells which have a value <0.1 in the depth raster
+#     if remove_little_values == True:
+#         if "Depth" in input_raster_fp:
+#             raster = np.where(raster <0.1, np.nan, raster)    
+#         else:
+#             depth_raster = open_and_clip(input_raster_fp.replace('Velocity', 'Depth'), bbox)[0]
+#             raster = np.where(depth_raster <0.1, np.nan, raster)
     
-    return raster, out_meta
+#     return raster, out_meta
 
 def classify_raster (raster, breaks):
     
@@ -381,48 +320,6 @@ def classify_raster (raster, breaks):
     
     return classified_raster
 
-def find_worst_case_method(fps, short_ids, variable_name):
-    scenario_ls =[]
-    for fp in fps  :
-        scenario = prepare_rainfall_scenario_raster(fp.format(variable_name), bbox, remove_little_values)[0].flatten()
-        scenario_ls.append(scenario)
-
-    #Create a list to store the index for each cell of the scenario that produced the maximum value
-    rainfall_scenario_max_producing_numbers = []
-    # Assign a number for each of the scenarios (0:singlepeak, 1:dividetime, 2:subpeaktiming, 3:maxspread)
-    rainfall_scenario_numbers = list(range(0,len(scenario_ls)))
-    # Loop through each cell in the array:
-    ls = []
-    for i, x in enumerate(zip(*scenario_ls)):
-        ls.append(i)
-        # Find the number related to the scenario which produced the maximum
-        index_of_max = np.argmax(x)
-        # Check that the max being referrred to is not np.nan
-        # if it is, then append np.nan to the list of indexes, to indicate no values were the maximum
-        if np.isnan(x[index_of_max]):
-              rainfall_scenario_max_producing_numbers.append(np.nan)
-        # If it's not np.nan
-        else:
-            # Check that the maximum value is not equal to any of the other values
-            # If there is another equivalent value then add a flag to the list storing whether there are any matching values
-            matches = []
-            for number in rainfall_scenario_numbers:
-                if number != index_of_max:
-                    if x[number] == x[index_of_max]:
-                        matches.append('yes')
-            # If matches is empty (i.e. there are no matching values to the maxium) then give the index of 
-            # the scenario which was the maximum 
-            if not matches:
-                rainfall_scenario_max_producing_numbers.append(short_ids[index_of_max])
-            # If matches is not empty (i.e. there are values matching the maximum) then return 4 (no one 
-            # scenario can be deemed the worst case)
-            elif matches:
-                rainfall_scenario_max_producing_numbers.append('multiple matches')      
-
-    # Find the number of counts of each value
-    unique, counts = np.unique(rainfall_scenario_max_producing_numbers, return_counts=True)
-    worst_case_method_df = pd.DataFrame({'values': unique, 'counts':counts})
-    return worst_case_method_df
 
 ''' Gets the depth/velocity counts and props data back into the format that the original plotting
 function expected it in'''
@@ -443,8 +340,7 @@ def get_change(current, previous):
         return (abs(current - previous) / previous) * 100.0
     except ZeroDivisionError:
         return 0
-
-    
+   
     
 def find_percentage_diff (methods, reference_method_name, totals_df, fps):
     percent_diffs_formatted_for_plot = []
