@@ -33,6 +33,45 @@ from scipy import stats
 # Define whether to filter out values <0.1
 remove_little_values = True
 
+# Opens a raster, trims it to extent of catchment, saves a trimmed version
+# and returns an arrat contianing the data, also trimmed
+def open_and_clip(input_raster_fp, bbox):
+    # Read in data as array
+    data = rasterio.open(input_raster_fp)
+
+    # Insert the bbox into a GeoDataFrame
+    geo = gpd.GeoDataFrame({'geometry': bbox}, index=[0], crs=CRS('EPSG:27700'))     
+    # Re-project into the same coordinate system as the raster data
+    geo = geo.to_crs(crs=CRS('EPSG:27700'))#data.crs.data
+
+    # Next we need to get the coordinates of the geometry in such a format
+    # that rasterio wants them. This can be conducted easily with following function
+    # Get the geometry coordinates by using the function.
+    coords = getFeatures(geo)
+
+    # Clip the raster with the polygon using the coords variable that we just created. Clipping the raster can be done easily 
+    # with the mask function and specifying clip=True.
+    clipped_array, out_transform = mask(data, shapes=coords, crop=True)
+
+    # # Set -9999 to NA
+    if np.isnan(np.sum(clipped_array)) == True:
+        clipped_array[clipped_array < -9998] = np.nan
+        clipped_array[clipped_array < -9999] = np.nan
+    else:
+        clipped_array = clipped_array.astype('float') 
+        clipped_array[clipped_array ==0] = np.nan
+
+    # Modify the metadata. Let’s start by copying the metadata from the original data file.
+    out_meta = data.meta.copy()
+    # Parse the EPSG value from the CRS so that we can create a Proj4 string using PyCRS library 
+    # (to ensure that the projection information is saved correctly) [this bit didn't work so specified manually]
+    #epsg_code = int(data.crs.data['init'][5:])
+    # Now we need to update the metadata with new dimensions, transform (affine) and CRS (as Proj4 text)
+    out_meta.update({"driver": "GTiff","height": clipped_array.shape[1],"width": clipped_array.shape[2], 
+                     "transform": out_transform, "crs": CRS('EPSG:27700')})#pycrs.parser.from_epsg_code(epsg_code).to_proj4()})
+
+    return clipped_array[0,:,:], out_meta
+
 def remove_little_values_fxn(raster, fp, catchment_gdf, crop_or_not):
         if "Depth" in fp:
             raster = np.where(raster <0.1, np.nan, raster)    
@@ -293,23 +332,23 @@ def getFeatures(gdf):
     import json
     return [json.loads(gdf.to_json())['features'][0]['geometry']]
 
-# def prepare_rainfall_scenario_raster(input_raster_fp, bbox, remove_little_values):
+def prepare_rainfall_scenario_raster(input_raster_fp, bbox, remove_little_values):
     
-#     # Clip the raster files to the extent of the catchment boundary
-#     # Also return out_meta which contains..
-#     raster, out_meta = open_and_clip(input_raster_fp, bbox) 
+    # Clip the raster files to the extent of the catchment boundary
+    # Also return out_meta which contains..
+    raster, out_meta = open_and_clip(input_raster_fp, bbox) 
     
-#     # If looking at velocity, then also read in depth raster as this is needed to filter out cells where 
-#     # the depth is below 0.1m   
-#     # Set cell values to Null in cells which have a value <0.1 in the depth raster
-#     if remove_little_values == True:
-#         if "Depth" in input_raster_fp:
-#             raster = np.where(raster <0.1, np.nan, raster)    
-#         else:
-#             depth_raster = open_and_clip(input_raster_fp.replace('Velocity', 'Depth'), bbox)[0]
-#             raster = np.where(depth_raster <0.1, np.nan, raster)
+    # If looking at velocity, then also read in depth raster as this is needed to filter out cells where 
+    # the depth is below 0.1m   
+    # Set cell values to Null in cells which have a value <0.1 in the depth raster
+    if remove_little_values == True:
+        if "Depth" in input_raster_fp:
+            raster = np.where(raster <0.1, np.nan, raster)    
+        else:
+            depth_raster = open_and_clip(input_raster_fp.replace('Velocity', 'Depth'), bbox)[0]
+            raster = np.where(depth_raster <0.1, np.nan, raster)
     
-#     return raster, out_meta
+    return raster, out_meta
 
 def classify_raster (raster, breaks):
     
