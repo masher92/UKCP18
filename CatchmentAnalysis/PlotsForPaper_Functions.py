@@ -47,7 +47,7 @@ def plot_flooded_extent_1catchment(cluster_results_ls, urban_str, profiles_name,
     
     if urban_str != '':
         urban_str = '_' + urban_str
-    fig.savefig("../ProcessModelResults/Outputs/Figs/{}Profiles/{}_CompareCatchments_Extent1Plot{}.PNG".format(profiles_name,
+    fig.savefig("ProcessModelResults/Outputs/Figs/{}Profiles/{}_CompareCatchments_Extent1Plot{}.PNG".format(profiles_name,
         profiles_name_short, urban_str), bbox_inches='tight')
 
 
@@ -106,8 +106,8 @@ def plot_flooded_extent_2catchments_2profilesets(cluster_results_ls, urban_str, 
     fig.text(0.07, 0.5, 'Flooded area (km2)', fontsize=15, va='center', rotation='vertical')   
     if urban_str != '':
         urban_str = '_' + urban_str
-    fig.savefig(f"../ProcessModelResults/Outputs/Figs/CompareCatchments_Extent1Plot{urban_str}.PNG", bbox_inches='tight')
-    print(f"../ProcessModelResults/Outputs/Figs/CompareCatchments_Extent1Plot{urban_str}.PNG");
+    fig.savefig(f"ProcessModelResults/Outputs/Figs/CompareCatchments_Extent1Plot{urban_str}.PNG", bbox_inches='tight')
+    print(f"ProcessModelResults/Outputs/Figs/CompareCatchments_Extent1Plot{urban_str}.PNG");
         
     
 def plot_flooded_extent_2catchments(cluster_results_ls, urban_str, profiles_name, profiles_name_short,  ylim, percent_adjust,
@@ -155,7 +155,7 @@ def plot_flooded_extent_2catchments(cluster_results_ls, urban_str, profiles_name
     
     if urban_str != '':
         urban_str = '_' + urban_str
-    fig.savefig("../ProcessModelResults/Outputs/Figs/{}Profiles/{}_CompareCatchments_Extent1Plot{}.PNG".format(profiles_name,
+    fig.savefig("ProcessModelResults/Outputs/Figs/{}Profiles/{}_CompareCatchments_Extent1Plot{}.PNG".format(profiles_name,
         profiles_name_short, urban_str), bbox_inches='tight')
     
     
@@ -187,7 +187,7 @@ def boxplot(fig, individual_cell_values_ls, fl_method,bl_method, variable_name, 
     for patch, color in zip(bplot['boxes'], colors):
         patch.set_facecolor(color)
         
-    fig.savefig("../ProcessModelResults/Outputs/Figs/BothProfiles/Boxplot_{}.PNG".format(variable_name), 
+    fig.savefig("ProcessModelResults/Outputs/Figs/BothProfiles/Boxplot_{}.PNG".format(variable_name), 
                 bbox_inches='tight')      
     
     
@@ -264,7 +264,7 @@ def plot_histogram (individual_cell_values_ls, variable_name, profiles_name, pro
         # Add column in dataframe
         df['{} ({})'.format(profiles_name, catchments[number])]=change_pcs
         
-    fig.savefig("../ProcessModelResults/Outputs/Figs/{}Profiles/{}_Histograms_{}.PNG".format(profiles_name,profiles_name_short,variable_name), 
+    fig.savefig("ProcessModelResults/Outputs/Figs/{}Profiles/{}_Histograms_{}.PNG".format(profiles_name,profiles_name_short,variable_name), 
                 bbox_inches='tight')
     return df   
 
@@ -308,9 +308,9 @@ def plot_histogram_weighted (individual_cell_values_ls, variable_name, profiles_
     for number, ax in enumerate(axs.flatten()):
         individual_cell_values =  individual_cell_values_ls[number]
         
-        if catchments[number] =='WykeBeck':
+        if catchment_name_ls[number] =='WykeBeck':
             weight = 4
-        elif catchments[number] == 'LinDyke':
+        elif catchment_name_ls[number] == 'LinDyke':
             weight = 1
         
         
@@ -359,7 +359,8 @@ def plot_histogram_weighted (individual_cell_values_ls, variable_name, profiles_
         formatter.set_powerlimits((-1,1)) 
         axs[number].yaxis.set_major_formatter(formatter) 
         
-    fig.savefig("../ProcessModelResults/Outputs/Figs/{}Profiles/{}_Histograms_{}.PNG".format(profiles_name,profiles_name_short,variable_name), 
+        
+    fig.savefig("ProcessModelResults/Outputs/Figs/{}Profiles/{}_Histograms_{}.PNG".format(profiles_name,profiles_name_short,variable_name), 
                 bbox_inches='tight')
     return df   
 
@@ -390,5 +391,5 @@ def hazard_plot(individual_cell_values_ls,  profiles_name, profiles_name_short, 
         
         ax.set_xlabel('')
 
-    fig.savefig("../ProcessModelResults/Outputs/Figs/{}Profiles/{}_HazardCats.PNG".format(profiles_name,profiles_name_short), 
+    fig.savefig("ProcessModelResults/Outputs/Figs/{}Profiles/{}_HazardCats.PNG".format(profiles_name,profiles_name_short), 
                 bbox_inches='tight')
