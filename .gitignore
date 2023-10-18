@@ -20,4 +20,5 @@ Regridding/ReadMe.pdf
 **/*.PNG
 .*  # ignore all hidden files and folders
 !/.gitignore  # explicitly do not ignore .gitignore
-
+*.pdn
+*.pgw

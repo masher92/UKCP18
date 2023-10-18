@@ -72,6 +72,46 @@ def open_and_clip(input_raster_fp, bbox):
 
     return clipped_array[0,:,:], out_meta
 
+
+def open_and_clip_to_catchment (input_fp, catchment_gdf, crop_or_not):
+    # Get the results, and mask out values not within the geodataframe
+    with rasterio.open(input_fp) as src:
+        catchment_gdf=catchment_gdf.to_crs(src.crs)
+        out_image, out_transform=mask(src,catchment_gdf.geometry,crop=crop_or_not)
+        out_meta=src.meta.copy() # copy the metadata of the source DEM
+        raster = out_image[0]
+        # Set -9999 to np.nan
+        raster = raster.astype('float') 
+        raster[raster <= -9999] = np.nan
+        raster[raster == 0] = np.nan
+        raster[raster ==-2147483648] = np.nan
+    # Update to match     
+    out_meta.update({"nodata":np.nan,"dtype" :'float64', "driver":"Gtiff", "height":out_image.shape[1], # height starts with shape[1]
+        "width":out_image.shape[2], # width starts with shape[2]
+        "transform":out_transform})
+    
+    return raster, out_meta   
+
+
+def prepare_rainfall_scenario_raster(input_raster_fp, bbox, remove_little_values):
+    
+    # Clip the raster files to the extent of the catchment boundary
+    # Also return out_meta which contains..
+    raster, out_meta = open_and_clip(input_raster_fp, bbox) 
+    
+    # If looking at velocity, then also read in depth raster as this is needed to filter out cells where 
+    # the depth is below 0.1m   
+    # Set cell values to Null in cells which have a value <0.1 in the depth raster
+    if remove_little_values == True:
+        if "Depth" in input_raster_fp:
+            raster = np.where(raster <0.1, np.nan, raster)    
+        else:
+            depth_raster = open_and_clip(input_raster_fp.replace('Velocity', 'Depth'), bbox)[0]
+            raster = np.where(depth_raster <0.1, np.nan, raster)
+    
+    return raster, out_meta
+
+
 def remove_little_values_fxn(raster, fp, catchment_gdf, crop_or_not):
         if "Depth" in fp:
             raster = np.where(raster <0.1, np.nan, raster)    
@@ -101,27 +141,29 @@ def create_binned_counts_and_props(methods, fps, filter_by_land_cover, variable_
         
         # Get the results, and trim to the catchment
         raster, out_meta  = open_and_clip_to_catchment(fp.format(variable_name), catchment_gdf, crop_or_not)
-        
         # Remove values <0.1m
         if remove_little_values == True:
             raster = remove_little_values_fxn(raster, fp, catchment_gdf, crop_or_not)       
                         
         # If analysing all cells
         if filter_by_land_cover == '':
-            unique, counts = np.unique(raster, return_counts=True)
-            df = pd.DataFrame({'values': unique, 'value':counts})
-
+            # Dataframe containing all values
+            df=pd.DataFrame({'value':raster.flatten()})
+            # Remove NAs
+            df = df.dropna()
             # Add a new column specifying the bin which each value falls within
-            df['bins']= pd.cut(unique, bins=breaks, right=False)
+            df['bins']= pd.cut(df['value'], bins=breaks, right=False)
 
         # If just analysing certain landcover cells
         elif filter_by_land_cover == True:
             raster_and_landcover = pd.DataFrame({'landcovercategory':  landcover_data, 'value': raster.flatten()})
             # Get just the relevant rows
             df = raster_and_landcover[raster_and_landcover['landcovercategory']==10].copy()  
+            # Remove na
+            df = df.dropna()
             # Add a column assigning a bin based on the depth/velocity value
             df['bins']= pd.cut(df['value'], bins=breaks, right=False)
-
+            
         # Create a new dataframe showing the number of cells in each of the bins
         groups = df.groupby(['bins']).count()
         groups  = groups.reset_index()
@@ -208,57 +250,6 @@ def create_binned_counts_and_props_hazard(methods, fps, filter_by_land_cover, ca
     proportions_df['index'] = labels_hazard
     return counts_df, proportions_df
 
-# def create_binned_counts_and_props_hazard_cat_change(methods, fps, catchment_name_str, bbox):
-    
-#     replacement_dict = {-3.0: 'Hazard_3CatsLower', -2.0 : 'Hazard_2CatsLower', -1.0 : 'Hazard_1CatsLower', 0: 'Hazard_SameCat',
-#         1 : 'Hazard_1CatsHigher', 2: 'Hazard_2CatsHigher', 3: 'Hazard_3CatsHigher'}
-    
-#     # Create dataframes to populate with values
-#     counts_df = pd.DataFrame(columns = ["values"])
-#     proportions_df = pd.DataFrame(columns = ["values"]) 
-    
-#     for num, fp in enumerate(fps[1:]):
-#         # Add values to dataframes
-#         method_name = methods[num]
-        
-#         # Read in hazard data 
-#         fp = fp.replace('{} (Max).{}'.format({}, catchment_name_str),'hazard_cat_difference')
-#         hazard = prepare_rainfall_scenario_raster(fp,  bbox, False)[0]
-#         unique, counts = np.unique(hazard, return_counts=True)
-#         df = pd.DataFrame({'values': unique, method_name:counts})
-#         # Remove NA columns
-#         df = df.dropna()
-
-#         # Add to dataframes
-#         counts_df= counts_df.merge(df[['values', method_name]], on = 'values', how = 'outer')
-
-#         # Find the total number of cells
-#         total_n_cells = df [method_name].sum()
-#         # Find the number of cells in each group as a proportion of the total
-#         df[method_name] = round((df[method_name]/total_n_cells) *100,1)
-
-#        # Add to dataframes
-#         proportions_df= proportions_df.merge(df[['values', method_name]], on = 'values', how = 'outer')
-
-#         # Order intoi ascending order
-#         proportions_df = proportions_df.sort_values(by='values')
-#         counts_df = counts_df.sort_values(by='values')
-
-#     # Join the two dataframes together and reformat
-#     both_dfs = pd.DataFrame(columns = ["Cluster_num"])  
-#     for num, df in enumerate([counts_df,proportions_df]):
-#         df=df.replace({"values": replacement_dict})
-#         df.rename(columns={'values': 'Cluster_num'}, inplace=True)
-#         df = df.set_index('Cluster_num').T
-#         if num == 0:
-#             df = df.add_suffix('_countcells')
-#         else: 
-#             df = df.add_suffix('_propcells')
-#         df['Cluster_num'] = df.index
-#         both_dfs = pd.merge(both_dfs, df,  how="outer", on = 'Cluster_num')
-    
-#     return both_dfs
-
 
 def find_percentage_diff (methods, reference_method_name, totals_df, fps):
     percent_diffs_formatted_for_plot = []
@@ -302,25 +293,6 @@ def categorise_difference (raster):
     classified_raster[np.where( raster >= 0.3  )] = 4
     return classified_raster
 
-def open_and_clip_to_catchment (input_fp, catchment_gdf, crop_or_not):
-    # Get the results, and mask out values not within the geodataframe
-    with rasterio.open(input_fp) as src:
-        catchment_gdf=catchment_gdf.to_crs(src.crs)
-        out_image, out_transform=mask(src,catchment_gdf.geometry,crop=crop_or_not)
-        out_meta=src.meta.copy() # copy the metadata of the source DEM
-        raster = out_image[0]
-        # Set -9999 to np.nan
-        raster = raster.astype('float') 
-        raster[raster <= -9999] = np.nan
-        raster[raster == 0] = np.nan
-        raster[raster ==-2147483648] = np.nan
-    # Update to match     
-    out_meta.update({"nodata":np.nan,"dtype" :'float64', "driver":"Gtiff", "height":out_image.shape[1], # height starts with shape[1]
-        "width":out_image.shape[2], # width starts with shape[2]
-        "transform":out_transform})
-    
-    return raster, out_meta   
-
 def save_array_as_raster(raster, fp_to_save, out_meta):
     with rasterio.open(
             fp_to_save, "w", **out_meta) as dest_file:
@@ -332,23 +304,6 @@ def getFeatures(gdf):
     import json
     return [json.loads(gdf.to_json())['features'][0]['geometry']]
 
-def prepare_rainfall_scenario_raster(input_raster_fp, bbox, remove_little_values):
-    
-    # Clip the raster files to the extent of the catchment boundary
-    # Also return out_meta which contains..
-    raster, out_meta = open_and_clip(input_raster_fp, bbox) 
-    
-    # If looking at velocity, then also read in depth raster as this is needed to filter out cells where 
-    # the depth is below 0.1m   
-    # Set cell values to Null in cells which have a value <0.1 in the depth raster
-    if remove_little_values == True:
-        if "Depth" in input_raster_fp:
-            raster = np.where(raster <0.1, np.nan, raster)    
-        else:
-            depth_raster = open_and_clip(input_raster_fp.replace('Velocity', 'Depth'), bbox)[0]
-            raster = np.where(depth_raster <0.1, np.nan, raster)
-    
-    return raster, out_meta
 
 def classify_raster (raster, breaks):
     
@@ -940,7 +895,8 @@ def plot_diff_hazard_cats( fp_for_diff_raster, labels, colors_list,catchment_gdf
     plt.savefig(plot_fp, dpi=500,bbox_inches='tight')
     plt.close()   
     
-def produce_df_of_cell_by_cell_values(model_directory, catchment_name_str, bbox, methods, landcover_water_flat, landcover_urban_flat):
+def produce_df_of_cell_by_cell_values(model_directory, catchment_gdf, catchment_name_str, methods, landcover_notwater_flat,
+                                      landcover_urban_flat, crop_or_not, remove_little_values = True,):
     all_methods_df = pd.DataFrame()
     variables=['Depth', 'Velocity','Hazard']
     for method_num, short_id in enumerate(methods):
@@ -949,7 +905,9 @@ def produce_df_of_cell_by_cell_values(model_directory, catchment_name_str, bbox,
         if '6h_feh_singlepeak' in fp:
             fp = fp.replace("Model_ObservedProfiles", "Model_FEHProfiles")
         # Dataframe where results for this method will be stored
-        one_method_df = pd.DataFrame({"short_id" :methods[method_num], 'Water_class':landcover_water_flat, "urban_class":landcover_urban_flat})
+        one_method_df = pd.DataFrame({"short_id" :methods[method_num], 'Water_class':landcover_notwater_flat, 
+                                      "urban_class":landcover_urban_flat})
+        #print(one_method_df)
         # Read raster, round to three decimal places
         for variable_name in variables:
             this_fp = fp
@@ -957,12 +915,18 @@ def produce_df_of_cell_by_cell_values(model_directory, catchment_name_str, bbox,
                 this_fp = this_fp.replace('{} (Max).{}'.format('{}', catchment_name_str),'hazard_classified')
             else:
                 this_fp = this_fp.format(variable_name)
-            
-            raster = prepare_rainfall_scenario_raster(this_fp, bbox, remove_little_values)[0]
-            raster_rounded = np.around(raster, decimals=3)
-            one_method_df[variable_name]=raster_rounded.flatten()
-        one_method_df = one_method_df.dropna(subset=variables)
 
+            raster, out_meta  = open_and_clip_to_catchment(this_fp.format(variable_name), catchment_gdf, crop_or_not)
+            #print(len(raster))
+            # Remove values <0.1m
+            if remove_little_values == True:
+                raster = remove_little_values_fxn(raster, fp, catchment_gdf, crop_or_not)       
+            
+            raster_rounded = np.around(raster, decimals=3)
+            
+            one_method_df[variable_name]=raster_rounded.flatten()
+            # Removes columns that don't have a value for depth/velocity/hazard
+        one_method_df = one_method_df.dropna(subset=variables)
         # Join results for this method with results for all methods  
         all_methods_df = pd.concat([all_methods_df, one_method_df], axis =0)   
     return all_methods_df
