@@ -30,9 +30,6 @@ import contextily as cx
 import matplotlib as mpl
 from scipy import stats
 
-# Define whether to filter out values <0.1
-remove_little_values = True
-
 # Opens a raster, trims it to extent of catchment, saves a trimmed version
 # and returns an arrat contianing the data, also trimmed
 def open_and_clip(input_raster_fp, bbox):
@@ -189,7 +186,7 @@ def create_binned_counts_and_props(methods, fps, filter_by_land_cover, variable_
     
     return counts_df,proportions_df
 
-def create_binned_counts_and_props_hazard(methods, fps, filter_by_land_cover, catchment_name_str, catchment_gdf, crop_or_not, landcover_data=False):
+def create_binned_counts_and_props_hazard(methods, fps, filter_by_land_cover, catchment_name_str, catchment_gdf, crop_or_not, landcover_data=False, remove_little_values = True):
 
     # Create dataframes to populate with values
     counts_df = pd.DataFrame()

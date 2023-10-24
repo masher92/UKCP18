@@ -268,52 +268,47 @@ def plot_histogram (individual_cell_values_ls, variable_name, profiles_name, pro
                 bbox_inches='tight')
     return df   
 
-def plot_histogram_weighted (individual_cell_values_ls, variable_name, profiles_name, profiles_name_short, smallest_method,
-                    largest_method, title = True):
+def plot_histogram_weighted (individual_cell_values_dict, profiles_name, profiles_name_short, smallest_method,
+                    largest_method, filter_out_water, title = True):
     
-    catchments = ['LinDyke', 'WykeBeck']
+    catchments = ['LinDyke', 'WykeBeck', 'LinDyke', 'WykeBeck']
+    variables = ['Depth', 'Depth', 'Velocity', 'Velocity']
     
-    # Define bins
-    if variable_name == 'Depth':
-        bins = np.cumsum([0.1*1.19**i for i in np.arange (0.1,7,1)])
-        bins = np.cumsum([0.1*1.04**i for i in np.arange (0.1,10,1)])
-        bins = np.cumsum([0.1*1.45**i for i in np.arange (0.1,5,1)])
-        bins = np.cumsum([0.1*0.99**i for i in np.arange (0.1,13,1)])
-        bins = np.cumsum([0.1*1.44**i for i in np.arange (0.1,7,1)])
-    elif variable_name =='Velocity':
-        bins = np.cumsum([0.1*1.1**i for i in np.arange (0.1,6,1)])
-        bins = np.cumsum([0.1*0.965**i for i in np.arange (0.1,9,1)])
-        bins = np.cumsum([0.1*1.19**i for i in np.arange (0.1,5,1)])
-        bins = np.cumsum([0.1*0.92**i for i in np.arange (0.1,12,1)])
-        bins = np.cumsum([0.1*1.34**i for i in np.arange (0.1,6,1)])
-        bins = np.insert(bins,0,0)
-    print(bins)
+    # Set up figure
+    fig, axs = plt.subplots(ncols= 2, nrows=2, sharey=False,figsize =(11,5), gridspec_kw={'hspace':0.5, 'wspace': 0.3})
+    dfs=[]
     
-    # Make labels of bin values for dataframe
-    if variable_name == 'Depth':
-        b = [f'{i}-{j}m' for i, j in zip(np.round(bins,1)[:], np.round(bins,1)[1:])] 
-        b = b + ['>1.3m']
-    else:
-        b = [f'{i}-{j}m/s' for i, j in zip(np.round(bins,1)[:], np.round(bins,1)[1:])] 
-        b = b + ['>0.8m/s']
-    
-    # Dataframe to store change percentages
-    df = pd.DataFrame({'Label':b})    
-    
-    fig, axs = plt.subplots(ncols= 2, nrows=1, sharey=True,figsize = (8,2.5), gridspec_kw={'hspace':1, 'wspace': 0.05})
-    
-    ##############################
-    # Plot number of flooded cells
-    ##############################
-    for number, ax in enumerate(axs.flatten()):
-        individual_cell_values =  individual_cell_values_ls[number]
+    for ax_number, ax in enumerate(axs.flatten()):
+        variable_name = variables[ax_number]
+        catchment_name = catchments[ax_number]
         
-        if catchments[number] =='WykeBeck':
-            weight = 4
-        elif catchments[number] == 'LinDyke':
-            weight = 1
+        # Get data
+        individual_cell_values =  individual_cell_values_dict[catchment_name]
+
+        # Filter out cells which are water
+        if filter_out_water == True:
+            individual_cell_values = individual_cell_values[individual_cell_values['Water_class']==10]
         
-        
+        # Define bins
+        if variable_name == 'Depth':
+            bins = [0.1,0.3,0.6,1.2, 3]
+            b = [f'{i}-{j}m' for i, j in zip(np.round(bins,1)[:], np.round(bins,1)[1:])] 
+            b = [f'{i}-{j}m' for i, j in zip(bins[:], bins[1:])] 
+            b = b + ['>3m']
+            label = 'Depth (m)'
+            
+        elif variable_name =='Velocity':
+            bins =[0, 0.25, 0.5, 1, 2, 3]
+            b = [f'{i}-{j}m/s' for i, j in zip(np.round(bins,2)[:], np.round(bins,2)[1:])] 
+            b = b + ['>3m/s']
+            label = 'Velocity (m/s)'
+
+        # Set weights differently to account for different cell sizes 
+        if catchment_name =='WykeBeck':
+            weight = 4 * 0.000001 
+        elif catchment_name == 'LinDyke':
+            weight = 0.000001 
+
         # Get the 2 most extreme scenario results separately
         extremes = individual_cell_values.loc[individual_cell_values['short_id'].isin([smallest_method, largest_method])].copy()
         # Get so the most/least extreme appear in plots with the colours in same order
@@ -322,73 +317,114 @@ def plot_histogram_weighted (individual_cell_values_ls, variable_name, profiles_
         else:
             extremes.sort_values(by=['short_id'],ascending=True, inplace=True)
 
-        ls_values = sns.histplot(ax=axs[number], data=extremes, x=variable_name, hue='short_id',stat='count',element = 'step', weights=weight,linewidth=2, fill =False,log_scale=False,bins=bins, palette = ['darkred','darkblue']).get_lines()
+        # Plot
+        ls_values = sns.histplot(ax=ax, data=extremes, x=variable_name, hue='short_id',stat='count',
+                                 element = 'step', weights=weight,linewidth=2, fill =False,log_scale=False,
+                                 bins=bins, palette = ['darkred','darkblue']).get_lines()
+        ax.set_ylabel('Area (km2)')
+        ax.set_xticks(bins)
+        ax.tick_params(axis='x', rotation=55)
+        ax.yaxis.set_major_locator(plt.MaxNLocator(5))
+        ax.set_xlabel (label)
         
-        if title == True:
-            axs[number].set_title(catchments[number],fontsize=15)
-          
+        # Set title
+        if variable_name == 'Depth':
+            ax.set_title(catchment_name, fontsize=15)
+
         #### Get change percentages
-        change_pcs = []
+        most_extreme_ls = []
+        least_extreme_ls = []
+        diff_ls=[]
         for num in range(0,len(ls_values[1].get_data()[1][:-1])):
-            previous = ls_values[0].get_data()[1][:-1][num]
-            current = ls_values[1].get_data()[1][:-1][num]
-            change_percent = ((float(current)-previous)/previous)*100
-            change_pcs.append(round(change_percent,1))   
-            
+            least_extreme = ls_values[0].get_data()[1][:-1][num]
+            least_extreme_ls.append(round(least_extreme,2))
+            most_extreme = ls_values[1].get_data()[1][:-1][num]
+            most_extreme_ls.append(round(most_extreme,2))
+            diff=most_extreme-least_extreme
+            diff_ls.append(round(diff,3))
+
         # Add ones not in the histogram    
         largest_method_values = individual_cell_values.loc[individual_cell_values['short_id'].isin([largest_method])].copy()
         smallest_method_values = individual_cell_values.loc[individual_cell_values['short_id'].isin([smallest_method])].copy()
+
         if variable_name == 'Depth':
-            previous =len(smallest_method_values[smallest_method_values['Depth']>1.3])
-            current = len(largest_method_values[largest_method_values['Depth']>1.3])
+            least_extreme_abovehist =len(smallest_method_values[smallest_method_values['Depth']>=bins[-1]])
+            least_extreme_ls.append(round((least_extreme_abovehist/1000000),2))
+            most_extreme_abovehist = len(largest_method_values[largest_method_values['Depth']>=bins[-1]])
+            most_extreme_ls.append(round((most_extreme_abovehist/1000000),2))
         else:
-            previous =len(smallest_method_values[smallest_method_values['Velocity']>0.8])
-            current = len(largest_method_values[largest_method_values['Velocity']>0.8])            
-            
-        change_pcs.append(round(((float(current)-previous)/previous)*100,1)) 
+            least_extreme_abovehist =len(smallest_method_values[smallest_method_values['Velocity']>=bins[-1]])
+            least_extreme_ls.append(round((least_extreme_abovehist/1000000),2))
+            most_extreme_abovehist = len(largest_method_values[largest_method_values['Velocity']>=bins[-1]])      
+            most_extreme_ls.append(round((most_extreme_abovehist/1000000),2))
+        
+        # Difference
+        diff_abovehist = most_extreme_abovehist - least_extreme_abovehist
+        diff_ls.append(round((diff_abovehist/1000000),4))
+
         # Add column in dataframe
-        df['{} ({})'.format(profiles_name, catchments[number])]=change_pcs
-        
-        axs[number].set_ylabel('Area (km2)')
-        axs[number].ticklabel_format(style='sci', axis='y')
-        
-        # Set axis to scientific notation
-        from matplotlib import ticker
-        formatter = ticker.ScalarFormatter(useMathText=True)
-        formatter.set_scientific(True) 
-        formatter.set_powerlimits((-1,1)) 
-        axs[number].yaxis.set_major_formatter(formatter) 
-        
-    fig.savefig("../ProcessModelResults/Outputs/Figs/{}Profiles/{}_Histograms_{}.PNG".format(profiles_name,profiles_name_short,variable_name), 
-                bbox_inches='tight')
-    return df   
+        df = pd.DataFrame({'label':b, 'LeastExtreme': least_extreme_ls, 'MostExtreme':most_extreme_ls, 'Difference': diff_ls})
+        dfs.append(df)
+    
+    if filter_out_water == False:
+        fp_to_save = "../ProcessModelResults/Outputs/Figs/{}Profiles/{}_Histograms.PNG".format(profiles_name, profiles_name_short)
+        fig.savefig(fp_to_save, bbox_inches='tight')
+    else:
+        fp_to_save = "../ProcessModelResults/Outputs/Figs/{}Profiles/{}_Histograms_withoutwater.PNG".format(profiles_name, profiles_name_short)
+        fig.savefig(fp_to_save, bbox_inches='tight')
+    print(fp_to_save)
+    return dfs
 
 
-def hazard_plot(individual_cell_values_ls,  profiles_name, profiles_name_short, smallest_method_str,
-                    largest_method_str, title = True):
+def hazard_plot(individual_cell_values_dict,  profiles_name, profiles_name_short, smallest_method_str,
+                    largest_method_str,filter_out_water, title = True):
     
     fig, axs = plt.subplots(ncols= 2, nrows=1, sharey=False,figsize = (12,3), gridspec_kw={'hspace':1, 'wspace': 0.2})
+    catchments = ['LinDyke', 'WykeBeck']
 
     ##############################
     # Plot number of flooded cells
     ##############################
-    for number, ax in enumerate(axs.flatten()):
-        individual_cell_values =  individual_cell_values_ls[number]
+    for ax_number, ax in enumerate(axs.flatten()):
+        catchment_name = catchments[ax_number]
+        if catchment_name == "LinDyke":
+            cell_size_in_m2 = 1
+        elif catchment_name == "WykeBeck":
+            cell_size_in_m2 = 4
+        
+        # Get data
+        individual_cell_values =  individual_cell_values_dict[catchment_name]
+        # Filter out cells which are water
+        if filter_out_water == True:
+            individual_cell_values = individual_cell_values[individual_cell_values['Water_class']==10]
         
         # Get biggest/smallest method data
         largest_method = individual_cell_values[individual_cell_values['short_id'] == largest_method_str]
         smallest_method = individual_cell_values[individual_cell_values['short_id'] == smallest_method_str]
+        
+        largest_method_val = np.unique(largest_method['Hazard'],return_counts=True)[1]
+        smallest_method_val = np.unique(smallest_method['Hazard'],return_counts=True)[1]
+        
+        largest_method_val =  largest_method_val * (cell_size_in_m2/1000000)
+        smallest_method_val =  smallest_method_val* (cell_size_in_m2/1000000)
+        
         # make dataframe
         hazard_cats =pd.DataFrame({'Hazard_cat':['Low', 'Moderate', 'Significant', 'Extreme'],
-                                  smallest_method_str:np.unique(smallest_method['Hazard'],return_counts=True)[1],
-                                   largest_method_str:np.unique(largest_method['Hazard'],return_counts=True)[1]})
-
-        hazard_cats.set_index('Hazard_cat').plot.bar(ax=axs[number], rot = 0,  width=0.8, color=['darkred', 'darkblue'])
+                                  smallest_method_str: smallest_method_val,
+                                   largest_method_str:largest_method_val})
+        
+        hazard_cats.set_index('Hazard_cat').plot.bar(ax=axs[ax_number], rot = 0,  width=0.8, color=['darkblue', 'darkred'])
         
         if title == True:
-            axs[number].set_title(catchment_name_ls[number],fontsize=15)      
+            axs[ax_number].set_title(catchment_name_ls[ax_number],fontsize=15)      
         
+        ax.set_ylabel("Area (km2)")
         ax.set_xlabel('')
-
-    fig.savefig("../ProcessModelResults/Outputs/Figs/{}Profiles/{}_HazardCats.PNG".format(profiles_name,profiles_name_short), 
-                bbox_inches='tight')
+        
+    if filter_out_water == False:
+        fp_to_save =  "../ProcessModelResults/Outputs/Figs/{}Profiles/{}_HazardCats.PNG".format(profiles_name,profiles_name_short)
+        fig.savefig(fp_to_save, bbox_inches='tight')
+    elif filter_out_water == True:
+        fp_to_save = "../ProcessModelResults/Outputs/Figs/{}Profiles/{}_HazardCats_withoutwater.PNG".format(profiles_name,profiles_name_short)
+        fig.savefig(fp_to_save, bbox_inches='tight')
+    print(fp_to_save)
