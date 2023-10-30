@@ -896,6 +896,7 @@ def produce_df_of_cell_by_cell_values(model_directory, catchment_gdf, catchment_
                                       landcover_urban_flat, crop_or_not, remove_little_values = True,):
     all_methods_df = pd.DataFrame()
     variables=['Depth', 'Velocity','Hazard']
+
     for method_num, short_id in enumerate(methods):
         # Filepath
         fp = model_directory + "{}/{} (Max).{}.tif".format(short_id,'{}',catchment_name_str)
@@ -904,28 +905,28 @@ def produce_df_of_cell_by_cell_values(model_directory, catchment_gdf, catchment_
         # Dataframe where results for this method will be stored
         one_method_df = pd.DataFrame({"short_id" :methods[method_num], 'Water_class':landcover_notwater_flat, 
                                       "urban_class":landcover_urban_flat})
-        #print(one_method_df)
-        # Read raster, round to three decimal places
+
+        # For each variable: read in the data; 
         for variable_name in variables:
             this_fp = fp
             if variable_name == 'Hazard':
                 this_fp = this_fp.replace('{} (Max).{}'.format('{}', catchment_name_str),'hazard_classified')
             else:
                 this_fp = this_fp.format(variable_name)
-
+            # Open and clip to the catchment
             raster, out_meta  = open_and_clip_to_catchment(this_fp.format(variable_name), catchment_gdf, crop_or_not)
-            #print(len(raster))
             # Remove values <0.1m
             if remove_little_values == True:
                 raster = remove_little_values_fxn(raster, fp, catchment_gdf, crop_or_not)       
-            
+            # round to three decimal places
             raster_rounded = np.around(raster, decimals=3)
-            
+            # Add a column to the dataframe containing this data
             one_method_df[variable_name]=raster_rounded.flatten()
-            # Removes columns that don't have a value for depth/velocity/hazard
-        one_method_df = one_method_df.dropna(subset=variables)
+
         # Join results for this method with results for all methods  
-        all_methods_df = pd.concat([all_methods_df, one_method_df], axis =0)   
+        all_methods_df = pd.concat([all_methods_df, one_method_df], axis =0)       
+
+    all_methods_df = all_methods_df.dropna(subset=['Depth', 'Velocity'])
     return all_methods_df
 
 def plot_totals_area_comparisons(cluster_results_dict, short_ids, title, patches, urban = True):
