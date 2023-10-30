@@ -2,8 +2,10 @@
 
 Before running this script for Wyke Beck I had to trim the LandCover.tif file in QGIS to the extent of one of the Hec-Ras results files, using the function: ClipRasterByExtent. I don't exactly understand this as the file being clipped is smaller than the file it's being clipped by, but it seems to work (not sure I did something similar with Lin Dyke, as I can't remember)
 
-The landcover data orginally has nine classes (suburban, arable, decidious woodland, freshwater, improved grassland, urban, neutral grassland, calcareous grassland and heather grassland).   
+The Lin Dyke landcover data orginally has nine classes (suburban, arable, decidious woodland, freshwater, improved grassland, urban, neutral grassland, calcareous grassland and heather grassland).   
 This is reclassified into two classes (urban (including suburban and urban) and not-urban (the rest).
+
+For WykeBeck, the landcover data provided with the model has land cover classes that don't make a massive amount of sense. So tried to download new land cover data from https://catalogue.ceh.ac.uk/documents/14a9ec05-071a-43a5-a142-e6894f3d6f9d , which has 21 classes, of which 10 are present in the Wyke Beck data. 
 
 In this script, the model results (for each of the sets of profiles) are also trimmed to the extent of the Garforth and Kippax boundaries.  
 
