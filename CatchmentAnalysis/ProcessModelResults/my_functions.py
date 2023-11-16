@@ -30,6 +30,8 @@ import contextily as cx
 import matplotlib as mpl
 from scipy import stats
 
+api = "6c2695a3-768a-4885-a408-5770a99f5269"
+
 # Opens a raster, trims it to extent of catchment, saves a trimmed version
 # and returns an arrat contianing the data, also trimmed
 def open_and_clip(input_raster_fp, bbox):
@@ -155,7 +157,7 @@ def create_binned_counts_and_props(methods, fps, filter_by_land_cover, variable_
         elif filter_by_land_cover == True:
             raster_and_landcover = pd.DataFrame({'landcovercategory':  landcover_data, 'value': raster.flatten()})
             # Get just the relevant rows
-            df = raster_and_landcover[raster_and_landcover['landcovercategory']==10].copy()  
+            df = raster_and_landcover[raster_and_landcover['landcovercategory']==15].copy()  
             # Remove na
             df = df.dropna()
             # Add a column assigning a bin based on the depth/velocity value
@@ -213,7 +215,7 @@ def create_binned_counts_and_props_hazard(methods, fps, filter_by_land_cover, ca
             # Get dataframe of hazard values, alongside land cover class
             hazard_and_landcover = pd.DataFrame({'landcovercategory':  landcover_data.flatten(), 'counts': hazard.flatten()})
             # Keep just the rows in the relevant landcoverclass
-            df = hazard_and_landcover[hazard_and_landcover['landcovercategory']==10].copy()  
+            df = hazard_and_landcover[hazard_and_landcover['landcovercategory']==15].copy()  
             # remove the NA values (i.e. where there is no flooding)
             df=df[df.counts.notnull()]
             # Convert the counts back into an array
@@ -669,7 +671,10 @@ def plot_classified_raster(fp_for_classified_raster, labels, colors_list, catchm
 
     fig, ax = plt.subplots(figsize=(20, 15))
     catchment_gdf.plot(ax=ax, facecolor = 'None', edgecolor = 'black', linewidth = 4)
-    cx.add_basemap(ax, crs = catchment_gdf.crs.to_string(), url = cx.providers.OpenStreetMap.Mapnik)
+    cx.add_basemap(ax, source='https://tiles.stadiamaps.com/tiles/stamen_terrain/{z}/{x}/{y}{r}.png?api_key='+api, 
+               crs = catchment_gdf.crs.to_string(), url = cx.providers.OpenTopoMap, zoom=13)
+    
+    
     rasterio.plot.show((clipped, 1), ax= ax, cmap = cmap, norm = norm)
 
     # Close file (otherwise can't delete it, as ref to it is open)

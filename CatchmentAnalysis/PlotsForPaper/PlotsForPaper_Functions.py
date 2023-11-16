@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
+from matplotlib.ticker import FormatStrFormatter
 
 def plot_flooded_extent_1catchment(cluster_results_ls, urban_str, profiles_name, profiles_name_short,  ylim, percent_adjust,
                                    label_height_adjuster_x, label_height_adjuster_y):
@@ -52,13 +53,12 @@ def plot_flooded_extent_1catchment(cluster_results_ls, urban_str, profiles_name,
 
 
     
-def plot_flooded_extent_2catchments_2profilesets(cluster_results_ls, urban_str, profiles_name, profiles_name_short,  ylim, 
+def plot_flooded_extent_2catchments_2profilesets(cluster_results_ls_ls, urban_str, profiles_name, profiles_name_short,  ylim, 
                                     percent_adjustments,  label_height_adjusters_x, label_height_adjusters_y, set_title= False):
-    
     
     # Try@https://stackoverflow.com/questions/40936729/matplotlib-title-spanning-two-or-any-number-of-subplot-columns
     
-    fig, axs = plt.subplots(ncols= 4, nrows=1, sharey=True,figsize = (15,4), gridspec_kw={'hspace': 0.2, 'wspace': 0.03})
+    fig, axs = plt.subplots(ncols= 4, nrows=1, sharey=False,figsize = (15,4), gridspec_kw={'hspace': 0.2, 'wspace': 0.03})
     catchment_name_ls = ['LinDyke','WykeBeck', 'LinDyke','WykeBeck']
     
     ##############################
@@ -68,7 +68,7 @@ def plot_flooded_extent_2catchments_2profilesets(cluster_results_ls, urban_str, 
     #    print(number)
         # Get: (1) idealised results (2) observed results
     number =0
-    for number2, cluster_results_one_set_of_profiles in enumerate(cluster_results_ls):
+    for number2, cluster_results_one_set_of_profiles in enumerate(cluster_results_ls_ls):
         # Get (1) Lin Dyke (2) Wyke Beck
         for cluster_results_one_catchment in cluster_results_one_set_of_profiles:
 
@@ -110,11 +110,12 @@ def plot_flooded_extent_2catchments_2profilesets(cluster_results_ls, urban_str, 
     print(f"../ProcessModelResults/Outputs/Figs/CompareCatchments_Extent1Plot{urban_str}.PNG");
         
     
-def plot_flooded_extent_2catchments(cluster_results_ls, urban_str, profiles_name, profiles_name_short,  ylim, percent_adjust,
-                                   label_height_adjuster_x, label_height_adjuster_y):
+def plot_flooded_extent_2catchments(cluster_results_ls, urban_str, catchment_name, catchment_name_short,  ylim, percent_adjusts,
+                                   label_height_adjusters):
     
-    fig, axs = plt.subplots(ncols= 2, nrows=1, sharey=True,figsize = (9,4), gridspec_kw={'hspace': 0.2, 'wspace': 0.03})
-    catchment_name_ls = ['LinDyke','WykeBeck', 'LinDyke','WykeBeck']
+    fig, axs = plt.subplots(ncols= 2, nrows=1, sharey=True,figsize = (10,4), gridspec_kw={'hspace': 0.2, 'wspace': 0.03})
+    profile_name_ls = ['Idealised','Observed']
+    
     ##############################
     # Plot number of flooded cells
     ##############################
@@ -132,31 +133,29 @@ def plot_flooded_extent_2catchments(cluster_results_ls, urban_str, profiles_name
         xlocs, xlabs = plt.xticks(y_pos)
         xlocs=[i+1 for i in range(0,19)]
         xlabs=[i/2 for i in range(0,19)]
-        
-        
-        if catchment_name_ls[number] == 'LinDyke':
-            label_height_adjuster= label_height_adjuster_x
-        elif catchment_name_ls[number] == 'WykeBeck':
-            label_height_adjuster= label_height_adjuster_y
-            
+                  
         for i, v in enumerate(cluster_results['{}FloodedArea'.format(urban_str)].values.tolist()):
-            ax.text(xlocs[i] - percent_adjust, v * label_height_adjuster, 
+            ax.text(xlocs[i] - percent_adjusts[number], v * label_height_adjusters[number], 
                     str(cluster_results["%Diff_{}FloodedArea_fromSP_formatted".format(urban_str)][i]), 
-                        fontsize = 12.5, rotation =90)
+                        fontsize = 14, rotation =90)
         
         if urban_str == '':
             ax.set_ylim(1,ylim)
         else :
             ax.set_ylim(0,ylim)
        
-        ax.set_title(catchment_name_ls[number],fontsize=15)
-
-    fig.text(0.04, 0.5, 'Flooded area (km2)', fontsize=15, va='center', rotation='vertical')   
+        ax.set_title(profile_name_ls[number],fontsize=15)
     
-    if urban_str != '':
-        urban_str = '_' + urban_str
-    fig.savefig("../ProcessModelResults/Outputs/Figs/{}Profiles/{}_CompareCatchments_Extent1Plot{}.PNG".format(profiles_name,
-        profiles_name_short, urban_str), bbox_inches='tight')
+        ax.yaxis.set_major_formatter(FormatStrFormatter('%.1f'))
+    
+    fig.text(0.06, 0.5, 'Flooded area (km2)', fontsize=15, va='center', rotation='vertical')   
+    fig.suptitle(catchment_name, x =0.5, y= 1.07, fontsize=20)
+    
+#     if urban_str != '':
+#         urban_str = '_' + urban_str
+    
+    # Save
+    fig.savefig("Figs/FloodedAreaBarCharts/{}_{}.PNG".format(catchment_name_short, urban_str), bbox_inches='tight')
     
     
 def boxplot(fig, individual_cell_values_ls, fl_method,bl_method, variable_name, ax, title, outliers = False):
@@ -287,7 +286,7 @@ def plot_histogram_weighted (individual_cell_values_dict, profiles_name, profile
 
         # Filter out cells which are water
         if filter_out_water == True:
-            individual_cell_values = individual_cell_values[individual_cell_values['Water_class']==10]
+            individual_cell_values = individual_cell_values[individual_cell_values['Water_class']==15]
         
         # Define bins
         if variable_name == 'Depth':
@@ -298,7 +297,7 @@ def plot_histogram_weighted (individual_cell_values_dict, profiles_name, profile
             label = 'Depth (m)'
             
         elif variable_name =='Velocity':
-            bins =[0, 0.25, 0.5, 1, 2, 3]
+            bins =[0, 0.25, 0.5, 2, 3]
             b = [f'{i}-{j}m/s' for i, j in zip(np.round(bins,2)[:], np.round(bins,2)[1:])] 
             b = b + ['>3m/s']
             label = 'Velocity (m/s)'
@@ -311,6 +310,8 @@ def plot_histogram_weighted (individual_cell_values_dict, profiles_name, profile
 
         # Get the 2 most extreme scenario results separately
         extremes = individual_cell_values.loc[individual_cell_values['short_id'].isin([smallest_method, largest_method])].copy()
+        print(len(extremes[extremes['short_id']==largest_method]))
+        
         # Get so the most/least extreme appear in plots with the colours in same order
         if profiles_name =='SinglePeak_Scaled':
             extremes.sort_values(by=['short_id'],ascending =True, inplace=True)
@@ -367,16 +368,16 @@ def plot_histogram_weighted (individual_cell_values_dict, profiles_name, profile
         dfs.append(df)
     
     if filter_out_water == False:
-        fp_to_save = "../ProcessModelResults/Outputs/Figs/{}Profiles/{}_Histograms.PNG".format(profiles_name, profiles_name_short)
+        fp_to_save = "Figs/Histograms/{}_Histograms.PNG".format(profiles_name_short)
         fig.savefig(fp_to_save, bbox_inches='tight')
     else:
-        fp_to_save = "../ProcessModelResults/Outputs/Figs/{}Profiles/{}_Histograms_withoutwater.PNG".format(profiles_name, profiles_name_short)
+        fp_to_save = "Figs/Histograms/{}_Histograms_withoutwater.PNG".format(profiles_name_short)
         fig.savefig(fp_to_save, bbox_inches='tight')
     print(fp_to_save)
     return dfs
 
 
-def hazard_plot(individual_cell_values_dict,  profiles_name, profiles_name_short, smallest_method_str,
+def hazard_plot(individual_cell_values_dict,  profiles_name_short, smallest_method_str,
                     largest_method_str,filter_out_water, title = True):
     
     fig, axs = plt.subplots(ncols= 2, nrows=1, sharey=False,figsize = (12,3), gridspec_kw={'hspace':1, 'wspace': 0.2})
@@ -396,7 +397,7 @@ def hazard_plot(individual_cell_values_dict,  profiles_name, profiles_name_short
         individual_cell_values =  individual_cell_values_dict[catchment_name]
         # Filter out cells which are water
         if filter_out_water == True:
-            individual_cell_values = individual_cell_values[individual_cell_values['Water_class']==10]
+            individual_cell_values = individual_cell_values[individual_cell_values['Water_class']==15]
         
         # Get biggest/smallest method data
         largest_method = individual_cell_values[individual_cell_values['short_id'] == largest_method_str]
@@ -409,12 +410,15 @@ def hazard_plot(individual_cell_values_dict,  profiles_name, profiles_name_short
         smallest_method_val =  smallest_method_val* (cell_size_in_m2/1000000)
         
         # make dataframe
-        hazard_cats =pd.DataFrame({'Hazard_cat':['Low', 'Moderate', 'Significant', 'Extreme'],
+        hazard_cats =pd.DataFrame({'Hazard_cat':['Low', 'Moderate', 'Significant', 'Extreme', 'NA'],
                                   smallest_method_str: smallest_method_val,
                                    largest_method_str:largest_method_val})
+        # Drop NA row
+        hazard_cats = hazard_cats[:-1]
         
+        # Plot
         hazard_cats.set_index('Hazard_cat').plot.bar(ax=axs[ax_number], rot = 0,  width=0.8, color=['darkblue', 'darkred'])
-        
+            
         if title == True:
             axs[ax_number].set_title(catchment_name_ls[ax_number],fontsize=15)      
         
@@ -422,9 +426,9 @@ def hazard_plot(individual_cell_values_dict,  profiles_name, profiles_name_short
         ax.set_xlabel('')
         
     if filter_out_water == False:
-        fp_to_save =  "../ProcessModelResults/Outputs/Figs/{}Profiles/{}_HazardCats.PNG".format(profiles_name,profiles_name_short)
+        fp_to_save =  "Figs/Outputs/HazardPlots/{}_HazardCats.PNG".format(profiles_name_short)
         fig.savefig(fp_to_save, bbox_inches='tight')
     elif filter_out_water == True:
-        fp_to_save = "../ProcessModelResults/Outputs/Figs/{}Profiles/{}_HazardCats_withoutwater.PNG".format(profiles_name,profiles_name_short)
+        fp_to_save = "../ProcessModelResults/Outputs/HazardPlots/{}_HazardCats_withoutwater.PNG".format(profiles_name_short)
         fig.savefig(fp_to_save, bbox_inches='tight')
     print(fp_to_save)
