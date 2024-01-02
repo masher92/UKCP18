@@ -75,7 +75,7 @@ def open_and_clip(input_raster_fp, bbox):
 def open_and_clip_to_catchment (input_fp, catchment_gdf, crop_or_not):
     # Get the results, and mask out values not within the geodataframe
     with rasterio.open(input_fp) as src:
-        catchment_gdf=catchment_gdf.to_crs(src.crs)
+        catchment_gdf=catchment_gdf.to_crs("EPSG:27700")
         out_image, out_transform=mask(src,catchment_gdf.geometry,crop=crop_or_not)
         out_meta=src.meta.copy() # copy the metadata of the source DEM
         raster = out_image[0]

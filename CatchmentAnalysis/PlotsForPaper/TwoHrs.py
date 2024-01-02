@@ -13,7 +13,7 @@ import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 import sys
-sys.path.append("../ProcessModelResults/")
+sys.path.append("/nfs/a319/gy17m2a/PhD/Scripts/CatchmentAnalysis/ProcessModelResults/")
 from my_functions import *
 
 from PlotsForPaper_Functions import *
@@ -74,7 +74,7 @@ methods_dict = {'Idealised': ['6h_sp_fl_0.1', '6h_sp_fl_0.2', '6h_sp_fl_0.3', '6
 ####################################
 # Landcover data
 ####################################
-landcover_directory = '../../../FloodModelling/{}Models/LandCoverData/'.format(catchment_name)
+landcover_directory = '/nfs/a319/gy17m2a/PhD/FloodModelling/{}Models/LandCoverData/'.format(catchment_name)
 # Water landcover classification - 10 is water, 11 is eveyrthing else
 with rasterio.open(landcover_directory + 'LandCover_notwater_classification.tif', 'r') as ds:
     landcover_notwater = ds.read()[0]
@@ -106,7 +106,9 @@ if catchment_name == 'LinDyke':
 Hs=range(12,24)
 Ms= range(0,60,10)
 
-Hs_dict = {1:range(20,24,2), 2: range(0,24,2), 3: range(0,24,2), 4: range(0,12,2)}
+# Hs_dict = {1:range(20,24,2), 2: range(0,12,2), 3: range(0,24,2), 4: range(0,12,2)}
+Hs_dict = {1:range(20,24,2), 2: range(0,12,2)}
+
 
 # Loop through methods
 for method in methods_dict[methods_key]:
@@ -128,11 +130,12 @@ for method in methods_dict[methods_key]:
     print(method)
     
     # Loop through each timeslice
-    for D in range(1,5,1):
+    for D in range(1,3,1):
+        print(D)
         Hs = Hs_dict[D]
         for H in Hs:
             H = str(H).zfill(2)
-                
+            print(H)    
             if methods_key == 'Observed' and method == '6h_feh_singlepeak':
                 fp = feh_directory + '/{}/Depth (0{}AUG2022 {} 00 00).{}.tif'.format(method, D, H, filename_ending)
                 if H == "12" and D ==1 :
@@ -144,81 +147,81 @@ for method in methods_dict[methods_key]:
                     fp = model_directory + '{}/Depth (0{}AUG2022 {} 01 00).{}.tif'.format(method, D, H, filename_ending)
     
             # To not crash the script if this timeslice's data isnt downloaded
-            #try:
-                
-            ###################################
-            # Get the number of cells with flooding >0.1m
-            ###################################
-            # Get the data for this timeslice
-            depth_timeslice, out_meta = open_and_clip_to_catchment(fp, catchment_gdf, crop_or_not = crop_or_not)
-            number_flooded_cells = depth_timeslice[depth_timeslice>0].size
-            n_flooded_cells.append(number_flooded_cells)
+            try:
 
-#                 # Remove values <0.1m
-#                 # depth_timeslice = remove_little_values_fxn(depth_timeslice, fp, catchment_gdf, True)   
-#                 # Count the number of flooded cells (shouldnt need the filter by 0.1 as already done)
-#                 number_flooded_cells_over10cm = depth_timeslice[depth_timeslice>0.1].size
-#                 # Add values to list
-#                 n_flooded_cells_over10cm.append(number_flooded_cells_over10cm)
+                ###################################
+                # Get the number of cells with flooding >0.1m
+                ###################################
+                # Get the data for this timeslice
+                depth_timeslice, out_meta = open_and_clip_to_catchment(fp, catchment_gdf, crop_or_not = crop_or_not)
+                number_flooded_cells = depth_timeslice[depth_timeslice>0].size
+                n_flooded_cells.append(number_flooded_cells)
 
-#                 ###################################
-#                 # Get the number of cells with flooding >0.1m which aren't areas or permanent water
-#                 ###################################
-#                 depth_timeslice_notwater = depth_timeslice.copy()
-#                 depth_timeslice_notwater[np.where(landcover_notwater ==16)] = np.nan
-#                 # Count number of flooded cells which aren't water
-#                 number_flooded_cells_not_water = depth_timeslice_notwater[depth_timeslice_notwater>0.1].size
-#                 # Add values to list
-#                 n_flooded_cells_notwater.append(number_flooded_cells_not_water)
+    #                 # Remove values <0.1m
+    #                 # depth_timeslice = remove_little_values_fxn(depth_timeslice, fp, catchment_gdf, True)   
+    #                 # Count the number of flooded cells (shouldnt need the filter by 0.1 as already done)
+    #                 number_flooded_cells_over10cm = depth_timeslice[depth_timeslice>0.1].size
+    #                 # Add values to list
+    #                 n_flooded_cells_over10cm.append(number_flooded_cells_over10cm)
 
-            ###################################
-            # Get the number of cells with flooding >0.1m which are urban
-            ###################################
-#                 depth_timeslice_urban = depth_timeslice.copy()
-#                 depth_timeslice_urban[np.where(landcover_urban ==16)] = np.nan
-#                 # Count number of flooded cells which aren't water
-#                 number_flooded_cells_urban = depth_timeslice_urban[depth_timeslice_urban>0.1].size
-#                 # Add values to list
-#                 n_flooded_cells_urban.append(number_flooded_cells_urban)
+                ###################################
+                # Get the number of cells with flooding >0.1m which aren't areas or permanent water
+                ###################################
+                depth_timeslice_notwater = depth_timeslice.copy()
+                depth_timeslice_notwater[np.where(landcover_notwater ==16)] = np.nan
+                # Count number of flooded cells which aren't water
+                number_flooded_cells_not_water = depth_timeslice_notwater[depth_timeslice_notwater>0.1].size
+                # Add values to list
+                n_flooded_cells_notwater.append(number_flooded_cells_not_water)
 
-            ###################################
-            # Get the number of cells with flooding >0.1m which are urban
-            ###################################
-#                 if catchment_name == 'LinDyke':
-#                     depth_timeslice_garforth, out_meta = open_and_clip_to_catchment(fp, garforth_gdf, crop_or_not = crop_or_not)
-#                     number_flooded_cells_garforth_over10 = depth_timeslice_garforth[depth_timeslice_garforth>0.1].size
-#                     number_flooded_cells_garforth = depth_timeslice_garforth[depth_timeslice_garforth>0].size
-#                     n_flooded_cells_garforth.append(number_flooded_cells_garforth)
-#                     n_flooded_cells_garforth_over10.append(number_flooded_cells_garforth_over10)
+                ###################################
+                # Get the number of cells with flooding >0.1m which are urban
+                ###################################
+                depth_timeslice_urban = depth_timeslice.copy()
+                depth_timeslice_urban[np.where(landcover_urban ==16)] = np.nan
+                # Count number of flooded cells which aren't water
+                number_flooded_cells_urban = depth_timeslice_urban[depth_timeslice_urban>0.1].size
+                # Add values to list
+                n_flooded_cells_urban.append(number_flooded_cells_urban)
 
-#                 ###################################
-#                 # Get the number of cells with flooding >0.1m which are urban
-#                 ###################################
-#                 if catchment_name == 'LinDyke':
-#                     depth_timeslice_kippax, out_meta = open_and_clip_to_catchment(fp, kippax_gdf, crop_or_not = crop_or_not)
-#                     number_flooded_cells_kippax_over10 = depth_timeslice_kippax[depth_timeslice_kippax>0.1].size
-#                     number_flooded_cells_kippax = depth_timeslice_kippax[depth_timeslice_kippax>0].size
-#                     n_flooded_cells_kippax.append(number_flooded_cells_kippax)
-#                     n_flooded_cells_kippax_over10.append(number_flooded_cells_kippax_over10)
+                ###################################
+                # Get the number of cells with flooding >0.1m which are urban
+                ###################################
+    #                 if catchment_name == 'LinDyke':
+    #                     depth_timeslice_garforth, out_meta = open_and_clip_to_catchment(fp, garforth_gdf, crop_or_not = crop_or_not)
+    #                     number_flooded_cells_garforth_over10 = depth_timeslice_garforth[depth_timeslice_garforth>0.1].size
+    #                     number_flooded_cells_garforth = depth_timeslice_garforth[depth_timeslice_garforth>0].size
+    #                     n_flooded_cells_garforth.append(number_flooded_cells_garforth)
+    #                     n_flooded_cells_garforth_over10.append(number_flooded_cells_garforth_over10)
+
+    #                 ###################################
+    #                 # Get the number of cells with flooding >0.1m which are urban
+    #                 ###################################
+    #                 if catchment_name == 'LinDyke':
+    #                     depth_timeslice_kippax, out_meta = open_and_clip_to_catchment(fp, kippax_gdf, crop_or_not = crop_or_not)
+    #                     number_flooded_cells_kippax_over10 = depth_timeslice_kippax[depth_timeslice_kippax>0.1].size
+    #                     number_flooded_cells_kippax = depth_timeslice_kippax[depth_timeslice_kippax>0].size
+    #                     n_flooded_cells_kippax.append(number_flooded_cells_kippax)
+    #                     n_flooded_cells_kippax_over10.append(number_flooded_cells_kippax_over10)
 
 
-            ###################################
-            # Get the number of cells with flooding >0.1m which are urban
-            ###################################
-            if catchment_name == 'LinDyke':
-                depth_timeslice_nowetlands, out_meta = open_and_clip_to_catchment(fp, cutting_off_wetlands_gdf, crop_or_not = crop_or_not)
-                depth_timeslice_nowetlands[np.where(landcover_notwater ==16)] = np.nan
-                number_flooded_cells_nowetlands_over10 = depth_timeslice_nowetlands[depth_timeslice_nowetlands>0.1].size
-                n_flooded_cells_nowetlands_over10.append(number_flooded_cells_nowetlands_over10)                   
-                
-            #except:
-            #    print(fp)
+                ###################################
+                # Get the number of cells with flooding >0.1m which are urban
+                ###################################
+                if catchment_name == 'LinDyke':
+                    depth_timeslice_nowetlands, out_meta = open_and_clip_to_catchment(fp, cutting_off_wetlands_gdf, crop_or_not = crop_or_not)
+                    depth_timeslice_nowetlands[np.where(landcover_notwater ==16)] = np.nan
+                    number_flooded_cells_nowetlands_over10 = depth_timeslice_nowetlands[depth_timeslice_nowetlands>0.1].size
+                    n_flooded_cells_nowetlands_over10.append(number_flooded_cells_nowetlands_over10)                   
+
+            except:
+                print(fp)
 
     # Add to dict
     n_flooded_cells_dict[method] = n_flooded_cells
 #     n_flooded_cells_dict_over10cm[method] = n_flooded_cells_over10cm
-#     n_flooded_cells_dict_notwater[method] = n_flooded_cells_notwater
-#     n_flooded_cells_dict_urban[method] = n_flooded_cells_urban
+    n_flooded_cells_dict_notwater[method] = n_flooded_cells_notwater
+    n_flooded_cells_dict_urban[method] = n_flooded_cells_urban
     if catchment_name == 'LinDyke':
 #         n_flooded_cells_dict_garforth[method] = n_flooded_cells_garforth
 #         n_flooded_cells_dict_garforth_over10[method] = n_flooded_cells_garforth_over10
@@ -229,8 +232,8 @@ for method in methods_dict[methods_key]:
 
 df_allvalues = pd.DataFrame(n_flooded_cells_dict)
 # df_over10cm = pd.DataFrame(n_flooded_cells_dict_over10cm)
-# df_notwater = pd.DataFrame(n_flooded_cells_dict_notwater)
-# df_urban = pd.DataFrame(n_flooded_cells_dict_urban)
+df_notwater = pd.DataFrame(n_flooded_cells_dict_notwater)
+df_urban = pd.DataFrame(n_flooded_cells_dict_urban)
 if catchment_name == 'LinDyke':
 #     df_garforth = pd.DataFrame(n_flooded_cells_dict_garforth)
 #     df_garforth_over10 = pd.DataFrame(n_flooded_cells_dict_garforth_over10)
@@ -239,11 +242,12 @@ if catchment_name == 'LinDyke':
     df_nowetlands = pd.DataFrame(n_flooded_cells_dict_nowetlands)
     df_nowetlands_over10 = pd.DataFrame(n_flooded_cells_dict_nowetlands_over10)
     
+    
 # Write to csv
-df_allvalues.to_csv("Data/FloodedAreaOverTime/{}/{}/allvalues_2hrs.csv".format(catchment_name,methods_key), index=False)
+df_allvalues.to_csv("../PlotsForPaper/Data/FloodedAreaOverTime/{}/{}/allvalues_2hrs.csv".format(catchment_name,methods_key), index=False)
 # df_over10cm.to_csv("Data/FloodedAreaOverTime/{}/{}/over10cm_2hrs.csv".format(catchment_name,methods_key), index=False)
-# df_notwater.to_csv("Data/FloodedAreaOverTime/{}/{}/notwater_2hrs.csv".format(catchment_name, methods_key), index=False)
-# df_urban.to_csv("Data/FloodedAreaOverTime/{}/{}/urban_2hrs.csv".format(catchment_name, methods_key), index=False)
+df_notwater.to_csv("../PlotsForPaper/Data/FloodedAreaOverTime/{}/{}/notwater_2hrs.csv".format(catchment_name, methods_key), index=False)
+df_urban.to_csv("../PlotsForPaper/Data/FloodedAreaOverTime/{}/{}/urban_2hrs.csv".format(catchment_name, methods_key), index=False)
 if catchment_name == 'LinDyke':
 #     df_garforth.to_csv("Data/FloodedAreaOverTime/{}/{}/garforth_2hrs.csv".format(catchment_name, methods_key), index=False)
 #     df_garforth_over10.to_csv("Data/FloodedAreaOverTime/{}/{}/garforth_over10_2hrs.csv".format(catchment_name, methods_key), index=False)

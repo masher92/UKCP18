@@ -109,9 +109,8 @@ def plot_flooded_extent_2catchments_2profilesets(cluster_results_ls_ls, urban_st
     fig.savefig(f"../ProcessModelResults/Outputs/Figs/CompareCatchments_Extent1Plot{urban_str}.PNG", bbox_inches='tight')
     print(f"../ProcessModelResults/Outputs/Figs/CompareCatchments_Extent1Plot{urban_str}.PNG");
         
-    
 def plot_flooded_extent_2catchments(cluster_results_ls, urban_str, catchment_name, catchment_name_short,  ylim, percent_adjusts,
-                                   label_height_adjusters):
+                                   label_height_adjusters, title = True):
     
     fig, axs = plt.subplots(ncols= 2, nrows=1, sharey=True,figsize = (10,4), gridspec_kw={'hspace': 0.2, 'wspace': 0.03})
     profile_name_ls = ['Idealised','Observed']
@@ -143,19 +142,21 @@ def plot_flooded_extent_2catchments(cluster_results_ls, urban_str, catchment_nam
             ax.set_ylim(1,ylim)
         else :
             ax.set_ylim(0,ylim)
-       
-        ax.set_title(profile_name_ls[number],fontsize=15)
-    
+        
+        if title ==True:
+            ax.set_title(profile_name_ls[number],fontsize=15)
         ax.yaxis.set_major_formatter(FormatStrFormatter('%.1f'))
     
     fig.text(0.06, 0.5, 'Flooded area (km2)', fontsize=15, va='center', rotation='vertical')   
-    fig.suptitle(catchment_name, x =0.5, y= 1.07, fontsize=20)
+    if title == True:
+        fig.suptitle(catchment_name, x =0.5, y= 1.07, fontsize=20)
     
 #     if urban_str != '':
 #         urban_str = '_' + urban_str
     
     # Save
     fig.savefig("Figs/FloodedAreaBarCharts/{}_{}.PNG".format(catchment_name_short, urban_str), bbox_inches='tight')
+    
     
     
 def boxplot(fig, individual_cell_values_ls, fl_method,bl_method, variable_name, ax, title, outliers = False):
