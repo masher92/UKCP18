@@ -16,6 +16,16 @@ CEH-GEAR-1km data is not available via FTP, and has to be downloaded manually fr
 <!--- (Data for CEH-GEAR was downloaded on the SEE Linux remote server https://www.see.leeds.ac.uk/linux/desktop/.
 Attempted using wget to automate this, but it didn't download file properly (very small file; html). So, instead had to manually point and click to files and then transfer them to the correct folder in a319 using terminal and mv -v ~/Downloads/* /nfs/a319/gy17m2a/CEH-GEAR.-->
 
+<ins> NIMROD Radar data </ins>
+- Download using "http://localhost:7084/notebooks/Scripts/DataDownload/Nimrod.ipynb"
+- This creates .dat.gz.tar files - one for each day
+- Can untar these using python (same script as above). Theses creates .dat.gz files, each which is for 5 mins, and also delete the .tar files (although still leaves a .nfs file)
+- Using Mobaxterm run "find . -type f -iname "*.gz" -exec gunzip {} +" from the directory, and this converts .dat.gz files into .dat (I think the .dat.gz files don't remain after)
+- SHould include check that all the data is there??
+- Convert .dat to .tiff, using 
+python read_nimrod.py "../../../../datadir/NimRod/2004/metoffice-c-band-rain-radar_uk_200404062325_1km-composite.dat/processingCache/ukmo-nimrod/reprocess/quarantine/metoffice-c-band-rain-radar_uk_200404062325_1km-composite.dat" "../../../../datadir/NimRod_Processed/2004/metoffice-c-band-rain-radar_uk_200404062325_1km-composite.tiff"
+
+
 
 <ins> To Do </ins>  
 Could this be set-up to clip the data to the Leeds region on download to save on memory requirements?
