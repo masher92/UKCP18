@@ -24,6 +24,7 @@ Attempted using wget to automate this, but it didn't download file properly (ver
 - SHould include check that all the data is there??
 - Convert .dat to .tiff, using 
 python read_nimrod.py "../../../../datadir/NimRod/2004/metoffice-c-band-rain-radar_uk_200404062325_1km-composite.dat/processingCache/ukmo-nimrod/reprocess/quarantine/metoffice-c-band-rain-radar_uk_200404062325_1km-composite.dat" "../../../../datadir/NimRod_Processed/2004/metoffice-c-band-rain-radar_uk_200404062325_1km-composite.tiff"
+- Join all the .tiffs into one 
 
 
 
