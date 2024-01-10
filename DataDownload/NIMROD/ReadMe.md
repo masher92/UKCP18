@@ -6,4 +6,4 @@ In order to download and process NIMROD raw radar data from a particular year (e
 This radar_retrieval.sh shell scripts:
 * Calls Download_from_CEDA.py which downloads data from CEDA archive
 * Untars and unzips the data
-* Converts it to netCDFs grouped by day
+* Calls merge_radar.py which converts the .dat files to netCDFs grouped by day
