@@ -6,7 +6,7 @@ import iris
 from pyproj import Proj, transform
 from shapely.geometry import Point, Polygon, MultiPolygon
 import matplotlib.pyplot as plt
-import tilemapbase
+# import tilemapbase
 import time 
 import pandas as pd
 
@@ -79,9 +79,6 @@ def create_test_outline (required_proj):
     return leeds_at_centre_gdf
 
 
-
-
-
 def create_leeds_at_centre_outline (required_proj):
     '''
     Description
@@ -109,7 +106,7 @@ def create_leeds_at_centre_outline (required_proj):
     # Convert to polygon
     polygon_geom = Polygon(zip(lats, lons))
     # Convert to geodataframe
-    leeds_at_centre_gdf = gpd.GeoDataFrame(index=[0], crs={'init': 'epsg:4326'}, geometry=[polygon_geom])
+    leeds_at_centre_gdf = gpd.GeoDataFrame(index=[0], crs='epsg:4326', geometry=[polygon_geom])
     leeds_at_centre_gdf = leeds_at_centre_gdf.to_crs(required_proj) 
 
     return leeds_at_centre_gdf
@@ -167,7 +164,7 @@ def create_leeds_outline_square (required_proj):
     
     '''
     # Read in outline of Leeds wards  
-    wards = gpd.read_file("/nfs/a319/gy17m2a/PhD/datadir/SpatialData/england_cmwd_2011.shp")
+    wards = gpd.read_file("/nfs/a319/gy17m2a/PhD/datadir/SpatialData/england_cmwd_2011/england_cmwd_2011.shp")
     # Create column to merge on
     wards['City'] = 'Leeds'
     # Merge all wards into one outline
@@ -205,7 +202,7 @@ def create_leeds_outline (required_proj):
     
     '''
     # Read in outline of Leeds wards  
-    wards = gpd.read_file("PhD/datadir/SpatialData/england_cmwd_2011.shp")
+    wards = gpd.read_file("/nfs/a319/gy17m2a/PhD/datadir/SpatialData/england_cmwd_2011/england_cmwd_2011.shp")
     # Create column to merge on
     wards['City'] = 'Leeds'
     # Merge all wards into one outline

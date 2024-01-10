@@ -4,7 +4,7 @@ import iris
 from pyproj import Proj, transform
 from shapely.geometry import Point, Polygon, MultiPolygon
 import matplotlib.pyplot as plt
-import tilemapbase
+# import tilemapbase
 import time 
 #import bottleneck
 import pandas as pd

@@ -121,6 +121,8 @@ def plot_flooded_extent_2catchments(cluster_results_ls, urban_str, catchment_nam
     for number, ax in enumerate(axs.flatten()):
 
         cluster_results =  cluster_results_ls[number]
+        cluster_results = cluster_results.replace(to_replace='paleturquoise', value='deepskyblue', regex=True)
+
         
         y_pos = np.arange(len(cluster_results['Cluster_num']))
         ax.bar(y_pos, cluster_results['{}FloodedArea'.format(urban_str)].values.tolist(), width = 0.9, 
@@ -156,7 +158,6 @@ def plot_flooded_extent_2catchments(cluster_results_ls, urban_str, catchment_nam
     
     # Save
     fig.savefig("Figs/FloodedAreaBarCharts/{}_{}.PNG".format(catchment_name_short, urban_str), bbox_inches='tight')
-    
     
     
 def boxplot(fig, individual_cell_values_ls, fl_method,bl_method, variable_name, ax, title, outliers = False):

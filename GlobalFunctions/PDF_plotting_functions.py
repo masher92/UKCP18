@@ -237,7 +237,6 @@ def log_discrete_histogram_lesslegend_array(results_dict, cols_dict, bin_nos, pr
     
     fig, ax = plt.subplots()
     for key, array in results_dict.items():
-        print(key)
         # Define the colour to use for this entry
         # Create a patch for this colour to be used in creating the legend
         # And add to list of patches for use in legend
