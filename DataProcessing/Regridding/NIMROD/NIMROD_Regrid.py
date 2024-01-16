@@ -18,7 +18,7 @@ import sys
 root_fp = "/nfs/a319/gy17m2a/PhD"
 os.chdir(root_fp)
 
-time_resolution  = '5mins'
+time_resolution  = '30mins'
 
 # Create path to files containing functions
 sys.path.insert(0, root_fp + 'Scripts/UKCP18/Regridding')
@@ -32,7 +32,7 @@ cube_model_2_2km =iris.load_cube(file_model_2_2km)
 file_model_12km ='/nfs/a319/gy17m2a/PhD/datadir/UKCP18/12km/01/pr_rcp85_land-rcm_uk_12km_01_day_19801201-19901130.nc'
 cube_model_12km=iris.load_cube(file_model_12km)
 
-for year in range(2013,2020):
+for year in range(2006,2020):
     print(year)
     folder_regrid_2_2km_lin = (f"datadir/NIMROD/{time_resolution}/OriginalFormat_1km/{year}").replace('OriginalFormat_1km', 'NIMROD_regridded_2.2km/LinearRegridding')
     folder_regrid_2_2km_nn = (f"datadir/NIMROD/{time_resolution}/OriginalFormat_1km/{year}").replace('OriginalFormat_1km', 'NIMROD_regridded_2.2km/NearestNeighbour')
