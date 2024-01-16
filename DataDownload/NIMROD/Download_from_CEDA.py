@@ -29,7 +29,7 @@ for year in range(year, year+1, 1):
     f.cwd(f"badc/ukmo-nimrod/data/composite/uk-1km/{year}")
     
     # Define directory where data should be stored
-    ddir = f"/nfs/a319/gy17m2a/PhD/datadir/NimRod/{year}/" 
+    ddir = f"/nfs/a319/gy17m2a/PhD/datadir/NIMROD/5mins/OriginalFormat_1km/{year}/" 
     # If directory doesn't exist make it
     if not os.path.isdir(ddir):
         os.makedirs(ddir)

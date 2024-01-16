@@ -11,13 +11,13 @@ ssh -A cloud9 "python /nfs/a319/gy17m2a/PhD/Scripts/DataDownload/NIMROD/Download
 # mkdir ${radardir}
 # rm $radardir/*
 # echo /nfs/a319/gy17m2a/PhD/datadir/NimRod/${year}/
-cd /nfs/a319/gy17m2a/PhD/datadir/NimRod/${year}/
+cd /nfs/a319/gy17m2a/PhD/datadir/NIMROD/5mins/OriginalFormat_1km/${year}/
 for file in *.tar ; do
-# for file in metoffice-c-band-rain-radar_uk_20060626_1km-composite.dat.gz.tar ; do
+# for file in metoffice-c-band-rain-radar_uk_20130720_1km-composite.dat.gz.tar ; do
   echo $file
   tar xf $file 
   gzip -d *.dat.gz
-  ssh -A cloud9 "conda activate pygeospatial; python /nfs/a319/gy17m2a/PhD/Scripts/DataDownload/NIMROD/merge_radar.py" $year
+  ssh -A cloud9 "conda activate pygeospatial; python /nfs/a319/gy17m2a/PhD/Scripts/DataDownload/NIMROD/merge_into_daily_radar_file.py" $year
   rm $file
   rm *.dat
 done
