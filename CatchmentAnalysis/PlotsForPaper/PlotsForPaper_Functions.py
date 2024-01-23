@@ -4,6 +4,44 @@ import pandas as pd
 import seaborn as sns
 from matplotlib.ticker import FormatStrFormatter
 
+def find_numbers_in_bins (df_list_idealised, df_list_observed, FloodedAreaColumn, ld_col_num, wb_col_num):
+    # Create dataframe with the difference between two most extreme profiles for catchment/profile combos
+    # for the different bins
+    df = pd.DataFrame({"label":df_list_idealised[ld_col_num]['label'],
+                      'LD_Idealised':df_list_idealised[ld_col_num]['Difference'],
+                      'LD_Observed':df_list_observed[ld_col_num]['Difference'],
+                       'WB_Idealised':df_list_idealised[wb_col_num]['Difference'],
+                      'WB_Observed':df_list_observed[wb_col_num]['Difference']})
+    
+    # Add a column with the total difference between 2 extremes across all bins
+    len_df = len(df)
+    df.loc[len(df)] = df.iloc[0:len_df,].sum(axis=0)
+    df.iloc[(len_df, 0)] = 'TotalDiffBetweenExtremes_fromthisDF'
+    
+    # Add a row containing the total difference across all bins (tis comes from cluster_results), rather than
+    # summing the previous rows 
+    ld_ip_diff = round(cluster_results_ip_ld[FloodedAreaColumn][8] - cluster_results_ip_ld[FloodedAreaColumn][0],3)
+    wb_ip_diff = round(cluster_results_ip_wb[FloodedAreaColumn][8] - cluster_results_ip_wb[FloodedAreaColumn][0],3)
+    ld_op_diff = round(cluster_results_op_ld[FloodedAreaColumn][15] - cluster_results_op_ld[FloodedAreaColumn][2],3)
+    wb_op_diff = round(cluster_results_op_wb[FloodedAreaColumn][15] - cluster_results_op_wb[FloodedAreaColumn][2],3)
+    # Make this into a row
+    list_row = ["TotalDiffBetweenExtremes_fromClusterResults",ld_ip_diff, ld_op_diff, wb_ip_diff, wb_op_diff]
+    # Add to dataframe 
+    df.loc[len(df)] = list_row
+    
+    # Add columns with the percent of the total difference between the two most extreme scenarios that is found
+    # in each of the bins 
+    df['LD_Idealised_%'] = round(df['LD_Idealised']/ld_ip_diff,2)*100
+    df['LD_Observed_%'] = round(df['LD_Observed']/ld_op_diff,2)*100
+    df['WB_Idealised_%'] = round(df['WB_Idealised']/wb_ip_diff,2)*100
+    df['WB_Observed_%'] = round(df['WB_Observed']/wb_op_diff,2)*100
+    
+    # Reformat
+    df = df.set_index('label').T
+    
+    return (df)
+
+
 def plot_flooded_extent_1catchment(cluster_results_ls, urban_str, profiles_name, profiles_name_short,  ylim, percent_adjust,
                                    label_height_adjuster_x, label_height_adjuster_y):
     
@@ -276,7 +314,7 @@ def plot_histogram_weighted (individual_cell_values_dict, profiles_name, profile
     variables = ['Depth', 'Depth', 'Velocity', 'Velocity']
     
     # Set up figure
-    fig, axs = plt.subplots(ncols= 2, nrows=2, sharey=False,figsize =(11,5), gridspec_kw={'hspace':0.5, 'wspace': 0.3})
+    fig, axs = plt.subplots(ncols= 2, nrows=2, sharey=False,figsize =(11,6), gridspec_kw={'hspace':0.5, 'wspace': 0.3})
     dfs=[]
     
     for ax_number, ax in enumerate(axs.flatten()):
@@ -317,9 +355,11 @@ def plot_histogram_weighted (individual_cell_values_dict, profiles_name, profile
         # Get so the most/least extreme appear in plots with the colours in same order
         if profiles_name =='SinglePeak_Scaled':
             extremes.sort_values(by=['short_id'],ascending =True, inplace=True)
+        if profiles_name =='Observed':
+            extremes.sort_values(by=['short_id'],ascending =True, inplace=True)
         else:
-            extremes.sort_values(by=['short_id'],ascending=True, inplace=True)
-
+            extremes.sort_values(by=['short_id'],ascending=False, inplace=True)
+        
         # Plot
         ls_values = sns.histplot(ax=ax, data=extremes, x=variable_name, hue='short_id',stat='count',
                                  element = 'step', weights=weight,linewidth=2, fill =False,log_scale=False,
@@ -330,9 +370,10 @@ def plot_histogram_weighted (individual_cell_values_dict, profiles_name, profile
         ax.yaxis.set_major_locator(plt.MaxNLocator(5))
         ax.set_xlabel (label)
         
+        ax.get_legend().set_title("")
+        
         # Set title
-        if variable_name == 'Depth':
-            ax.set_title(catchment_name, fontsize=15)
+        ax.set_title(catchment_name, fontsize=15)
 
         #### Get change percentages
         most_extreme_ls = []
@@ -367,8 +408,13 @@ def plot_histogram_weighted (individual_cell_values_dict, profiles_name, profile
 
         # Add column in dataframe
         df = pd.DataFrame({'label':b, 'LeastExtreme': least_extreme_ls, 'MostExtreme':most_extreme_ls, 'Difference': diff_ls})
+        df['%Increase'] = round(df['Difference']/df['LeastExtreme'] *100,)
+        df['%totalarea_most'] =round(df["MostExtreme"] /df["MostExtreme"].sum(),2)
+        df['%totalarea_least'] =round(df["LeastExtreme"] /df["LeastExtreme"].sum(),2)
+        
+        
         dfs.append(df)
-    
+    fig.suptitle(profiles_name, fontsize= 30)
     if filter_out_water == False:
         fp_to_save = "Figs/Histograms/{}_Histograms.PNG".format(profiles_name_short)
         fig.savefig(fp_to_save, bbox_inches='tight')
@@ -378,13 +424,12 @@ def plot_histogram_weighted (individual_cell_values_dict, profiles_name, profile
     print(fp_to_save)
     return dfs
 
-
-def hazard_plot(individual_cell_values_dict,  profiles_name_short, smallest_method_str,
+def hazard_plot(individual_cell_values_dict,  profiles_name, profiles_name_short, smallest_method_str,
                     largest_method_str,filter_out_water, title = True):
     
     fig, axs = plt.subplots(ncols= 2, nrows=1, sharey=False,figsize = (12,3), gridspec_kw={'hspace':1, 'wspace': 0.2})
     catchments = ['LinDyke', 'WykeBeck']
-
+    hazard_cats_ls = []
     ##############################
     # Plot number of flooded cells
     ##############################
@@ -412,25 +457,30 @@ def hazard_plot(individual_cell_values_dict,  profiles_name_short, smallest_meth
         smallest_method_val =  smallest_method_val* (cell_size_in_m2/1000000)
         
         # make dataframe
-        hazard_cats =pd.DataFrame({'Hazard_cat':['Low', 'Moderate', 'Significant', 'Extreme', 'NA'],
+        hazard_cats =pd.DataFrame({'Hazard_cat':['Low', 'Moderate', 'Significant', 'Extreme'],
                                   smallest_method_str: smallest_method_val,
                                    largest_method_str:largest_method_val})
+        
         # Drop NA row
-        hazard_cats = hazard_cats[:-1]
+        #hazard_cats = hazard_cats[:-1]
         
         # Plot
         hazard_cats.set_index('Hazard_cat').plot.bar(ax=axs[ax_number], rot = 0,  width=0.8, color=['darkblue', 'darkred'])
             
         if title == True:
-            axs[ax_number].set_title(catchment_name_ls[ax_number],fontsize=15)      
+            axs[ax_number].set_title(catchments[ax_number],fontsize=15)      
         
         ax.set_ylabel("Area (km2)")
         ax.set_xlabel('')
         
+        hazard_cats_ls.append(hazard_cats)
+        
+    fig.suptitle(profiles_name, fontsize=20, y=1.085)    
     if filter_out_water == False:
-        fp_to_save =  "Figs/Outputs/HazardPlots/{}_HazardCats.PNG".format(profiles_name_short)
+        fp_to_save =  "Figs/HazardPlots/{}_HazardCats.PNG".format(profiles_name_short)
         fig.savefig(fp_to_save, bbox_inches='tight')
     elif filter_out_water == True:
-        fp_to_save = "../ProcessModelResults/Outputs/HazardPlots/{}_HazardCats_withoutwater.PNG".format(profiles_name_short)
+        fp_to_save = "Figs/HazardPlots/{}_HazardCats_withoutwater.PNG".format(profiles_name_short)
         fig.savefig(fp_to_save, bbox_inches='tight')
     print(fp_to_save)
+    # return(hazard_cats_ls)

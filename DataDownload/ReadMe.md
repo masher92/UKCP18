@@ -1,6 +1,6 @@
 ## Data download
 
-<ins>UKCP18 Projections</ins>  
+<ins>UKCP18 hourly Projections</ins>  
 The projections are available via an FTP connection from the CEDA data catalogue.  
 On the CEDA data catalogue precipitation data is stored in monthly precipitation netCDF files, with each file providing data for the whole of the UK (meaning you have to download it all).  
 It is also possible to access the data through a User interface at https://ukclimateprojections-ui.metoffice.gov.uk/user/login?next=%2Fsubmit%2Fform%3Fproc_id%3DLS3A_Subset_01  
@@ -9,6 +9,20 @@ e.g. python UKCP18.py from_year to_year ensemble_members
 e.g. python UKCP18.py 1980 2001 1,2,3,4,5
 
 12km data is available here: ~http://data.ceda.ac.uk/badc/ukcp18/data/land-rcm/eur/12km~ <-- for the whole of Europe. http://data.ceda.ac.uk/badc/ukcp18/data/land-rcm/uk/12km/rcp85/01/pr/day/latest <-- for just UK.
+
+
+<ins>UKCP18 30 mins data</ins>  
+Available for download from MASS
+- Login to Jasmin
+- ssh mass-cli
+- moo select -v -i query.txt moose:/crum/mi-bc005/apr.pp/ /gws/nopw/j04/icasp_swf/masher/
+    need to also edit query.txt which can access through Jasmin notebook server
+
+To transfer data to a319
+ssh -Y gy17m2a@foe-linux-04.leeds.ac.uk
+cd /nfs/a319/gy17m2a/PhD/Scripts/DataDownload/UKCP18
+./transferdata bc006 
+
 
 <ins>Observations</ins>  
 CEH-GEAR-1km data is not available via FTP, and has to be downloaded manually from: https://catalogue.ceh.ac.uk/datastore/eidchub/d4ddc781-25f3-423a-bba0-747cc82dc6fa/.

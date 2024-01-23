@@ -72,6 +72,7 @@ def open_and_clip(input_raster_fp, bbox):
     return clipped_array[0,:,:], out_meta
 
 
+
 def open_and_clip_to_catchment (input_fp, catchment_gdf, crop_or_not):
     # Get the results, and mask out values not within the geodataframe
     with rasterio.open(input_fp) as src:
@@ -82,14 +83,14 @@ def open_and_clip_to_catchment (input_fp, catchment_gdf, crop_or_not):
         # Set -9999 to np.nan
         raster = raster.astype('float') 
         raster[raster <= -9999] = np.nan
-        raster[raster == 0] = np.nan
+        # raster[raster == 0] = np.nan
         raster[raster ==-2147483648] = np.nan
     # Update to match     
     out_meta.update({"nodata":np.nan,"dtype" :'float64', "driver":"Gtiff", "height":out_image.shape[1], # height starts with shape[1]
         "width":out_image.shape[2], # width starts with shape[2]
         "transform":out_transform})
     
-    return raster, out_meta   
+    return raster, out_meta  
 
 
 def prepare_rainfall_scenario_raster(input_raster_fp, bbox, remove_little_values):
@@ -115,10 +116,12 @@ def remove_little_values_fxn(raster, fp, catchment_gdf, crop_or_not):
         if "Depth" in fp:
             raster = np.where(raster <0.1, np.nan, raster)    
         else:
-            depth_raster, out_meta  = open_and_clip_to_catchment(fp.format('Depth'), catchment_gdf, crop_or_not)
+            depth_raster, out_meta  = open_and_clip_to_catchment(fp.replace('Velocity', 'Depth'), catchment_gdf, crop_or_not)
             raster = np.where(depth_raster <0.1, np.nan, raster)      
         return raster
-
+    
+    
+    
 def create_binned_counts_and_props(methods, fps, filter_by_land_cover, variable_name, catchment_gdf, crop_or_not,
                                    landcover_data=False, remove_little_values = True,):
     
@@ -142,7 +145,7 @@ def create_binned_counts_and_props(methods, fps, filter_by_land_cover, variable_
         raster, out_meta  = open_and_clip_to_catchment(fp.format(variable_name), catchment_gdf, crop_or_not)
         # Remove values <0.1m
         if remove_little_values == True:
-            raster = remove_little_values_fxn(raster, fp, catchment_gdf, crop_or_not)       
+            raster = remove_little_values_fxn(raster, fp.format(variable_name), catchment_gdf, crop_or_not)       
                         
         # If analysing all cells
         if filter_by_land_cover == '':
@@ -904,7 +907,7 @@ def produce_df_of_cell_by_cell_values(model_directory, catchment_gdf, catchment_
 
     for method_num, short_id in enumerate(methods):
         # Filepath
-        fp = model_directory + "{}/{} (Max).{}.tif".format(short_id,'{}',catchment_name_str)
+        fp = model_directory + f"{short_id}/{'{}'} (Max).{catchment_name_str}.tif"
         if '6h_feh_singlepeak' in fp:
             fp = fp.replace("Model_ObservedProfiles", "Model_FEHProfiles")
         # Dataframe where results for this method will be stored
@@ -915,14 +918,16 @@ def produce_df_of_cell_by_cell_values(model_directory, catchment_gdf, catchment_
         for variable_name in variables:
             this_fp = fp
             if variable_name == 'Hazard':
-                this_fp = this_fp.replace('{} (Max).{}'.format('{}', catchment_name_str),'hazard_classified')
+#                 this_fp = this_fp.replace('{} (Max).{}'.format('{}', catchment_name_str),'hazard_classified')
+                this_fp = this_fp.replace(f"{'{}'} (Max).{catchment_name_str}",'hazard_classified')
             else:
                 this_fp = this_fp.format(variable_name)
+            print(this_fp)    
             # Open and clip to the catchment
-            raster, out_meta  = open_and_clip_to_catchment(this_fp.format(variable_name), catchment_gdf, crop_or_not)
+            raster, out_meta  = open_and_clip_to_catchment(this_fp, catchment_gdf, crop_or_not)
             # Remove values <0.1m
             if remove_little_values == True:
-                raster = remove_little_values_fxn(raster, fp, catchment_gdf, crop_or_not)       
+                raster = remove_little_values_fxn(raster, this_fp, catchment_gdf, crop_or_not)       
             # round to three decimal places
             raster_rounded = np.around(raster, decimals=3)
             # Add a column to the dataframe containing this data
@@ -933,6 +938,7 @@ def produce_df_of_cell_by_cell_values(model_directory, catchment_gdf, catchment_
 
     all_methods_df = all_methods_df.dropna(subset=['Depth', 'Velocity'])
     return all_methods_df
+
 
 def plot_totals_area_comparisons(cluster_results_dict, short_ids, title, patches, urban = True):
 
