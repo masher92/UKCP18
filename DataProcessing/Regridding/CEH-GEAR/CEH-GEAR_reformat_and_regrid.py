@@ -41,31 +41,31 @@ for filename in glob.glob("datadir/CEH-GEAR/*"):
     if not os.path.isfile(filename_regrid_nn):
     #if 1 == 1:
       # Open dataset with Xarray
-      xr_ds=xr.open_dataset(filename)
-      # Convert to cube in the correct format and save
-      cube=make_bng_cube(xr_ds,'rainfall_amount')
-      cube = iris.save(filename_reformat, 'rainfall_amount')[0]
-      #### Regrid observaitons onto model grid
-      # Lienar interpolation
-      reg_cube_lin =cube.regrid(cube_model,iris.analysis.Linear())      
-      # Nearest neighbour
-      #reg_cube_nn =cube.regrid(cube_model,iris.analysis.Nearest())    
-     
-      # Area weighted regrid
-      # First need to convert projection system
-      # Store the crs of the model cube
-      #cube_model_crs = cube_model.coord('grid_latitude').coord_system.as_cartopy_crs()
-      #from pyproj.crs import CRS
-      # cube_model_crs_proj = CRS.from_dict(cube_model_crs.proj4_params) 
-      #cube_model_clone = cube_model.copy()
-      #print(cube_model_clone)
-      #cube_model_clone.remove_coord('longitude')
-      #cube_model_clone.remove_coord('latitude')
-      #iris.analysis.cartography.project(cube_model_clone, cube_model_crs_proj)
-      #reg_cube_aw =cube.regrid(cube_model,iris.analysis.AreaWeighted())   
-      
-      # Save 
-      iris.save(reg_cube_lin, filename_regrid_lin)
-      #iris.save(reg_cube_nn, filename_regrid_nn)
+        xr_ds=xr.open_dataset(filename)
+        # Convert to cube in the correct format and save
+        cube=make_bng_cube(xr_ds,'rainfall_amount')
+        cube = iris.save(filename_reformat, 'rainfall_amount')[0]
+        #### Regrid observaitons onto model grid
+        # Lienar interpolation
+        reg_cube_lin =cube.regrid(cube_model,iris.analysis.Linear())      
+        # Nearest neighbour
+        #reg_cube_nn =cube.regrid(cube_model,iris.analysis.Nearest())    
+
+          # Area weighted regrid
+          # First need to convert projection system
+          # Store the crs of the model cube
+          #cube_model_crs = cube_model.coord('grid_latitude').coord_system.as_cartopy_crs()
+          #from pyproj.crs import CRS
+          # cube_model_crs_proj = CRS.from_dict(cube_model_crs.proj4_params) 
+          #cube_model_clone = cube_model.copy()
+          #print(cube_model_clone)
+          #cube_model_clone.remove_coord('longitude')
+          #cube_model_clone.remove_coord('latitude')
+          #iris.analysis.cartography.project(cube_model_clone, cube_model_crs_proj)
+          #reg_cube_aw =cube.regrid(cube_model,iris.analysis.AreaWeighted())   
+
+        # Save 
+        iris.save(reg_cube_lin, filename_regrid_lin)
+        #iris.save(reg_cube_nn, filename_regrid_nn)
     
     i = i+1
