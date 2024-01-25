@@ -12,7 +12,7 @@ from_year = 2001
 to_year = 2020
 
 # Define ensemble members for which data is required
-members = [ '15', '07','08', '09', '10', '11', '12', '13', '15', '01','04', '05', '06', ]
+members = [ '01','04', '05', '06', '07','08', '09', '10', '11', '12', '13', '15' ]
 print("Downloading data for ensemble members " + str(members) + " for years between " + str(from_year) + " and " + str(to_year))
 
 # Define the variables required
