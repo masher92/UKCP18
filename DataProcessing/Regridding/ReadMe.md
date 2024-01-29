@@ -1,8 +1,50 @@
 # Regridding
 
-There are two main data sources being used in this analysis:
-* UKCP18 2.2km model data
-* CEH-GEAR 1km observations
+There are several main data sources being used in this analysis:
+
+<table>
+  <tbody>
+    <tr>    
+    <td  align="center" style="width:25%;"> Dataset </td>
+    <td  align="center" style="width:25%;">1km </td>
+    <td align="center" style="width:25%;">2.2km </td>
+    <td align="center" style="width:25%;">12km </td>
+    </tr>
+    <tr>
+      <td> UKCP18 12km hourly </td>
+      <td align="center">  X  </td>
+      <td align="center"> X  </td>
+       <td align="center"> Original   </td>
+    </tr>  
+    <tr>
+      <td> UKCP18 2.2km hourly </td>
+      <td align="center">  X  </td>
+      <td align="center"> Original   </td>
+       <td align="center"> Regridded  </td>
+    </tr> 
+        <tr>
+      <td> UKCP18 2.2km 30mins </td>
+      <td align="center">  X  </td>
+      <td align="center"> Original   </td>
+       <td align="center"> Regridded  </td>
+    </tr>       
+    <tr>
+      <td> CEH-GEAR </td>
+      <td align="center">  Original  </td>
+      <td align="center"> Regridded  </td>
+       <td align="center"> Regridded   </td>
+    </tr>  
+        <tr>
+      <td> NIMROD </td>
+      <td align="center">  Original  </td>
+      <td align="center"> Regridded  </td>
+       <td align="center"> Regridded   </td>
+    </tr>  
+     </tbody>
+</table>
+
+
+
 
 The layout of these grids over the Leeds region can be seen in Figure 1. 
 
