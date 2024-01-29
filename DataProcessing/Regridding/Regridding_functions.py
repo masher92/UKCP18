@@ -55,7 +55,7 @@ def make_bng_cube(xr_ds,variable):
     iris_time=(xr_ds['time'].values-np.datetime64("1970-01-01T00:00")) / np.timedelta64(1, "s")
     iris_time=DimCoord(iris_time, standard_name='time',units=cf_units.Unit('seconds since 1970-01-01', calendar='gregorian'))
     # Store the data array
-    da=xr_ds["pr"]
+    da=xr_ds[variable]
     # Recreate the cube with the data and the dimension coordinates
     cube = Cube(np.float32(da.values), standard_name=da.standard_name,
                 units='mm/hour', dim_coords_and_dims=[(iris_time, 0), (northings, 1),(eastings, 2)])
