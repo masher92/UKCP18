@@ -7,7 +7,7 @@ import iris.coord_categorisation as cat
 import sys
 
 # Get year from input of running the script 
-year = sys.argv[1]
+year = 2004
 print (year)
 
 ### Get list of files to convert
@@ -15,7 +15,7 @@ radardir = f'/nfs/a319/gy17m2a/PhD/datadir/NIMROD/5mins/OriginalFormat_1km/{year
 file_list=glob.glob(radardir +"*.nc")
 sorted_list = sorted(file_list)
 
-for i in range(0,len(sorted_list)):
+for i in range(55,len(sorted_list)):
     print(i)
 
     ### Load radar data for one day (using IRIS)
@@ -78,14 +78,14 @@ for i in range(0,len(sorted_list)):
                 print(f"only {second_half_of_hour.shape[0]} vals in 2nd half hour")
 
     ### Join back into one cube covering the whole day
-    thirty_mins_means = my_cube_list.concatenate_cube()
-
-    ### Get associated times
-    # times = thirty_mins_means.coord('time').points
-    # times = [datetime.datetime.fromtimestamp(x ) for x in times]
-
-    # save 
-    new_fp = sorted_list[i][:-3]+ '_30mins.nc'
-    new_fp = new_fp.replace('5mins', '30mins')
-    iris.save(thirty_mins_means, new_fp)
-    print('Saved cube')
+    try:
+        thirty_mins_means = my_cube_list.concatenate_cube()
+        
+        # save 
+        new_fp = sorted_list[i][:-3]+ '_30mins.nc'
+        new_fp = new_fp.replace('5mins', '30mins')
+        iris.save(thirty_mins_means, new_fp)
+        print('Saved cube')
+        
+    except:
+        pass
