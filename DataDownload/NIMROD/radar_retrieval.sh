@@ -1,24 +1,26 @@
 #!/bin/bash
+# set -e
 # PREREQ's : access to MASS Nimrod radar files (requires Met Office approval)
 
-year=$1
-echo ${year}
+# year=$1
+for year in 2016 ; do
+    echo $year
 
-ssh -A cloud9 "python /nfs/a319/gy17m2a/PhD/Scripts/DataDownload/NIMROD/Download_from_CEDA.py" $year
+    #conda activate pygeospatial
+    #python /nfs/a319/gy17m2a/PhD/Scripts/DataDownload/NIMROD/Download_from_CEDA.py $year
 
-# user_dir= /nfs/a319/gy17m2a/PhD/Scripts/DataDownload/NIMROD/
-# gws_dir= /nfs/a319/gy17m2a/PhD/datadir/NimRod/2004/
-# mkdir ${radardir}
-# rm $radardir/*
-# echo /nfs/a319/gy17m2a/PhD/datadir/NimRod/${year}/
-cd /nfs/a319/gy17m2a/PhD/datadir/NIMROD/5mins/OriginalFormat_1km/${year}/
-for file in *.tar ; do
-# for file in metoffice-c-band-rain-radar_uk_20130720_1km-composite.dat.gz.tar ; do
-  echo $file
-  tar xf $file 
-  gzip -d *.dat.gz
-  ssh -A cloud9 "conda activate pygeospatial; python /nfs/a319/gy17m2a/PhD/Scripts/DataDownload/NIMROD/merge_into_daily_radar_file.py" $year
-  rm $file
-  rm *.dat
+    # rm $radardir/*
+    # echo /nfs/a319/gy17m2a/PhD/datadir/NimRod/${year}/
+    cd /nfs/a319/gy17m2a/PhD/datadir/NIMROD/5mins/OriginalFormat_1km/${year}/
+    for file in *.tar ; do
+      echo $file
+      tar xf $file 
+      gzip -d *.dat.gz
+      conda activate ukcp18
+      python /nfs/a319/gy17m2a/PhD/Scripts/DataDownload/NIMROD/merge_into_daily_radar_file.py $year
+      rm -rf $file
+      rm -rf *.dat
+    done
 done
-cd
+
+cd /nfs/a319/gy17m2a/PhD/Scripts/DataDownload/NIMROD/

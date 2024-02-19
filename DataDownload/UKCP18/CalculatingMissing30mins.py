@@ -33,15 +33,15 @@ leeds_at_centre_gdf = create_leeds_at_centre_outline({'init' :'epsg:3857'})
 em_matching_dict = {'01':'bc005', '04': 'bc006', '05': 'bc007', '06':'bc009',  '07':'bc010', 
                     '08': 'bc011', '09':'bc013', '10': 'bc015', '11': 'bc016', '12': 'bc017', '13':'bc018', '15':'bc012'}
 
-
-yrs_range = "2001_2020"
+resolution = '2.2km'
+yrs_range = "2002_2020"
 # em_1hr = '05'
 # yr = 2012
 # month_num = '06'
 
-for em_1hr in ['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']:
+for em_1hr in ['15']:
     em_30mins = em_matching_dict[em_1hr]
-    for yr in range(2018,2021):
+    for yr in range(1999,2021):
         for month_num in ['06', '07', '08']:
             if (os.path.isfile(f"datadir/UKCP18_every30mins/{em_30mins}/{yrs_range}/{em_30mins}a.pr{yr}{month_num}.nc")):
                 print("already exists")
@@ -70,16 +70,14 @@ for em_1hr in ['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13',
                 cube_1hr = monthly_cubes_list_1hr[0]
                 cube_1hr = cube_1hr[0,:,:,:]
 
-
                 # ### Trim to Leeds
-                cube_1hr = trim_to_bbox_of_region(cube_1hr, leeds_at_centre_gdf)
+                # cube_1hr = trim_to_bbox_of_region(cube_1hr, leeds_at_centre_gdf)
 
                 #######################################################
                 #######################################################
                 ## Get one month of data - 30mins
                 #######################################################
                 #######################################################
-
                 # ### Get all files for this ensemble member
                 general_filename_30mins = f'/nfs/a319/gy17m2a/PhD/datadir/UKCP18_first30mins/{yrs_range}/{em_30mins}/{em_30mins}a.pr{yr}{month_num}*'
                 filenames_first30mins = []
@@ -99,9 +97,9 @@ for em_1hr in ['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13',
 
                 monthly_cube_30mins = monthly_cubes_list_30mins.concatenate_cube()      
 
-                # ### Trim to Leeds
-                monthly_cube_30mins_1st = trim_to_bbox_of_region_30mins(monthly_cube_30mins, leeds_at_centre_gdf)
-
+                # ### Trim to be the same shape as the hourly data
+                # monthly_cube_30mins_1st = trim_to_bbox_of_region_30mins(monthly_cube_30mins, leeds_at_centre_gdf)
+                monthly_cube_30mins_1st = monthly_cube_30mins[:,24:-24,24:-24]
 
                 # ### Convert units of 30 mins data
                 # Check current units
@@ -146,12 +144,10 @@ for em_1hr in ['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13',
                 ## Join first half hour and second half hour into one cube
                 #######################################################
                 #######################################################
-
                 # ### Get a list of all the cubes in each of the monthly cubes
                 list_30mins_1st = iris.cube.CubeList(monthly_cube_30mins_1st.slices_over('time'))
                 list_30mins_2nd = iris.cube.CubeList(monthly_cube_30mins_2nd.slices_over('time'))
                 list_30mins = list_30mins_1st +  list_30mins_2nd
-
 
                 ### Merge back into one cube
                 monthly_cube_30mins = list_30mins.merge_cube()
@@ -161,13 +157,13 @@ for em_1hr in ['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13',
                 ## Save
                 #######################################################
                 #######################################################
-                dir_to_save = f"datadir/UKCP18_every30mins/{em_30mins}/{yrs_range}/"
+                dir_to_save = f"datadir/UKCP18_every30mins/{resolution}/{em_30mins}/{yrs_range}/"
 
                 if os.path.isdir(dir_to_save):
                     print("Exists")
                 else:
                     print("Doesn't exist")
                     os.makedirs(dir_to_save)
-                fp_to_save = f"datadir/UKCP18_every30mins/{em_30mins}/{yrs_range}/{em_30mins}a.pr{yr}{month_num}.nc" 
+                fp_to_save = f"datadir/UKCP18_every30mins/{resolution}/{em_30mins}/{yrs_range}/{em_30mins}a.pr{yr}{month_num}.nc" 
                 print(fp_to_save)
                 iris.save(monthly_cube_30mins, fp_to_save)

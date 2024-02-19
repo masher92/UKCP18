@@ -8,18 +8,18 @@ from getpass import getpass # Allows typing password invisibly
 import sys
 
 # Define the years between which the data is required
-from_year = 2001    
-to_year = 2020
+from_year = 1980    
+to_year = 2001
 
 # Define ensemble members for which data is required
-members = [ '01','04', '05', '06', '07','08', '09', '10', '11', '12', '13', '15' ]
+members = [ '01' ]
 print("Downloading data for ensemble members " + str(members) + " for years between " + str(from_year) + " and " + str(to_year))
 
 # Define the variables required
 vars = ['pr']
 
 # Define the years for which UKCP18 data exists
-years_available = list(range(1980, 2081))
+years_available = list(range(1980, 2001))
 
 # When script is run this allows user to type username and password without showing it
 uuname = input('username:')
@@ -32,6 +32,7 @@ f=ftplib.FTP("ftp.ceda.ac.uk", uuname, ppword)
 # Note 1980 only has December, similarly 2000 has January-November
 # Try-catch expressions allows for this. 
 # Download attempted, for failed attempt empty files are created, so these must be deleted
+members= ['01']
 for member in members:
     print(member)
     for year in range(int(from_year), int(to_year) + 1):
@@ -40,13 +41,13 @@ for member in members:
       
       # Define directory where data should be stored  
         if 1980 <= year <= 2001:
-            ddir = "/nfs/a319/gy17m2a/PhD/datadir/UKCP18/2.2km/" + member + '/1980_2001' 
-        elif 2001 <= year <= 2020:
-            ddir = "/nfs/a319/gy17m2a/PhD/datadir/UKCP18/2.2km/" + member + '/2001_2020' 
+            ddir = "/nfs/a319/gy17m2a/PhD/datadir/UKCP18_hourly/2.2km/" + member + '/1980_2001' 
+        elif 2002 <= year <= 2020:
+            ddir = "/nfs/a319/gy17m2a/PhD/datadir/UKCP18_hourly/2.2km/" + member + '/2002_2020' 
         elif 2020 <= year <= 2041:
-            ddir = "/nfs/a319/gy17m2a/PhD/datadir/UKCP18/2.2km/" + member + '/2020_2041' 
+            ddir = "/nfs/a319/gy17m2a/PhD/datadir/UKCP18_hourly/2.2km/" + member + '/2020_2041' 
         elif 2060 <= year <= 2081:
-            ddir = "/nfs/a319/gy17m2a/PhD/datadir/UKCP18/2.2km/" + member + '/2060_2081'    
+            ddir = "/nfs/a319/gy17m2a/PhD/datadir/UKCP18_hourly/2.2km/" + member + '/2060_2081'    
         print("Data for ensemble member " + member + " for year " + str(year) + " to be stored in: " + ddir)        
               
       # If directory doesn't exist make it
@@ -60,13 +61,15 @@ for member in members:
         
         # Loop through months
         #for month in [3]:
-        for month in [1,2,3,4,5,6,7,8,9,10,11,12]:
+        for month in [6]:
             for var in vars:
                 print(var)
                 # Define filename, note the use of "360 day years (12 months with 30 days)"
                 ffile="%s_rcp85_land-cpm_uk_2.2km_%s_1hr_%.4d%.2d01-%.4d%.2d30.nc" % (var, member, year, month, year, month)
                 # If the file does not exist, then download it
-                if os.path.exists(ffile):
+#                 if os.path.exists(ffile):
+#                     print ("File " + ffile + ' already exists, skipping to next file')
+                if 1==2:
                     print ("File " + ffile + ' already exists, skipping to next file')
                 else:
                     # Change the remote directory to reflect correct member and variable

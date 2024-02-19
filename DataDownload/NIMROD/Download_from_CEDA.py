@@ -51,7 +51,9 @@ for year in range(year, year+1, 1):
     ###########################
     for ffile in dir_list:
         if not ffile[35:37] in ['01', '02', '03', '04', '05', '09', '10', '11','12']:
+#         if ffile == 'metoffice-c-band-rain-radar_uk_20040831_1km-composite.dat.gz.tar':
             with open(ffile, 'wb') as fp:
+                print("Downloading")
                 # Download the file
                 # If the file doesn't exist then this causes the exception to be generated
                 res = f.retrbinary('RETR %s' % ffile , fp.write)

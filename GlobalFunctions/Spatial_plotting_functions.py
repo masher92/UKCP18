@@ -477,46 +477,6 @@ def trim_to_bbox_of_region_30mins (obs_cube, gdf):
     
     return obs_cube
 
-def trim_to_bbox_of_uk (cube):
-    '''
-    Description
-    ----------
-
-
-    Parameters
-    ----------
-        cube : iris cube
-            1D array of latitudes
-    Returns
-    -------
-        trimmed_cube : iris cube
-            Cube with spatial extent equivalent to the bounding box of the UK
-
-    '''
-    # CReate function to find
-    minmax = lambda x: (np.min(x), np.max(x))
-       
-    # Define the bounding box of the UK
-    bbox = np.array([-10.1500, 49.8963187 ,  1.7632199, 58.8458677])
-    
-    # Find the lats and lons of the cube in WGS84
-    lons = cube.coord('longitude').points
-    lats = cube.coord('latitude').points
-
-    inregion = np.logical_and(np.logical_and(lons > bbox[0],
-                                             lons < bbox[2]),
-                              np.logical_and(lats > bbox[1],
-                                             lats < bbox[3]))
-    region_inds = np.where(inregion)
-    imin, imax = minmax(region_inds[0])
-    jmin, jmax = minmax(region_inds[1])
-    
-    trimmed_cube = cube[..., imin:imax+1, jmin:jmax+1] 
-    
-    return trimmed_cube
-
-
-
 
 def mask_by_region (cube, gdf):
     '''
