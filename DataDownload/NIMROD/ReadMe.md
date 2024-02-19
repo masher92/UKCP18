@@ -23,3 +23,4 @@ This radar_retrieval.sh shell scripts:
 However, haven't been able to do this with data from 2004/2005 because of error with calendar that I can't work out
 
 
+2004/2005 data only covers the north of England.
