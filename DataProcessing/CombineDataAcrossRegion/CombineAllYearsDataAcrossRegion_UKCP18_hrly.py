@@ -35,28 +35,26 @@ trim_to_leeds = False
 # Load necessary spatial data
 ##################################################################
 # This is a square area surrounding Leeds
-leeds_at_centre_gdf = create_leeds_at_centre_outline({'init' :'epsg:3857'})
 uk_gdf = create_uk_outline({'init' :'epsg:3857'})
+gb_gdf = create_gb_outline({'init' :'epsg:3857'})
 ##################################################################
 
 # Constraint to only load JJA data
 in_jja=iris.Constraint(time=lambda cell: 6 <= cell.point.month <= 8)
-
 
 yrs_range = "1980_2001"
 yrs= range(1981,2002)
 resolution = '2.2km' #2.2km, 12km, 2.2km_regridded_12km
 
 ### Establish the ensemble members
-ems = ['12', '13', '15']
+ems = ['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
 for em in ems:
 
     ddir = f"ProcessedData/TimeSeries/UKCP18_hourly/{resolution}/{yrs_range}/leeds-at-centre/{em}/"
 
     print(em, resolution, trim_to_leeds)
-    
     for yr in yrs:
-        print(yr)
+
         # ### Get a list of filenames for this ensemble member, for just JJA
         if resolution == '2.2km':
             general_filename = f'/nfs/a319/gy17m2a/PhD/datadir/UKCP18_hourly/{resolution}/{em}/{yrs_range}/pr_rcp85_land-cpm_uk_2.2km_{em}_1hr_{yr}*'
@@ -84,47 +82,32 @@ for em in ems:
         ### Remove ensemble member dimension
         model_cube = model_cube[0,:,:,:]
 
-
-        cube_jja_uk = trim_to_bbox_of_region_regriddedobs(model_cube, uk_gdf)
-
-        #iplt.contourf(cube_jja_uk[10])
-        #plt.gca().coastlines(resolution='10m', color='black', linewidth=0.5);
-
-
+        # ### Get the mask
         print("getting mask")
-        lsm = iris.load("/nfs/a319/gy17m2a/PhD/datadir/lsm_land-cpm_BI_5km.nc")
-        lsm = lsm[0]
-        lsm_nn =lsm.regrid(cube_jja_uk, iris.analysis.Nearest())   
+        gb_mask = np.load("/nfs/a319/gy17m2a/PhD/datadir/UKCP18_2.2km_GB_Mask.npy")
+        masked_cube_data = model_cube * gb_mask[np.newaxis, :, :]
 
+        # APPLY THE MASK
+        reshaped_mask = np.tile(gb_mask, (model_cube.shape[0], 1, 1))
+        reshaped_mask = reshaped_mask.astype(int)
+        reversed_array = ~reshaped_mask.astype(bool)
 
-        # Convert to shape of cube
-        broadcasted_lsm_data = np.broadcast_to(lsm_nn.data.data, cube_jja_uk.shape)
-        # # Convert to integer
-        # broadcasted_lsm_data_int = broadcasted_lsm_data.astype(int)
-        # Reverse the array (it is the opposite way round to the exisitng val/no val mask on the radar data)
-        reversed_array = ~broadcasted_lsm_data.astype(bool)
+        # Mask the cube
+        masked_cube = iris.util.mask_cube(model_cube, reversed_array)
 
+        # ### Check the mask
+        # iplt.contourf(masked_cube[10])
+        # plt.gca().coastlines(resolution='10m', color='black', linewidth=0.5);
 
-        # land_mask = np.where(lsm_nn.data > 0, True, False)
-        # broadcasted_lsm_data = np.broadcast_to(land_mask, cube_jja_uk.shape)
-        # lsm_cube = cube_jja_uk.copy(data=broadcasted_lsm_data)
+        # ### Trim to UK
+        masked_cube = trim_to_bbox_of_region_regriddedobs(masked_cube, gb_gdf)
 
-        masked_cube = iris.util.mask_cube(cube_jja_uk, reversed_array)
-
-        #iplt.contourf(masked_cube[0])
-        #plt.gca().coastlines(resolution='10m', color='black', linewidth=0.5);
-
-
-        ddir + f'maskedcube.nc'
-        iris.save(masked_cube, ddir + f'maskedcube_{yr}.nc')
-
-        print(f"Min value is {np.nanmin(masked_cube.data)}")
+        # Check the plotting
+        # iplt.contourf(masked_cube[10])
+        # plt.gca().coastlines(resolution='10m', color='black', linewidth=0.5);
 
         # Get rid of negative values
         compressed = masked_cube.data.compressed()
-        compressed.shape[0]
-
-        #compressed = compressed[~np.isnan(compressed)]
         compressed.shape[0]
 
         ########
@@ -135,7 +118,22 @@ for em in ems:
 
         # Step 3: Extract corresponding time values
         time_values = masked_cube.coord('time').points[non_masked_indices[0]]
-        np.save(ddir + f'timevalues_{yr}.npy', time_values) 
 
+        # Save to file
+        np.save(ddir + f'timevalues_{yr}.npy', time_values) 
         np.save(ddir + f'compressed_{yr}.npy', compressed) 
 
+
+
+
+
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
