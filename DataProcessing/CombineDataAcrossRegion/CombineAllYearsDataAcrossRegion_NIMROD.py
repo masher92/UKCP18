@@ -1,11 +1,10 @@
 ##################################################################
 # This Script:
-#    - 
-#    -
-#    -
-
+#    - Gets all 30 mins radar files for one year
+#    - Joins them and masks out values over the sea
+#    - Gets a 1D array of the data and removes masked out (over the sea
+#      values) and np.nan values
 ##################################################################
-
 
 
 ##################################################################
@@ -55,7 +54,7 @@ uk_gdf = create_uk_outline({'init' :'epsg:3857'})
 ##################################################################
 # FOR ONE YEAR AT A TIME
 ##################################################################
-for year in range(2010, 2020):
+for year in range(2016, 2021):
     print(year)
 
     # Create directory to store outputs in and get general filename to load files from
@@ -77,7 +76,7 @@ for year in range(2010, 2020):
     for filename in glob.glob(general_filename):
         # print(filename)
         filenames.append(filename)
-    print(len(filenames))
+    print(f"loading {len(filenames)} filenames")
     sorted_list = sorted(filenames)
 
     # LOAD THE DATA
@@ -91,9 +90,9 @@ for year in range(2010, 2020):
     for i in range(0,len(monthly_cubes_list) ):
         if len(monthly_cubes_list[i].shape) <3:
             is_to_delete.append(i)
-        for i in is_to_delete:
-            print(i)
-            del monthly_cubes_list[i] 
+    for i in is_to_delete:
+        print(f"deleting cube {i} as it only had one dimension")
+        del monthly_cubes_list[i] 
 
     for i in range(0, len(monthly_cubes_list)):
         try:
@@ -176,8 +175,18 @@ for year in range(2010, 2020):
     compressed = masked_cube.data.compressed()
     compressed.shape[0]
     # REMOVE NAN VALUES
-    compressed = compressed[~np.isnan(compressed)]
+    #compressed = compressed[~np.isnan(compressed)]
+    
+    ########
+    # Get the times
+    ########
+    # Step 2: Get the indices of the non-masked values in the original data
+    non_masked_indices = np.where(~masked_cube.data.mask)
 
+    # Step 3: Extract corresponding time values
+    time_values = masked_cube.coord('time').points[non_masked_indices[0]]
+    np.save(ddir + f'{year}_timevalues.npy', time_values) 
+        
 
     # ### Check length of data from flattening it before compressing (shows we have lost 60% values)
     # notcompressed = masked_cube.data.flatten()
@@ -194,4 +203,3 @@ for year in range(2010, 2020):
     # SAVE TO NUMPY ARRAY
     ##################################################################
     np.save(ddir + f'{year}_compressed.npy', compressed) 
-

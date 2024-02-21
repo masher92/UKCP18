@@ -36,11 +36,14 @@ in_jja=iris.Constraint(time=lambda cell: 6 <= cell.point.month <= 8)
 leeds_at_centre_gdf = create_leeds_at_centre_outline({'init' :'epsg:3857'})
 uk_gdf = create_uk_outline({'init' :'epsg:3857'})
 
+resolution = '2.2km'
+years= range(1995,2015)
+
 ##################################################################
-# Trimming to region
+
 ##################################################################
-for resolution in ["1km" ]:
-    print(resolution)
+for year in years:
+
     # Create directory to store outputs in
     if resolution =='1km':
         ddir = f"ProcessedData/TimeSeries/CEH-GEAR/{resolution}/"
@@ -48,29 +51,34 @@ for resolution in ["1km" ]:
         ddir = f"ProcessedData/TimeSeries/CEH-GEAR/{resolution}/NearestNeighbour/"
     if not os.path.isdir(ddir):
         os.makedirs(ddir)
-    
+
     filenames =[]
     # Create filepath to correct folder using correct resolution
     if resolution == '1km': 
-        general_filename = 'datadir/CEH-GEAR/CEH-GEAR_reformatted/*'   
+        general_filename = f'datadir/CEH-GEAR/CEH-GEAR_reformatted/rf_CEH-GEAR-1hr_{year}*'   
     elif resolution == '2.2km':
-        general_filename = 'datadir/CEH-GEAR/CEH-GEAR_regridded_2.2km/NearestNeighbour/*'
+        general_filename = f'datadir/CEH-GEAR/CEH-GEAR_regridded_2.2km/NearestNeighbour/rg_CEH-GEAR-1hr_{year}*'
     elif resolution == '12km':
-        general_filename = 'datadir/CEH-GEAR/CEH-GEAR_regridded_12km/NearestNeighbour/*'
+        general_filename = f'datadir/CEH-GEAR/CEH-GEAR_regridded_12km/NearestNeighbour/rg_CEH-GEAR-1hr_{year}*'
     print(general_filename)
-    
+
     # Find all files in directory which start with this string
     for filename in glob.glob(general_filename):
         filenames.append(filename)
     print(len(filenames))
-     
+
     monthly_cubes_list = iris.load(filenames, in_jja)    
     #print(monthly_cubes_list)
-    
+
     # Concatenate the cubes into one
     print('Concatenating cube')
     obs_cube = monthly_cubes_list.concatenate_cube()     
     #print(obs_cube) 
+    
+    ################################################################
+    ### Cut the cube to the extent of GDF surrounding UK  
+    ################################################################
+    obs_cube = trim_to_bbox_of_region_regriddedobs(obs_cube, uk_gdf)
     
     ################################################################
     # Cut the cube to the extent of GDF surrounding Leeds  
@@ -86,49 +94,48 @@ for resolution in ["1km" ]:
             obs_cube = trim_to_bbox_of_region_regriddedobs(obs_cube, uk_gdf)
         else:
             obs_cube = trim_to_bbox_of_region_obs(obs_cube, uk_gdf)
-
+            
     ################################################################
-    # Once across all ensemble members, save a numpy array storing
-    # the timestamps to which the data refer
-    ################################################################  
-    times = obs_cube.coord('time').points
-    # Convert to datetimes
-    times = [datetime.datetime.fromtimestamp(x).strftime("%x %X") for x in times]
-    times= [datetime.datetime.strptime(x, '%m/%d/%y %H:%M:%S') for x in times]
-    
-    # Convert to datetime - doesnt work due to 30 days in Feb
-    np.save(f"ProcessedData/TimeSeries/CEH-GEAR/{resolution}/timestamps.npy", times) 
-    
+    ###  Get mask and regrid to the obs cube
     ################################################################
-    # Get mask and regrid to the obs cube
-    ################################################################  
-    if trim_to_leeds == False:
-        print("getting mask")
-        monthly_cubes_list = iris.load("/nfs/a319/gy17m2a/PhD/datadir/lsm_land-cpm_BI_5km.nc")
-        lsm = monthly_cubes_list[0]
-        lsm_nn =lsm.regrid(obs_cube,iris.analysis.Nearest())   
-
-        # Save it in 1D form
-        mask = lsm_nn.data.data.reshape(-1)
-        np.save(ddir + "lsm.npy", mask) 
+    print("getting mask")
+    lsm_cubes_list = iris.load("/nfs/a319/gy17m2a/PhD/datadir/lsm_land-cpm_BI_5km.nc")
+    lsm = lsm_cubes_list[0]
+    lsm_nn =lsm.regrid(obs_cube,iris.analysis.Nearest())  
     
-    ################################################################
-    # Get data as array
-    ################################################################      
-    start = time.time()
-    data = obs_cube.data.data
-    end= time.time()
-    print(f"Time taken to load cube {round((end-start)/60,1)} minutes" )    
-        
-    start = time.time()
-    flattened_data = data.flatten()
-    end= time.time()
-    print(f"Time taken to flatten cube {round((end-start)/60,1)} minutes" )
+    # Convert to shape of cube
+    broadcasted_lsm_data = np.broadcast_to(lsm_nn.data.data, obs_cube.shape)
+    # Convert to integer
+    broadcasted_lsm_data_int = broadcasted_lsm_data.astype(int)
+    # Reverse the array (it is the opposite way round to the exisitng val/no val mask on the radar data)
+    reversed_array = ~broadcasted_lsm_data_int.astype(bool)  
+    
+    ### Mask the cube using the lsm cube
+    masked_cube = iris.util.mask_cube(obs_cube, reversed_array)
+    
+    ### Compress data (flatten and remove masked values)
+    compressed = masked_cube.data.compressed()
+    compressed.shape[0]
+    print(f" length of the array: {len(compressed)}")
+    print(f"min value is: {np.nanmin(compressed)}")
+    print(f"max value is: {np.nanmax(compressed)}")
+    print(f"mean value is: {np.nanmean(compressed)}")
+    
+    # Save to file
+    np.save(ddir + f'{year}_compressed.npy', compressed) 
+    
+    
+########
+# Get the times
+########
+# Step 2: Get the indices of the non-masked values in the original data
+non_masked_indices = np.where(~masked_cube.data.mask)
 
-    ### Save as numpy array
-    print("saving data")
-    if trim_to_leeds == True:
-        np.save(ddir + "leeds-at-centre_jja.npy", flattened_data)   
-    else:
-        np.save(ddir + "uk_jja.npy", flattened_data) 
-    print("saved data")
+# Step 3: Extract corresponding time values
+time_values = masked_cube.coord('time').points[non_masked_indices[0]]
+np.save(ddir + f'timevalues.npy', time_values)     
+
+# Convert to datetimes
+# times = [datetime.datetime.fromtimestamp(x).strftime("%x %X") for x in time_values]
+# times= [datetime.datetime.strptime(x, '%m/%d/%y %H:%M:%S') for x in times]
+# np.save(ddir + f'timevalues_formatted.npy', times) 

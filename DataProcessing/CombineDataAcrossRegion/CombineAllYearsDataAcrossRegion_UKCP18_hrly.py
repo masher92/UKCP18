@@ -5,8 +5,6 @@
 #    -
 
 ##################################################################
-
-
 import iris
 import os
 import glob as sir_globington_the_file_gatherer
@@ -15,6 +13,7 @@ import iris.coord_categorisation as cat
 import sys
 import time
 import multiprocessing as mp
+import iris.plot as iplt
 
 # Set up path to root directory
 root_fp = "/nfs/a319/gy17m2a/PhD/"
@@ -23,8 +22,7 @@ os.chdir(root_fp)
 import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
 from warnings import simplefilter
-# ignore all future warnings
-simplefilter(action='ignore', category=FutureWarning)
+warnings.filterwarnings("ignore", category =UserWarning,)
 
 # Create path to files containing functions
 sys.path.insert(0, root_fp + 'Scripts/GlobalFunctions')
@@ -44,111 +42,100 @@ uk_gdf = create_uk_outline({'init' :'epsg:3857'})
 # Constraint to only load JJA data
 in_jja=iris.Constraint(time=lambda cell: 6 <= cell.point.month <= 8)
 
+
+yrs_range = "1980_2001"
+yrs= range(1981,2002)
+resolution = '2.2km' #2.2km, 12km, 2.2km_regridded_12km
+
 ### Establish the ensemble members
-ems = ['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
+ems = ['12', '13', '15']
 for em in ems:
 
-    yrs_range = "1980_2001"
-    resolution = '2.2km' #2.2km, 12km, 2.2km_regridded_12km
-    ddir = f"ProcessedData/TimeSeries/UKCP18_hourly/{resolution}/{yrs_range}/{em}/"
-    
+    ddir = f"ProcessedData/TimeSeries/UKCP18_hourly/{resolution}/{yrs_range}/leeds-at-centre/{em}/"
+
     print(em, resolution, trim_to_leeds)
     
-    # ### Get a list of filenames for this ensemble member, for just JJA
-    if resolution == '2.2km':
-        general_filename = f'/nfs/a319/gy17m2a/PhD/datadir/UKCP18_hourly/{resolution}/{em}/{yrs_range}/pr_rcp85_land-cpm_uk_2.2km_{em}_1hr_*'
-    elif resolution == '12km':
-          general_filename = f'/nfs/a319/gy17m2a/PhD/datadir/UKCP18_hourly/{resolution}/{em}/{yrs_range}/pr_rcp85_land-rcm_uk_12km_{em}_day_*'
-    elif resolution == '2.2km_regridded_12km':
-        general_filename = f'/nfs/a319/gy17m2a/PhD/datadir/UKCP18_hourly/{resolution}/{em}/NearestNeighbour/{yrs_range}/rg_pr_rcp85_land-cpm_uk_2.2km_{em}_1hr_*'
-    
-    # Get a list of filenames
-    filenames = []
-    for filename in sir_globington_the_file_gatherer.glob(general_filename):
-        filenames.append(filename)
-    print(len(filenames))
-
-    # ### Load in the data
-    monthly_cubes_list = iris.load(filenames, in_jja)
-    
-    for cube in monthly_cubes_list:
-         for attr in ['creation_date', 'tracking_id', 'history', 'Conventions']:
-                if attr in cube.attributes:
-                    del cube.attributes[attr]
-
-    # ### Concatenate cubes into one
-    model_cube = monthly_cubes_list.concatenate_cube()      
-
-    ################################################################
-    # Cut the cube to the extent of GDF surrounding Leeds  
-    ################################################################
-    print('trimming cube')
-    if trim_to_leeds == True:
+    for yr in yrs:
+        print(yr)
+        # ### Get a list of filenames for this ensemble member, for just JJA
         if resolution == '2.2km':
-            model_cube = trim_to_bbox_of_region_regriddedobs(model_cube, leeds_at_centre_gdf)
-        else:
-            model_cube = trim_to_bbox_of_region_obs(model_cube, leeds_at_centre_gdf)
-    else:
-        if resolution == '2.2km':
-            model_cube = trim_to_bbox_of_region_regriddedobs(model_cube, uk_gdf)
-        else:
-            model_cube = trim_to_bbox_of_region_obs(model_cube, uk_gdf)
-     
-    ### Remove ensemble member dimension
-    model_cube = model_cube[0,:,:,:]
+            general_filename = f'/nfs/a319/gy17m2a/PhD/datadir/UKCP18_hourly/{resolution}/{em}/{yrs_range}/pr_rcp85_land-cpm_uk_2.2km_{em}_1hr_{yr}*'
+        elif resolution == '12km':
+              general_filename = f'/nfs/a319/gy17m2a/PhD/datadir/UKCP18_hourly/{resolution}/{em}/{yrs_range}/pr_rcp85_land-rcm_uk_12km_{em}_day_*'
+        elif resolution == '2.2km_regridded_12km':
+            general_filename = f'/nfs/a319/gy17m2a/PhD/datadir/UKCP18_hourly/{resolution}/{em}/NearestNeighbour/{yrs_range}/rg_pr_rcp85_land-cpm_uk_2.2km_{em}_1hr_*'
 
-    # Can't remember what this is for?
-    year_filter = lambda cell: cell < 2002
-    model_cube = model_cube.extract(iris.Constraint(year=year_filter))
-    
-    ################################################################
-    # Once across all ensemble members, save a numpy array storing
-    # the timestamps to which the data refer
-    ################################################################  
-    ### Get associated times
-    if resolution in ['2.2km', '2.2km_regridded_12km']:
-        times = model_cube.coord('yyyymmddhh').points   
-        times = [datetime.datetime.strptime(x, "%Y%m%d%H") for x in times]
-        #print(model_cube_jja.coord('yyyymmddhh'))
-        print(len(times))
-    elif resolution == '12km':
-        time_var = 'yyyymmdd'   
-        times = model_cube.coord('yyyymmdd').points  
-        times = [datetime.datetime.strptime(x, "%Y%m%d") for x in times]
-        # print(model_cube_jja.coord('yyyymmdd'))
-        print(len(times))
-    np.save(f"ProcessedData/TimeSeries/UKCP18_hourly/{resolution}/{yrs_range}/timestamps.npy", times) 
+        filenames = []
+        for filename in sir_globington_the_file_gatherer.glob(general_filename):
+            filenames.append(filename)
+        print(f"loading {len(filenames)} files")
 
-    ################################################################
-    # Get mask and regrid to the model cube
-    ################################################################  
-    if trim_to_leeds == False:
+        # ### Load in the data
+        monthly_cubes_list = iris.load(filenames, in_jja)
+
+        for cube in monthly_cubes_list:
+             for attr in ['creation_date', 'tracking_id', 'history', 'Conventions']:
+                    if attr in cube.attributes:
+                        del cube.attributes[attr]
+
+        # ### Concatenate cubes into one
+        model_cube = monthly_cubes_list.concatenate_cube()      
+
+        ### Remove ensemble member dimension
+        model_cube = model_cube[0,:,:,:]
+
+
+        cube_jja_uk = trim_to_bbox_of_region_regriddedobs(model_cube, uk_gdf)
+
+        #iplt.contourf(cube_jja_uk[10])
+        #plt.gca().coastlines(resolution='10m', color='black', linewidth=0.5);
+
+
         print("getting mask")
-        monthly_cubes_list = iris.load("/nfs/a319/gy17m2a/PhD/datadir/lsm_land-cpm_BI_5km.nc")
-        lsm = monthly_cubes_list[0]
-        lsm_nn =lsm.regrid(model_cube, iris.analysis.Nearest())   
+        lsm = iris.load("/nfs/a319/gy17m2a/PhD/datadir/lsm_land-cpm_BI_5km.nc")
+        lsm = lsm[0]
+        lsm_nn =lsm.regrid(cube_jja_uk, iris.analysis.Nearest())   
 
-        # Save it in 1D form
-        mask = lsm_nn.data.data.reshape(-1)
-        np.save(ddir + "lsm.npy", mask) 
-    
-    ################################################################
-    # Get data as array
-    ################################################################      
-    start = time.time()
-    data = model_cube.data.data
-    end= time.time()
-    print(f"Time taken to load cube {round((end-start)/60,1)} minutes" )    
-        
-    start = time.time()
-    flattened_data = data.flatten()
-    end= time.time()
-    print(f"Time taken to flatten cube {round((end-start)/60,1)} minutes" )
 
-    ### Save as numpy array
-    print("saving data")
-    if trim_to_leeds == True:
-        np.save(ddir + "leeds-at-centre_jja.npy", flattened_data)   
-    else:
-        np.save(ddir + "uk_jja.npy", flattened_data) 
-    print("saved data")
+        # Convert to shape of cube
+        broadcasted_lsm_data = np.broadcast_to(lsm_nn.data.data, cube_jja_uk.shape)
+        # # Convert to integer
+        # broadcasted_lsm_data_int = broadcasted_lsm_data.astype(int)
+        # Reverse the array (it is the opposite way round to the exisitng val/no val mask on the radar data)
+        reversed_array = ~broadcasted_lsm_data.astype(bool)
+
+
+        # land_mask = np.where(lsm_nn.data > 0, True, False)
+        # broadcasted_lsm_data = np.broadcast_to(land_mask, cube_jja_uk.shape)
+        # lsm_cube = cube_jja_uk.copy(data=broadcasted_lsm_data)
+
+        masked_cube = iris.util.mask_cube(cube_jja_uk, reversed_array)
+
+        #iplt.contourf(masked_cube[0])
+        #plt.gca().coastlines(resolution='10m', color='black', linewidth=0.5);
+
+
+        ddir + f'maskedcube.nc'
+        iris.save(masked_cube, ddir + f'maskedcube_{yr}.nc')
+
+        print(f"Min value is {np.nanmin(masked_cube.data)}")
+
+        # Get rid of negative values
+        compressed = masked_cube.data.compressed()
+        compressed.shape[0]
+
+        #compressed = compressed[~np.isnan(compressed)]
+        compressed.shape[0]
+
+        ########
+        # Get the times
+        ########
+        # Step 2: Get the indices of the non-masked values in the original data
+        non_masked_indices = np.where(~masked_cube.data.mask)
+
+        # Step 3: Extract corresponding time values
+        time_values = masked_cube.coord('time').points[non_masked_indices[0]]
+        np.save(ddir + f'timevalues_{yr}.npy', time_values) 
+
+        np.save(ddir + f'compressed_{yr}.npy', compressed) 
+

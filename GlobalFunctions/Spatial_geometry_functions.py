@@ -341,3 +341,55 @@ def create_uk_outline (required_proj):
     uk_gdf = uk_gdf.to_crs(required_proj) 
 
     return uk_gdf
+
+
+def create_gb_outline (required_proj):
+    '''
+    Description
+    ----------
+        Creates a shapely geometry of the outline of the UK in the projection specified
+        Involves joining a gdf of UK with one of Ireland
+        
+    Parameters
+    ----------
+        required_proj : Dict
+            Python dictionary with a key init that has a value epsg:4326. 
+            This is a very typical way how CRS is stored in GeoDataFrames 
+            e.g. {'init' :'epsg:3785'} for Web Mercator
+            or   {'init' :'epsg:4326'} for WGS84
+
+    Returns
+    -------
+        uk_gdf : Geodataframe
+            Dataframe contaiing coordinates of outline of UK region
+    
+    '''
+    # Read in outline of UK
+    uk_regions = gpd.read_file("/nfs/a319/gy17m2a/PhD/datadir/SpatialData/UK_shp/GBR_adm1.shp") 
+    uk_regions= uk_regions[uk_regions['NAME_1'] !='Northern Ireland'] 
+    uk_regions = uk_regions.to_crs({'init' :'epsg:27700'}) 
+    uk_regions = uk_regions[['geometry']]
+
+    # Convert to required projection
+    uk_regions = uk_regions.to_crs(required_proj) 
+
+    merged_geometry = uk_regions.geometry.unary_union
+
+    # Convert the merged geometry into a single Polygon
+    if merged_geometry.geom_type == 'MultiPolygon':
+        # If the merged geometry is a MultiPolygon, you can take its convex hull
+        # or apply any other method to convert it into a single Polygon.
+        single_polygon = merged_geometry.convex_hull
+    elif merged_geometry.geom_type == 'Polygon':
+        # If the merged geometry is already a Polygon, you can directly use it.
+        single_polygon = merged_geometry
+    else:
+        # Handle other cases if necessary
+        single_polygon = None
+    merged_geometry
+
+    # Create a DataFrame with a single row containing the merged geometry
+    data = {'geometry': [merged_geometry]}
+    merged_gdf = gpd.GeoDataFrame(data, crs=uk_regions.crs)
+    
+    return merged_gdf
