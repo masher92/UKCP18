@@ -39,21 +39,23 @@ uk_gdf = create_uk_outline({'init' :'epsg:3857'})
 gb_gdf = create_gb_outline({'init' :'epsg:3857'})
 ##################################################################
 
-# Constraint to only load JJA data
+# Constraint to only load 
 in_jja=iris.Constraint(time=lambda cell: 6 <= cell.point.month <= 8)
 
-yrs_range = "1980_2001"
-yrs= range(1981,2002)
-resolution = '2.2km' #2.2km, 12km, 2.2km_regridded_12km
+yrs_range = "2002_2020"
+yrs= range(2002,2020)
+resolution = '2.2km_regridded_12km' #2.2km, 12km, 2.2km_regridded_12km
 
 ### Establish the ensemble members
-ems = ['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
+ems = ['05']#'06', '07', '08', '09', '10', '11', '12', '13', '15']
+
 for em in ems:
 
-    ddir = f"ProcessedData/TimeSeries/UKCP18_hourly/{resolution}/{yrs_range}/leeds-at-centre/{em}/"
+    ddir = f"ProcessedData/TimeSeries/UKCP18_hourly/{resolution}/{yrs_range}/{em}/"
 
     print(em, resolution, trim_to_leeds)
     for yr in yrs:
+        print(em, yr)
 
         # ### Get a list of filenames for this ensemble member, for just JJA
         if resolution == '2.2km':
@@ -70,7 +72,8 @@ for em in ems:
 
         # ### Load in the data
         monthly_cubes_list = iris.load(filenames, in_jja)
-
+        print(len(monthly_cubes_list))
+        
         for cube in monthly_cubes_list:
              for attr in ['creation_date', 'tracking_id', 'history', 'Conventions']:
                     if attr in cube.attributes:
@@ -81,10 +84,19 @@ for em in ems:
 
         ### Remove ensemble member dimension
         model_cube = model_cube[0,:,:,:]
-
+        
+        # ### Trim to UK
+        if resolution  == '2.2km':
+            model_cube = trim_to_bbox_of_region_regriddedobs(model_cube, gb_gdf)
+        else:
+            model_cube = trim_to_bbox_of_region_obs(model_cube, gb_gdf)
+        
         # ### Get the mask
         print("getting mask")
-        gb_mask = np.load("/nfs/a319/gy17m2a/PhD/datadir/UKCP18_2.2km_GB_Mask.npy")
+        if resolution =='2.2km':
+            gb_mask = np.load("/nfs/a319/gy17m2a/PhD/datadir/UKCP18_2.2km_GB_Mask.npy")
+        else:
+            gb_mask = np.load("/nfs/a319/gy17m2a/PhD/datadir/UKCP18_12km_GB_Mask.npy")
         masked_cube_data = model_cube * gb_mask[np.newaxis, :, :]
 
         # APPLY THE MASK
@@ -99,9 +111,9 @@ for em in ems:
         # iplt.contourf(masked_cube[10])
         # plt.gca().coastlines(resolution='10m', color='black', linewidth=0.5);
 
-        # ### Trim to UK
-        masked_cube = trim_to_bbox_of_region_regriddedobs(masked_cube, gb_gdf)
-
+        # Save
+        iris.save(masked_cube, ddir + f'{yr}_maskedcube.nc')      
+        
         # Check the plotting
         # iplt.contourf(masked_cube[10])
         # plt.gca().coastlines(resolution='10m', color='black', linewidth=0.5);
@@ -117,23 +129,11 @@ for em in ems:
         non_masked_indices = np.where(~masked_cube.data.mask)
 
         # Step 3: Extract corresponding time values
-        time_values = masked_cube.coord('time').points[non_masked_indices[0]]
+        # time_values = masked_cube.coord('time').points[non_masked_indices[0]]
 
         # Save to file
-        np.save(ddir + f'timevalues_{yr}.npy', time_values) 
+        # np.save(ddir + f'timevalues_{yr}.npy', time_values) 
         np.save(ddir + f'compressed_{yr}.npy', compressed) 
 
-
-
-
-
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
+time_values = masked_cube.coord('yyyymmddhh').points[non_masked_indices[0]]
+np.save(f"ProcessedData/TimeSeries/UKCP18_hourly/{resolution}/{yrs_range}/timevalues.npy", time_values)

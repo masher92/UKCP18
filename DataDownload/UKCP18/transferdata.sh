@@ -6,12 +6,12 @@ echo $em_code
 
 mkdir /nfs/a319/gy17m2a/PhD/datadir/UKCP18_first30mins/${em_code}/
 
-for year in {1999..2000}
+for year in {2016..2017}
 do
     echo "output: $year"
 scp masher92@xfer1.jasmin.ac.uk:/gws/nopw/j04/icasp_swf/masher/${em_code}/${em_code}a.pr${year}06*  /nfs/a319/gy17m2a/PhD/datadir/UKCP18_first30mins/2002_2020/${em_code}/
-    scp masher92@xfer1.jasmin.ac.uk:/gws/nopw/j04/icasp_swf/masher/${em_code}/${em_code}a.pr${year}07*  /nfs/a319/gy17m2a/PhD/datadir/UKCP18_first30mins/2002_2020/${em_code}/
-    scp masher92@xfer1.jasmin.ac.uk:/gws/nopw/j04/icasp_swf/masher/${em_code}/${em_code}a.pr${year}08*  /nfs/a319/gy17m2a/PhD/datadir/UKCP18_first30mins/2002_2020/${em_code}/
+scp masher92@xfer1.jasmin.ac.uk:/gws/nopw/j04/icasp_swf/masher/${em_code}/${em_code}a.pr${year}07*  /nfs/a319/gy17m2a/PhD/datadir/UKCP18_first30mins/2002_2020/${em_code}/
+scp masher92@xfer1.jasmin.ac.uk:/gws/nopw/j04/icasp_swf/masher/${em_code}/${em_code}a.pr${year}08*  /nfs/a319/gy17m2a/PhD/datadir/UKCP18_first30mins/2002_2020/${em_code}/
 done
 
 

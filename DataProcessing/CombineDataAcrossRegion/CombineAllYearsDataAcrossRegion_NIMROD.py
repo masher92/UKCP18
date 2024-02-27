@@ -49,12 +49,12 @@ in_jja=iris.Constraint(time=lambda cell: 6 <= cell.point.month <= 8)
 # This is a square area surrounding Leeds
 leeds_at_centre_gdf = create_leeds_at_centre_outline({'init' :'epsg:3857'})
 uk_gdf = create_uk_outline({'init' :'epsg:3857'})
-
+gb_gdf = create_gb_outline({'init' :'epsg:3857'})
 
 ##################################################################
 # FOR ONE YEAR AT A TIME
 ##################################################################
-for year in range(2016, 2021):
+for year in range(2010,2011):
     print(year)
 
     # Create directory to store outputs in and get general filename to load files from
@@ -118,65 +118,47 @@ for year in range(2016, 2021):
     for i in range(0, len(monthly_cubes_list)):
         monthly_cubes_list[i].data = monthly_cubes_list[i].data.astype('float64')
 
-    cube_jja = monthly_cubes_list.concatenate_cube()
+    model_cube = monthly_cubes_list.concatenate_cube()
 
-    print(cube_jja.coord('time')[0])
-    print(cube_jja.coord('time')[-1])
-
-
-    ##################################################################
-    # TRIM TO UK
-    ##################################################################
-    cube_jja_uk = trim_to_bbox_of_region_regriddedobs(cube_jja, uk_gdf)
-
-    ### Check plotting
-    iplt.contourf(cube_jja[10])
-    plt.gca().coastlines(resolution='10m', color='black', linewidth=0.5);
-
-    ##################################################################
-    # MASK OUT VALUES OVER THE SEA
-    ##################################################################
+    # ### Trim to GB
+    if resolution  == '2.2km':
+        model_cube = trim_to_bbox_of_region_regriddedobs(model_cube, gb_gdf)
+    else:
+        model_cube = trim_to_bbox_of_region_obs(model_cube, gb_gdf)
+    
+    print(model_cube.coord('time')[0])
+    print(model_cube.coord('time')[-1])
+    
+    # ### Get the mask
     print("getting mask")
-    lsm_cubes_list = iris.load("/nfs/a319/gy17m2a/PhD/datadir/lsm_land-cpm_BI_5km.nc")
-    lsm = lsm_cubes_list[0]
-    lsm_nn =lsm.regrid(cube_jja_uk,iris.analysis.Nearest())   
+    if resolution =='2.2km':
+        gb_mask = np.load("/nfs/a319/gy17m2a/PhD/datadir/UKCP18_2.2km_GB_Mask.npy")
+    else:
+        gb_mask = np.load("/nfs/a319/gy17m2a/PhD/datadir/UKCP18_12km_GB_Mask.npy")
+    masked_cube_data = model_cube * gb_mask[np.newaxis, :, :]
 
+    # APPLY THE MASK
+    reshaped_mask = np.tile(gb_mask, (model_cube.shape[0], 1, 1))
+    reshaped_mask = reshaped_mask.astype(int)
+    reversed_array = ~reshaped_mask.astype(bool)
 
-    ### Convert land sea mask to a cube of the same shape as our data 
-    # Convert to shape of cube
-    broadcasted_lsm_data = np.broadcast_to(lsm_nn.data.data, cube_jja_uk.shape)
-    # Convert to integer
-    broadcasted_lsm_data_int = broadcasted_lsm_data.astype(int)
-    # Reverse the array (it is the opposite way round to the exisitng val/no val mask on the radar data)
-    reversed_array = ~broadcasted_lsm_data_int.astype(bool)
+    # Mask the cube
+    masked_cube = iris.util.mask_cube(model_cube, reversed_array)
 
-    ### Mask the cube using the lsm cube
-    masked_cube = iris.util.mask_cube(cube_jja_uk, reversed_array)
+    # ### Check the mask
+    # iplt.contourf(masked_cube[10])
+    # plt.gca().coastlines(resolution='10m', color='black', linewidth=0.5);
+    # Save
+    iris.save(masked_cube, ddir + f'{year}_maskedcube.nc')      
 
+    # Check the plotting
+    # iplt.contourf(masked_cube[10])
+    # plt.gca().coastlines(resolution='10m', color='black', linewidth=0.5);
 
-    ### Check plotting
-    iplt.contourf(masked_cube[0])
-    plt.gca().coastlines(resolution='10m', color='black', linewidth=0.5);
-
-
-    # ### Save to check with ncview
-    # Run linux ncview f'masked-cube-{year}-{resolution}.nc'
-    ddir + f'{year}_maskedcube.nc'
-    iris.save(masked_cube, ddir + f'{year}_maskedcube.nc')
-
-
-
-    print(f"Min value is {np.nanmin(masked_cube.data)}")
-
-    ##################################################################
-    # COMPRESS DATA (FLATTEN AND REMOVE MASKED VALUES)
-    ##################################################################
-
+    # Get rid of negative values
     compressed = masked_cube.data.compressed()
     compressed.shape[0]
-    # REMOVE NAN VALUES
-    #compressed = compressed[~np.isnan(compressed)]
-    
+
     ########
     # Get the times
     ########
@@ -185,21 +167,7 @@ for year in range(2016, 2021):
 
     # Step 3: Extract corresponding time values
     time_values = masked_cube.coord('time').points[non_masked_indices[0]]
-    np.save(ddir + f'{year}_timevalues.npy', time_values) 
-        
 
-    # ### Check length of data from flattening it before compressing (shows we have lost 60% values)
-    # notcompressed = masked_cube.data.flatten()
-    # (compressed.shape[0] / (notcompressed.shape[0] + compressed.shape[0])) *100
-
-    # ### Sense check min/max values
-    print(np.nanmin(compressed))
-    print(np.nanmax(compressed))
-
-    less0 = compressed[compressed <0]
-    more0 = compressed[compressed >0]
-
-    ##################################################################
-    # SAVE TO NUMPY ARRAY
-    ##################################################################
-    np.save(ddir + f'{year}_compressed.npy', compressed) 
+    # Save to file
+    np.save(ddir + f'timevalues_{year}.npy', time_values) 
+    np.save(ddir + f'compressed_{year}.npy', compressed) 

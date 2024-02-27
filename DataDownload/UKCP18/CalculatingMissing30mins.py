@@ -1,3 +1,5 @@
+# bc018, bc016, bc015, bc011, bc010,
+
 import iris
 import os
 import glob as glob
@@ -39,11 +41,13 @@ yrs_range = "2002_2020"
 # yr = 2012
 # month_num = '06'
 
-for em_1hr in ['15']:
+# for em_1hr in ['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']:
+for em_1hr in ['05']:
     em_30mins = em_matching_dict[em_1hr]
-    for yr in range(1999,2021):
+    for yr in range(2012,2021):
         for month_num in ['06', '07', '08']:
-            if (os.path.isfile(f"datadir/UKCP18_every30mins/{em_30mins}/{yrs_range}/{em_30mins}a.pr{yr}{month_num}.nc")):
+            print(f"em{em_1hr}, yr {yr}, month {month_num}")
+            if (os.path.isfile(f"/nfs/a319/gy17m2a/PhD/datadir/UKCP18_every30mins/{resolution}/{em_30mins}/{yrs_range}/{em_30mins}a.pr{yr}{month_num}.nc")):
                 print("already exists")
             else:
                 print(f"Running for month {month_num} in {yr}, for {em_1hr} (which equatees to {em_30mins})")

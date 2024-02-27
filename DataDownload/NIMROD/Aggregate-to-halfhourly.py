@@ -10,7 +10,7 @@ import numpy as np
 # Get year from input of running the script 
 # year = sys.argv[1]
 # print (year)
-years = [2009]
+years = [2012]
 
 for year in years:
     print(year)
@@ -40,8 +40,12 @@ for year in years:
 
         # Get list of the hours
         hours = set(day_cube.coord('hour').points)
+        
+        max_vals = []
+        
         # Loop through the hours
         for hour in hours:
+            print(hour)
 
             # Establish constraint to select only this hour
             hour_constraint = iris.Constraint(time=lambda cell: cell.point.hour == hour)
@@ -63,17 +67,25 @@ for year in years:
             elif len(first_half_of_hour.shape) ==2:
                 print("only 1 value in 1st half hour")        
             else:
-                
+
                 if first_half_of_hour.shape[0] >=4:
+                    print(f"iter {i}, hour {hour}, first half hour, min value is: {np.nanmin(first_half_of_hour.data)}")
+                    print(f"iter {i}, hour {hour}, first half hour, max value is: {np.nanmax(first_half_of_hour.data)}")
                     ## Correct negative 1064 values to np.nan
                     if np.nanmin(first_half_of_hour.data)<0:
-                        print(f"iter {i}, hour {hour}, first half hour, min value is: {np.nanmin(first_half_of_hour.data)}")
                         first_half_of_hour.data = np.where(first_half_of_hour.data <0, np.nan, first_half_of_hour.data)
-                        print(f"min value is: {np.nanmin(first_half_of_hour.data)}")
+                        # If somehow still negatives
                         if np.nanmin(first_half_of_hour.data <0):
                             print(first_half_of_hour.data[first_half_of_hour.data<0])
+                    # Get rid of this val
+                    first_half_of_hour.data = np.where(first_half_of_hour.data ==1023.96875, np.nan, first_half_of_hour.data)  
+                    first_half_of_hour.data = np.where(first_half_of_hour.data ==9.969209968386869e+36, np.nan, first_half_of_hour.data)
+                    print(f"iter {i}, hour {hour}, first half hour, min value is now: {np.nanmin(first_half_of_hour.data)}") 
+                    print(f"iter {i}, hour {hour}, first half hour, max value is now: {np.nanmax(first_half_of_hour.data)}")  
+                    
                     # FIND MEAN ACROSS WHOLE FIRST HALF HOUR
                     first_half_hourly_mean = first_half_of_hour.aggregated_by(['hour'],iris.analysis.MEAN)
+                    print(np.nanmax(first_half_hourly_mean.data))
                     # first_half_hourly_mean.data.astype('float64')
                     my_cube_list.append(first_half_hourly_mean)
                 else:
@@ -85,21 +97,33 @@ for year in years:
             elif len(second_half_of_hour.shape) ==2:
                 print("only 1 value in 2nd half hour")
             else:
-                if second_half_of_hour.shape[0] >=4:    
+                if second_half_of_hour.shape[0] >=4:
+                    print(f"iter {i}, hour {hour}, second half hour, min value is: {np.nanmin(second_half_of_hour.data)}")
+                    print(f"iter {i}, hour {hour}, second half hour, max value is: {np.nanmax(second_half_of_hour.data)}")
                     ## Correct negative 1064 values to np.nan
-                    if np.nanmin(second_half_of_hour.data)<0:            
-                        print(f"iter {i}, hour {hour}, second half hour, min value is: {np.nanmin(second_half_of_hour.data)}")
+                    if np.nanmin(second_half_of_hour.data)<0:
                         second_half_of_hour.data = np.where(second_half_of_hour.data <0, np.nan, second_half_of_hour.data)
-                        print(f"min value is: {np.nanmin(second_half_of_hour.data)}")
+                        # If somehow still negatives
                         if np.nanmin(second_half_of_hour.data <0):
                             print(second_half_of_hour.data[second_half_of_hour.data<0])
+                    # Get rid of this val
+                    second_half_of_hour.data = np.where(second_half_of_hour.data ==1023.96875, np.nan, second_half_of_hour.data)        
+                    second_half_of_hour.data = np.where(second_half_of_hour.data ==9.969209968386869e+36, np.nan, second_half_of_hour.data)
+                    
+                    print(f"iter {i}, hour {hour}, second half hour, min value is now: {np.nanmin(second_half_of_hour.data)}") 
+                    print(f"iter {i}, hour {hour}, second half hour, max value is now: {np.nanmax(second_half_of_hour.data)}") 
+                    
+                    max_vals.append(np.nanmax(second_half_of_hour.data))
+                    max_vals.append(np.nanmax(first_half_of_hour.data))
+                    
                     # FIND MEAN ACROSS WHOLE FIRST HALF HOUR
                     second_half_hourly_mean = second_half_of_hour.aggregated_by(['hour'],iris.analysis.MEAN)
+                    print(np.nanmax(second_half_hourly_mean.data))
                     # second_half_hourly_mean.data.astype('float64')
                     my_cube_list.append(second_half_hourly_mean)
                 else:
                     print(f"only {second_half_of_hour.shape[0]} vals in 2nd half hour")
-
+                    
 
         ### Join back into one cube covering the whole day
         try:
