@@ -42,12 +42,12 @@ gb_gdf = create_gb_outline({'init' :'epsg:3857'})
 # Constraint to only load 
 in_jja=iris.Constraint(time=lambda cell: 6 <= cell.point.month <= 8)
 
-yrs_range = "2002_2020"
-yrs= range(2002,2020)
+yrs_range = "1980_2001"
+yrs= range(1987,1989)
 resolution = '2.2km_regridded_12km' #2.2km, 12km, 2.2km_regridded_12km
 
 ### Establish the ensemble members
-ems = ['05']#'06', '07', '08', '09', '10', '11', '12', '13', '15']
+ems = [ '15']
 
 for em in ems:
 
@@ -63,7 +63,7 @@ for em in ems:
         elif resolution == '12km':
               general_filename = f'/nfs/a319/gy17m2a/PhD/datadir/UKCP18_hourly/{resolution}/{em}/{yrs_range}/pr_rcp85_land-rcm_uk_12km_{em}_day_*'
         elif resolution == '2.2km_regridded_12km':
-            general_filename = f'/nfs/a319/gy17m2a/PhD/datadir/UKCP18_hourly/{resolution}/{em}/NearestNeighbour/{yrs_range}/rg_pr_rcp85_land-cpm_uk_2.2km_{em}_1hr_*'
+            general_filename = f'/nfs/a319/gy17m2a/PhD/datadir/UKCP18_hourly/{resolution}/{em}/NearestNeighbour/{yrs_range}/rg_pr_rcp85_land-cpm_uk_2.2km_{em}_1hr_{yr}*'
 
         filenames = []
         for filename in sir_globington_the_file_gatherer.glob(general_filename):
