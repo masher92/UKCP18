@@ -37,7 +37,7 @@ trim_to_leeds = False
 
 ems= ['bc005', 'bc006', 'bc007', 'bc009', 'bc010', 'bc011', 'bc013',  'bc015',  'bc016', 'bc017', 'bc018', 'bc012']
 yrs_range = "2002_2020"
-resolution = '2.2km' #2.2km, 12km, 2.2km_regridded_12km
+resolution = '2.2km_regridded_12km' #2.2km, 12km, 2.2km_regridded_12km
 in_jja=iris.Constraint(time=lambda cell: 6 <= cell.point.month <= 8)
 yrs= range(2001,2002)
 

@@ -266,34 +266,44 @@ def GridCells_within_geometry(lats, lons, geometry_gdf, data):
     
     return within_geometry
 
+def trim_to_bbox_of_region_wgs84 (obs_cube, gdf, y_coord, x_coord):
+
+    # CReate function to find   
+    minmax = lambda x: (np.min(x), np.max(x))
+    
+    # Convert the regional gdf to WGS84 (same as cube)
+    gdf = gdf.to_crs({'init' :'epsg:4326'}) 
+    # Find the bounding box of the region
+    bbox = gdf.total_bounds
+    
+    #### Find the lats and lons of the cube in BNG
+    lats_1d = obs_cube.coord(y_coord).points
+    lons_1d = obs_cube.coord(x_coord).points
+    
+    # Convert to 2D
+    lons_2d, lats_2d = np.meshgrid(lons_1d, lats_1d)
+
+    
+    inregion = np.logical_and(np.logical_and(lons_2d > bbox[0],
+                                             lons_2d < bbox[2]),
+                              np.logical_and(lats_2d > bbox[1],
+                                             lats_2d < bbox[3]))
+    region_inds = np.where(inregion)
+    imin, imax = minmax(region_inds[0])
+    jmin, jmax = minmax(region_inds[1])
+    
+    obs_cube = obs_cube[..., imin:imax+1, jmin:jmax+1]
+    
+    return obs_cube
  
-def trim_to_bbox_of_region_obs (obs_cube, gdf):
-    '''
-    Description
-    ----------
-        Trims a cube to the bounding box of a region, supplied as a geodataframe.
-        This is much faster than looking for each point within a geometry as in
-        GridCellsWithin_geometry
-        Tests whether the central coordinate is within the bbox
+def trim_to_bbox_of_region_obs (obs_cube, gdf, y_coord, x_coord):
 
-    Parameters
-    ----------
-        cube : iris cube
-            1D array of latitudes
-        gdf: GeoDataFrame
-            GeoDataFrame containing a geometry by which to cut the cubes spatial extent
-    Returns
-    -------
-        trimmed_cube : iris cube
-            Cube with spatial extent equivalent to the bounding box of the supplied geodataframe
-
-    '''
-     # CReate function to find   
+    # CReate function to find   
     minmax = lambda x: (np.min(x), np.max(x))
     
     #### Find the lats and lons of the cube in BNG
-    lats_1d = obs_cube.coord('projection_y_coordinate').points
-    lons_1d = obs_cube.coord('projection_x_coordinate').points
+    lats_1d = obs_cube.coord(y_coord).points
+    lons_1d = obs_cube.coord(x_coord).points
     
     # Convert to 2D
     lons_2d, lats_2d = np.meshgrid(lons_1d, lats_1d)

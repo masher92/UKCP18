@@ -35,6 +35,46 @@ leeds_gdf = create_leeds_outline({'init' :'epsg:27700'})
 # Create square area around leeds
 leeds_at_centre_gdf = create_leeds_at_centre_outline({'init' :'epsg:3857'})
 
+
+def convert_to_wgs84(source_crs, target_crs, cube, x_coord_name, y_coord_name):
+    # Extract the 2D meshgrid of X (eastings) and Y (northings) coordinates from the cube
+    x = cube.coord(x_coord_name).points
+    y = cube.coord(y_coord_name).points
+    xx, yy = np.meshgrid(x, y)
+
+    # Also get time for the new cube
+    time_coord = cube.coord('time')
+
+    # Use transform_points to project your coordinates
+    transformed_points = target_crs.transform_points(source_crs, xx.flatten(), yy.flatten())
+
+    # transformed_points now has a shape (n*m, 3), where the last dimension contains (lon, lat, z)
+    # Reshape the array back to your original grid shape and separate the components
+    lons, lats = transformed_points[..., 0].reshape(xx.shape), transformed_points[..., 1].reshape(yy.shape)
+
+    # Now, you should create a new cube with these lons and lats as coordinates.
+    # Note: This step requires careful handling to ensure the new cube's data aligns correctly with the transformed coordinates.
+    # You might need to create new latitude and longitude DimCoords, ensuring they have bounds set if performing area-weighted regridding later.
+
+    # Here's a simplified way to create a new cube with the transformed coordinates,
+    # assuming your original data is 2-dimensional and compatible with the new grid.
+    new_cube_data = cube.data  # This might require adjustment if the data needs to be interpolated onto the new grid.
+    latitude_coord = iris.coords.DimCoord(lats[:, 0], standard_name='latitude', units='degrees')
+    longitude_coord = iris.coords.DimCoord(lons[0, :], standard_name='longitude', units='degrees')
+
+    # Guess bounds
+    latitude_coord.guess_bounds()
+    longitude_coord.guess_bounds()
+
+    cube_wgs84 = cube.copy()
+    cube_wgs84.remove_coord(x_coord_name)
+    cube_wgs84.remove_coord(y_coord_name)
+    # If your data is indeed 2-dimensional as suggested, these should be added as dimension coordinates
+    cube_wgs84.add_dim_coord(latitude_coord, 1)  # Assuming latitude corresponds to the first dimension
+    cube_wgs84.add_dim_coord(longitude_coord, 2)  # And longitude to the second
+    
+    return cube_wgs84
+
 # Function to reformat the cube
 def make_bng_cube(xr_ds,variable):
     # Store the northings values
