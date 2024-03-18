@@ -42,12 +42,11 @@ years= range(1990,2015)
 # Loop through the years
 ##################################################################
 for year in years:
-
-    # Create directory to store outputs in
+     # Create directory to store outputs in
     if resolution =='1km':
         ddir = f"ProcessedData/TimeSeries/CEH-GEAR/{resolution}/"
     else:
-        ddir = f"ProcessedData/TimeSeries/CEH-GEAR/{resolution}/NearestNeighbour/"
+        ddir = f"ProcessedData/TimeSeries/CEH-GEAR/{resolution}/AreaWeighted/"
     if not os.path.isdir(ddir):
         os.makedirs(ddir)
 
@@ -58,7 +57,7 @@ for year in years:
     elif resolution == '2.2km':
         general_filename = f'datadir/CEH-GEAR/CEH-GEAR_regridded_2.2km/NearestNeighbour/rg_CEH-GEAR-1hr_{year}*'
     elif resolution == '12km':
-        general_filename = f'datadir/CEH-GEAR/CEH-GEAR_regridded_12km/NearestNeighbour/rg_CEH-GEAR-1hr_{year}*'
+        general_filename = f'datadir/CEH-GEAR/CEH-GEAR_regridded_12km/AreaWeighted/rg_rf_CEH-GEAR-1hr_{year}*'
     print(general_filename)
 
     # Find all files in directory which start with this string
@@ -73,7 +72,7 @@ for year in years:
     print('Concatenating cube')
     obs_cube = monthly_cubes_list.concatenate_cube()     
     print(obs_cube.shape) 
-    
+
     ########################################################################
     ########################################################################
     # ### Get the mask
@@ -81,19 +80,18 @@ for year in years:
     ########################################################################
     print("getting mask")
     if resolution =='2.2km':
-        obs_cube = trim_to_bbox_of_region_regriddedobs(obs_cube, gb_gdf)
+        obs_cube = trim_to_bbox_of_region_regriddedobs(obs_cube, gb_gdf, 'projection_y_coordinate', 'projection_x_coordinate')
         gb_mask = np.load("/nfs/a319/gy17m2a/PhD/datadir/UKCP18_2.2km_GB_Mask.npy")
     elif resolution == '1km':
         obs_cube = trim_to_bbox_of_region_regriddedobs(obs_cube, gb_gdf)
         gb_mask = np.load("/nfs/a319/gy17m2a/PhD/datadir/UKCP18_1km_GB_Mask.npy")
     else:
-        obs_cube = trim_to_bbox_of_region_obs(obs_cube, gb_gdf)
+        obs_cube = trim_to_bbox_of_region_obs(obs_cube, gb_gdf, 'projection_y_coordinate', 'projection_x_coordinate')
         gb_mask = np.load("/nfs/a319/gy17m2a/PhD/datadir/UKCP18_12km_GB_Mask.npy")
     masked_cube_data = obs_cube * gb_mask[np.newaxis, :, :]
-    
-    
+
     print(obs_cube.shape) 
-    
+
     # APPLY THE MASK
     reshaped_mask = np.tile(gb_mask, (obs_cube.shape[0], 1, 1))
     reshaped_mask = reshaped_mask.astype(int)
@@ -122,7 +120,7 @@ for year in years:
 
     # Step 3: Extract corresponding time values
     time_values = masked_cube.coord('time').points[non_masked_indices[0]]
- 
+
     # Save to file
     np.save(ddir + f'{year}_timevalues.npy', time_values) 
     np.save(ddir + f'{year}_compressed.npy', compressed) 

@@ -36,6 +36,50 @@ leeds_gdf = create_leeds_outline({'init' :'epsg:27700'})
 leeds_at_centre_gdf = create_leeds_at_centre_outline({'init' :'epsg:3857'})
 
 
+def convert_rotatedpol_to_bng(cube):
+    # Define the original crs (rotated pole) and the target crs (BNG)
+    source_crs = ccrs.RotatedGeodetic(pole_latitude=37.5,
+                                      pole_longitude=177.5,
+                                      central_rotated_longitude=0)
+    target_crs = ccrs.OSGB()
+    os_gb=TransverseMercator(latitude_of_projection_origin=49.0, longitude_of_central_meridian=-2.0, 
+                         false_easting=400000.0, false_northing=-100000.0, scale_factor_at_central_meridian=0.9996012717, 
+                         ellipsoid=GeogCS(semi_major_axis=6377563.396, semi_minor_axis=6356256.909))
+    
+    
+    # Extract the 2D meshgrid of lats/lons in rotated pole
+    x = cube.coord('grid_longitude').points # long
+    y = cube.coord('grid_latitude').points # lat
+    # Convert to 2D
+    xx, yy = np.meshgrid(x, y)
+
+    # Use transform_points to project your coordinates into BNG
+    transformed_points = target_crs.transform_points(source_crs, xx.flatten(), yy.flatten())
+
+    # Reshape the array back to your original grid shape and separate the components
+    lons_bng, lats_bng = transformed_points[..., 0].reshape(xx.shape), transformed_points[..., 1].reshape(yy.shape)
+
+    # Here's a simplified way to create a new cube with the transformed coordinates,
+    # assuming your original data is 2-dimensional and compatible with the new grid.
+    new_cube_data = cube.data  # This might require adjustment if the data needs to be interpolated onto the new grid.
+    latitude_coord = iris.coords.DimCoord(lats_bng[:, 0], standard_name='projection_y_coordinate', units='m',
+                                          coord_system=os_gb)
+    longitude_coord = iris.coords.DimCoord(lons_bng[0, :], standard_name='projection_x_coordinate', units='m',
+                                          coord_system=os_gb)
+
+    # Guess bounds
+    latitude_coord.guess_bounds()
+    longitude_coord.guess_bounds()
+
+    cube_2km_bng = cube.copy()
+    cube_2km_bng.remove_coord('grid_latitude')
+    cube_2km_bng.remove_coord('grid_longitude')
+    # If your data is indeed 2-dimensional as suggested, these should be added as dimension coordinates
+    cube_2km_bng.add_dim_coord(latitude_coord, 1)  # Assuming latitude corresponds to the first dimension
+    cube_2km_bng.add_dim_coord(longitude_coord, 2)  # And longitude to the second
+    
+    return cube_2km_bng, lats_bng, lons_bng
+
 def convert_to_wgs84(source_crs, target_crs, cube, x_coord_name, y_coord_name):
     # Extract the 2D meshgrid of X (eastings) and Y (northings) coordinates from the cube
     x = cube.coord(x_coord_name).points
@@ -50,7 +94,7 @@ def convert_to_wgs84(source_crs, target_crs, cube, x_coord_name, y_coord_name):
 
     # transformed_points now has a shape (n*m, 3), where the last dimension contains (lon, lat, z)
     # Reshape the array back to your original grid shape and separate the components
-    lons, lats = transformed_points[..., 0].reshape(xx.shape), transformed_points[..., 1].reshape(yy.shape)
+    lons_wgs84, lats_wgs84 = transformed_points[..., 0].reshape(xx.shape), transformed_points[..., 1].reshape(yy.shape)
 
     # Now, you should create a new cube with these lons and lats as coordinates.
     # Note: This step requires careful handling to ensure the new cube's data aligns correctly with the transformed coordinates.
@@ -59,8 +103,8 @@ def convert_to_wgs84(source_crs, target_crs, cube, x_coord_name, y_coord_name):
     # Here's a simplified way to create a new cube with the transformed coordinates,
     # assuming your original data is 2-dimensional and compatible with the new grid.
     new_cube_data = cube.data  # This might require adjustment if the data needs to be interpolated onto the new grid.
-    latitude_coord = iris.coords.DimCoord(lats[:, 0], standard_name='latitude', units='degrees')
-    longitude_coord = iris.coords.DimCoord(lons[0, :], standard_name='longitude', units='degrees')
+    latitude_coord = iris.coords.DimCoord(lats_wgs84[:, 0], standard_name='latitude', units='degrees')
+    longitude_coord = iris.coords.DimCoord(lons_wgs84[0, :], standard_name='longitude', units='degrees')
 
     # Guess bounds
     latitude_coord.guess_bounds()
@@ -73,7 +117,7 @@ def convert_to_wgs84(source_crs, target_crs, cube, x_coord_name, y_coord_name):
     cube_wgs84.add_dim_coord(latitude_coord, 1)  # Assuming latitude corresponds to the first dimension
     cube_wgs84.add_dim_coord(longitude_coord, 2)  # And longitude to the second
     
-    return cube_wgs84
+    return cube_wgs84, lats_wgs84, lons_wgs84
 
 # Function to reformat the cube
 def make_bng_cube(xr_ds,variable):

@@ -44,12 +44,11 @@ in_jja=iris.Constraint(time=lambda cell: 6 <= cell.point.month <= 8)
 
 yrs_range = "1980_2001"
 yrs= range(1981,2002)
-resolution = '2.2km_regridded_12km' #2.2km, 12km, 2.2km_regridded_12km
+resolution = '2.2km_bng_regridded_12km_maskingfirst' #2.2km, 12km, 2.2km_regridded_12km
 regridding_style = 'AreaWeighted'
 
 ### Establish the ensemble members
-# ems = [ '07', '08', '09', '10', '11', '12', '13','15']
-ems=['01'] #10, 12
+ems = ['04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']
 for em in ems:
     
     if resolution == '2.2km_bng_regridded_12km':
@@ -67,13 +66,22 @@ for em in ems:
         # ### Get a list of filenames for this ensemble member, for just JJA
         if resolution == '2.2km':
             general_filename = f'/nfs/a319/gy17m2a/PhD/datadir/UKCP18_hourly/{resolution}/{em}/{yrs_range}/pr_rcp85_land-cpm_uk_2.2km_{em}_1hr_{yr}*'
+        
         elif resolution == '12km':
               general_filename = f'/nfs/a319/gy17m2a/PhD/datadir/UKCP18_hourly/{resolution}/{em}/{yrs_range}/pr_rcp85_land-rcm_uk_12km_{em}_day_*'
+        
         elif resolution == '2.2km_regridded_12km' and regridding_style == 'NearestNeighbour':
             general_filename = f'/nfs/a319/gy17m2a/PhD/datadir/UKCP18_hourly/{resolution}/{em}/{regridding_style}/{yrs_range}/rg_pr_rcp85_land-cpm_uk_2.2km_{em}_1hr_{yr}*'
+        
         elif resolution == '2.2km_regridded_12km' and regridding_style == 'AreaWeighted':
             general_filename = f'/nfs/a319/gy17m2a/PhD/datadir/UKCP18_hourly/{resolution}/{em}/{regridding_style}/{yrs_range}/wgs84_rg_pr_rcp85_land-cpm_uk_2.2km_{em}_1hr_{yr}*'
-       
+        
+        elif resolution == '2.2km_bng_regridded_12km' and regridding_style == 'AreaWeighted':
+            general_filename = f'/nfs/a319/gy17m2a/PhD/datadir/UKCP18_hourly/{resolution}/{em}/{regridding_style}/{yrs_range}/bng_rg_pr_rcp85_land-cpm_uk_2.2km_{em}_1hr_{yr}*'
+        
+        elif resolution == '2.2km_bng_regridded_12km_maskingfirst' and regridding_style == 'AreaWeighted':
+            general_filename = f'/nfs/a319/gy17m2a/PhD/datadir/UKCP18_hourly/{resolution}/{em}/{regridding_style}/{yrs_range}/bng_rg_pr_rcp85_land-cpm_uk_2.2km_{em}_1hr_{yr}*'
+    
         filenames = []
         for filename in sir_globington_the_file_gatherer.glob(general_filename):
             filenames.append(filename)
@@ -100,6 +108,10 @@ for em in ems:
             model_cube = trim_to_bbox_of_region_regriddedobs(model_cube, gb_gdf)
         elif resolution =='2.2km_regridded_12km' and regridding_style == 'AreaWeighted':
             model_cube = trim_to_bbox_of_region_wgs84(model_cube, gb_gdf, 'latitude', 'longitude')
+        elif resolution =='2.2km_bng_regridded_12km' and regridding_style == 'AreaWeighted':
+            model_cube = trim_to_bbox_of_region_obs(model_cube, gb_gdf, 'projection_y_coordinate', 'projection_x_coordinate')         
+        elif resolution =='2.2km_bng_regridded_12km_maskingfirst' and regridding_style == 'AreaWeighted':
+            model_cube = trim_to_bbox_of_region_obs(model_cube, gb_gdf, 'projection_y_coordinate', 'projection_x_coordinate')               
         else:
             model_cube = trim_to_bbox_of_region_obs(model_cube, gb_gdf)
         
@@ -109,6 +121,10 @@ for em in ems:
             gb_mask = np.load("/nfs/a319/gy17m2a/PhD/datadir/UKCP18_2.2km_GB_Mask.npy")
         elif resolution =='2.2km_regridded_12km':
             gb_mask = np.load("/nfs/a319/gy17m2a/PhD/datadir/UKCP18_12km_wgs84_GB_Mask.npy")
+        elif resolution =='2.2km_bng_regridded_12km':
+            gb_mask = np.load("/nfs/a319/gy17m2a/PhD/datadir/UKCP18_12km_bng_GB_Mask.npy")
+        elif resolution =='2.2km_bng_regridded_12km_maskingfirst':
+            gb_mask = np.load("/nfs/a319/gy17m2a/PhD/datadir/UKCP18_12km_bng_GB_Mask.npy")
         else:
             gb_mask = np.load("/nfs/a319/gy17m2a/PhD/datadir/UKCP18_12km_GB_Mask.npy")
         masked_cube_data = model_cube * gb_mask[np.newaxis, :, :]
@@ -149,8 +165,7 @@ for em in ems:
         # np.save(ddir + f'timevalues_{yr}.npy', time_values) 
         np.save(ddir + f'compressed_{yr}.npy', compressed) 
 
-time_values = masked_cube.coord('yyyymmddhh').points[non_masked_indices[0]]
-if resolution == '2.2km_regridded_12km':
-    f"ProcessedData/TimeSeries/UKCP18_hourly/{resolution}/{regridding_style}/{yrs_range}/timevalues.npy"
+if resolution == '2.2km_regridded_12km' or "2.2km_bng_regridded_12km_maskingfirst":
+    f"/nfs/a319/gy17m2a/PhD/ProcessedData/TimeSeries/UKCP18_hourly/{resolution}/{regridding_style}/{yrs_range}/timevalues.npy"
 else:
-    np.save(f"ProcessedData/TimeSeries/UKCP18_hourly/{resolution}/{yrs_range}/timevalues.npy", time_values)
+    np.save(f"/nfs/a319/gy17m2a/PhD/ProcessedData/TimeSeries/UKCP18_hourly/{resolution}/{regridding_style}/{yrs_range}/timevalues.npy", time_values)
