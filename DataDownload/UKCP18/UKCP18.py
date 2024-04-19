@@ -5,33 +5,36 @@ from getpass import getpass # Allows typing password invisibly
 import sys
 
 # Define the years between which the data is required
-from_year = 1980    
-to_year = 2001
+from_year = 2001    
+to_year = 2002
 
-resolution = '5km'
+resolution = '2.2km'
 
 # Define ensemble members for which data is required
-members = [ '01' ]
+members = [ '01']
 print("Downloading data for ensemble members " + str(members) + " for years between " + str(from_year) + " and " + str(to_year))
 
 # Define the variables required
 vars = ['pr']
 
 # Define the years for which UKCP18 data exists
-years_available = list(range(1980, 2001))
+years_available = list(range(1980, 2022))
 
 # When script is run this allows user to type username and password without showing it
-uuname = input('username:')
-ppword = getpass('password:')
+# uuname = input('username:')
+# ppword = getpass('password:')
 
 # Login to FTP
-f=ftplib.FTP("ftp.ceda.ac.uk", uuname, ppword)
+#f=ftplib.FTP("ftp.ceda.ac.uk", 'masher', '4C)LyJ-f/t@')
+f = ftplib.FTP("ftp.ceda.ac.uk", 'masher', 'Ug@nda!1Leeds23')
+# f = ftplib.FTP('ftp.ceda.ac.uk')
+#f.login('masher', 'Leedsz23')
 
 # Loop through years, months, members, vars...
 # Note 1980 only has December, similarly 2000 has January-November
 # Try-catch expressions allows for this. 
 # Download attempted, for failed attempt empty files are created, so these must be deleted
-members= ['01']
+
 for member in members:
     print(member)
     for year in range(int(from_year), int(to_year) + 1):
@@ -59,12 +62,13 @@ for member in members:
         print(os.getcwd()) 
         
         # Loop through months
-        #for month in [3]:
-        for month in [6]:
+        for month in [2]:
             for var in vars:
-                print(var)
+                # Zreo pad number
+                month = f'{month:02}'
+                print(year)
                 # Define filename, note the use of "360 day years (12 months with 30 days)"
-                ffile=f"{var}s_rcp85_land-cpm_uk_{resolution}_{member}s_1hr_{year}.4d{month}.2d01-{year}.4d{month}.2d30.nc" 
+                ffile=f"{var}_rcp85_land-cpm_uk_{resolution}_{member}_1hr_{year}{month}01-{year}{month}30.nc"  
                 # If the file does not exist, then download it
 #                 if os.path.exists(ffile):
 #                     print ("File " + ffile + ' already exists, skipping to next file')

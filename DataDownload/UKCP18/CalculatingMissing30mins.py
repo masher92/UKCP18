@@ -25,11 +25,9 @@ sys.path.insert(0, root_fp + 'Scripts/GlobalFunctions')
 from Spatial_plotting_functions import *
 from Spatial_geometry_functions import *
 
-
 # ### Load necessary spatial data
 # This is a square area surrounding Leeds
 leeds_at_centre_gdf = create_leeds_at_centre_outline({'init' :'epsg:3857'})
-
 
 # ### Establish the corresponding ensemble member numbers
 em_matching_dict = {'01':'bc005', '04': 'bc006', '05': 'bc007', '06':'bc009',  '07':'bc010', 
@@ -42,10 +40,10 @@ yrs_range = "2002_2020"
 # month_num = '06'
 
 # for em_1hr in ['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']:
-for em_1hr in ['05']:
+for em_1hr in ['01']:
     em_30mins = em_matching_dict[em_1hr]
-    for yr in range(2012,2021):
-        for month_num in ['06', '07', '08']:
+    for yr in range(2001,2021):
+        for month_num in ['01', '02', '03', '04', '05', '09', '10','11','12']:
             print(f"em{em_1hr}, yr {yr}, month {month_num}")
             if (os.path.isfile(f"/nfs/a319/gy17m2a/PhD/datadir/UKCP18_every30mins/{resolution}/{em_30mins}/{yrs_range}/{em_30mins}a.pr{yr}{month_num}.nc")):
                 print("already exists")
