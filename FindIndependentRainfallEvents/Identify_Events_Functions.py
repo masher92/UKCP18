@@ -3,49 +3,84 @@ from pyproj import Transformer
 import itertools
 from scipy import spatial
 import pandas as pd
+import numpy.ma as ma
+import math
+from shapely.geometry import Point, Polygon, MultiPolygon
+import geopandas as gpd
+import matplotlib
+import matplotlib.pyplot as plt
+import tilemapbase
 
-def find_rainfall_core(df, duration, Tb0):    
+def find_rainfall_core(df, duration, Tb0):
+    """
+    Analyzes rainfall data to find the core period of rainfall and checks for independence of the event.
+    
+    Args:
+    df (pd.DataFrame): DataFrame containing precipitation data.
+    duration (float): The duration over which to calculate the rolling sum, in hours.
+    Tb0 (float): Threshold used to define a 'dry' period for splitting events.
+    
+    Returns:
+    list: A list containing either one or two DataFrames, depending on whether the rainfall event splits.
+    """
 
-    window_length= int(duration*2)
+    ################
+    # Find window of dataframe which has max rainfall accumulation for this duration
+    ################
+    
+    # Determine the length of the window based on provided duration
+    window_length = int(duration * 2)
 
+    # Identify dry periods based on a precipitation threshold
     df['is_dry'] = df['precipitation (mm)'] < 0.1
-    # Calculate the rolling sum of precipitation for each duration length window
+
+    # Calculate the rolling sum of precipitation over the specified window length
     df['Rolling_Sum'] = df['precipitation (mm)'].rolling(window=window_length).sum()
 
-    # Find the index of the maximum total rainfall within a 2-hour window
+    # Identify the end index of the window where the maximum total rainfall occurs
     max_rainfall_end_index = df['Rolling_Sum'].idxmax()
 
-    # Find the position of max_rainfall_end_index in the DataFrame's index
+    # Convert index to a positional integer for slicing
     max_rainfall_end_pos = df.index.get_loc(max_rainfall_end_index)
 
-    # Calculate the start position of the 2-hour window with the most rainfall
-    # This accounts for 3 periods before the max index, as the max index is inclusive
-    max_rainfall_start_pos = max(0, max_rainfall_end_pos - window_length)  # Ensure it doesn't go below the DataFrame's range
+    # Calculate the start position of the window, ensuring it doesn't go below the DataFrame's range
+    max_rainfall_start_pos = max(0, max_rainfall_end_pos - window_length)
 
-    # Extract the 2-hour window using iloc
-    max_rainfall_window = df.iloc[max_rainfall_start_pos:max_rainfall_end_pos].copy()
+    # Extract the window of maximum rainfall from the DataFrame
+    max_rainfall_window = df.iloc[max_rainfall_start_pos:max_rainfall_end_pos + 1].copy()
 
-    # Check it's one independent event (e.g. doesnt contain a dry period longer than Tb0)
+    ################
+    # Check whether this is one independent event, or two
+    ################
+    
+    # Initialize a column to keep track of consecutive dry periods within the window
     max_rainfall_window['consecutive_dry'] = 0
 
-    # Start the count of consecutive dry periods
+    # Iterate through the rows of the extracted window to count consecutive dry periods
     consecutive_dry_count = 0
-
-    # # Iterate through the DataFrame rows to count consecutive dry periods, excluding the current row
-    # max_rainfall_window.reset_index(inplace=True, drop=True)
-    for i in range(1, len(max_rainfall_window)):
-        if max_rainfall_window.at[max_rainfall_window.first_valid_index()+i - 1, 'is_dry']:
+    for i in range(len(max_rainfall_window)):
+        if max_rainfall_window.iloc[i]['is_dry']:
             consecutive_dry_count += 1
         else:
             consecutive_dry_count = 0
-        max_rainfall_window.at[max_rainfall_window.first_valid_index()+i, 'consecutive_dry'] = consecutive_dry_count
-
-    if np.nanmax(max_rainfall_window['consecutive_dry'])>Tb0*2:
+        max_rainfall_window.iloc[i, max_rainfall_window.columns.get_loc('consecutive_dry')] = consecutive_dry_count
+    
+    # Check if the maximum consecutive dry period exceeds twice the Tb0 threshold
+    if np.nanmax(max_rainfall_window['consecutive_dry']) > Tb0 * 2:
         print('2 events')
-    return max_rainfall_window
+        split_index = max_rainfall_window[max_rainfall_window['consecutive_dry'] == (Tb0 * 2)].index[0]
+        event1 = max_rainfall_window.loc[:split_index]
+        event2 = max_rainfall_window.loc[split_index:]
+        return [event1, event2]
+    else:
+        return [max_rainfall_window]
 
+    
+    
+    
 def search1(df, max_rainfall_window):
-    ######## Backwards
+    
+    ######## Forewards
     # Find the ending index of max_rainfall_window
     end_index_position = df.index.get_loc(max_rainfall_window.last_valid_index())
 
@@ -60,11 +95,10 @@ def search1(df, max_rainfall_window):
         #print(row_by_position_df)
 
         # Check if the row is dry
-        if row_by_position_df['is_dry'].values[0] == False:
-            #print('Row is dry. Including it in the window.')
-            if row_by_position_df['precipitation (mm)'].values[0]>0.2:
-                # If the row is dry, append it to max_rainfall_window
-                max_rainfall_window = pd.concat([max_rainfall_window, row_by_position_df], axis=0)
+        if row_by_position_df['precipitation (mm)'].values[0]>0.2:
+            # If the row is dry, append it to max_rainfall_window
+            # print("foreward")
+            max_rainfall_window = pd.concat([max_rainfall_window, row_by_position_df], axis=0)
         else:
             #print("Row is wet. Stopping the search.")
             # If the row is wet, stop the search
@@ -74,7 +108,7 @@ def search1(df, max_rainfall_window):
         current_position += 1
     max_rainfall_window
 
-    ######## Forewards
+    ######## Backwards
     # Find the starting index of max_rainfall_window
     start_index = max_rainfall_window.first_valid_index()
 
@@ -86,17 +120,14 @@ def search1(df, max_rainfall_window):
         # Get the row at the current position
         row_by_position_df = df.iloc[current_position:current_position+1]
         #print(f"Checking row at position {current_position}:")
-        #print(row_by_position_df)
 
         # Check if the row is dry
-        if row_by_position_df['is_dry'].values[0] == False:
-            if row_by_position_df['precipitation (mm)'].values[0] >0.2:
-                # If the row is dry, append it to max_rainfall_window
-                max_rainfall_window = pd.concat([max_rainfall_window, row_by_position_df], axis=0)
+        if row_by_position_df['precipitation (mm)'].values[0]>0.2:
+            # If the row is dry, append it to max_rainfall_window
+            max_rainfall_window = pd.concat([row_by_position_df, max_rainfall_window], axis=0)
             #print('Row is dry. Including it in the window.')
         else:
-            # print("Row is wet. Stopping the search.")
-            # If the row is wet, stop the search
+            #print(f"{current_position}, less than 0.2mm/hr, stopping search")
             break
 
         # Move to the next row to check
@@ -157,7 +188,7 @@ def search2(df, max_rainfall_window):
         
     return max_rainfall_window
 
-def search3(df, max_rainfall_window):
+def search3(df, max_rainfall_window, Tb0):
     
     '''
     Searches for any rainfall values within Tbo of the last rainfall value currently included, 
@@ -171,8 +202,8 @@ def search3(df, max_rainfall_window):
 
     while backward_position >= 0:
         backward_slice = df.iloc[backward_position:start_index]
-        if (backward_slice['precipitation (mm)'] > 1).any():
-            first_true_index = (backward_slice['precipitation (mm)'] > 1).idxmax()
+        if (backward_slice['precipitation (mm/hr)'] > 1).any():
+            first_true_index = (backward_slice['precipitation (mm/hr)'] > 1).idxmax()
             max_rainfall_window = pd.concat([df.loc[first_true_index:start_index-1], max_rainfall_window], axis=0)
             start_index = first_true_index - Tb0*2  # Update the start index for further searches if needed
             backward_position = start_index - Tb0*2  # Update the backward search position
@@ -208,7 +239,7 @@ def search3(df, max_rainfall_window):
 def find_independent_events(df, Tb0):
     # Mark periods as dry or not
     df['is_dry'] = df['precipitation (mm)'] < 0.1
-    
+
     ### Flag the dataset to count the number of dry 30-minutes which happened before the one in each row
     # Initialize the column for consecutive dry counts
     df['consecutive_dry'] = 0
@@ -223,7 +254,7 @@ def find_independent_events(df, Tb0):
         else:
             consecutive_dry_count = 0
         df.at[i, 'consecutive_dry'] = consecutive_dry_count
-        
+
     ### Identify rows marking the start of a rainfall event (i.e. it's raining and the number of consecutive dry days that came 
     ## before it are greater than Tb0)   
     # To identify the start of a new event, check for a shift from dry to wet conditions
@@ -232,59 +263,61 @@ def find_independent_events(df, Tb0):
 
     # Extract indices where a new event starts
     event_start_indices = df.index[df['starts_after_dry_period'] & (~df['is_dry'])].tolist()
-    
+
     ### Use the event start indices to create a set of rainfall events
     # This will end up being a list, which for each rainfall event contains a dictionary detailing key aspects of event
     rainfall_events = []
 
-    # For each event start index
+    # Take the points which we know to be the start of an event
+    # Starting from the next row after this, check through each row until you find the consecutive dry day lengths has 
+    # reached Tb0 
     for start_index in event_start_indices:
-        # Take the points which we know to be the start of an event
-        # Starting from the next row after this, check through each row until you find the consecutive dry day lengths has 
-        # reached Tb0 
-        current_index = start_index +1
-        # Ensures that we don't keep searching beyond the length of the DF
-        while current_index < len(df) - 1 and df.at[current_index, 'consecutive_dry'] < Tb0*2:
-            current_index += 1
 
-        # Add this event to the list, including all rows up to (but not including) the row that marks the end
-        event_end = current_index if df.at[current_index, 'consecutive_dry'] >= Tb0*2 else len(df)
-        event_data = df.iloc[start_index:event_end].copy()
+        # Current index records the row that we are considering to be the end of the dataframe
+        # So set it to be the next row, and check if this (next) row should be included 
+        end_index = start_index + 1
+
+        # If it's not the last timeslice
+        if start_index != df.index[-1]:
+            # Searches through each of the next rows, until it either reaches the end fo the dataframe
+            # or the row with a consecutive_dry which is >= Tb0*2
+            while end_index < len(df) - 1 and df.at[end_index, 'consecutive_dry'] < Tb0*2:
+                end_index = end_index + 1
+            # Not sure why we need this line
+            event_end = end_index if df.at[end_index, 'consecutive_dry'] >= (Tb0*2) else len(df)
+
+            # Add this event to the list, including all rows up to (but not including) the row that marks the end
+            event_data = df.iloc[start_index:event_end].copy()
+
+            # Remove trailing 0 values
+            last_wet_index = event_data[event_data['is_dry'] == False].last_valid_index()
+            event_data = event_data.loc[:last_wet_index]  # Use loc to keep original indexing
+
+            # Store event data
+            rainfall_events.append({
+                'start_index': start_index,
+                'end_index': event_data.index[-1],  # Adjust if you want to include/exclude the boundary
+                'event_data': event_data})
         
-        # Remove trailing 0 values
-        last_wet_index = event_data[event_data['is_dry'] == False].last_valid_index()
-        event_data = event_data.loc[:last_wet_index]  # Use loc to keep original indexing
-        
-#         last_wet_index = event_data[event_data['is_dry'] == False].last_valid_index()
-#         event_data = event_data.iloc[0:last_wet_index+1]
-        
-        # Store event data
-        rainfall_events.append({
-            'start_index': start_index,
-            'end_index': event_end - 1,  # Adjust if you want to include/exclude the boundary
-            'event_data': event_data})
-    
     return rainfall_events
 
 def find_max_for_this_duration (rainfall_events, duration):
-    
     # to account for each being 30mins
-    window_length = duration *2
-    
+    window_length = int(duration *2)
+
     # to store the outcomes
     max_val = 0
     max_df = pd.DataFrame({})
-    
     filtered_events = [event for event in rainfall_events if len(event['event_data']) >= window_length]
-    
+
     # Search each of the independent rainfall events for a maximum value at this duration
-    for idx in range(1,len(filtered_events)):
+    for idx in range(0,len(filtered_events)):
 
         # Get this independent event
         one_independent_event_df = filtered_events[idx]['event_data']
 
         # Calculate the rolling sum of precipitation for each X-hour window
-        one_independent_event_df['Rolling_Sum'] = one_independent_event_df['precipitation (mm)'].rolling(window=window_length).sum()
+        one_independent_event_df['Rolling_Sum'] = one_independent_event_df['precipitation (mm)'].rolling(window=window_length, min_periods=1).sum()
 
         # Find the index of the maximum total rainfall within a X-hour window
         max_rainfall_end_index = one_independent_event_df['Rolling_Sum'].idxmax()
@@ -294,7 +327,6 @@ def find_max_for_this_duration (rainfall_events, duration):
 
         # Calculate the start position of the 2-hour window with the most rainfall
         max_rainfall_start_pos = max(0, max_rainfall_end_pos - window_length-1)  # Ensure it doesn't go below the DataFrame's range
-
         # Extract the 2-hour window using iloc
         max_rainfall_window = one_independent_event_df.iloc[max_rainfall_start_pos:max_rainfall_end_pos + 1]
 
@@ -308,8 +340,7 @@ def find_max_for_this_duration (rainfall_events, duration):
             max_df = one_independent_event_df
         else:
             pass
-    
-    
+
     return max_val, max_df
 
 
@@ -372,7 +403,7 @@ def calculate_bounding_box(latitude, longitude, distance_km):
     delta_lat = distance_km / earth_radius_km * (180 / 3.141592653589793)
 
     # Calculate the change in longitude, adjusting for the latitude
-    delta_lon = distance_km / (earth_radius_km * cos(radians(latitude))) * (180 / 3.141592653589793)
+    delta_lon = distance_km / (earth_radius_km * math.cos(math.radians(latitude))) * (180 / 3.141592653589793)
 
     # Calculate bounding box coordinates
     min_lat = latitude - delta_lat
@@ -392,6 +423,7 @@ def create_geodataframe_from_bbox(min_lat, max_lat, min_lon, max_lon):
     gdf = gpd.GeoDataFrame(index=[0], crs='EPSG:4326', geometry=[bbox_polygon])
     
     return gdf
+
 
 
 def find_position_obs (concat_cube, rain_gauge_lat, rain_gauge_lon, plot=False):
@@ -417,12 +449,30 @@ def find_position_obs (concat_cube, rain_gauge_lat, rain_gauge_lon, plot=False):
     closest_point_idx = tree.query([(rain_gauge_point[0][1], rain_gauge_point[1][1])], k =1)[1][0]
     
     # Create a list of all the tuple positions
-    indexs_lst = []
-    for i in range(0,lat_length):
-        for j in range(0,lon_length):
-            # Print the position
-            #print(i,j)
-            indexs_lst.append((i,j))
+    indexs_lst = [(i, j) for i in range(lat_length) for j in range(lon_length)]
+    selected_index = indexs_lst[closest_point_idx]
+    old_selected_index=selected_index
+    
+    print(selected_index)
+    # Check if the selected index is masked and find a nearby valid index if necessary
+    if np.ma.is_masked(concat_cube[selected_index[0], selected_index[1]].data):
+        print("yep its masked")
+        search_radius = 1
+        found = False
+        while not found and search_radius <= max(lat_length, lon_length):
+            for di in range(-search_radius, search_radius + 1):
+                for dj in range(-search_radius, search_radius + 1):
+                    ni, nj = selected_index[0] + di, selected_index[1] + dj
+                    if 0 <= ni < lat_length and 0 <= nj < lon_length:
+                        if not np.ma.is_masked(concat_cube[ni, nj]):
+                            closest_point_idx = indexs_lst.index((ni, nj))
+                            selected_index = (ni, nj)
+                            found = True
+                            break
+                if found:
+                    break
+            search_radius += 1
+    print(selected_index)
             
     ######## Check by plotting         
     if plot == True:
@@ -433,7 +483,107 @@ def find_position_obs (concat_cube, rain_gauge_lat, rain_gauge_lon, plot=False):
         # Set all the values to 0
         test_data = np.full((hour_uk_cube.shape),0,dtype = int)
         # Set the values at the index position fond above to 1
-        test_data[indexs_lst[closest_point_idx][0],indexs_lst[closest_point_idx][1]] = 1
+        test_data[selected_index[0],selected_index[1]] = 1
+        # Mask out all values that aren't 1
+        test_data = ma.masked_where(test_data<1,test_data)
+
+        # Set the dummy data back on the cube
+        hour_uk_cube.data = test_data
+
+        # Find cornerpoint coordinates (for use in plotting)
+        lats_cornerpoints = find_cornerpoint_coordinates_obs(hour_uk_cube)[0]
+        lons_cornerpoints = find_cornerpoint_coordinates_obs(hour_uk_cube)[1]
+
+        # Trim the data timeslice to be the same dimensions as the corner coordinates
+        hour_uk_cube = hour_uk_cube[1:,1:]
+        test_data = hour_uk_cube.data
+
+        # Create location in web mercator for plotting
+        transformer = Transformer.from_crs("EPSG:4326", "EPSG:3857", always_xy=True)
+        lon_rain_gauge_wm, lat_rain_gauge_wm = transformer.transform(rain_gauge_lon,rain_gauge_lat)
+
+        # Create bounding box to centre the map on
+        min_lat, max_lat, min_lon, max_lon = calculate_bounding_box(rain_gauge_lat, rain_gauge_lon, distance_km =30)
+        gdf_bbox = create_geodataframe_from_bbox(min_lat, max_lat, min_lon, max_lon)
+        gdf_bbox_web_mercator = gdf_bbox.to_crs(epsg=3857)
+
+        # Create a colormap
+        cmap = matplotlib.colors.ListedColormap(['red'])
+
+        fig, ax = plt.subplots(figsize=(8,8))
+        extent = tilemapbase.extent_from_frame(gdf_bbox_web_mercator)
+        plot = plotter = tilemapbase.Plotter(extent, tilemapbase.tiles.build_OSM(), width=500)
+        plot =plotter.plot(ax)
+        # # Add edgecolor = 'grey' for lines
+        plot =ax.pcolormesh(lons_cornerpoints, lats_cornerpoints, test_data,
+              linewidths=0.4, alpha = 1, cmap = cmap, edgecolors = 'grey')
+        plot = ax.xaxis.set_major_formatter(plt.NullFormatter())
+        plot = ax.yaxis.set_major_formatter(plt.NullFormatter())
+        plt.plot(lon_rain_gauge_wm, lat_rain_gauge_wm, 'o', color='black', markersize = 10)     
+        
+        plt.show()
+
+        print(indexs_lst[closest_point_idx][0],indexs_lst[closest_point_idx][1])    
+    return locations[closest_point_idx], (indexs_lst[closest_point_idx][0],indexs_lst[closest_point_idx][1])
+
+def find_position_obs_v2 (concat_cube, rain_gauge_lat, rain_gauge_lon, plot=False):
+    lat_length = concat_cube.shape[0]
+    lon_length = concat_cube.shape[1]
+    
+    ### Rain gauge data 
+    # Convert WGS84 coordinate to BNG
+    transformer = Transformer.from_crs("EPSG:4326", "EPSG:27700", always_xy=True)
+    # Use the transformer to convert longitude and latitude to British National Grid coordinates
+    rain_gauge_lon_bng, rain_gauge_lat_bng = transformer.transform(rain_gauge_lon, rain_gauge_lat)
+    
+    # Create as a list
+    rain_gauge_point = [('grid_latitude', rain_gauge_lat_bng), ('grid_longitude', rain_gauge_lon_bng)]
+                 
+    ### Model data
+    # Create a list of all the tuple pairs of latitude and longitudes
+    locations = list(itertools.product(concat_cube.coord('projection_y_coordinate').points,
+                                       concat_cube.coord('projection_x_coordinate').points))
+    
+    # Find the index of the nearest neighbour of the rain gague location point in the list of locations present in concat_cube
+    tree = spatial.KDTree(locations)
+    closest_point_idx = tree.query([(rain_gauge_point[0][1], rain_gauge_point[1][1])], k =1)[1][0]
+    
+    # Create a list of all the tuple positions
+    indexs_lst = [(i, j) for i in range(lat_length) for j in range(lon_length)]
+    selected_index = indexs_lst[closest_point_idx]
+    old_selected_index=selected_index
+    
+    print(selected_index)
+    # Check if the selected index is masked and find a nearby valid index if necessary
+    if np.ma.is_masked(concat_cube[selected_index[0], selected_index[1]].data):
+        print("yep its masked")
+        search_radius = 1
+        found = False
+        while not found and search_radius <= max(lat_length, lon_length):
+            for di in range(-search_radius, search_radius + 1):
+                for dj in range(-search_radius, search_radius + 1):
+                    ni, nj = selected_index[0] + di, selected_index[1] + dj
+                    if 0 <= ni < lat_length and 0 <= nj < lon_length:
+                        if not np.ma.is_masked(concat_cube[ni, nj]):
+                            closest_point_idx = indexs_lst.index((ni, nj))
+                            selected_index = (ni, nj)
+                            found = True
+                            break
+                if found:
+                    break
+            search_radius += 1
+    print(selected_index)
+            
+    ######## Check by plotting         
+    if plot == True:
+        
+        # Get cube containing one hour worth of data
+        hour_uk_cube = concat_cube
+
+        # Set all the values to 0
+        test_data = np.full((hour_uk_cube.shape),0,dtype = int)
+        # Set the values at the index position fond above to 1
+        test_data[selected_index[0],selected_index[1]] = 1
         # Mask out all values that aren't 1
         test_data = ma.masked_where(test_data<1,test_data)
 
@@ -461,7 +611,7 @@ def find_position_obs (concat_cube, rain_gauge_lat, rain_gauge_lon, plot=False):
         cmap = matplotlib.colors.ListedColormap(['red'])
 
     
-        fig, ax = plt.subplots(figsize=(15,15))
+        fig, ax = plt.subplots(figsize=(8,8))
         extent = tilemapbase.extent_from_frame(gdf_bbox_web_mercator)
         plot = plotter = tilemapbase.Plotter(extent, tilemapbase.tiles.build_OSM(), width=500)
         plot =plotter.plot(ax)
@@ -472,7 +622,51 @@ def find_position_obs (concat_cube, rain_gauge_lat, rain_gauge_lon, plot=False):
         plot = ax.yaxis.set_major_formatter(plt.NullFormatter())
         #plot =leeds_at_centre_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=2)
         plt.plot(lon_rain_gauge_wm, lat_rain_gauge_wm, 'o', color='black', markersize = 10)     
-        plt.show()
+        
+        
+        
+        # Get cube containing one hour worth of data
+        hour_uk_cube = concat_cube
+
+        # Set all the values to 0
+        test_data = np.full((hour_uk_cube.shape),0,dtype = int)
+        # Set the values at the index position fond above to 1
+        test_data[old_selected_index[0],old_selected_index[1]] = 1
+        # Mask out all values that aren't 1
+        test_data = ma.masked_where(test_data<1,test_data)
+
+        # Set the dummy data back on the cube
+        hour_uk_cube.data = test_data
+
+        # Find cornerpoint coordinates (for use in plotting)
+        lats_cornerpoints = find_cornerpoint_coordinates_obs(hour_uk_cube)[0]
+        lons_cornerpoints = find_cornerpoint_coordinates_obs(hour_uk_cube)[1]
+
+        # Trim the data timeslice to be the same dimensions as the corner coordinates
+        hour_uk_cube = hour_uk_cube[1:,1:]
+        test_data = hour_uk_cube.data
+
+        # Create location in web mercator for plotting
+        transformer = Transformer.from_crs("EPSG:4326", "EPSG:3857", always_xy=True)
+        lon_rain_gauge_wm, lat_rain_gauge_wm = transformer.transform(rain_gauge_lon,rain_gauge_lat)
+
+        # Create bounding box to centre the map on
+        min_lat, max_lat, min_lon, max_lon = calculate_bounding_box(rain_gauge_lat, rain_gauge_lon, distance_km =30)
+        gdf_bbox = create_geodataframe_from_bbox(min_lat, max_lat, min_lon, max_lon)
+        gdf_bbox_web_mercator = gdf_bbox.to_crs(epsg=3857)
+
+        # Create a colormap
+        cmap = matplotlib.colors.ListedColormap(['yellow'])
+
+        # # Add edgecolor = 'grey' for lines
+        plot =ax.pcolormesh(lons_cornerpoints, lats_cornerpoints, test_data,
+              linewidths=0.4, alpha = 1, cmap = cmap, edgecolors = 'grey')
+        plot = ax.xaxis.set_major_formatter(plt.NullFormatter())
+        plot = ax.yaxis.set_major_formatter(plt.NullFormatter())
+        #plot =leeds_at_centre_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=2)
+        plt.plot(lon_rain_gauge_wm, lat_rain_gauge_wm, 'o', color='black', markersize = 10)     
+        fig.tight_layout()
+        fig.savefig("fig.jpg")
 
         print(indexs_lst[closest_point_idx][0],indexs_lst[closest_point_idx][1])    
     return locations[closest_point_idx], (indexs_lst[closest_point_idx][0],indexs_lst[closest_point_idx][1])
