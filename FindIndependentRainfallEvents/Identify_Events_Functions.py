@@ -95,7 +95,7 @@ def search1(df, max_rainfall_window):
         #print(row_by_position_df)
 
         # Check if the row is dry
-        if row_by_position_df['precipitation (mm)'].values[0]>0.2:
+        if row_by_position_df['precipitation (mm)'].values[0]>0.4:
             # If the row is dry, append it to max_rainfall_window
             # print("foreward")
             max_rainfall_window = pd.concat([max_rainfall_window, row_by_position_df], axis=0)
@@ -188,6 +188,8 @@ def search2(df, max_rainfall_window):
         
     return max_rainfall_window
 
+
+
 def search3(df, max_rainfall_window, Tb0):
     
     '''
@@ -201,11 +203,16 @@ def search3(df, max_rainfall_window, Tb0):
     backward_position = start_index - Tb0*2
 
     while backward_position >= 0:
+        # Get the data in the Tb0 before the start of the event core
         backward_slice = df.iloc[backward_position:start_index]
+        # If any values are over 1, then 
         if (backward_slice['precipitation (mm/hr)'] > 1).any():
+            # Find the index of the earliest row where this is true (precip mm/hr is over 1)
             first_true_index = (backward_slice['precipitation (mm/hr)'] > 1).idxmax()
+            # Join this to the rainfall event 
             max_rainfall_window = pd.concat([df.loc[first_true_index:start_index-1], max_rainfall_window], axis=0)
-            start_index = first_true_index - Tb0*2  # Update the start index for further searches if needed
+            # Update the start index for further searches if needed 
+            start_index = first_true_index 
             backward_position = start_index - Tb0*2  # Update the backward search position
         else:
             break  # Exit the loop if no such condition is met
@@ -424,9 +431,7 @@ def create_geodataframe_from_bbox(min_lat, max_lat, min_lon, max_lon):
     
     return gdf
 
-
-
-def find_position_obs (concat_cube, rain_gauge_lat, rain_gauge_lon, plot=False):
+def find_position_obs_nomasking (concat_cube, rain_gauge_lat, rain_gauge_lon, plot=False):
     lat_length = concat_cube.shape[0]
     lon_length = concat_cube.shape[1]
     
@@ -451,29 +456,7 @@ def find_position_obs (concat_cube, rain_gauge_lat, rain_gauge_lon, plot=False):
     # Create a list of all the tuple positions
     indexs_lst = [(i, j) for i in range(lat_length) for j in range(lon_length)]
     selected_index = indexs_lst[closest_point_idx]
-    old_selected_index=selected_index
-    
-    print(selected_index)
-    # Check if the selected index is masked and find a nearby valid index if necessary
-    if np.ma.is_masked(concat_cube[selected_index[0], selected_index[1]].data):
-        print("yep its masked")
-        search_radius = 1
-        found = False
-        while not found and search_radius <= max(lat_length, lon_length):
-            for di in range(-search_radius, search_radius + 1):
-                for dj in range(-search_radius, search_radius + 1):
-                    ni, nj = selected_index[0] + di, selected_index[1] + dj
-                    if 0 <= ni < lat_length and 0 <= nj < lon_length:
-                        if not np.ma.is_masked(concat_cube[ni, nj]):
-                            closest_point_idx = indexs_lst.index((ni, nj))
-                            selected_index = (ni, nj)
-                            found = True
-                            break
-                if found:
-                    break
-            search_radius += 1
-    print(selected_index)
-            
+          
     ######## Check by plotting         
     if plot == True:
         
@@ -516,7 +499,107 @@ def find_position_obs (concat_cube, rain_gauge_lat, rain_gauge_lon, plot=False):
         plot =plotter.plot(ax)
         # # Add edgecolor = 'grey' for lines
         plot =ax.pcolormesh(lons_cornerpoints, lats_cornerpoints, test_data,
-              linewidths=0.4, alpha = 1, cmap = cmap, edgecolors = 'grey')
+              linewidths=0.1, alpha = 1, cmap = cmap, edgecolors = 'grey')
+        plot = ax.xaxis.set_major_formatter(plt.NullFormatter())
+        plot = ax.yaxis.set_major_formatter(plt.NullFormatter())
+        plt.plot(lon_rain_gauge_wm, lat_rain_gauge_wm, 'o', color='black', markersize = 10)     
+        
+        plt.show()
+
+        # print(indexs_lst[closest_point_idx][0],indexs_lst[closest_point_idx][1])    
+    return locations[closest_point_idx], (indexs_lst[closest_point_idx][0],indexs_lst[closest_point_idx][1])
+
+def find_position_obs (concat_cube, rain_gauge_lat, rain_gauge_lon, plot=False):
+    lat_length = concat_cube.shape[0]
+    lon_length = concat_cube.shape[1]
+    
+    ### Rain gauge data 
+    # Convert WGS84 coordinate to BNG
+    transformer = Transformer.from_crs("EPSG:4326", "EPSG:27700", always_xy=True)
+    # Use the transformer to convert longitude and latitude to British National Grid coordinates
+    rain_gauge_lon_bng, rain_gauge_lat_bng = transformer.transform(rain_gauge_lon, rain_gauge_lat)
+    
+    # Create as a list
+    rain_gauge_point = [('grid_latitude', rain_gauge_lat_bng), ('grid_longitude', rain_gauge_lon_bng)]
+                 
+    ### Model data
+    # Create a list of all the tuple pairs of latitude and longitudes
+    locations = list(itertools.product(concat_cube.coord('projection_y_coordinate').points,
+                                       concat_cube.coord('projection_x_coordinate').points))
+    
+    # Find the index of the nearest neighbour of the rain gague location point in the list of locations present in concat_cube
+    tree = spatial.KDTree(locations)
+    closest_point_idx = tree.query([(rain_gauge_point[0][1], rain_gauge_point[1][1])], k =1)[1][0]
+    
+    # Create a list of all the tuple positions
+    indexs_lst = [(i, j) for i in range(lat_length) for j in range(lon_length)]
+    selected_index = indexs_lst[closest_point_idx]
+    print(selected_index)
+    
+    # Check if the selected index is masked and find a nearby valid index if necessary
+    if np.ma.is_masked(concat_cube[selected_index[0], selected_index[1]].data):
+        print("yep its masked")
+        found = False
+        # Start searching for a non-masked index among directly adjacent cells
+        for di in range(-1,3):
+            for dj in range(-1, 3):
+                ni, nj = selected_index[0] + di, selected_index[1] + dj
+                #print(ni,nj)
+                #print(np.ma.is_masked(concat_cube[ni, nj].data))
+                # Check if the index is within bounds and not masked
+                if 0 <= ni < lat_length and 0 <= nj < lon_length and not np.ma.is_masked(concat_cube[ni, nj].data):
+                    # Update the closest_point_idx and selected_index if a non-masked index is found
+                    closest_point_idx = indexs_lst.index((ni, nj))
+                    selected_index = (ni, nj)
+                    print(selected_index)
+                    found=True
+                    break
+                    
+    print(selected_index)
+       
+    ######## Check by plotting         
+    if plot == True:
+        
+        # Get cube containing one hour worth of data
+        hour_uk_cube = concat_cube
+
+        # Set all the values to 0
+        test_data = np.full((hour_uk_cube.shape),0,dtype = int)
+        # Set the values at the index position fond above to 1
+        test_data[selected_index[0],selected_index[1]] = 1
+        # Mask out all values that aren't 1
+        test_data = ma.masked_where(test_data<1,test_data)
+
+        # Set the dummy data back on the cube
+        hour_uk_cube.data = test_data
+
+        # Find cornerpoint coordinates (for use in plotting)
+        lats_cornerpoints = find_cornerpoint_coordinates_obs(hour_uk_cube)[0]
+        lons_cornerpoints = find_cornerpoint_coordinates_obs(hour_uk_cube)[1]
+
+        # Trim the data timeslice to be the same dimensions as the corner coordinates
+        hour_uk_cube = hour_uk_cube[1:,1:]
+        test_data = hour_uk_cube.data
+
+        # Create location in web mercator for plotting
+        transformer = Transformer.from_crs("EPSG:4326", "EPSG:3857", always_xy=True)
+        lon_rain_gauge_wm, lat_rain_gauge_wm = transformer.transform(rain_gauge_lon,rain_gauge_lat)
+
+        # Create bounding box to centre the map on
+        min_lat, max_lat, min_lon, max_lon = calculate_bounding_box(rain_gauge_lat, rain_gauge_lon, distance_km =30)
+        gdf_bbox = create_geodataframe_from_bbox(min_lat, max_lat, min_lon, max_lon)
+        gdf_bbox_web_mercator = gdf_bbox.to_crs(epsg=3857)
+
+        # Create a colormap
+        cmap = matplotlib.colors.ListedColormap(['red'])
+
+        fig, ax = plt.subplots(figsize=(8,8))
+        extent = tilemapbase.extent_from_frame(gdf_bbox_web_mercator)
+        plot = plotter = tilemapbase.Plotter(extent, tilemapbase.tiles.build_OSM(), width=500)
+        plot =plotter.plot(ax)
+        # # Add edgecolor = 'grey' for lines
+        plot =ax.pcolormesh(lons_cornerpoints, lats_cornerpoints, test_data,
+              linewidths=0.1, alpha = 1, cmap = cmap, edgecolors = 'grey')
         plot = ax.xaxis.set_major_formatter(plt.NullFormatter())
         plot = ax.yaxis.set_major_formatter(plt.NullFormatter())
         plt.plot(lon_rain_gauge_wm, lat_rain_gauge_wm, 'o', color='black', markersize = 10)     
