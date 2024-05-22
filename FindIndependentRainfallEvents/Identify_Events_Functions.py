@@ -11,6 +11,55 @@ import matplotlib
 import matplotlib.pyplot as plt
 import tilemapbase
 
+
+def find_rainfall_core2(df, duration, Tb0):
+    """
+    Analyzes rainfall data to find the core period of rainfall and checks for independence of the event.
+    
+    Args:
+    df (pd.DataFrame): DataFrame containing precipitation data.
+    duration (float): The duration over which to calculate the rolling sum, in hours.
+    Tb0 (float): Threshold used to define a 'dry' period for splitting events.
+    
+    Returns:
+    list: A list containing either one or two DataFrames, depending on whether the rainfall event splits.
+    """
+
+    # Determine the length of the window based on provided duration
+    window_length = int(duration * 2)
+
+    # Identify dry periods based on a precipitation threshold
+    is_dry = df['precipitation (mm)'] < 0.1
+
+    # Calculate the rolling sum of precipitation over the specified window length
+    rolling_sum = df['precipitation (mm)'].rolling(window=window_length).sum()
+
+    # Identify the end index of the window where the maximum total rainfall occurs
+    max_rainfall_end_index = rolling_sum.idxmax()
+
+    # Convert index to a positional integer for slicing
+    max_rainfall_end_pos = df.index.get_loc(max_rainfall_end_index)
+
+    # Calculate the start position of the window, ensuring it doesn't go below the DataFrame's range
+    max_rainfall_start_pos = max(0, max_rainfall_end_pos - window_length)
+
+    # Extract the window of maximum rainfall from the DataFrame
+    max_rainfall_window = df.iloc[max_rainfall_start_pos:max_rainfall_end_pos + 1].copy()
+
+    # Calculate consecutive dry periods within the window
+    max_rainfall_window['consecutive_dry'] = (max_rainfall_window['precipitation (mm)'] < 0.1).astype(int).groupby(max_rainfall_window['precipitation (mm)'] < 0.1).cumsum()
+
+    # Check if the maximum consecutive dry period exceeds twice the Tb0 threshold
+    if max_rainfall_window['consecutive_dry'].max() > Tb0 * 2:
+        print('2 events')
+        split_index = max_rainfall_window[max_rainfall_window['consecutive_dry'] == Tb0 * 2].index[0]
+        event1 = max_rainfall_window.loc[:split_index]
+        event2 = max_rainfall_window.loc[split_index:]
+        return [event1, event2]
+    else:
+        return [max_rainfall_window]
+
+
 def find_rainfall_core(df, duration, Tb0):
     """
     Analyzes rainfall data to find the core period of rainfall and checks for independence of the event.
@@ -52,8 +101,7 @@ def find_rainfall_core(df, duration, Tb0):
     ################
     # Check whether this is one independent event, or two
     ################
-    
-    # Initialize a column to keep track of consecutive dry periods within the window
+        # Initialize a column to keep track of consecutive dry periods within the window
     max_rainfall_window['consecutive_dry'] = 0
 
     # Iterate through the rows of the extracted window to count consecutive dry periods
@@ -537,26 +585,41 @@ def find_position_obs (concat_cube, rain_gauge_lat, rain_gauge_lon, plot=False):
     print(selected_index)
     
     # Check if the selected index is masked and find a nearby valid index if necessary
+    # Define the search order of neighboring cells relative to the original index
+    neighbor_offsets = [(1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (-1, 1), (1, -1), (-1, -1)]
+
+    # Check if the selected index is masked and find a nearby valid index if necessary
     if np.ma.is_masked(concat_cube[selected_index[0], selected_index[1]].data):
         print("yep its masked")
         found = False
-        # Start searching for a non-masked index among directly adjacent cells
-        for di in range(-1,3):
-            for dj in range(-1, 3):
-                ni, nj = selected_index[0] + di, selected_index[1] + dj
-                #print(ni,nj)
-                #print(np.ma.is_masked(concat_cube[ni, nj].data))
-                # Check if the index is within bounds and not masked
-                if 0 <= ni < lat_length and 0 <= nj < lon_length and not np.ma.is_masked(concat_cube[ni, nj].data):
-                    # Update the closest_point_idx and selected_index if a non-masked index is found
-                    closest_point_idx = indexs_lst.index((ni, nj))
-                    selected_index = (ni, nj)
-                    print(selected_index)
-                    found=True
-                    break
-                    
-    print(selected_index)
-       
+        for di, dj in neighbor_offsets:
+            ni, nj = selected_index[0] + di, selected_index[1] + dj
+            # Check if the index is within bounds and not masked
+            if 0 <= ni < lat_length and 0 <= nj < lon_length and not np.ma.is_masked(concat_cube[ni, nj].data):
+                # Update the closest_point_idx and selected_index if a non-masked index is found
+                closest_point_idx = indexs_lst.index((ni, nj))
+                selected_index = (ni, nj)
+                found = True
+                print(selected_index)
+                break
+            # If no unmasked index is found among neighboring cells in the first ring, check the next ring
+            neighbor_offsets = [(2, 0), (-2, 0), (0, 2), (0, -2), (2, 2), (-2, 2), (2, -2), (-2, -2)]
+            if not found:
+                print("No unmasked index found among neighboring cells in the first ring.")
+                for di, dj in neighbor_offsets:
+                    ni, nj = selected_index[0] + di, selected_index[1] + dj
+                    # Check if the index is within bounds and not masked
+                    if 0 <= ni < lat_length and 0 <= nj < lon_length and not np.ma.is_masked(concat_cube[ni, nj].data):
+                        # Update the closest_point_idx and selected_index if a non-masked index is found
+                        closest_point_idx = indexs_lst.index((ni, nj))
+                        selected_index = (ni, nj)
+                        found = True
+                        print(selected_index)
+                        break
+                # If no unmasked index is found among neighboring cells in the second ring, print a message
+                if not found:
+                    print("No unmasked index found among neighboring cells in the second ring.")
+        
     ######## Check by plotting         
     if plot == True:
         
@@ -591,7 +654,7 @@ def find_position_obs (concat_cube, rain_gauge_lat, rain_gauge_lon, plot=False):
         gdf_bbox_web_mercator = gdf_bbox.to_crs(epsg=3857)
 
         # Create a colormap
-        cmap = matplotlib.colors.ListedColormap(['red'])
+        cmap = matplotlib.colors.ListedColormap(['red', 'blue'])
 
         fig, ax = plt.subplots(figsize=(8,8))
         extent = tilemapbase.extent_from_frame(gdf_bbox_web_mercator)
@@ -606,7 +669,6 @@ def find_position_obs (concat_cube, rain_gauge_lat, rain_gauge_lon, plot=False):
         
         plt.show()
 
-        print(indexs_lst[closest_point_idx][0],indexs_lst[closest_point_idx][1])    
     return locations[closest_point_idx], (indexs_lst[closest_point_idx][0],indexs_lst[closest_point_idx][1])
 
 def find_position_obs_v2 (concat_cube, rain_gauge_lat, rain_gauge_lon, plot=False):
