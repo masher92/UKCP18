@@ -78,9 +78,10 @@ from Spatial_geometry_functions import *
 leeds_at_centre_gdf = create_leeds_at_centre_outline('epsg:3857')
 
 # Define list of files
-radardir = f"/nfs/a319/gy17m2a/PhD/datadir/NIMROD/5mins/OriginalFormat_1km/{year}/"
+radardir = f"/nfs/a161/gy17m2a/PhD/datadir/NIMROD/5mins/OriginalFormat_1km/{year}/"
+print(radardir)
 file_list=glob.glob(radardir +"*.dat")
-# print(file_list)
+print(file_list)
 
 # Load the files
 cube_list = iris.load(file_list)

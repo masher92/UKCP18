@@ -7,18 +7,19 @@ import gzip
 import shutil
 
 
-year = int(sys.argv[1])
+# year = int(sys.argv[1])
+year = 2018
 
 # When script is run this allows user to type username and password without showing it
-# uuname = input('username:')
-# ppword = getpass('password:')
+uuname = input('username:')
+ppword = getpass('password:')
 
-uuname = "masher"
-ppword = "Uganda11"
+# uuname = sys.argv[1] #'masher'
+# ppword = 'Ug@nda!1'
 
 
 # Login to FTP
-f=ftplib.FTP("ftp.ceda.ac.uk", uuname, ppword)
+f=ftplib.FTP("anon.ftp.ceda.ac.uk", uuname, ppword)
 
 
 # Loop through years 
@@ -29,7 +30,7 @@ for year in range(year, year+1, 1):
     f.cwd(f"badc/ukmo-nimrod/data/composite/uk-1km/{year}")
     
     # Define directory where data should be stored
-    ddir = f"/nfs/a319/gy17m2a/PhD/datadir/NIMROD/5mins/OriginalFormat_1km/{year}/" 
+    ddir = f"/nfs/a161/gy17m2a/PhD/datadir/NIMROD/5mins/OriginalFormat_1km/{year}/" 
     # If directory doesn't exist make it
     if not os.path.isdir(ddir):
         os.makedirs(ddir)
