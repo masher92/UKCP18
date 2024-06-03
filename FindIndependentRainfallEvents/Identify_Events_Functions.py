@@ -10,7 +10,7 @@ import geopandas as gpd
 import matplotlib
 import matplotlib.pyplot as plt
 import tilemapbase
-
+from pyproj import Proj, transform
 
 def find_rainfall_core2(df, duration, Tb0):
     """
@@ -101,7 +101,7 @@ def find_rainfall_core(df, duration, Tb0):
     ################
     # Check whether this is one independent event, or two
     ################
-        # Initialize a column to keep track of consecutive dry periods within the window
+    # Initialize a column to keep track of consecutive dry periods within the window
     max_rainfall_window['consecutive_dry'] = 0
 
     # Iterate through the rows of the extracted window to count consecutive dry periods
@@ -557,7 +557,7 @@ def find_position_obs_nomasking (concat_cube, rain_gauge_lat, rain_gauge_lon, pl
         # print(indexs_lst[closest_point_idx][0],indexs_lst[closest_point_idx][1])    
     return locations[closest_point_idx], (indexs_lst[closest_point_idx][0],indexs_lst[closest_point_idx][1])
 
-def find_position_obs (concat_cube, rain_gauge_lat, rain_gauge_lon, plot=False):
+def find_position_obs (concat_cube, rain_gauge_lat, rain_gauge_lon, plot_radius = 500, plot=False):
     lat_length = concat_cube.shape[0]
     lon_length = concat_cube.shape[1]
     
@@ -620,36 +620,37 @@ def find_position_obs (concat_cube, rain_gauge_lat, rain_gauge_lon, plot=False):
                 if not found:
                     print("No unmasked index found among neighboring cells in the second ring.")
         
+       
     ######## Check by plotting         
     if plot == True:
         
-        # Get cube containing one hour worth of data
-        hour_uk_cube = concat_cube
-
         # Set all the values to 0
-        test_data = np.full((hour_uk_cube.shape),0,dtype = int)
+        test_data = np.full((concat_cube.shape),0,dtype = int)
         # Set the values at the index position fond above to 1
         test_data[selected_index[0],selected_index[1]] = 1
         # Mask out all values that aren't 1
         test_data = ma.masked_where(test_data<1,test_data)
 
         # Set the dummy data back on the cube
-        hour_uk_cube.data = test_data
+        concat_cube.data = test_data
 
         # Find cornerpoint coordinates (for use in plotting)
-        lats_cornerpoints = find_cornerpoint_coordinates_obs(hour_uk_cube)[0]
-        lons_cornerpoints = find_cornerpoint_coordinates_obs(hour_uk_cube)[1]
-
+        lats_cornerpoints =concat_cube.coord('projection_y_coordinate').points
+        lons_cornerpoints = concat_cube.coord('projection_x_coordinate').points
+        lons_cornerpoints, lats_cornerpoints = np.meshgrid(lons_cornerpoints, lats_cornerpoints)
+        # Convert to wgs84
+        lons_cornerpoints, lats_cornerpoints = transform(Proj(init='epsg:27700'),Proj(init='epsg:3785'),
+                                                           lons_cornerpoints,lats_cornerpoints)
+        
         # Trim the data timeslice to be the same dimensions as the corner coordinates
-        hour_uk_cube = hour_uk_cube[1:,1:]
-        test_data = hour_uk_cube.data
+        test_data = concat_cube.data
 
         # Create location in web mercator for plotting
         transformer = Transformer.from_crs("EPSG:4326", "EPSG:3857", always_xy=True)
         lon_rain_gauge_wm, lat_rain_gauge_wm = transformer.transform(rain_gauge_lon,rain_gauge_lat)
 
         # Create bounding box to centre the map on
-        min_lat, max_lat, min_lon, max_lon = calculate_bounding_box(rain_gauge_lat, rain_gauge_lon, distance_km =30)
+        min_lat, max_lat, min_lon, max_lon = calculate_bounding_box(rain_gauge_lat, rain_gauge_lon, distance_km =plot_radius)
         gdf_bbox = create_geodataframe_from_bbox(min_lat, max_lat, min_lon, max_lon)
         gdf_bbox_web_mercator = gdf_bbox.to_crs(epsg=3857)
 
@@ -658,7 +659,7 @@ def find_position_obs (concat_cube, rain_gauge_lat, rain_gauge_lon, plot=False):
 
         fig, ax = plt.subplots(figsize=(8,8))
         extent = tilemapbase.extent_from_frame(gdf_bbox_web_mercator)
-        plot = plotter = tilemapbase.Plotter(extent, tilemapbase.tiles.build_OSM(), width=500)
+        plot = plotter = tilemapbase.Plotter(extent, tilemapbase.tiles.build_OSM(), width=200)
         plot =plotter.plot(ax)
         # # Add edgecolor = 'grey' for lines
         plot =ax.pcolormesh(lons_cornerpoints, lats_cornerpoints, test_data,

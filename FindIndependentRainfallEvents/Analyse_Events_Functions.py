@@ -169,7 +169,7 @@ def interpolate_and_bin(normalized_time, normalized_rainfall):
         np.array: Binned and interpolated rainfall profile.
     """
     # Define target points for 12 bins
-    target_points = np.linspace(0, 1, 12)
+    target_points = np.linspace(0, 1, 13)
     
     # Create interpolation function based on existing data points
     interpolation_func = interp1d(normalized_time, normalized_rainfall, kind='linear', fill_value="extrapolate")
