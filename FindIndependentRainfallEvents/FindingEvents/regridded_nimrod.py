@@ -30,6 +30,7 @@ from Identify_Events_Functions import *
 
 pd.set_option('display.float_format', '{:.3f}'.format)
 
+
 def load_and_cache_cube(year, cache, filenames_pattern):
     if year in cache:
         print(f"Using cached data for year {year}")
@@ -83,16 +84,16 @@ def find_amax_indy_events_v2(df, duration, Tb0):
             rainfall_events_expanded.append(rainfall_core_after_search3)
     
     return rainfall_events_expanded
-    
+
 # Get tb0 values at each gauge
 tbo_vals = pd.read_csv('/nfs/a319/gy17m2a/PhD/datadir/RainGauge/interarrival_thresholds_CDD_noMissing.txt')
 
-
 # Dataset paths and patterns
 datasets = {
-    'unfiltered': '/nfs/a161/gy17m2a/PhD/datadir/NIMROD/30mins/NIMROD_regridded_2.2km/Unfiltered/AreaWeighted/{year}/*',}
+#     'unfiltered': '/nfs/a161/gy17m2a/PhD/datadir/NIMROD/30mins/NIMROD_regridded_2.2km/Unfiltered/AreaWeighted/{year}/*',}
 #     'filtered_100': '/nfs/a161/gy17m2a/PhD/datadir/NIMROD/30mins/NIMROD_regridded_2.2km/Filtered_100/AreaWeighted/{year}/*',
-#     'filtered_300': '/nfs/a161/gy17m2a/PhD/datadir/NIMROD/30mins/NIMROD_regridded_2.2km/Filtered_300/AreaWeighted/{year}/*'}
+    'filtered_300': '/nfs/a161/gy17m2a/PhD/datadir/NIMROD/30mins/NIMROD_regridded_2.2km/Filtered_300/AreaWeighted/{year}/*'
+}
 
 # Custom limited-size cache
 class LimitedSizeDict(OrderedDict):
@@ -113,12 +114,12 @@ cubes_cache = {
 }        
         
 # Loop through years
-for gauge_num in range(1160, 1500):
-    if gauge_num not in [423, 444, 827, 888, 1294]:
+for gauge_num in range(1273, 1300):
+    if gauge_num not in [423, 444, 827, 888]:
         print(f"Processing gauge {gauge_num}")
 
         # Read in a sample cube for finding the location of gauge in grid
-        sample_cube = iris.load(f'/nfs/a161/gy17m2a/PhD/datadir/NIMROD/30mins/NIMROD_regridded_2.2km/Unfiltered/AreaWeighted/2012/rg_metoffice-c-band-rain-radar_uk_20120602_30mins.nc')[0][1,:,:]
+        sample_cube = iris.load(f'/nfs/a161/gy17m2a/PhD/datadir/NIMROD/30mins/NIMROD_regridded_2.2km/Filtered_300/AreaWeighted/2012/rg_metoffice-c-band-rain-radar_uk_20120602_30mins.nc')[0][1,:,:]
 
         # Find the Tb0 and index of this gauge
         Tb0, idx_2d = find_gauge_Tb0_and_location_in_grid(gauge_num, sample_cube)
@@ -187,10 +188,9 @@ for gauge_num in range(1160, 1500):
             else:
                 print(f"All files already exist for gauge {gauge_num} and year {yr}")
 
-    # Clear the cache at the end of processing each year
-    for cache in cubes_cache.values():
-        cache.clear()
+        # Clear the cache at the end of processing each year
+        for cache in cubes_cache.values():
+            cache.clear()
 
-    # Collect garbage to free up memory
-    gc.collect()
-    
+        # Collect garbage to free up memory
+        gc.collect()

@@ -116,7 +116,7 @@ datasets = {
 
 
 # Loop through years
-for gauge_num in range(800, 900):
+for gauge_num in range(430, 890):
     if gauge_num not in [423, 444, 827, 888]:
         print(f"Processing gauge {gauge_num}")
 
