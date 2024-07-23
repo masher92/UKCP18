@@ -11,6 +11,31 @@ import matplotlib
 import matplotlib.pyplot as plt
 import tilemapbase
 from pyproj import Proj, transform
+import warnings
+
+pd.set_option('display.float_format', '{:.3f}'.format)
+warnings.filterwarnings("ignore", category=UserWarning)
+warnings.filterwarnings("ignore", category=FutureWarning)
+
+def find_gauge_Tb0_and_location_in_grid(tbo_vals, gauge_num, sample_cube):
+    gauge1 = tbo_vals.iloc[gauge_num]
+    Tb0 = int(gauge1['Critical_interarrival_time'])
+    closest_point, idx_2d = find_position_obs(sample_cube, gauge1['Lat'], gauge1['Lon'], plot_radius=10, plot=False)
+    return Tb0, idx_2d
+
+def find_amax_indy_events_v2(df, duration, Tb0):
+    rainfall_cores = find_rainfall_core(df, duration=duration, Tb0=Tb0)
+    rainfall_events_expanded = []
+
+    for rainfall_core in rainfall_cores:
+        rainfall_core_after_search1 = search1(df, rainfall_core)
+        rainfall_core_after_search2 = search2(df, rainfall_core_after_search1)
+        rainfall_core_after_search3 = search3(df, rainfall_core_after_search2, Tb0=Tb0)
+        if len(rainfall_core_after_search3[rainfall_core_after_search3['precipitation (mm/hr)'] > 0.1]) > 0:
+            rainfall_events_expanded.append(rainfall_core_after_search3)
+    
+    return rainfall_events_expanded
+
 
 def find_rainfall_core2(df, duration, Tb0):
     """
