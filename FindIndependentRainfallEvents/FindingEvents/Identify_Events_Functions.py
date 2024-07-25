@@ -12,11 +12,53 @@ import matplotlib.pyplot as plt
 import tilemapbase
 from pyproj import Proj, transform
 import warnings
+import os
 
 pd.set_option('display.float_format', '{:.3f}'.format)
 warnings.filterwarnings("ignore", category=UserWarning)
 warnings.filterwarnings("ignore", category=FutureWarning)
 
+
+def filtered_cube (cube, filter_above):
+    cube = cube.copy()
+    cube.data = np.where(cube.data < 0, np.nan, cube.data)
+    cube.data = np.where(cube.data > filter_above, np.nan, cube.data)
+    return cube 
+
+def create_df_with_gaps_filled_in(cube, data, time_resolution):
+    
+    how_many_data_points_per_hour = 60/time_resolution
+    
+    df_orig = pd.DataFrame({
+    'times': cube.coord('time').units.num2date(cube.coord('time').points),
+    'precipitation (mm/hr)': data,
+    'precipitation (mm)': data /how_many_data_points_per_hour })
+    
+    # Create copy and work with this (to avoid chance that when events with NANs are all set to NAN in df) that this then 
+    # affects the original cube
+    df = df_orig.copy()
+
+    #############################################
+    # Fill in missing values
+    #############################################
+    df['times'] = pd.to_datetime([t.isoformat() for t in df['times']])
+
+    # Determine the frequency
+    freq = f'{time_resolution}T'  # 30 minutes
+
+    # Create a full date range
+    full_time_range = pd.date_range(start=df['times'].min(), end=df['times'].max(), freq=freq)
+
+    # Set 'time' as index and reindex to the full range
+    df.set_index('times', inplace=True)
+    df = df.reindex(full_time_range)
+
+    # Reset index and rename it back to 'time'
+    df.reset_index(inplace=True)
+    df.rename(columns={'index': 'times'}, inplace=True)
+
+    return df
+                            
 def find_gauge_Tb0_and_location_in_grid(tbo_vals, gauge_num, sample_cube):
     gauge1 = tbo_vals.iloc[gauge_num]
     Tb0 = int(gauge1['Critical_interarrival_time'])
@@ -36,53 +78,28 @@ def find_amax_indy_events_v2(df, duration, Tb0):
     
     return rainfall_events_expanded
 
+def search_for_valid_events(df, duration, Tb0):
+    # while True means the code will continue to execute until a 'return' statement is reached
+    while True:
+        # Find potential events
+        events_v2 = find_amax_indy_events_v2(df, duration=duration, Tb0=Tb0)
+        # Create a flag to record whether this event is valid (e.g. contains no NANs)
+        valid_event_found = True
 
-def find_rainfall_core2(df, duration, Tb0):
-    """
-    Analyzes rainfall data to find the core period of rainfall and checks for independence of the event.
-    
-    Args:
-    df (pd.DataFrame): DataFrame containing precipitation data.
-    duration (float): The duration over which to calculate the rolling sum, in hours.
-    Tb0 (float): Threshold used to define a 'dry' period for splitting events.
-    
-    Returns:
-    list: A list containing either one or two DataFrames, depending on whether the rainfall event splits.
-    """
-
-    # Determine the length of the window based on provided duration
-    window_length = int(duration * 2)
-
-    # Identify dry periods based on a precipitation threshold
-    is_dry = df['precipitation (mm)'] < 0.1
-
-    # Calculate the rolling sum of precipitation over the specified window length
-    rolling_sum = df['precipitation (mm)'].rolling(window=window_length).sum()
-
-    # Identify the end index of the window where the maximum total rainfall occurs
-    max_rainfall_end_index = rolling_sum.idxmax()
-
-    # Convert index to a positional integer for slicing
-    max_rainfall_end_pos = df.index.get_loc(max_rainfall_end_index)
-
-    # Calculate the start position of the window, ensuring it doesn't go below the DataFrame's range
-    max_rainfall_start_pos = max(0, max_rainfall_end_pos - window_length)
-
-    # Extract the window of maximum rainfall from the DataFrame
-    max_rainfall_window = df.iloc[max_rainfall_start_pos:max_rainfall_end_pos + 1].copy()
-
-    # Calculate consecutive dry periods within the window
-    max_rainfall_window['consecutive_dry'] = (max_rainfall_window['precipitation (mm)'] < 0.1).astype(int).groupby(max_rainfall_window['precipitation (mm)'] < 0.1).cumsum()
-
-    # Check if the maximum consecutive dry period exceeds twice the Tb0 threshold
-    if max_rainfall_window['consecutive_dry'].max() > Tb0 * 2:
-        print('2 events')
-        split_index = max_rainfall_window[max_rainfall_window['consecutive_dry'] == Tb0 * 2].index[0]
-        event1 = max_rainfall_window.loc[:split_index]
-        event2 = max_rainfall_window.loc[split_index:]
-        return [event1, event2]
-    else:
-        return [max_rainfall_window]
+        # Check each event for NaNs, if any are found then valid_event_found set to False, this event is all set to NANs
+        # in the original DF and we go back to searching for events
+        for event in events_v2:
+            if event['precipitation (mm)'].isna().any():
+                valid_event_found = False
+                print(f"Event contains NAN, total event precip is {event['precipitation (mm)'].sum()}")
+                # Mark the event as NaNs in the original DataFrame
+                df.loc[event.index, 'precipitation (mm)'] = np.nan
+                # break exits the inner loop to restart process of finding events
+                break
+        
+        if valid_event_found:
+            print(f"Event doesnt contain NAN, total event precip is {event['precipitation (mm)'].sum()}")
+            return events_v2
 
 
 def find_rainfall_core(df, duration, Tb0):
@@ -106,7 +123,7 @@ def find_rainfall_core(df, duration, Tb0):
     window_length = int(duration * 2)
 
     # Identify dry periods based on a precipitation threshold
-    df['is_dry'] = df['precipitation (mm)'] < 0.1
+    df['is_dry'] = df['precipitation (mm/hr)'] < 0.1
 
     # Calculate the rolling sum of precipitation over the specified window length
     df['Rolling_Sum'] = df['precipitation (mm)'].rolling(window=window_length).sum()
@@ -121,7 +138,7 @@ def find_rainfall_core(df, duration, Tb0):
     max_rainfall_start_pos = max(0, max_rainfall_end_pos - window_length)
 
     # Extract the window of maximum rainfall from the DataFrame
-    max_rainfall_window = df.iloc[max_rainfall_start_pos:max_rainfall_end_pos + 1].copy()
+    max_rainfall_window = df.iloc[max_rainfall_start_pos:max_rainfall_end_pos].copy()
 
     ################
     # Check whether this is one independent event, or two
@@ -149,8 +166,6 @@ def find_rainfall_core(df, duration, Tb0):
         return [max_rainfall_window]
 
     
-    
-    
 def search1(df, max_rainfall_window):
     
     ######## Forewards
@@ -168,7 +183,7 @@ def search1(df, max_rainfall_window):
         #print(row_by_position_df)
 
         # Check if the row is dry
-        if row_by_position_df['precipitation (mm)'].values[0]>0.4:
+        if row_by_position_df['precipitation (mm)'].values[0]>0.2:
             # If the row is dry, append it to max_rainfall_window
             # print("foreward")
             max_rainfall_window = pd.concat([max_rainfall_window, row_by_position_df], axis=0)
@@ -302,7 +317,7 @@ def search3(df, max_rainfall_window, Tb0):
         # Get the forward slice
         forward_slice = df.iloc[forward_search_start_position:forward_search_end_position]
         # Check for rows meeting the condition (> 1 mm/hr)
-        condition_met = forward_slice['precipitation (mm)'] > 1
+        condition_met = forward_slice['precipitation (mm/hr)'] > 1
         if condition_met.any():
             # Identify the last index where the condition is True
             last_true_index = condition_met[condition_met].index[-1]
@@ -318,7 +333,7 @@ def search3(df, max_rainfall_window, Tb0):
 
 def find_independent_events(df, Tb0):
     # Mark periods as dry or not
-    df['is_dry'] = df['precipitation (mm)'] < 0.1
+    df['is_dry'] = df['precipitation (mm/hr)'] < 0.1
 
     ### Flag the dataset to count the number of dry 30-minutes which happened before the one in each row
     # Initialize the column for consecutive dry counts
