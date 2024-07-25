@@ -103,7 +103,7 @@ em= sys.argv[1]
 cube_cache = LimitedSizeDict(max_size=10)
 
 # Loop through gauges
-for gauge_num in range(0, 1300):
+for gauge_num in range(180, 1300):
     print(f"Processing gauge {gauge_num}")
 
     # Check if the directory exists for this gauge

@@ -8,6 +8,27 @@ import sys
 import numpy as np
 import os
 
+def concatenate_with_error_handling(cube_list):
+    problematic_cube_index = None
+    start=0
+    for i, cube in enumerate(cube_list):
+        try:
+            concatenated_cube = cube_list[start:i+1].concatenate_cube()
+        except Exception as e:
+            print(f"Error concatenating cube {i}: {str(e)}")
+            problematic_cube_index = i
+            start=i
+            
+    # Assuming my_cube_list_unfiltered is your CubeList
+    if 0 <= problematic_cube_index < len(cube_list):
+        del cube_list[problematic_cube_index]
+        print(f"Cube at index {problematic_cube_index} successfully removed from the CubeList.")
+    else:
+        print(f"Index {problematic_cube_index} is out of range for CubeList.")
+    
+    concatenated_cube = cube_list.concatenate_cube() 
+    
+    return concatenated_cube
 
 def process_half_hour(half_hour_cube, label, i, hour, my_cube_list_filtered_100, my_cube_list_filtered_300, my_cube_list_unfiltered, max_vals):
     if half_hour_cube is None:
@@ -68,8 +89,11 @@ def process_and_save_cubes(cube_list, label, new_fp_base, sorted_list, i, year):
         cube_list[halfhour_i].data = cube_list[halfhour_i].data.astype('float64')
 
     # Concatenate the cube list into one cube
-    full_day_cube = cube_list.concatenate_cube()
-
+    try:
+        full_day_cube = cube_list.concatenate_cube()
+    except:
+        full_day_cube = concatenate_with_error_handling(cube_list)
+        
     # Get rid of high values which are fill values
     full_day_cube.data = np.where(full_day_cube.data > 1e+36, np.nan, full_day_cube.data)
 
@@ -77,7 +101,7 @@ def process_and_save_cubes(cube_list, label, new_fp_base, sorted_list, i, year):
     base_path = f'/nfs/a161/gy17m2a/PhD/datadir/NIMROD/30mins/OriginalFormat_1km/{label.capitalize()}'
 
     # Create year subdirectories if they don't exist
-    create_year_directories(base_path, 2004, 2020)
+    create_year_directories(base_path, 2006, 2020)
 
     # Modify new_fp_base for the specific type of cube
     new_fp = new_fp_base.replace('Unfiltered', label)
@@ -89,8 +113,7 @@ def process_and_save_cubes(cube_list, label, new_fp_base, sorted_list, i, year):
     print(f'Min value: {np.nanmin(full_day_cube.data)}. Max value: {np.nanmax(full_day_cube.data)}, Mean value: {np.nanmean(full_day_cube.data)}')
     
     
-years = [2019]
-
+years=[2012]
 for year in years:
     print(year)
     ### Get list of files to convert
@@ -153,3 +176,4 @@ for year in years:
         process_and_save_cubes(my_cube_list_unfiltered, 'Unfiltered', new_fp_base, sorted_list, i, year)
         process_and_save_cubes(my_cube_list_filtered_100, 'Filtered_100', new_fp_base, sorted_list, i, year)
         process_and_save_cubes(my_cube_list_filtered_300, 'Filtered_300', new_fp_base, sorted_list, i, year)
+

@@ -1,5 +1,5 @@
 import rasterio
-import rioxarray as rxr
+# import rioxarray as rxr
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -15,7 +15,7 @@ from rasterio.plot import show_hist
 from rasterio.mask import mask
 from shapely.geometry import box
 import geopandas as gpd
-import pycrs
+# import pycrs
 from pyproj import CRS
 from branca.element import Template, MacroElement
 import folium
