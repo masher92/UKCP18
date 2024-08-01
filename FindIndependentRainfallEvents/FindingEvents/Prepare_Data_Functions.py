@@ -4,9 +4,13 @@ import glob
 import iris
 import warnings
 import os 
+import numpy as np
 
-warnings.filterwarnings("ignore", category=UserWarning)
-warnings.filterwarnings("ignore", category=FutureWarning)
+def filtered_cube (cube, filter_above):
+    # cube = cube.copy()
+    cube.data = np.where(cube.data < 0, np.nan, cube.data)
+    cube.data = np.where(cube.data > filter_above, np.nan, cube.data)
+    return cube 
 
 
 def promote_scalar_to_dim_coord(cube, scalar_coord_name):
@@ -96,16 +100,16 @@ def remove_problematic_cubes(cube_list):
     # Final attempt to concatenate the cubes
     return cube_list.concatenate_cube()
 
-# Custom limited-size cache
-class LimitedSizeDict(OrderedDict):
-    def __init__(self, *args, max_size=100, **kwargs):
-        self.max_size = max_size
-        super().__init__(*args, **kwargs)
+# # Custom limited-size cache
+# class LimitedSizeDict(OrderedDict):
+#     def __init__(self, *args, max_size=100, **kwargs):
+#         self.max_size = max_size
+#         super().__init__(*args, **kwargs)
 
-    def __setitem__(self, key, value):
-        if len(self) >= self.max_size:
-            self.popitem(last=False)
-        OrderedDict.__setitem__(self, key, value)
+#     def __setitem__(self, key, value):
+#         if len(self) >= self.max_size:
+#             self.popitem(last=False)
+#         OrderedDict.__setitem__(self, key, value)
 
 def load_files_to_cubelist(year, filenames_pattern):
     filenames = [filename for filename in glob.glob(filenames_pattern) if '.nc' in filename]
@@ -147,11 +151,11 @@ def clean_cubes (cubes):
         cube.metadata = metadata    
         
         #### Rename the cube 
-        if cube.name() != 'Rainfall rate Composite':
-            print(f"Cube {cube_num + 1} name '{cube.name()}' does not match the desired name '{'Rainfall rate Composite'}'. Updating...")
-            cube.rename('Rainfall rate Composite')
-        else:
-            pass        
+        #if cube.name() != 'Rainfall rate Composite':
+        #    print(f"Cube {cube_num + 1} name '{cube.name()}' does not match the desired name '{'Rainfall rate Composite'}'. Updating...")
+        #    cube.rename('Rainfall rate Composite')
+        #else:
+        #    pass        
         
         ### Set the edited cube back on the cube list
         cubes[cube_num]=cube

@@ -9,37 +9,36 @@ from shapely.geometry import Point, Polygon, MultiPolygon
 import geopandas as gpd
 import matplotlib
 import matplotlib.pyplot as plt
-import tilemapbase
+# import tilemapbase
 from pyproj import Proj, transform
 import warnings
 import os
 
-pd.set_option('display.float_format', '{:.3f}'.format)
-warnings.filterwarnings("ignore", category=UserWarning)
-warnings.filterwarnings("ignore", category=FutureWarning)
-
-
 def filtered_cube (cube, filter_above):
-    cube = cube.copy()
+    '''
+    Set values below 0, or above threshold defined in function input to np.nan
+    '''
     cube.data = np.where(cube.data < 0, np.nan, cube.data)
     cube.data = np.where(cube.data > filter_above, np.nan, cube.data)
     return cube 
 
 def create_df_with_gaps_filled_in(cube, data, time_resolution):
     
+    # Defined based on resolution on data, used to calculate precip (mm) from precip (mm/hr) which is what the cube reports
     how_many_data_points_per_hour = 60/time_resolution
     
+    # Make dataframe
     df_orig = pd.DataFrame({
     'times': cube.coord('time').units.num2date(cube.coord('time').points),
-    'precipitation (mm/hr)': data,
-    'precipitation (mm)': data /how_many_data_points_per_hour })
+    'precipitation (mm/hr)': data, 'precipitation (mm)': data /how_many_data_points_per_hour })
     
     # Create copy and work with this (to avoid chance that when events with NANs are all set to NAN in df) that this then 
     # affects the original cube
     df = df_orig.copy()
 
     #############################################
-    # Fill in missing values
+    # Fill in missing values (e.g. some values just dont appear in the .nc files
+    # Want these datetimes to still appear, but be recorded as np.nan
     #############################################
     df['times'] = pd.to_datetime([t.isoformat() for t in df['times']])
 
@@ -98,7 +97,7 @@ def search_for_valid_events(df, duration, Tb0):
                 break
         
         if valid_event_found:
-            print(f"Event doesnt contain NAN, total event precip is {event['precipitation (mm)'].sum()}")
+            print(f"Event doesnt contain NAN, total event precip is {events_v2[0]['precipitation (mm)'].sum()}")
             return events_v2
 
 
@@ -331,271 +330,7 @@ def search3(df, max_rainfall_window, Tb0):
     
     return max_rainfall_window
 
-def find_independent_events(df, Tb0):
-    # Mark periods as dry or not
-    df['is_dry'] = df['precipitation (mm/hr)'] < 0.1
 
-    ### Flag the dataset to count the number of dry 30-minutes which happened before the one in each row
-    # Initialize the column for consecutive dry counts
-    df['consecutive_dry'] = 0
-
-    # Start the count of consecutive dry periods
-    consecutive_dry_count = 0
-
-    # Iterate through the DataFrame rows to count consecutive dry periods, excluding the current row
-    for i in range(1, len(df)):
-        if df.at[i - 1, 'is_dry']:
-            consecutive_dry_count += 1
-        else:
-            consecutive_dry_count = 0
-        df.at[i, 'consecutive_dry'] = consecutive_dry_count
-
-    ### Identify rows marking the start of a rainfall event (i.e. it's raining and the number of consecutive dry days that came 
-    ## before it are greater than Tb0)   
-    # To identify the start of a new event, check for a shift from dry to wet conditions
-    # A new event starts on the first wet period following at least 9 dry hours (18 consecutive dry periods)
-    df['starts_after_dry_period'] = (df['consecutive_dry'] >= Tb0*2)
-
-    # Extract indices where a new event starts
-    event_start_indices = df.index[df['starts_after_dry_period'] & (~df['is_dry'])].tolist()
-
-    ### Use the event start indices to create a set of rainfall events
-    # This will end up being a list, which for each rainfall event contains a dictionary detailing key aspects of event
-    rainfall_events = []
-
-    # Take the points which we know to be the start of an event
-    # Starting from the next row after this, check through each row until you find the consecutive dry day lengths has 
-    # reached Tb0 
-    for start_index in event_start_indices:
-
-        # Current index records the row that we are considering to be the end of the dataframe
-        # So set it to be the next row, and check if this (next) row should be included 
-        end_index = start_index + 1
-
-        # If it's not the last timeslice
-        if start_index != df.index[-1]:
-            # Searches through each of the next rows, until it either reaches the end fo the dataframe
-            # or the row with a consecutive_dry which is >= Tb0*2
-            while end_index < len(df) - 1 and df.at[end_index, 'consecutive_dry'] < Tb0*2:
-                end_index = end_index + 1
-            # Not sure why we need this line
-            event_end = end_index if df.at[end_index, 'consecutive_dry'] >= (Tb0*2) else len(df)
-
-            # Add this event to the list, including all rows up to (but not including) the row that marks the end
-            event_data = df.iloc[start_index:event_end].copy()
-
-            # Remove trailing 0 values
-            last_wet_index = event_data[event_data['is_dry'] == False].last_valid_index()
-            event_data = event_data.loc[:last_wet_index]  # Use loc to keep original indexing
-
-            # Store event data
-            rainfall_events.append({
-                'start_index': start_index,
-                'end_index': event_data.index[-1],  # Adjust if you want to include/exclude the boundary
-                'event_data': event_data})
-        
-    return rainfall_events
-
-def find_max_for_this_duration (rainfall_events, duration):
-    # to account for each being 30mins
-    window_length = int(duration *2)
-
-    # to store the outcomes
-    max_val = 0
-    max_df = pd.DataFrame({})
-    filtered_events = [event for event in rainfall_events if len(event['event_data']) >= window_length]
-
-    # Search each of the independent rainfall events for a maximum value at this duration
-    for idx in range(0,len(filtered_events)):
-
-        # Get this independent event
-        one_independent_event_df = filtered_events[idx]['event_data']
-
-        # Calculate the rolling sum of precipitation for each X-hour window
-        one_independent_event_df['Rolling_Sum'] = one_independent_event_df['precipitation (mm)'].rolling(window=window_length, min_periods=1).sum()
-
-        # Find the index of the maximum total rainfall within a X-hour window
-        max_rainfall_end_index = one_independent_event_df['Rolling_Sum'].idxmax()
-
-        # Find the position of max_rainfall_end_index in the DataFrame's index
-        max_rainfall_end_pos = one_independent_event_df.index.get_loc(max_rainfall_end_index)
-
-        # Calculate the start position of the 2-hour window with the most rainfall
-        max_rainfall_start_pos = max(0, max_rainfall_end_pos - window_length-1)  # Ensure it doesn't go below the DataFrame's range
-        # Extract the 2-hour window using iloc
-        max_rainfall_window = one_independent_event_df.iloc[max_rainfall_start_pos:max_rainfall_end_pos + 1]
-
-        # Display the results
-        # print(f"The 2-hour window with the most rainfall ends at {max_rainfall_end_index} and includes:")
-
-        # If the maximum value for this duration in this independent event, is bigger than the biggest one that came before
-        # then save these results
-        if one_independent_event_df['Rolling_Sum'].max() > max_val:
-            max_val = one_independent_event_df['Rolling_Sum'].max()
-            max_df = one_independent_event_df
-        else:
-            pass
-
-    return max_val, max_df
-
-
-def find_cornerpoint_coordinates_obs (cube):
-    '''
-    Description
-    ----------
-        Using a cube of lat, longs in rotated pole and associated values the function
-        creates new 2D lat, lon and data arrays in which the data values are associated
-        with a point at the bottom left of each grid cell, rather than the middle.
-    Parameters
-    ----------
-        cube: Iris Cube
-            A cube containing only latitude and longitude dimensions
-            In rotated pole coordinates so that...are constant..
-    Returns
-    -------
-        lats_wm_midpoints_2d : array
-            A 2d array of the mid point latitudes
-        lons_wm_midpoints_2d : array
-            A 2d array of the mid point longitudes
-        
-    '''
-    
-    # Extract lats and longs in rotated pol as a 2D array
-    lats_1d = cube.coord('projection_y_coordinate').points
-    lons_1d = cube.coord('projection_x_coordinate').points
-    
-    # Find the distance between each lat/lon and the next lat/lon
-    # Divide this by two to get the distance to the half way point
-    lats_differences_half = np.diff(lats_1d)/2
-    lons_differences_half = np.diff(lons_1d)/2
-    
-    # Create an array of lats/lons at the midpoints
-    lats_midpoints_1d = lats_1d[1:] - lats_differences_half
-    lons_midpoints_1d = lons_1d[1:] - lons_differences_half
-    
-    # Convert to 2D
-    lons_midpoints_2d, lats_midpoints_2d = np.meshgrid(lons_midpoints_1d, lats_midpoints_1d)
-
-    # Convert to web mercator
-    transformer = Transformer.from_crs("EPSG:27700", "EPSG:3857", always_xy=True)
-    lons_wm_midpoints_2d, lats_wm_midpoints_2d = transformer.transform(lons_midpoints_2d, lats_midpoints_2d)
-    
-    # Convert to 1d     
-    lons_wm_midpoints_1d = lons_wm_midpoints_2d.reshape(-1)
-    lats_wm_midpoints_1d = lats_wm_midpoints_2d.reshape(-1)
-    
-    # Remove same parts of data
-    data = cube.data
-    data_midpoints = data[1:,1:]
-    
-    return (lats_wm_midpoints_2d, lons_wm_midpoints_2d)
-
-def calculate_bounding_box(latitude, longitude, distance_km):
-    # Earth's radius in kilometers
-    earth_radius_km = 6371.01
-
-    # Calculate the change in latitude for the given distance
-    delta_lat = distance_km / earth_radius_km * (180 / 3.141592653589793)
-
-    # Calculate the change in longitude, adjusting for the latitude
-    delta_lon = distance_km / (earth_radius_km * math.cos(math.radians(latitude))) * (180 / 3.141592653589793)
-
-    # Calculate bounding box coordinates
-    min_lat = latitude - delta_lat
-    max_lat = latitude + delta_lat
-    min_lon = longitude - delta_lon
-    max_lon = longitude + delta_lon
-
-    return min_lat, max_lat, min_lon, max_lon
-
-def create_geodataframe_from_bbox(min_lat, max_lat, min_lon, max_lon):
-    # Create a Polygon from the bounding box coordinates
-    bbox_polygon = Polygon([(min_lon, min_lat), (min_lon, max_lat), 
-                            (max_lon, max_lat), (max_lon, min_lat), 
-                            (min_lon, min_lat)])
-    
-    # Create a GeoDataFrame with the Polygon
-    gdf = gpd.GeoDataFrame(index=[0], crs='EPSG:4326', geometry=[bbox_polygon])
-    
-    return gdf
-
-def find_position_obs_nomasking (concat_cube, rain_gauge_lat, rain_gauge_lon, plot=False):
-    lat_length = concat_cube.shape[0]
-    lon_length = concat_cube.shape[1]
-    
-    ### Rain gauge data 
-    # Convert WGS84 coordinate to BNG
-    transformer = Transformer.from_crs("EPSG:4326", "EPSG:27700", always_xy=True)
-    # Use the transformer to convert longitude and latitude to British National Grid coordinates
-    rain_gauge_lon_bng, rain_gauge_lat_bng = transformer.transform(rain_gauge_lon, rain_gauge_lat)
-    
-    # Create as a list
-    rain_gauge_point = [('grid_latitude', rain_gauge_lat_bng), ('grid_longitude', rain_gauge_lon_bng)]
-                 
-    ### Model data
-    # Create a list of all the tuple pairs of latitude and longitudes
-    locations = list(itertools.product(concat_cube.coord('projection_y_coordinate').points,
-                                       concat_cube.coord('projection_x_coordinate').points))
-    
-    # Find the index of the nearest neighbour of the rain gague location point in the list of locations present in concat_cube
-    tree = spatial.KDTree(locations)
-    closest_point_idx = tree.query([(rain_gauge_point[0][1], rain_gauge_point[1][1])], k =1)[1][0]
-    
-    # Create a list of all the tuple positions
-    indexs_lst = [(i, j) for i in range(lat_length) for j in range(lon_length)]
-    selected_index = indexs_lst[closest_point_idx]
-          
-    ######## Check by plotting         
-    if plot == True:
-        
-        # Get cube containing one hour worth of data
-        hour_uk_cube = concat_cube
-
-        # Set all the values to 0
-        test_data = np.full((hour_uk_cube.shape),0,dtype = int)
-        # Set the values at the index position fond above to 1
-        test_data[selected_index[0],selected_index[1]] = 1
-        # Mask out all values that aren't 1
-        test_data = ma.masked_where(test_data<1,test_data)
-
-        # Set the dummy data back on the cube
-        hour_uk_cube.data = test_data
-
-        # Find cornerpoint coordinates (for use in plotting)
-        lats_cornerpoints = find_cornerpoint_coordinates_obs(hour_uk_cube)[0]
-        lons_cornerpoints = find_cornerpoint_coordinates_obs(hour_uk_cube)[1]
-
-        # Trim the data timeslice to be the same dimensions as the corner coordinates
-        hour_uk_cube = hour_uk_cube[1:,1:]
-        test_data = hour_uk_cube.data
-
-        # Create location in web mercator for plotting
-        transformer = Transformer.from_crs("EPSG:4326", "EPSG:3857", always_xy=True)
-        lon_rain_gauge_wm, lat_rain_gauge_wm = transformer.transform(rain_gauge_lon,rain_gauge_lat)
-
-        # Create bounding box to centre the map on
-        min_lat, max_lat, min_lon, max_lon = calculate_bounding_box(rain_gauge_lat, rain_gauge_lon, distance_km =30)
-        gdf_bbox = create_geodataframe_from_bbox(min_lat, max_lat, min_lon, max_lon)
-        gdf_bbox_web_mercator = gdf_bbox.to_crs(epsg=3857)
-
-        # Create a colormap
-        cmap = matplotlib.colors.ListedColormap(['red'])
-
-        fig, ax = plt.subplots(figsize=(8,8))
-        extent = tilemapbase.extent_from_frame(gdf_bbox_web_mercator)
-        plot = plotter = tilemapbase.Plotter(extent, tilemapbase.tiles.build_OSM(), width=500)
-        plot =plotter.plot(ax)
-        # # Add edgecolor = 'grey' for lines
-        plot =ax.pcolormesh(lons_cornerpoints, lats_cornerpoints, test_data,
-              linewidths=0.1, alpha = 1, cmap = cmap, edgecolors = 'grey')
-        plot = ax.xaxis.set_major_formatter(plt.NullFormatter())
-        plot = ax.yaxis.set_major_formatter(plt.NullFormatter())
-        plt.plot(lon_rain_gauge_wm, lat_rain_gauge_wm, 'o', color='black', markersize = 10)     
-        
-        plt.show()
-
-        # print(indexs_lst[closest_point_idx][0],indexs_lst[closest_point_idx][1])    
-    return locations[closest_point_idx], (indexs_lst[closest_point_idx][0],indexs_lst[closest_point_idx][1])
 
 def find_position_obs (concat_cube, rain_gauge_lat, rain_gauge_lon, plot_radius = 500, plot=False):
     lat_length = concat_cube.shape[0]
@@ -679,8 +414,10 @@ def find_position_obs (concat_cube, rain_gauge_lat, rain_gauge_lon, plot_radius 
         lons_cornerpoints = concat_cube.coord('projection_x_coordinate').points
         lons_cornerpoints, lats_cornerpoints = np.meshgrid(lons_cornerpoints, lats_cornerpoints)
         # Convert to wgs84
-        lons_cornerpoints, lats_cornerpoints = transform(Proj(init='epsg:27700'),Proj(init='epsg:3785'),
-                                                           lons_cornerpoints,lats_cornerpoints)
+        # Create the transformer
+        transformer = Transformer.from_crs(CRS('epsg:27700'), CRS('epsg:3785'))
+        # Perform the transformation
+        lons_cornerpoints, lats_cornerpoints = transformer.transform(lons_cornerpoints, lats_cornerpoints)
         
         # Trim the data timeslice to be the same dimensions as the corner coordinates
         test_data = concat_cube.data
@@ -710,149 +447,4 @@ def find_position_obs (concat_cube, rain_gauge_lat, rain_gauge_lon, plot_radius 
         
         plt.show()
 
-    return locations[closest_point_idx], (indexs_lst[closest_point_idx][0],indexs_lst[closest_point_idx][1])
-
-def find_position_obs_v2 (concat_cube, rain_gauge_lat, rain_gauge_lon, plot=False):
-    lat_length = concat_cube.shape[0]
-    lon_length = concat_cube.shape[1]
-    
-    ### Rain gauge data 
-    # Convert WGS84 coordinate to BNG
-    transformer = Transformer.from_crs("EPSG:4326", "EPSG:27700", always_xy=True)
-    # Use the transformer to convert longitude and latitude to British National Grid coordinates
-    rain_gauge_lon_bng, rain_gauge_lat_bng = transformer.transform(rain_gauge_lon, rain_gauge_lat)
-    
-    # Create as a list
-    rain_gauge_point = [('grid_latitude', rain_gauge_lat_bng), ('grid_longitude', rain_gauge_lon_bng)]
-                 
-    ### Model data
-    # Create a list of all the tuple pairs of latitude and longitudes
-    locations = list(itertools.product(concat_cube.coord('projection_y_coordinate').points,
-                                       concat_cube.coord('projection_x_coordinate').points))
-    
-    # Find the index of the nearest neighbour of the rain gague location point in the list of locations present in concat_cube
-    tree = spatial.KDTree(locations)
-    closest_point_idx = tree.query([(rain_gauge_point[0][1], rain_gauge_point[1][1])], k =1)[1][0]
-    
-    # Create a list of all the tuple positions
-    indexs_lst = [(i, j) for i in range(lat_length) for j in range(lon_length)]
-    selected_index = indexs_lst[closest_point_idx]
-    old_selected_index=selected_index
-    
-    print(selected_index)
-    # Check if the selected index is masked and find a nearby valid index if necessary
-    if np.ma.is_masked(concat_cube[selected_index[0], selected_index[1]].data):
-        print("yep its masked")
-        search_radius = 1
-        found = False
-        while not found and search_radius <= max(lat_length, lon_length):
-            for di in range(-search_radius, search_radius + 1):
-                for dj in range(-search_radius, search_radius + 1):
-                    ni, nj = selected_index[0] + di, selected_index[1] + dj
-                    if 0 <= ni < lat_length and 0 <= nj < lon_length:
-                        if not np.ma.is_masked(concat_cube[ni, nj]):
-                            closest_point_idx = indexs_lst.index((ni, nj))
-                            selected_index = (ni, nj)
-                            found = True
-                            break
-                if found:
-                    break
-            search_radius += 1
-    print(selected_index)
-            
-    ######## Check by plotting         
-    if plot == True:
-        
-        # Get cube containing one hour worth of data
-        hour_uk_cube = concat_cube
-
-        # Set all the values to 0
-        test_data = np.full((hour_uk_cube.shape),0,dtype = int)
-        # Set the values at the index position fond above to 1
-        test_data[selected_index[0],selected_index[1]] = 1
-        # Mask out all values that aren't 1
-        test_data = ma.masked_where(test_data<1,test_data)
-
-        # Set the dummy data back on the cube
-        hour_uk_cube.data = test_data
-
-        # Find cornerpoint coordinates (for use in plotting)
-        lats_cornerpoints = find_cornerpoint_coordinates_obs(hour_uk_cube)[0]
-        lons_cornerpoints = find_cornerpoint_coordinates_obs(hour_uk_cube)[1]
-
-        # Trim the data timeslice to be the same dimensions as the corner coordinates
-        hour_uk_cube = hour_uk_cube[1:,1:]
-        test_data = hour_uk_cube.data
-
-        # Create location in web mercator for plotting
-        transformer = Transformer.from_crs("EPSG:4326", "EPSG:3857", always_xy=True)
-        lon_rain_gauge_wm, lat_rain_gauge_wm = transformer.transform(rain_gauge_lon,rain_gauge_lat)
-
-        # Create bounding box to centre the map on
-        min_lat, max_lat, min_lon, max_lon = calculate_bounding_box(rain_gauge_lat, rain_gauge_lon, distance_km =30)
-        gdf_bbox = create_geodataframe_from_bbox(min_lat, max_lat, min_lon, max_lon)
-        gdf_bbox_web_mercator = gdf_bbox.to_crs(epsg=3857)
-
-        # Create a colormap
-        cmap = matplotlib.colors.ListedColormap(['red'])
-
-    
-        fig, ax = plt.subplots(figsize=(8,8))
-        extent = tilemapbase.extent_from_frame(gdf_bbox_web_mercator)
-        plot = plotter = tilemapbase.Plotter(extent, tilemapbase.tiles.build_OSM(), width=500)
-        plot =plotter.plot(ax)
-        # # Add edgecolor = 'grey' for lines
-        plot =ax.pcolormesh(lons_cornerpoints, lats_cornerpoints, test_data,
-              linewidths=0.4, alpha = 1, cmap = cmap, edgecolors = 'grey')
-        plot = ax.xaxis.set_major_formatter(plt.NullFormatter())
-        plot = ax.yaxis.set_major_formatter(plt.NullFormatter())
-        #plot =leeds_at_centre_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=2)
-        plt.plot(lon_rain_gauge_wm, lat_rain_gauge_wm, 'o', color='black', markersize = 10)     
-        
-        
-        
-        # Get cube containing one hour worth of data
-        hour_uk_cube = concat_cube
-
-        # Set all the values to 0
-        test_data = np.full((hour_uk_cube.shape),0,dtype = int)
-        # Set the values at the index position fond above to 1
-        test_data[old_selected_index[0],old_selected_index[1]] = 1
-        # Mask out all values that aren't 1
-        test_data = ma.masked_where(test_data<1,test_data)
-
-        # Set the dummy data back on the cube
-        hour_uk_cube.data = test_data
-
-        # Find cornerpoint coordinates (for use in plotting)
-        lats_cornerpoints = find_cornerpoint_coordinates_obs(hour_uk_cube)[0]
-        lons_cornerpoints = find_cornerpoint_coordinates_obs(hour_uk_cube)[1]
-
-        # Trim the data timeslice to be the same dimensions as the corner coordinates
-        hour_uk_cube = hour_uk_cube[1:,1:]
-        test_data = hour_uk_cube.data
-
-        # Create location in web mercator for plotting
-        transformer = Transformer.from_crs("EPSG:4326", "EPSG:3857", always_xy=True)
-        lon_rain_gauge_wm, lat_rain_gauge_wm = transformer.transform(rain_gauge_lon,rain_gauge_lat)
-
-        # Create bounding box to centre the map on
-        min_lat, max_lat, min_lon, max_lon = calculate_bounding_box(rain_gauge_lat, rain_gauge_lon, distance_km =30)
-        gdf_bbox = create_geodataframe_from_bbox(min_lat, max_lat, min_lon, max_lon)
-        gdf_bbox_web_mercator = gdf_bbox.to_crs(epsg=3857)
-
-        # Create a colormap
-        cmap = matplotlib.colors.ListedColormap(['yellow'])
-
-        # # Add edgecolor = 'grey' for lines
-        plot =ax.pcolormesh(lons_cornerpoints, lats_cornerpoints, test_data,
-              linewidths=0.4, alpha = 1, cmap = cmap, edgecolors = 'grey')
-        plot = ax.xaxis.set_major_formatter(plt.NullFormatter())
-        plot = ax.yaxis.set_major_formatter(plt.NullFormatter())
-        #plot =leeds_at_centre_gdf.plot(ax=ax, categorical=True, alpha=1, edgecolor='black', color='none', linewidth=2)
-        plt.plot(lon_rain_gauge_wm, lat_rain_gauge_wm, 'o', color='black', markersize = 10)     
-        fig.tight_layout()
-        fig.savefig("fig.jpg")
-
-        print(indexs_lst[closest_point_idx][0],indexs_lst[closest_point_idx][1])    
     return locations[closest_point_idx], (indexs_lst[closest_point_idx][0],indexs_lst[closest_point_idx][1])

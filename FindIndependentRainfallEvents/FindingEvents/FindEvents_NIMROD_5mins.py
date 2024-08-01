@@ -13,13 +13,7 @@ from Prepare_Data_Functions import *
 
 pd.set_option('display.float_format', '{:.3f}'.format)
 warnings.filterwarnings("ignore", category=UserWarning)
-warnings.filterwarnings("ignore", category=FutureWarning)
-
-def filtered_cube (cube, filter_above):
-    # cube = cube.copy()
-    cube.data = np.where(cube.data < 0, np.nan, cube.data)
-    cube.data = np.where(cube.data > filter_above, np.nan, cube.data)
-    return cube 
+warnings.filterwarnings("ignore", category=FutureWarning, message=".*'+init=<authority>:<code>' syntax is deprecated.*")
 
 ######################################################
 ### Define which rainfall data we are looking for events in
@@ -78,7 +72,7 @@ else:
 # Find events at each gauge
 ######################################################
 failed_gauges = []
-gauge_nums = range(0,1263)
+gauge_nums = range(500,1293)
 # Function to process each gauge
 for gauge_num in gauge_nums:
     if not gauge_num in [423, 444, 827, 888]:
