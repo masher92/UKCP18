@@ -36,6 +36,21 @@ leeds_gdf = create_leeds_outline({'init' :'epsg:27700'})
 leeds_at_centre_gdf = create_leeds_at_centre_outline({'init' :'epsg:3857'})
 
 
+def mask_cube(cube, gb_mask):
+    masked_cube_data = cube * gb_mask[np.newaxis, :, :]
+
+    # APPLY THE MASK
+    reshaped_mask = np.tile(gb_mask, (cube.shape[0], 1, 1))
+    reshaped_mask = reshaped_mask.astype(int)
+    reversed_array = ~reshaped_mask.astype(bool)
+
+    # Mask the cube
+    masked_cube = iris.util.mask_cube(cube, reversed_array)
+    
+    return masked_cube
+
+
+
 def convert_rotatedpol_to_bng(cube):
     # Define the original crs (rotated pole) and the target crs (BNG)
     source_crs = ccrs.RotatedGeodetic(pole_latitude=37.5,

@@ -2,13 +2,13 @@
 start_year=2061
 end_year=2080
 start_gauge=0
-end_gauge=20
+end_gauge=1293
 
 # Define the batch size
-batch_size=3
+batch_size=10
 
 # Define the centralized log file
-log_file="/nfs/a319/gy17m2a/PhD/logs/centralized_log.log"
+log_file="/nfs/a319/gy17m2a/PhD/logs/centralized_log_new.log"
 touch "$log_file"  # Create the log file if it doesn't exist
 
 # Define the base directory for file checks
@@ -37,11 +37,31 @@ wait_for_screens() {
     echo "All screens have finished." | tee -a $log_file
 }
 
+excluded_gauges=(423 444 888 827)
+
+# Function to check if a gauge is in the excluded list
+is_excluded() {
+    local gauge=$1
+    for excluded_gauge in "${excluded_gauges[@]}"; do
+        if [ "$gauge" -eq "$excluded_gauge" ]; then
+            return 0  # Gauge is excluded
+        fi
+    done
+    return 1  # Gauge is not excluded
+}
+
+
+
 # Main processing loop to find missing combinations
 for year in $(seq $start_year $end_year); do
-    # echo "Checking files for year: $year" | tee -a $log_file
+    echo "Checking files for year: $year"
     
     for gauge in $(seq $start_gauge $end_gauge); do
+        if is_excluded $gauge; then
+            echo "Skipping excluded gauge: $gauge"
+            continue
+        fi
+        
         for duration in 0.5 1 2 3 6 12 24; do
             file_path="${base_dir}/${gauge}/WholeYear/${duration}hrs_${year}_v2_part0.csv"
             if [ ! -f "$file_path" ]; then
@@ -52,7 +72,6 @@ for year in $(seq $start_year $end_year); do
         done
     done
 done
-
 # Write missing combinations to the log file
 for combination in "${missing_combinations[@]}"; do
     echo "$combination" >> "$missing_combinations_file"
@@ -87,7 +106,7 @@ for (( i=0; i<$num_combinations; i+=batch_size )); do
         # Create a new screen session for each combination
         screen -dmS "$session_name" bash -c "(
             echo '=== Running python script for year $year and gauge $gauge ===' | tee -a $log_file
-            python untitled.py $year $gauge 2>&1 | tee -a $log_file
+            python untitled_30mins.py $year $gauge 2>&1 | tee -a $log_file
             if [ \$? -eq 0 ]; then
                 echo '=== Python script completed successfully for year $year and gauge $gauge ===' | tee -a $log_file
                             else
@@ -102,147 +121,3 @@ for (( i=0; i<$num_combinations; i+=batch_size )); do
 done
 
 echo "All jobs have been processed." | tee -a $log_file
-
-# # Define years and gauges
-# start_year=2070
-# end_year=2080
-# start_gauge=0
-# end_gauge=300
-
-# # Define the batch size
-# batch_size=20
-
-# # Define the centralized log file
-# log_file="/nfs/a319/gy17m2a/PhD/logs/centralized_log.log"
-# touch "$log_file"  # Create the log file if it doesn't exist
-
-# # Function to check if any screens are still running
-# check_screens() {
-#     local running_screens
-#     running_screens=$(screen -ls | grep -c 'Detached')
-#     echo "$running_screens"
-# }
-
-# # Function to wait for all screens to finish
-# wait_for_screens() {
-#     echo "Waiting for screens to finish..." | tee -a $log_file
-#     while [ "$(check_screens)" -gt 0 ]; do
-#         sleep 10  # Wait 10 seconds before checking again
-#     done
-#     echo "All screens have finished." | tee -a $log_file
-# }
-
-# # Main processing loop
-# for year in $(seq $start_year $end_year); do
-#     echo "Checking and downloading files for year: $year" | tee -a $log_file
-    
-#     for (( i=$start_gauge; i<=$end_gauge; i+=batch_size )); do
-#         # Generate the batch gauges
-#         end_batch=$((i+batch_size-1))
-#         batch_gauges=$(seq $i $end_batch)
-#         # Debugging output to verify batch_gauges
-#         # Print batch gauges on one line
-#         echo -n "Processing batch: "
-#         printf "%s " $batch_gauges | tee -a $log_file
-#         echo
-        
-#         # Create a screen session for each gauge in the batch
-#         for gauge in $batch_gauges; do
-#             if [ $gauge -le $end_gauge ]; then
-#                 # Shorten the session name if needed
-#                 session_name="y${year}_g${gauge}"
-                
-#                 # Print message indicating screen start
-#                 # echo "Starting screen for year $year and gauge $gauge" | tee -a $log_file
-                
-#                 # Create a new screen session for each gauge
-#                 screen -dmS "$session_name" bash -c "(
-#                     echo '=== Running python script for year $year and gauge $gauge ===' | tee -a $log_file
-#                     python untitled.py $year $gauge 2>&1 | tee -a $log_file
-#                     if [ \$? -eq 0 ]; then
-#                         echo '=== Python script completed successfully for year $year and gauge $gauge ===' | tee -a $log_file
-#                     else
-#                         echo '=== Python script failed for year $year and gauge $gauge ===' | tee -a $log_file
-#                     fi
-#                     exit
-#                 )"
-                
-#                 # Print message indicating screen has started
-#                 echo "Screen session started for year $year and gauge $gauge" | tee -a $log_file
-#             fi
-#         done
-        
-#         # Wait for the current batch to finish
-#         wait_for_screens
-#     done
-# done
-
-# echo "All jobs have been processed." | tee -a $log_file
-
-
-
-
-# #!/bin/bash
-
-# # Define years and gauges
-# # years=(2070 2071 2072)
-# gauges=(200 201 202 203 204)
-
-
-# start_year=2061
-# end_year=2080
-
-# # Define the batch size
-# batch_size=10
-
-# # Define the log directory
-# log_dir="/nfs/a319/gy17m2a/PhD/logs"
-# mkdir -p "$log_dir"  # Create the directory if it doesn't exist
-
-# # Function to check if any screens are still running
-# check_screens() {
-#     local running_screens
-#     running_screens=$(screen -ls | grep -c 'Detached')
-#     echo "$running_screens"
-# }
-
-# # Function to wait for all screens to finish
-# wait_for_screens() {
-#     echo "Waiting for screens to finish..."
-#     while [ "$(check_screens)" -gt 0 ]; do
-#         sleep 10  # Wait 10 seconds before checking again
-#     done
-#     echo "All screens have finished."
-# }
-
-# # Main processing loop
-# for year in $(seq $start_year $end_year); do
-#     echo "Checking and downloading files for year: $year"
-
-#     # Start screens in batches
-#     for (( i=0; i<${#gauges[@]}; i+=batch_size )); do
-#         batch_gauges=("${gauges[@]:i:batch_size}")
-
-#         for gauge in "${batch_gauges[@]}"; do
-#             # Shorten the session name if needed
-#             session_name="y${year}_g${gauge}"
-#             log_file="$log_dir/${session_name}.log"  # Log file path
-
-#             # Print message indicating screen start
-#             # echo "Starting screen for year $year and gauge $gauge"
-
-#             # Create a new screen session for each gauge
-#             screen -dmS "$session_name" bash -c "echo 'Running python script for year $year and gauge $gauge' > $log_file; python untitled.py $year $gauge >> $log_file 2>&1; echo 'Python script completed for year $year and gauge $gauge' >> $log_file; exit"
-
-#             # Print message indicating screen has started
-#             echo "Screen session started for year $year and gauge $gauge"
-#         done
-
-#         # Wait for the current batch to finish
-#         wait_for_screens
-#     done
-# done
-
-# echo "All jobs have been processed."
-
-

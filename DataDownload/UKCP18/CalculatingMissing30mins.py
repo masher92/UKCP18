@@ -19,7 +19,6 @@ from warnings import simplefilter
 # ignore all future warnings
 simplefilter(action='ignore', category=FutureWarning)
 
-
 # Create path to files containing functions
 sys.path.insert(0, root_fp + 'Scripts/GlobalFunctions')
 from Spatial_plotting_functions import *
@@ -32,20 +31,18 @@ leeds_at_centre_gdf = create_leeds_at_centre_outline({'init' :'epsg:3857'})
 # ### Establish the corresponding ensemble member numbers
 em_matching_dict = {'01':'bc005', '04': 'bc006', '05': 'bc007', '06':'bc009',  '07':'bc010', 
                     '08': 'bc011', '09':'bc013', '10': 'bc015', '11': 'bc016', '12': 'bc017', '13':'bc018', '15':'bc012'}
+em_matching_dict = {'01':'bb198'}
 
 resolution = '2.2km_original'
-yrs_range = "2002_2020"
-# em_1hr = '05'
-# yr = 2012
-# month_num = '06'
+yrs_range = "2060_2081"
 
-# for em_1hr in ['01', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '15']:
-for em_1hr in ['12']:
+for em_1hr in ['01']:
     em_30mins = em_matching_dict[em_1hr]
-    for yr in range(2001,2020):
-        for month_num in ['01', '02', '03', '04', '05', '09', '10','11','12']:
+
+    for yr in range(2061,2081):
+        for month_num in ['01', '02', '03', '04', '05', '06','07','08','09', '10','11','12']:
             print(f"em{em_1hr}, yr {yr}, month {month_num}")
-            if (os.path.isfile(f"/nfs/a319/gy17m2a/PhD/datadir/UKCP18_every30mins/{resolution}/{em_30mins}/{yrs_range}/{em_30mins}a.pr{yr}{month_num}.nc")):
+            if (os.path.isfile(f"/nfs/a319/gy17m2a/PhD/datadir/UKCP18_every30mins/{resolution}/{yrs_range}/{em_30mins}/{em_30mins}a.pr{yr}{month_num}.nc")):
                 print("already exists")
             else:
                 print(f"Running for month {month_num} in {yr}, for {em_1hr} (which equatees to {em_30mins})")
@@ -60,12 +57,6 @@ for em_1hr in ['12']:
                 filenames_1hr = []
                 for filename in glob.glob(general_filename_1hr):
                         filenames_1hr.append(filename)
-                # If don't find any files matching this string in the 2001_2020 folder, then check the 1980_2001
-                if len(filenames_1hr) == 0:
-                    general_filename_1hr = f'/nfs/a319/gy17m2a/PhD/datadir/UKCP18_hourly/2.2km_original/{em_1hr}/1980_2001/pr_rcp85_land-cpm_uk_2.2km_{em_1hr}_1hr_{yr}{month_num}*'
-                    for filename in glob.glob(general_filename_1hr):
-                            filenames_1hr.append(filename)
-                    print(len(filenames_1hr))
 
                 # ### Load in the data and remove the ensemble member dimension
                 monthly_cubes_list_1hr = iris.load(filenames_1hr)
@@ -166,6 +157,6 @@ for em_1hr in ['12']:
                 else:
                     print("Doesn't exist")
                     os.makedirs(dir_to_save)
-                fp_to_save = f"datadir/UKCP18_every30mins/{resolution}/{em_30mins}/{yrs_range}/{em_30mins}a.pr{yr}{month_num}.nc" 
+                fp_to_save = f"datadir/UKCP18_every30mins/{resolution}/{yrs_range}/{em_30mins}/{em_30mins}a.pr{yr}{month_num}.nc" 
                 print(fp_to_save)
                 iris.save(monthly_cube_30mins, fp_to_save)

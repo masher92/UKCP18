@@ -2,12 +2,58 @@ import numpy as np
 from scipy.interpolate import interp1d
 import pandas as pd
 
+def add_duration_cats_predetermined(df):
+    '''
+    Based on categories determined by RVH in order to have same number of events in each category.
+    '''
+    # Define the bin edges and labels
+    if df is None:
+        return None
+    else:
+        bin_edges = [0.25, 2.10, 6.45, 19.25, np.max(df['duration'].dropna())]
+        duration_labels = ['0.25-2.10 hr', '2.10-6.45 hr', '6.45-19.25 hr', '19.25+ hr']
+
+        # Ensure 'duration' column is treated as numeric, coerce errors to NaN
+        df['duration'] = pd.to_numeric(df['duration'], errors='coerce')
+
+        # Bin durations into categories based on bin_edges
+        df['DurationRange_notpersonalised'] = pd.cut(df['duration'], 
+                                                    bins=bin_edges, 
+                                                    labels=duration_labels, 
+                                                    right=True,
+                                                    include_lowest=True)
+
+    return df
+
+def add_duration_cats_based_on_data(df):
+    '''
+    Uses the dataframe to work out which categories would give same number of events in each category
+    '''
+    # Now, if you also want to create quartile categories based on the index, similar to the previous logic:
+    df = df.sort_values(by='duration')
+    df.reset_index(inplace=True, drop=True)
+
+    # Calculate the number of events in each quartile
+    total_events = len(df)
+    events_per_quartile = total_events // 4
+
+    # Assign quartile categories based on index position
+    df['DurationCategory'] = pd.cut(df.index,
+                                      bins=[-1, events_per_quartile, 2 * events_per_quartile, 3 * events_per_quartile, total_events],
+                                      labels=['Q1', 'Q2', 'Q3', 'Q4'], include_lowest=True)
+    grouped = df.groupby('DurationCategory')['duration']
+    quartile_ranges = grouped.agg(['min', 'max'])
+
+    # Create a new column with labels for quartile ranges
+    df['DurationRange_personalised'] = df['DurationCategory'].map(quartile_ranges.apply(lambda x: f'{x["min"]:.1f}-{x["max"]:.1f}', axis=1))
+    return df
+
+
 def extract_year(df):
     # Ensure the 'times' column is in datetime format
     df['times'] = pd.to_datetime(df['times'], errors='coerce')  # errors='coerce' will handle invalid parsing
     # Extract the year
-    df['year'] = df['times'].dt.year
-    return df
+    return df['times'].dt.year[0]
 
 
 def remove_leading_and_trailing_zeroes(df, threshold = 0.005):
@@ -82,71 +128,59 @@ def find_duration(file):
         duration = None
     return duration
 
-def find_part_with_most_rain_using_cumulative_rainfall(array,n):
-    
-    array = np.diff(array)
-    splits = np.array_split(array, n)
-    
-    max_array_rainfall = 0
-    max_array_num = None
-    # Print the resulting splits
-    for i, split in enumerate(splits, 1):
-        if split.sum() > max_array_rainfall:
-            max_array_num = i
-            max_array_rainfall = split.sum()
-        #print(f"Set {i}: {split}, Length: {len(split)}, Sum: {round(split.sum(),1)}")
-    return max_array_num    
+def find_part_with_most_rain(array, n, plot=False, ax=False):
+    if array is None:
+        return None
+    else:
 
+        # Compute differences
+        # Split the array into 5 equal parts
+        splits = np.array_split(array, n)
 
-def find_part_with_most_rain(array, n, plot=False, ax= False):
-    # Compute differences
-    # Split the array into 5 equal parts
-    splits = np.array_split(array, n)
-    
-    max_array_rainfall = 0
-    max_array_num = None
-    
-    total_precipitations = []  # To store total precipitation for each split
-    split_ranges = []  # To store start and end indices for each split
-    
-    # Calculate total precipitation for each split
-    split_start = 0
-    for split in splits:
-        total_precipitation = split.sum()
-        total_precipitations.append(total_precipitation)
-        split_end = split_start + len(split)
-        split_ranges.append((split_start, split_end))
-        if total_precipitation > max_array_rainfall:
-            max_array_num = len(total_precipitations)
-            max_array_rainfall = total_precipitation
-        split_start = split_end
-    
-    colors = ['lightblue'] * n  # Default color for all splits
-    highlight_color = 'yellow'  # Color for the split with the most rainfall
-    
-    if plot:
-        # Plot the array
-        ax.plot(range(1, len(array) + 1), array, label='Precipitation', marker='o')
-        
-        # Add vertical lines and shading for each split segment
-        for i, (start_index, end_index) in enumerate(split_ranges):
-            color = highlight_color if (i + 1) == max_array_num else colors[i]
-            
-            # Add vertical lines at the start and end of each split
-            ax.axvline(x=start_index + 1, color=color, linestyle='--', label=f'Split {i+1} Start' if i == 0 or (i + 1) == max_array_num else "")
-            ax.axvline(x=end_index, color=color, linestyle='--', label=f'Split {i+1} End' if i == 0 or (i + 1) == max_array_num else "")
-            
-            # Shade the region for the split
-            ax.fill_between(range(start_index + 1, end_index + 1), array[start_index:end_index], color=color, alpha=0.3)
-            
-            # Add the total precipitation value behind the shading
-            ax.text((start_index + end_index) / 2+0.5, max(array) * 0.05,  # Adjust y-position if needed
-                    f'{total_precipitations[i]:.2f}',
-                    ha='center', va='center', fontsize=10, color='black', weight='bold', zorder=1)
-        
-        ax.set_title(f'Precipitation Values with Splits Marked. Max at {max_array_num}')
-        ax.set_xlabel('Time')
-        ax.set_ylabel('Precipitation')
+        max_array_rainfall = 0
+        max_array_num = None
+
+        total_precipitations = []  # To store total precipitation for each split
+        split_ranges = []  # To store start and end indices for each split
+
+        # Calculate total precipitation for each split
+        split_start = 0
+        for split in splits:
+            total_precipitation = split.sum()
+            total_precipitations.append(total_precipitation)
+            split_end = split_start + len(split)
+            split_ranges.append((split_start, split_end))
+            if total_precipitation > max_array_rainfall:
+                max_array_num = len(total_precipitations)
+                max_array_rainfall = total_precipitation
+            split_start = split_end
+
+        colors = ['lightblue'] * n  # Default color for all splits
+        highlight_color = 'yellow'  # Color for the split with the most rainfall
+
+        if plot:
+            # Plot the array
+            ax.plot(range(1, len(array) + 1), array, label='Precipitation', marker='o')
+
+            # Add vertical lines and shading for each split segment
+            for i, (start_index, end_index) in enumerate(split_ranges):
+                color = highlight_color if (i + 1) == max_array_num else colors[i]
+
+                # Add vertical lines at the start and end of each split
+                ax.axvline(x=start_index + 1, color=color, linestyle='--', label=f'Split {i+1} Start' if i == 0 or (i + 1) == max_array_num else "")
+                ax.axvline(x=end_index, color=color, linestyle='--', label=f'Split {i+1} End' if i == 0 or (i + 1) == max_array_num else "")
+
+                # Shade the region for the split
+                ax.fill_between(range(start_index + 1, end_index + 1), array[start_index:end_index], color=color, alpha=0.3)
+
+                # Add the total precipitation value behind the shading
+                ax.text((start_index + end_index) / 2+0.5, max(array) * 0.05,  # Adjust y-position if needed
+                        f'{total_precipitations[i]:.2f}',
+                        ha='center', va='center', fontsize=10, color='black', weight='bold', zorder=1)
+
+            ax.set_title(f'Precipitation Values with Splits Marked. Max at {max_array_num}')
+            ax.set_xlabel('Time')
+            ax.set_ylabel('Precipitation')
 
     return max_array_num
 
@@ -191,52 +225,57 @@ def get_season(date_str, date_format='%Y-%m-%d %H:%M:%S'):
     # print(date_str, season)
     return season    
 
-def create_normalised_event(df):
-    """
-    Create a dimensionless rainfall profile by normalizing the cumulative rainfall 
-    and time arrays.
-    
-    Parameters:
-        rainfall_times (np.array): Array of time measurements in any consistent unit.
-        rainfall_amounts (np.array): Array of corresponding rainfall amounts.
-        
-    Returns:
-        tuple: Two numpy arrays representing the normalized time and cumulative rainfall.
-    """
-    
-    rainfall_times = np.array(range(0, len(df)))
-    rainfall_amounts = np.array(df['precipitation (mm/hr)'])
-    
+def create_normalised_event(rainfall):
+    # Check if the input array is None or empty
+    if rainfall is None or len(rainfall) == 0:
+        # print("Input array is None or empty. Cannot normalize.")
+        return None
+
+    # Check if the maximum value is zero to avoid division by zero
+    if np.max(rainfall) == 0:
+        print("Maximum rainfall is zero. Cannot normalize.")
+        return rainfall  # Return the input as-is, or handle appropriately
+
+    # Normalize rainfall from 0 to 1 using the maximum value
+    normalized_rainfall = rainfall / np.max(rainfall)
+    normalized_rainfall = normalized_rainfall.to_list()
+
+    # Debug prints to check the input and output
+    return normalized_rainfall
+
+
+def create_cumulative_event(rainfall):
+    if rainfall is None:
+        return None
     # Calculate cumulative rainfall
-    cumulative_rainfall = np.cumsum(rainfall_amounts)
+    cumulative_rainfall = np.cumsum(rainfall)
     
-    # Normalize time from 0 to 1
-    normalized_time = (rainfall_times - rainfall_times[0]) / (rainfall_times[-1] - rainfall_times[0])
-    
-    # Normalize cumulative rainfall from 0 to 1
-    normalized_rainfall = cumulative_rainfall / cumulative_rainfall[-1]
-    
-    return normalized_time, normalized_rainfall
+    return cumulative_rainfall.tolist()
 
+def interpolate_rainfall(rainfall, bin_number):
+    if rainfall is None or len(rainfall) < 2:
+        return None
 
-def interpolate_and_bin(normalized_time, normalized_rainfall, bin_number):
-    """
-    Interpolate missing data points and bin the dimensionless profile into 12 segments.
-    
-    Parameters:
-        normalized_time (np.array): Normalized time array.
-        normalized_rainfall (np.array): Normalized cumulative rainfall array.
-    
-    Returns:
-        np.array: Binned and interpolated rainfall profile.
-    """
-    # Define target points for 12 bins
-    target_points = np.linspace(0, 1, bin_number+1)
+    # Define target points for bin_number bins
+    target_points = np.linspace(0, 1, bin_number)
     
     # Create interpolation function based on existing data points
-    interpolation_func = interp1d(normalized_time, normalized_rainfall, kind='linear', fill_value="extrapolate")
+    rainfall_times = np.array(range(0, len(rainfall)))
+
+    # Normalize time from 0 to 1
+    normalized_time = (rainfall_times - rainfall_times[0]) / (rainfall_times[-1] - rainfall_times[0])
+    interpolation_func = interp1d(normalized_time, rainfall, kind='linear', fill_value="extrapolate")
     
     # Interpolate values at target points
     interpolated_values = interpolation_func(target_points)
     
     return interpolated_values
+
+
+def create_incremental_event(cumulative_rainfall):
+    if cumulative_rainfall is None :
+        return None
+    
+    raw_rainfall = np.diff(cumulative_rainfall, prepend=0)
+    raw_rainfall[0] = cumulative_rainfall[0]
+    return raw_rainfall

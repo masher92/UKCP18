@@ -32,7 +32,7 @@ pd.set_option('display.float_format', '{:.3f}'.format)
 warnings.filterwarnings("ignore", category=UserWarning)
 
 yrs_range= '2060_2081'
-em = 'bb198'
+em = 'bb189'
 gauge_num = int(sys.argv[2])
 yr = int(sys.argv[1])
 
@@ -48,7 +48,32 @@ sample_cube = iris.load(f'/nfs/a319/gy17m2a/PhD/datadir/UKCP18_every30mins/2.2km
 general_filename = f'/nfs/a319/gy17m2a/PhD/datadir/UKCP18_every30mins/2.2km_bng/{yrs_range}/{em}/bng_{em}a.pr{yr}*'
 pickle_file_filepath = f"/nfs/a319/gy17m2a/PhD/datadir/cache/UKCP18_30mins_{em}/WholeYear/cube_{yr}.pkl"
 
-full_year_cube = load_cube_from_picklefile(pickle_file_filepath)
+if os.path.exists(pickle_file_filepath):
+    print("Pickle file exists, so loading that")
+    full_year_cube = load_cube_from_picklefile(pickle_file_filepath)
+else:
+    print("Pickle file doesnt exist, so creating and then saving that")
+
+    ### Get the data filepaths
+    print(f"Loading data for year {yr}")
+
+    # Create cube list
+    cubes = load_files_to_cubelist(yr, general_filename)
+
+    # Join them into one (with error handling to deal with times which are wrong)
+    try:
+        full_year_cube = cubes.concatenate_cube()
+        print("Concatenation successful!")
+    except Exception as e:
+        print(f"Initial concatenation failed: {str(e)}")
+
+        # If initial concatenation fails, remove problematic cubes and try again
+        try:
+            full_year_cube = remove_problematic_cubes(cubes)
+            print("Concatenation successful after removing problematic cubes!")
+        except RuntimeError as e:
+            print(f"Concatenation failed after removing problematic cubes: {str(e)}")               
+    save_cube_as_pickle_file(full_year_cube, pickle_file_filepath)
 
 # Find location
 Tb0, idx_2d = find_gauge_Tb0_and_location_in_grid(tbo_vals, gauge_num, sample_cube)

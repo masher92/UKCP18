@@ -1,0 +1,3 @@
+./transferdata.sh bb189
+CalculateMissing30mins.py
+Regrid_UKCP18_30mins.py

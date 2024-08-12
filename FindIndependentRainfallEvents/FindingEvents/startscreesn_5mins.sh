@@ -1,18 +1,18 @@
 #!/bin/bash
 start_year=2006
-end_year=2021
-start_gauge=300
-end_gauge=400
+end_year=2020
+start_gauge=200
+end_gauge=300
 
 # Define the batch size
-batch_size=20
+batch_size=15
 
 # Define the centralized log file
 log_file="/nfs/a319/gy17m2a/PhD/logs/centralized_log.log"
 touch "$log_file"  # Create the log file if it doesn't exist
 
 # Define the base directory for file checks
-base_dir="/nfs/a161/gy17m2a/PhD/ProcessedData/IndependentEvents/NIMROD_5mins/"
+base_dir="/nfs/a161/gy17m2a/PhD/ProcessedData/IndependentEvents/NIMROD_5mins/NIMROD_1km_filtered_100"
 
 # Define the output file for missing combinations
 missing_combinations_file="/nfs/a319/gy17m2a/PhD/logs/missing_combinations.log"
@@ -37,21 +37,42 @@ wait_for_screens() {
     echo "All screens have finished." | tee -a $log_file
 }
 
+
+excluded_gauges=(423 444 888 827)
+
+# Function to check if a gauge is in the excluded list
+is_excluded() {
+    local gauge=$1
+    for excluded_gauge in "${excluded_gauges[@]}"; do
+        if [ "$gauge" -eq "$excluded_gauge" ]; then
+            return 0  # Gauge is excluded
+        fi
+    done
+    return 1  # Gauge is not excluded
+}
+
+
 # Main processing loop to find missing combinations
 for year in $(seq $start_year $end_year); do
-    # echo "Checking files for year: $year" | tee -a $log_file
+    echo "Checking files for year: $year"
     
     for gauge in $(seq $start_gauge $end_gauge); do
+        if is_excluded $gauge; then
+            echo "Skipping excluded gauge: $gauge"
+            continue
+        fi
+        
         for duration in 0.5 1 2 3 6 12 24; do
             file_path="${base_dir}/${gauge}/WholeYear/${duration}hrs_${year}_v2_part0.csv"
             if [ ! -f "$file_path" ]; then
-                # echo "$file_path does not exist" | tee -a $log_file
+                echo "$file_path does not exist" | tee -a $log_file
                 missing_combinations+=("$year $gauge")  # Store the missing combination
                 break  # No need to check further if any file is missing
             fi
         done
     done
 done
+
 
 # Write missing combinations to the log file
 for combination in "${missing_combinations[@]}"; do
