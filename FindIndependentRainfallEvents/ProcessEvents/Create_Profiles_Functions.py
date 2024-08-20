@@ -2,6 +2,97 @@ import numpy as np
 from scipy.interpolate import interp1d
 import pandas as pd
 
+
+def read_event(gauge_num, fp):
+    test = pd.read_csv(fp)
+    test['timestamp'] = pd.to_datetime(test['times'], errors='coerce')
+    test['time_since_last_minutes'] = test['timestamp'].diff().fillna(pd.Timedelta(seconds=0)).dt.total_seconds() / 60#
+    # Detect rows where coercion occurred
+    invalid_dates = test[test['timestamp'].isna()]
+
+    if not invalid_dates.empty:
+        print("Some dates were invalid and have been coerced to NaT:")
+        # print(invalid_dates)
+    
+    return test
+
+def remove_leading_and_trailing_zeroes(df, threshold = 0.005):
+    
+    # Identify the start and end of the event where values are above the threshold
+    event_start = df[df['precipitation (mm)'] >= threshold].index.min()
+    event_end = df[df['precipitation (mm)'] >= threshold].index.max()
+
+    # Handle cases where no values are above the threshold
+    if pd.isna(event_start) or pd.isna(event_end):
+        print("No events found with precipitation >= threshold.")
+    else:
+        # Remove values < threshold from the start and end of the event
+        trimmed_test = df.loc[event_start:event_end].reset_index(drop=True)
+
+    return trimmed_test
+
+def remove_events_with_problems(df, verbose=True):
+    problem_events = 0
+    
+    # Check if the DataFrame is too short to be an event
+    if len(df) < 2:
+        if verbose:
+            print(f"Too short to be an event")
+        problem_events += 1
+        return None, problem_events
+
+    # Check for more than 30 minute gap between time steps
+    if (df['time_since_last_minutes'] > 30).any(): 
+        if verbose:
+            print(f"More than 30 minute gap between each time step")
+        problem_events += 1
+        return None, problem_events
+
+    # Check if it contains more than 1 non-zero value in 'precipitation (mm/hr)'
+    if not len(df[df['precipitation (mm/hr)'] > 0]) > 2:
+        if verbose:
+            print(f"Doesn't contain more than 1 value which isn't 0")
+        problem_events += 1
+        return None, problem_events
+
+    # Check for any NaN values in 'precipitation (mm/hr)'
+    if df['precipitation (mm/hr)'].isna().any():
+        if verbose:
+            print(f"Contains NANs")
+        problem_events += 1
+        return None, problem_events
+
+    return df, problem_events
+
+
+def create_cumulative_event(rainfall):
+    if rainfall is None:
+        return None
+    # Calculate cumulative rainfall
+    cumulative_rainfall = np.cumsum(rainfall)
+    
+    return cumulative_rainfall.tolist()
+
+def create_normalised_event(rainfall):
+    # Check if the input array is None or empty
+    if rainfall is None or len(rainfall) == 0:
+        # print("Input array is None or empty. Cannot normalize.")
+        return None
+
+    # Check if the maximum value is zero to avoid division by zero
+    if np.max(rainfall) == 0:
+        print("Maximum rainfall is zero. Cannot normalize.")
+        return rainfall  # Return the input as-is, or handle appropriately
+
+    # Normalize rainfall from 0 to 1 using the maximum value
+    normalized_rainfall = rainfall / np.max(rainfall)
+    normalized_rainfall = normalized_rainfall.to_list()
+
+    # Debug prints to check the input and output
+    return normalized_rainfall
+
+
+
 def add_duration_cats_predetermined(df):
     '''
     Based on categories determined by RVH in order to have same number of events in each category.
@@ -55,68 +146,6 @@ def extract_year(df):
     # Extract the year
     return df['times'].dt.year[0]
 
-
-def remove_leading_and_trailing_zeroes(df, threshold = 0.005):
-    
-    # Identify the start and end of the event where values are above the threshold
-    event_start = df[df['precipitation (mm)'] >= threshold].index.min()
-    event_end = df[df['precipitation (mm)'] >= threshold].index.max()
-
-    # Handle cases where no values are above the threshold
-    if pd.isna(event_start) or pd.isna(event_end):
-        print("No events found with precipitation >= threshold.")
-    else:
-        # Remove values < threshold from the start and end of the event
-        trimmed_test = df.loc[event_start:event_end].reset_index(drop=True)
-
-    return trimmed_test
-
-def remove_events_with_problems(df, verbose=True):
-    problem_events = 0
-    
-    # Check if the DataFrame is too short to be an event
-    if len(df) < 2:
-        if verbose:
-            print(f"Too short to be an event")
-        problem_events += 1
-        return None, problem_events
-
-    # Check for more than 30 minute gap between time steps
-    if (df['time_since_last_minutes'] > 30).any(): 
-        if verbose:
-            print(f"More than 30 minute gap between each time step")
-        problem_events += 1
-        return None, problem_events
-
-    # Check if it contains more than 1 non-zero value in 'precipitation (mm/hr)'
-    if not len(df[df['precipitation (mm/hr)'] > 0]) > 2:
-        if verbose:
-            print(f"Doesn't contain more than 1 value which isn't 0")
-        problem_events += 1
-        return None, problem_events
-
-    # Check for any NaN values in 'precipitation (mm/hr)'
-    if df['precipitation (mm/hr)'].isna().any():
-        if verbose:
-            print(f"Contains NANs")
-        problem_events += 1
-        return None, problem_events
-
-    return df, problem_events
-
-
-def read_event(gauge_num, fp):
-    test = pd.read_csv(fp)
-    test['timestamp'] = pd.to_datetime(test['times'], errors='coerce')
-    test['time_since_last_minutes'] = test['timestamp'].diff().fillna(pd.Timedelta(seconds=0)).dt.total_seconds() / 60#
-    # Detect rows where coercion occurred
-    invalid_dates = test[test['timestamp'].isna()]
-
-    if not invalid_dates.empty:
-        print("Some dates were invalid and have been coerced to NaT:")
-        # print(invalid_dates)
-    
-    return test
 
 def find_duration(file):
     # Find duration from file name
@@ -225,32 +254,6 @@ def get_season(date_str, date_format='%Y-%m-%d %H:%M:%S'):
     # print(date_str, season)
     return season    
 
-def create_normalised_event(rainfall):
-    # Check if the input array is None or empty
-    if rainfall is None or len(rainfall) == 0:
-        # print("Input array is None or empty. Cannot normalize.")
-        return None
-
-    # Check if the maximum value is zero to avoid division by zero
-    if np.max(rainfall) == 0:
-        print("Maximum rainfall is zero. Cannot normalize.")
-        return rainfall  # Return the input as-is, or handle appropriately
-
-    # Normalize rainfall from 0 to 1 using the maximum value
-    normalized_rainfall = rainfall / np.max(rainfall)
-    normalized_rainfall = normalized_rainfall.to_list()
-
-    # Debug prints to check the input and output
-    return normalized_rainfall
-
-
-def create_cumulative_event(rainfall):
-    if rainfall is None:
-        return None
-    # Calculate cumulative rainfall
-    cumulative_rainfall = np.cumsum(rainfall)
-    
-    return cumulative_rainfall.tolist()
 
 def interpolate_rainfall(rainfall, bin_number):
     if rainfall is None or len(rainfall) < 2:
