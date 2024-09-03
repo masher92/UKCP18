@@ -31,15 +31,22 @@ from Prepare_Data_Functions import *
 pd.set_option('display.float_format', '{:.3f}'.format)
 warnings.filterwarnings("ignore", category=UserWarning)
 
-yrs_range= '2060_2081'
-em = 'bb189'
-gauge_num = int(sys.argv[2])
-yr = int(sys.argv[1])
+yrs_range= sys.argv[4]
+em = sys.argv[1]
+gauge_num = int(sys.argv[3])
+yr = int(sys.argv[2])
+timeperiod = sys.argv[5]
+print(em)
+
+if timeperiod == 'Future':
+    sample_yr=2066
+elif timeperiod == 'Present':
+    sample_yr=2006
 
 # Get Tb0 values at each gauge
 tbo_vals = pd.read_csv('/nfs/a319/gy17m2a/PhD/datadir/RainGauge/interarrival_thresholds_CDD_noMissing.txt')
 # Read in a sample cube for finding the location of gauge in grid
-sample_cube = iris.load(f'/nfs/a319/gy17m2a/PhD/datadir/UKCP18_every30mins/2.2km_bng/{yrs_range}/{em}/bng_{em}a.pr206101.nc')[0][1,:,:]
+sample_cube = iris.load(f'/nfs/a319/gy17m2a/PhD/datadir/UKCP18_every30mins/2.2km_bng/{yrs_range}/{em}/bng_{em}a.pr{sample_yr}01.nc')[0][1,:,:]
 
 ######################################################
 ### Get all the data for one year, into one cube
@@ -47,6 +54,7 @@ sample_cube = iris.load(f'/nfs/a319/gy17m2a/PhD/datadir/UKCP18_every30mins/2.2km
 ######################################################
 general_filename = f'/nfs/a319/gy17m2a/PhD/datadir/UKCP18_every30mins/2.2km_bng/{yrs_range}/{em}/bng_{em}a.pr{yr}*'
 pickle_file_filepath = f"/nfs/a319/gy17m2a/PhD/datadir/cache/UKCP18_30mins_{em}/WholeYear/cube_{yr}.pkl"
+print(pickle_file_filepath)
 
 if os.path.exists(pickle_file_filepath):
     print("Pickle file exists, so loading that")
@@ -81,11 +89,12 @@ Tb0, idx_2d = find_gauge_Tb0_and_location_in_grid(tbo_vals, gauge_num, sample_cu
 # Function to process each gauge
 print(f"gauge num is {gauge_num}")             
 
-base_dir = f"/nfs/a161/gy17m2a/PhD/ProcessedData/IndependentEvents/UKCP18_30mins/{em}/{gauge_num}/WholeYear"
+base_dir = f"/nfs/a161/gy17m2a/PhD/ProcessedData/IndependentEvents/UKCP18_30mins/{timeperiod}/{em}/{gauge_num}/WholeYear"
 # Create the directory if it doesnt exist
 if not os.path.isdir(base_dir):
     os.makedirs(base_dir)
 
+print(full_year_cube.shape)      
 ######################################################
 ## Check if any files are missing, across the 3 filtering options
 # If there are: code will continue to run
@@ -127,10 +136,11 @@ if missing_files:
             for num, event in enumerate(events_v2):
                 if len(event) > 1:
                         event.to_csv(f"{base_dir}/{duration}hrs_{yr}_v2_part{num}.csv")
+                        print(f"{base_dir}/{duration}hrs_{yr}_v2_part{num}.csv")
                         if event['precipitation (mm/hr)'].isna().any():
                             print("NANs in this event")
         else:
             print(f"already exists{filename}")
             pass   
 else:
-    print("FIles all already exist")
+    print("Files all already exist")
