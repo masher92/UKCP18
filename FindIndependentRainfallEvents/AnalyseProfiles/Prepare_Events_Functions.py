@@ -3,6 +3,9 @@ import pandas as pd
 import matplotlib.pyplot as plt    
 import pickle
 
+def map_to_time_period(source, present_future_lookup):
+    return present_future_lookup[source]  
+
 def is_multiple_of_5(lst):
     return len(lst) % 5 == 0
 
@@ -15,6 +18,55 @@ def amalgamate_loadings(value):
         return 'B'
     else:
         return 'C'
+
+def keep_top_x_percent(percent_to_keep, dataframe):
+    percentile = 100-percent_to_keep
+    # Calculate the cutoff for the top 10%
+    cutoff = np.percentile(dataframe['Volume'], percentile)
+
+    # Get indices of values in the top 10%
+    top_x_percent_indices = [i for i, x in enumerate(dataframe['Volume']) if x >= cutoff]
+
+    # Get just these rows of the dataframe
+    top_x_percent_df = dataframe.iloc[top_x_percent_indices]
+
+    return top_x_percent_df    
+    
+# Function to calculate percentages for each ensemble member
+def prepare_combined_data(dataframes, split_variable, ids, present_future_lookup):
+    combined_data = []
+    # to exclude nimrod
+    for member in ids[1:]:
+        # Calculate frequency and then normalize to get percentage
+        df = dataframes[member][split_variable].value_counts(normalize=True).reset_index()
+        df.columns = [split_variable, 'Percentage']
+        df['Percentage'] *= 100  # Convert to percentage
+        df['Source'] = member  # Label the source
+        combined_data.append(df)
+    
+    combined_df = pd.concat(combined_data)
+    combined_df['TimePeriod'] = combined_df['Source'].apply(lambda x: map_to_time_period(x, present_future_lookup))
+    combined_df[f'{split_variable}_TimePeriod'] = str(combined_df[split_variable]) + '_' + combined_df['TimePeriod']
+    combined_df = combined_df.reset_index(level=0, drop=True)
+    
+    return combined_df   
+    
+    
+# Define a function to extract the month from the first timestamp
+def extract_month(timestamps):
+    # Check if timestamps is a valid array-like object
+    if isinstance(timestamps, (np.ndarray, list)) and len(timestamps) > 0:
+        # Check if the first element is not None and not NaN
+        first_timestamp = timestamps[0]
+        if pd.notna(first_timestamp):
+            try:
+                # Convert to datetime object
+                datetime_obj = pd.to_datetime(first_timestamp)
+                # Extract month
+                return datetime_obj.month
+            except (ValueError, TypeError):
+                return np.nan  # Return NaN if conversion fails
+    return np.nan 
 
 def extract_year(df):
     if df is not None and 'times' in df.columns:

@@ -3,57 +3,59 @@ from sklearn.cluster import KMeans
 import numpy as np
 import pandas as pd
 
-def plot_profiles_by_percentile(df, percent_10=90, percent_1=99):
+def plot_profiles_by_percentile(axs, df, percent_10=90, percent_1=99):
     """
     Plot profiles categorized by volume percentiles (top 1%, top 10%, and others).
     
     Parameters:
-    - volumes (array-like): Array of volumes.
-    - profiles (array-like): Array of profiles.
-    - max_quintiles (array-like): Array indicating max quintiles.
+    - axs: Array of Axes objects where the profiles will be plotted.
+    - df: DataFrame containing the data.
     - percent_10 (int, optional): Percentile for top 10% (default is 90).
     - percent_1 (int, optional): Percentile for top 1% (default is 99).
     """
-    volumes = ukcp18_present['Volume']
-    profiles = ukcp18_present['Profile']
-    max_quintiles =  ukcp18_present['max_quintile']
-
+    
+    volumes = df['Volume'].values
+    dimensionless_rainfall = df['dimensionless_cumulative_rainfall'].values
+    dimensionless_times = df['dimensionless_cumulative_times'].values
+    max_quintiles = df['max_quintile_steef'].values
+    
     # Calculate volume thresholds for top percentiles
     threshold_10_percent = np.percentile(volumes, percent_10)
     threshold_1_percent = np.percentile(volumes, percent_1)
 
-    # Prepare the subplots
-    fig, axs = plt.subplots(ncols=5, nrows=1, figsize=(13, 3), sharey=True)
-
     # Split profiles into top 1%, top 10%, and others
-    top_1_indices = np.where(volumes >= threshold_1_percent)[0]
-    top_10_indices = np.where((volumes >= threshold_10_percent) & (volumes < threshold_1_percent))[0]
-    other_indices = np.where(volumes < threshold_10_percent)[0]
+    top_1_mask = volumes >= threshold_1_percent
+    top_10_mask = (volumes >= threshold_10_percent) & ~top_1_mask
+    other_mask = ~top_10_mask & ~top_1_mask
 
-    # Function to plot profiles by indices
-    def plot_profiles(indices, color, zorder, label_suffix=''):
-        for idx in indices:
-            profile = profiles[idx]
-            segment = max_quintiles[idx] - 1
-            axs[segment].plot(profile, color=color, zorder=zorder, label=f'Profile{label_suffix}')
-
-    # Plot profiles in the order: others -> top 10% -> top 1%
-    plot_profiles(other_indices, color='lightgrey', zorder=1)  # Others with lowest z-order
-    plot_profiles(top_10_indices, color='plum', zorder=2, label_suffix=' (Top 10%)')  # Top 10%
-    plot_profiles(top_1_indices, color='darkmagenta', zorder=3, label_suffix=' (Top 1%)')  # Top 1% with highest z-order
-
-    # Adjust layout
-    fig.tight_layout()
-    fig.supylabel('Dimensionless rainfall Rd', x=-0.01)
-    plt.show()
-
-def create_mosaic_plot(ax, data, cross_variable1, cross_variable2, quintile_cats, include_all=False, filter_events=True):
-    data = data.copy()
-    #if "Loading_profile" in cross_variable2:
-    data[cross_variable2] = pd.Categorical(data[cross_variable2], categories=quintile_cats, ordered=True)
+    # Helper function to plot profiles
+    def plot_profiles(mask, color, zorder, label_suffix=''):
+        indices = np.where(mask)[0]
+        profiles = dimensionless_rainfall[indices]
+        times = dimensionless_times[indices]
+        segments = max_quintiles[indices] - 1
+        
+        for segment in range(len(axs)):
+            # Filter profiles for this segment
+            seg_mask = segments == segment
+            if np.any(seg_mask):
+                seg_profiles = profiles[seg_mask]
+                seg_times = times[seg_mask]
+                # Plot all profiles for this segment in one go
+                for profile, time in zip(seg_profiles, seg_times):
+                    axs[segment].plot(time, profile, color=color, zorder=zorder, label=f'Profile{label_suffix}')
     
-    if filter_events:
-        data = data[data['interpolated12_cumulative_rainfall'].notnull()]
+    # Plot profiles in the order: others -> top 10% -> top 1%
+    plot_profiles(other_mask, color='lightgrey', zorder=1)  # Others with lowest z-order
+    plot_profiles(top_10_mask, color='#d5bbdb', zorder=2, label_suffix=' (Top 10%)')  # Top 10%
+    plot_profiles(top_1_mask, color='#990448', zorder=3, label_suffix=' (Top 1%)')  # Top 1% with highest z-order
+
+    plt.tight_layout()
+
+def create_mosaic_plot(ax, data, quintile_cats, cross_variable1, cross_variable2, title= None, include_all=False):
+    data = data.copy()
+    
+    data[cross_variable2] = pd.Categorical(data[cross_variable2], categories=quintile_cats, ordered=True)
     
     # Count the occurrences and reshape for mosaic plot
     count_data = data.groupby([cross_variable1, cross_variable2]).size().unstack(fill_value=0)
@@ -99,13 +101,10 @@ def create_mosaic_plot(ax, data, cross_variable1, cross_variable2, quintile_cats
     ax.set_xticklabels([])  # Remove x-axis labels
     ax.xaxis.label.set_visible(False)  # Hide the x-axis label
     ax.invert_yaxis()  # Invert y-axis to match typical orientation
-
+    ax.set_title(title)
     
-    
-def create_single_variable_mosaic_plot_pctlabels(ax, data, split_variable, order, color_mapping, title, filter_events=True):
-    if filter_events == True:
-         data= data[data['interpolated12_cumulative_rainfall'].notnull()]
-            
+def create_single_variable_mosaic_plot_pctlabels(ax, data, split_variable, order, color_mapping, title):
+           
     # Count the occurrences and reshape for mosaic plot
     count_data = data[split_variable].value_counts().reindex(order, fill_value=0)
     
@@ -147,11 +146,9 @@ def create_single_variable_mosaic_plot_pctlabels(ax, data, split_variable, order
 #                 text.set_weight('bold')
             counter=counter+1
             
-        #print(f'Key: {key}, count {count} Percentage: {percentage:.2f}%, Label: {label}, x1: {x1}, x2: {x2}, y1: {y1}, y2: {y2}')
-
     for key, (x1, y1, x2, y2) in rects.items():
         if x1 == 0:  # Check if this is the leftmost bar
-            ax.text(x1-0.01, (y1 + y2) / 2, title, va='center', ha='right', fontsize=15, color='black', weight='bold')      
+            ax.text(x1-0.01, (y1 + y2) / 2, title, va='center', ha='right', fontsize=15, color='black', weight='bold')  
 
 def create_single_variable_mosaic_plot(ax, data, variable, order, color_mapping, label, filter_events):
     if filter_events == True:
