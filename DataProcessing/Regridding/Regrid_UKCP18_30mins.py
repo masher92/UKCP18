@@ -54,7 +54,7 @@ broadcasted_lsm_2km_30mins_data_reversed = ~broadcasted_lsm_2km_30mins_data.asty
 ##################################################################
 # 
 ##################################################################
-for em in ['bb198']:
+for em in ['bb192']:
     print(em)
     os.chdir(f"/nfs/a319/gy17m2a/PhD/datadir/UKCP18_every30mins/2.2km_original/{yrs_range}/{em}/")
     # establish paths to directories
