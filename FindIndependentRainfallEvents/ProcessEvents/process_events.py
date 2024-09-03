@@ -44,7 +44,7 @@ def create_dataframe_row(this_event):
 rows = []
 
 for em in [em]:
-    for gauge_num in range(0, 1293):
+    for gauge_num in gauge_nums:
         if gauge_num not in [444, 827, 888]:
             if gauge_num % 100 == 0:
                 print(f"Processing gauge {gauge_num}")
@@ -56,7 +56,10 @@ for em in [em]:
             else:
                 indy_events_fp = f"/nfs/a161/gy17m2a/PhD/ProcessedData/IndependentEvents/UKCP18_30mins/{time_period}/{em}/{gauge_num}/WholeYear/"
                 profiles_fp = f"/nfs/a319/gy17m2a/PhD/ProcessedData/Profiles/UKCP18_30mins/{time_period}/{em}/"
-
+            
+            if not os.path.isdir(profiles_fp):
+                os.makedirs(profiles_fp)
+            
             files = [f for f in os.listdir(indy_events_fp) if f.endswith('.csv')]
             files = np.sort(files)
 
