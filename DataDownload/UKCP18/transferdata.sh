@@ -33,13 +33,13 @@ do
                 echo "File for ${year}-${month}-${day} exists, skipping download."
             else
                 echo "File for ${year}-${month}-${day} is missing, starting download..."
-                scp masher92@xfer1.jasmin.ac.uk:/gws/nopw/j04/icasp_swf/masher/${em_code}/${file_pattern} ${dest_dir}
+                rsync -avzh --progress  masher92@xfer1.jasmin.ac.uk:/gws/nopw/j04/icasp_swf/masher/${em_code}/${file_pattern} ${dest_dir}
             fi
         done
     done
 done
 
-
+# rsync -avzh --progress  masher92@xfer1.jasmin.ac.uk:/gws/nopw/j04/icasp_swf/masher/bb195/bb195a.pr20610930.pp /nfs/a319/gy17m2a/PhD/datadir/UKCP18_first30mins/2060_2081/${em_code}/
 
 
 

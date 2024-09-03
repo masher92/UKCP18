@@ -31,7 +31,8 @@ leeds_at_centre_gdf = create_leeds_at_centre_outline({'init' :'epsg:3857'})
 # ### Establish the corresponding ensemble member numbers
 em_matching_dict = {'01':'bc005', '04': 'bc006', '05': 'bc007', '06':'bc009',  '07':'bc010', 
                     '08': 'bc011', '09':'bc013', '10': 'bc015', '11': 'bc016', '12': 'bc017', '13':'bc018', '15':'bc012'}
-em_matching_dict = {'01':'bb198'}
+em_matching_dict = {'01':'bb189', '04': 'bb192' ,'06':'bb198', '07':'bb201', '08':'bb204', '09':"bb211", '10':"bb216", '11':'bb219',
+                   '12':'bb222','13':'bb225', '15':'bb208'}
 
 resolution = '2.2km_original'
 yrs_range = "2060_2081"
