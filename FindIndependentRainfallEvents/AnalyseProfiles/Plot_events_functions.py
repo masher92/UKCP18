@@ -2,6 +2,7 @@ from statsmodels.graphics.mosaicplot import mosaic
 from sklearn.cluster import KMeans
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt  
 
 def plot_profiles_by_percentile(axs, df, percent_10=90, percent_1=99):
     """
@@ -129,6 +130,12 @@ def create_single_variable_mosaic_plot_pctlabels(ax, data, split_variable, order
     fig, rects = mosaic(mosaic_data, title='', labelizer = labelizer, properties=props, ax=ax, gap=0.015, horizontal=True)
     ax.invert_yaxis()  # Optional: Invert y-axis to match standard bar plot orientation
     ax.set_xticklabels([])  # Remove x-axis labels
+    
+    the_ls = range(0,len(order))
+    if split_variable == 'Loading_profile_molly': 
+        the_ls = [the_ls[0]] + [x * 6 for x in the_ls[1:]]
+    else:
+        the_ls = [the_ls[0]] + [x * 4 for x in the_ls[1:]]
 
     # Manually replace the labels with percentage labels
     counter=0
@@ -136,14 +143,13 @@ def create_single_variable_mosaic_plot_pctlabels(ax, data, split_variable, order
         count = mosaic_data[key[0]]
         percentage = (count / total_count) * 100
         label = f'{percentage:.2f}%'
-        #print(counter)
+        
         # Find the label at this position and replace its text
         for text in ax.texts:
-            if counter in [0,6,12,18,24]:
+            if counter in the_ls:
                 text.set_text(label)
                 text.set_fontsize(10)
                 text.set_color('black')
-#                 text.set_weight('bold')
             counter=counter+1
             
     for key, (x1, y1, x2, y2) in rects.items():
@@ -211,16 +217,6 @@ def interpolate_and_bin(normalized_time, normalized_rainfall):
     return interpolated_values
 
 
-def create_kmeans_centroids(profiles, num_clusters):
-    
-    # Create and fit the model
-    kmeans = KMeans(n_clusters=num_clusters, random_state=42, n_init=10, max_iter=300)
-    kmeans.fit(profiles)
-
-    # Get cluster labels for each profile
-    labels = kmeans.labels_
-    centroids = kmeans.cluster_centers_
-    return centroids
 
 def create_interpolated_profiles(df):
     interpolated_profiles = []
@@ -231,22 +227,7 @@ def create_interpolated_profiles(df):
         interpolated_profiles.append(normalized_interpolated_rainfall)    
     return interpolated_profiles
 
-def find_quintile_with_max_value(intensities):
-    
-    # Number of elements in each quintile
-    quintile_size = len(intensities) // 5
-    
-    # Calculate the indices that will split the array into quintiles
-    quintile_indices = [i * quintile_size for i in range(1, 5)] + [len(intensities)]
-    
-    # Split the array into quintiles
-    quintiles = np.array_split(intensities, 5)
-    
-    # Find the quintile that contains the maximum value
-    max_value = np.max(intensities)
-    for i, quintile in enumerate(quintiles):
-        if max_value in quintile:
-            return i
+
         
 def plot_monthly_spread_bydataset(ax, data, color, name):
     # Drop rows where 'month' is NaN
@@ -313,34 +294,6 @@ def plot_monthly_spread_byduration(ax, nimrod, bc005, bb198, bb189, lower_limit,
 
         ax.set_xlabel('Month')
         ax.set_title(title)
-
-        
-        
-def plot_centroids(axs, row, centroids, color):
-    for num, centroid_cumulative in enumerate(centroids):
-
-        # Time in hours
-        time_hours = np.arange(len(centroid_cumulative))  
-
-        # Convert cumulative to intensity (mm/hour)
-        intensity = np.diff(centroid_cumulative) / np.diff(time_hours)
-
-        # Calculate average intensity
-        average_intensity = np.sum(intensity) / (time_hours[-1] - time_hours[0])
-
-        # Normalize intensity by average intensity
-        normalized_intensity = intensity / average_intensity
-
-        # Find portion which is heaviest
-        # heaviest_segment = categorize_normalized_rainstorm(centroid_cumulative)
-        quintile_with_max_value = find_quintile_with_max_value(intensity)
-        i = quintile_with_max_value
-        
-        axs[row, i].plot(time_hours[1:], normalized_intensity, color=color, linestyle='-')
-        
-        if row == 0:
-            axs[row, i].set_title(f'Quintile {i + 1}')   
-            
             
 def calculate_center_of_mass(rainfall_event):
     total_rainfall = np.sum(rainfall_event)
@@ -348,25 +301,6 @@ def calculate_center_of_mass(rainfall_event):
     center_of_mass = np.sum(time_steps * rainfall_event) / total_rainfall
     return center_of_mass
 
-def categorize_rainfall_events_five(rainfall_events):
-    categories = {'F2': 0, 'F1': 0, 'C': 0, 'B1': 0, 'B2': 0}
-    total_events = len(rainfall_events)
-    
-    for event in rainfall_events:
-        center_of_mass = calculate_center_of_mass(event)
-        normalized_com = center_of_mass / len(event)
-        
-        # Categorize based on the normalized center of mass
-        if normalized_com < 0.2:
-            categories['F2'] += 1
-        elif 0.2 <= normalized_com < 0.4:
-            categories['F1'] += 1
-        elif 0.4 <= normalized_com < 0.6:
-            categories['C'] += 1
-        elif 0.6 <= normalized_com < 0.8:
-            categories['B1'] += 1
-        elif 0.8 <= normalized_com <= 1:
-            categories['B2'] += 1
     
 def categorize_rainfall_events_five(rainfall_events):
     categories = {'F2': 0, 'F1': 0, 'C': 0, 'B1': 0, 'B2': 0}

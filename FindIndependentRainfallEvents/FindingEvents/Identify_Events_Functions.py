@@ -357,7 +357,7 @@ def find_position_obs (concat_cube, rain_gauge_lat, rain_gauge_lon, plot_radius 
     # Create a list of all the tuple positions
     indexs_lst = [(i, j) for i in range(lat_length) for j in range(lon_length)]
     selected_index = indexs_lst[closest_point_idx]
-    print(selected_index)
+    # print(selected_index)
     
     # Check if the selected index is masked and find a nearby valid index if necessary
     # Define the search order of neighboring cells relative to the original index

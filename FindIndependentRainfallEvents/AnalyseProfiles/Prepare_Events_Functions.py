@@ -3,6 +3,10 @@ import pandas as pd
 import matplotlib.pyplot as plt    
 import pickle
 
+def from_5_to_3(loading_cat_5):
+    mapping = {'F2':'F', 'F1':'F', 'C':'C', 'B1': 'B', 'B2':'B'}
+    return mapping[loading_cat_5]
+
 def map_to_time_period(source, present_future_lookup):
     return present_future_lookup[source]  
 
@@ -18,7 +22,7 @@ def amalgamate_loadings(value):
         return 'B'
     else:
         return 'C'
-
+    
 def keep_top_x_percent(percent_to_keep, dataframe):
     percentile = 100-percent_to_keep
     # Calculate the cutoff for the top 10%

@@ -21,16 +21,15 @@ def interpolate_rainfall(rainfall, bin_number):
     
     return interpolated_values, target_points
 
-def find_max_quintile (precip):
-    if precip is None:
-        return None
-    else:
-        cumulative_rainfall, cumulative_rainfall_times = create_cumulative_event(precip)
-        dimensionless_cumulative_rainfall, dimensionless_times =  create_dimensionless_event(cumulative_rainfall, cumulative_rainfall_times)
-        interpolated5_cumulative_rainfall, interpolated5_times = interpolate_rainfall(dimensionless_cumulative_rainfall,5)
-        interpolated5_incremental_rainfall = create_incremental_event(interpolated5_cumulative_rainfall)
-        max_quintile_profile_5 = find_part_with_most_rain(interpolated5_incremental_rainfall, 5)
-        return max_quintile_profile_5
+def find_max_quintile (precip, n):
+    # Difference with this to Huff curve function, is it doesnt normalise
+    cumulative_rainfall, cumulative_rainfall_times = create_cumulative_event(precip)
+    dimensionless_cumulative_rainfall, dimensionless_times =  create_dimensionless_event(cumulative_rainfall, cumulative_rainfall_times)
+    interpolated_n_cumulative_rainfall, interpolated_n_times = interpolate_rainfall(dimensionless_cumulative_rainfall,n)
+    interpolated_n_incremental_rainfall = create_incremental_event(interpolated_n_cumulative_rainfall)
+    max_quintile_profile = find_part_with_most_rain(interpolated_n_incremental_rainfall, n)
+    
+    return max_quintile_profile 
 
 
 def interpolate_rainfall_chatgpt(rainfall, bin_number):
