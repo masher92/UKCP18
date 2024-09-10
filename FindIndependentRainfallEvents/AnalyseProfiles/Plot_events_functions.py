@@ -327,4 +327,56 @@ def categorize_rainfall_events_five(rainfall_events):
         categories[key] = round(categories[key] /total_events,2)
 #         categories[key] /= total_events
     
-    return categories            
+    return categories     
+
+
+def create_contingency_table(data, cross_variable_col, quintile_cats, loading_col):  
+    data=data.copy()
+    data[loading_col] = pd.Categorical(data[loading_col], categories=quintile_cats, ordered=True)
+    
+    # Create a contingency table
+    contingency_table = pd.crosstab(data[cross_variable_col], data[loading_col])
+
+    # Convert counts to row-wise proportions (percentages)
+    row_proportional_table = contingency_table.div(contingency_table.sum(axis=1), axis=0) * 100
+
+    # Round to 1 decimal place
+    row_proportional_table = row_proportional_table.round(1)
+
+    # Calculate the overall proportion for each loading category
+    total_counts = contingency_table.sum(axis=0)  # Sum across all duration categories
+    overall_proportion = (total_counts / total_counts.sum()) * 100  # Divide by total count to get percentage
+    overall_proportion = overall_proportion.round(1)
+
+    # Add the 'All' row to the proportional table
+    row_proportional_table.loc['All'] = overall_proportion
+
+    # Convert the proportional table to a list of lists for tabulate
+    table_data = row_proportional_table.reset_index().values.tolist()
+    headers = ['DurationCategory'] + row_proportional_table.columns.tolist()
+
+    # Print the formatted table using tabulate
+    print("Proportional Contingency Table with 'All' Row:")
+    print(tabulate(table_data, headers=headers, tablefmt='pretty'))
+    
+    
+def create_absolute_contingency_table(data, cross_variable_col, quintile_cats,loading_col ):
+    data=data.copy()
+    data[loading_col] = pd.Categorical(data[loading_col], categories=quintile_cats, ordered=True)
+    
+    # Create a contingency table with absolute counts
+    contingency_table = pd.crosstab(data[cross_variable_col], data[loading_col])
+
+    # Calculate the overall sum for each loading category
+    overall_counts = contingency_table.sum(axis=0)  # Sum across all duration categories
+
+    # Add the 'All' row with the overall counts
+    contingency_table.loc['All'] = overall_counts
+
+    # Convert the absolute contingency table to a list of lists for tabulate
+    table_data = contingency_table.reset_index().values.tolist()
+    headers = [cross_variable_col] + list(contingency_table.columns)
+
+    # Print the formatted table using tabulate
+    print("Absolute Contingency Table with 'All' Row:")
+    print(tabulate(table_data, headers=headers, tablefmt='pretty'))    
