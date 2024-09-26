@@ -414,7 +414,7 @@ def plot_histogram_weighted (individual_cell_values_dict, profiles_name, profile
         
         
         dfs.append(df)
-    fig.suptitle(profiles_name, fontsize= 30)
+    fig.suptitle(profiles_name, fontsize= 30, y=1.02)    
     if filter_out_water == False:
         fp_to_save = "Figs/Histograms/{}_Histograms.PNG".format(profiles_name_short)
         fig.savefig(fp_to_save, bbox_inches='tight')
@@ -422,12 +422,12 @@ def plot_histogram_weighted (individual_cell_values_dict, profiles_name, profile
         fp_to_save = "Figs/Histograms/{}_Histograms_withoutwater.PNG".format(profiles_name_short)
         fig.savefig(fp_to_save, bbox_inches='tight')
     print(fp_to_save)
-    return dfs
+    return dfs    
 
 def hazard_plot(individual_cell_values_dict,  profiles_name, profiles_name_short, smallest_method_str,
                     largest_method_str,filter_out_water, title = True):
     
-    fig, axs = plt.subplots(ncols= 2, nrows=1, sharey=False,figsize = (12,3), gridspec_kw={'hspace':1, 'wspace': 0.2})
+    fig, axs = plt.subplots(ncols=2, nrows=1, sharey=False, figsize=(11, 3), gridspec_kw={'hspace': 0.5, 'wspace': 0.3})
     catchments = ['LinDyke', 'WykeBeck']
     hazard_cats_ls = []
     ##############################
@@ -475,7 +475,7 @@ def hazard_plot(individual_cell_values_dict,  profiles_name, profiles_name_short
         
         hazard_cats_ls.append(hazard_cats)
         
-    fig.suptitle(profiles_name, fontsize=20, y=1.085)    
+    fig.suptitle(profiles_name, fontsize=30, y=1.1)    
     if filter_out_water == False:
         fp_to_save =  "Figs/HazardPlots/{}_HazardCats.PNG".format(profiles_name_short)
         fig.savefig(fp_to_save, bbox_inches='tight')
@@ -483,4 +483,140 @@ def hazard_plot(individual_cell_values_dict,  profiles_name, profiles_name_short
         fp_to_save = "Figs/HazardPlots/{}_HazardCats_withoutwater.PNG".format(profiles_name_short)
         fig.savefig(fp_to_save, bbox_inches='tight')
     print(fp_to_save)
-    # return(hazard_cats_ls)
+    
+    
+def depth_hazard_plot_ax(individual_cell_values_dict, profiles_name, profiles_name_short, 
+                         smallest_method_str, largest_method_str, filter_out_water, ax_ld, ax_wb, title=True):
+    # Define bins and labels for Depth
+    depth_bins = [0.1, 0.3, 0.6, 1.2, 3]  # Depth bin edges
+    depth_labels = [f'{i}-{j}m' for i, j in zip(depth_bins[:-1], depth_bins[1:])] + ['>3m']
+    
+    catchments = ['LinDyke', 'WykeBeck']
+    axs = [ax_ld, ax_wb]
+    
+    for catchment_name, ax in zip(catchments, axs):
+        if catchment_name == "LinDyke":
+            cell_size_in_m2 = 1
+        elif catchment_name == "WykeBeck":
+            cell_size_in_m2 = 4
+
+        individual_cell_values = individual_cell_values_dict[catchment_name]
+
+        if filter_out_water:
+            individual_cell_values = individual_cell_values[individual_cell_values['Water_class'] == 15]
+
+        # Bin Depth values
+        individual_cell_values['Depth_cat'] = pd.cut(individual_cell_values['Depth'], 
+                                                     bins=depth_bins + [np.inf], 
+                                                     labels=depth_labels, 
+                                                     right=False)
+
+        largest_method = individual_cell_values[individual_cell_values['short_id'] == largest_method_str]
+        smallest_method = individual_cell_values[individual_cell_values['short_id'] == smallest_method_str]
+
+        largest_method_val = largest_method['Depth_cat'].value_counts(sort=False).reindex(depth_labels, fill_value=0)
+        smallest_method_val = smallest_method['Depth_cat'].value_counts(sort=False).reindex(depth_labels, fill_value=0)
+
+        largest_method_val = largest_method_val * (cell_size_in_m2 / 1000000)
+        smallest_method_val = smallest_method_val * (cell_size_in_m2 / 1000000)
+
+        depth_cats = pd.DataFrame({
+            'Depth_cat': depth_labels,
+            smallest_method_str: smallest_method_val.values,
+            largest_method_str: largest_method_val.values
+        })
+
+        depth_cats.set_index('Depth_cat').plot.bar(ax=ax, rot=0, width=0.8, color=['darkblue', 'darkred'])
+        
+        if title:
+            ax.set_title(catchment_name, fontsize=15)
+        ax.set_ylabel("Area (km²)")
+        ax.set_xlabel('')
+
+
+def velocity_hazard_plot_ax(individual_cell_values_dict, profiles_name, profiles_name_short, 
+                            smallest_method_str, largest_method_str, filter_out_water, ax_ld, ax_wb, title=True):
+    velocity_bins = [0, 0.25, 0.5, 2, 3]  # Velocity bin edges
+    velocity_labels = [f'{i}-{j}m/s' for i, j in zip(velocity_bins[:-1], velocity_bins[1:])] + ['>3m/s']
+
+    catchments = ['LinDyke', 'WykeBeck']
+    axs = [ax_ld, ax_wb]
+
+    for catchment_name, ax in zip(catchments, axs):
+        if catchment_name == "LinDyke":
+            cell_size_in_m2 = 1
+        elif catchment_name == "WykeBeck":
+            cell_size_in_m2 = 4
+
+        individual_cell_values = individual_cell_values_dict[catchment_name]
+
+        if filter_out_water:
+            individual_cell_values = individual_cell_values[individual_cell_values['Water_class'] == 15]
+
+        individual_cell_values['Velocity_cat'] = pd.cut(individual_cell_values['Velocity'], 
+                                                        bins=velocity_bins + [np.inf], 
+                                                        labels=velocity_labels, 
+                                                        right=False)
+
+        largest_method = individual_cell_values[individual_cell_values['short_id'] == largest_method_str]
+        smallest_method = individual_cell_values[individual_cell_values['short_id'] == smallest_method_str]
+
+        largest_method_val = largest_method['Velocity_cat'].value_counts(sort=False).reindex(velocity_labels, fill_value=0)
+        smallest_method_val = smallest_method['Velocity_cat'].value_counts(sort=False).reindex(velocity_labels, fill_value=0)
+
+        largest_method_val = largest_method_val * (cell_size_in_m2 / 1000000)
+        smallest_method_val = smallest_method_val * (cell_size_in_m2 / 1000000)
+
+        velocity_cats = pd.DataFrame({
+            'Velocity_cat': velocity_labels,
+            smallest_method_str: smallest_method_val.values,
+            largest_method_str: largest_method_val.values
+        })
+
+        velocity_cats.set_index('Velocity_cat').plot.bar(ax=ax, rot=0, width=0.8, color=['darkblue', 'darkred'])
+        
+        if title:
+            ax.set_title(catchment_name, fontsize=15)
+        ax.set_ylabel("Area (km²)")
+        ax.set_xlabel('')
+
+    
+def hazard_plot_ax(individual_cell_values_dict, profiles_name, profiles_name_short, 
+                   smallest_method_str, largest_method_str, filter_out_water, ax_ld, ax_wb, title=True):
+    hazard_labels = ['Low', 'Moderate', 'Significant', 'Extreme']
+
+    catchments = ['LinDyke', 'WykeBeck']
+    axs = [ax_ld, ax_wb]
+
+    for catchment_name, ax in zip(catchments, axs):
+        if catchment_name == "LinDyke":
+            cell_size_in_m2 = 1
+        elif catchment_name == "WykeBeck":
+            cell_size_in_m2 = 4
+
+        individual_cell_values = individual_cell_values_dict[catchment_name]
+
+        if filter_out_water:
+            individual_cell_values = individual_cell_values[individual_cell_values['Water_class'] == 15]
+
+        largest_method = individual_cell_values[individual_cell_values['short_id'] == largest_method_str]
+        smallest_method = individual_cell_values[individual_cell_values['short_id'] == smallest_method_str]
+
+        largest_method_val = np.unique(largest_method['Hazard'], return_counts=True)[1]
+        smallest_method_val = np.unique(smallest_method['Hazard'], return_counts=True)[1]
+
+        largest_method_val = largest_method_val * (cell_size_in_m2 / 1000000)
+        smallest_method_val = smallest_method_val * (cell_size_in_m2 / 1000000)
+
+        hazard_cats = pd.DataFrame({
+            'Hazard_cat': hazard_labels,
+            smallest_method_str: smallest_method_val,
+            largest_method_str: largest_method_val
+        })
+
+        hazard_cats.set_index('Hazard_cat').plot.bar(ax=ax, rot=0, width=0.8, color=['darkblue', 'darkred'])
+
+        if title:
+            ax.set_title(catchment_name, fontsize=15)
+        ax.set_ylabel("Area (km²)")
+        ax.set_xlabel('')
