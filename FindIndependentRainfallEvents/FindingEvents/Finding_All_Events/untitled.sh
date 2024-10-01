@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define the total number of gauges and the batch size
-total_gauges=900
+total_gauges=3
 batch_size=20
 start_gauge=0 # Starting gauge number
 em="bb198" # Define or pass this variable

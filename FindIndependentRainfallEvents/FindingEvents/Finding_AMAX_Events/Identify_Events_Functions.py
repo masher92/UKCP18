@@ -14,6 +14,20 @@ from pyproj import Proj, transform
 import warnings
 import os
 
+def convert_timeformat_array (example_time_coord, array_of_unformatted_times):
+    formatted_dates = []
+    # Convert each time point and store as a formatted string
+    for time_point in array_of_unformatted_times:
+        # Convert to datetime using the units of the DimCoord
+        converted_time = example_time_coord.units.num2date(time_point)  # Convert to datetime object
+        # Format datetime object as a string
+        time_string = converted_time.strftime('%Y-%m-%d %H:%M:%S')
+        # Append formatted time to the list
+        formatted_dates.append(time_string)
+    formatted_dates_array = np.array(formatted_dates)    
+    return formatted_dates_array
+
+
 def filtered_cube (cube, filter_above):
     '''
     Set values below 0, or above threshold defined in function input to np.nan

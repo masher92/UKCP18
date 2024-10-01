@@ -1,4 +1,155 @@
 import numpy as np
+from datetime import datetime
+import cftime
+
+def convert_timeformat_array(time_coord, time_points):
+    """
+    Convert time points from Iris time coordinates to human-readable datetime format.
+    
+    Parameters:
+    - time_coord: The time coordinate from the Iris cube (e.g., cube.coord('time'))
+    - time_points: The array of numerical time points to be converted (e.g., time_coord.points)
+    
+    Returns:
+    - A list of human-readable datetime strings corresponding to the time points.
+    """
+    # Get the units and calendar from the time coordinate
+    time_unit = time_coord.units
+    calendar = time_coord.units.calendar
+    
+    # Convert the time points to datetime objects
+    datetimes = [cftime.num2date(time, time_unit.origin, calendar) for time in time_points]
+    
+    # Format the datetimes into human-readable strings (e.g., YYYY-MM-DD HH:MM:SS)
+    formatted_times = [dt.strftime('%Y-%m-%d %H:%M:%S') for dt in datetimes]
+    
+    return formatted_times
+
+
+def remove_leading_and_trailing_values(arr, threshold=0.1):
+    """
+    Remove leading and trailing values less than the threshold from a numpy array.
+    
+    Parameters:
+    - arr: numpy array of precipitation values.
+    - threshold: Values below this threshold will be considered for removal at the front and end of the array.
+    
+    Returns:
+    - A numpy array with leading and trailing values less than the threshold removed.
+    """
+    # Remove leading values below the threshold
+    start_idx = 0
+    while start_idx < len(arr) and arr[start_idx] < threshold:
+        start_idx += 1
+    
+    # Remove trailing values below the threshold
+    end_idx = len(arr)
+    while end_idx > start_idx and arr[end_idx - 1] < threshold:
+        end_idx -= 1
+    
+    return arr[start_idx:end_idx]
+
+def trim_arrays(precip_arr, time_arr, threshold=0.05):
+    """
+    Remove leading and trailing values less than the threshold from a precipitation array and its corresponding time array.
+    
+    Parameters:
+    - precip_arr: numpy array of precipitation values.
+    - time_arr: numpy array of corresponding time values.
+    - threshold: Values below this threshold will be considered for removal at the front and end of the precipitation array.
+    
+    Returns:
+    - Tuple of (trimmed_precip_array, trimmed_time_array)
+    """
+    # Ensure both arrays are of the same length
+    if len(precip_arr) != len(time_arr):
+        raise ValueError("Precipitation and time arrays must be the same length.")
+
+    # Remove leading values below the threshold
+    start_idx = 0
+    while start_idx < len(precip_arr) and precip_arr[start_idx] < threshold:
+        start_idx += 1
+    
+    # Remove trailing values below the threshold
+    end_idx = len(precip_arr)
+    while end_idx > start_idx and precip_arr[end_idx - 1] < threshold:
+        end_idx -= 1
+    
+    # Trim both arrays
+    trimmed_precip_array = precip_arr[start_idx:end_idx]
+    trimmed_time_array = time_arr[start_idx:end_idx]
+    
+    return trimmed_precip_array, trimmed_time_array
+
+def my_find_independent_events(precip_data, time_coord, Tb0, dry_threshold=0.05):
+    # Create a boolean array identifying dry periods (where rainfall <= dry_threshold)
+    is_timestep_dry = precip_data < dry_threshold
+
+    # Convert Tb0 to represent the number of 30-minute time steps
+    dry_window_size = int(Tb0 * 2) 
+    
+    # Create a boolean array which identifies which timesteps are in the middle of a period
+    # of length 'dry_window_size', which are all dry (according to is_timestep_dry)
+    # count = np.convolve(is_timestep_dry, np.ones(dry_window_size, dtype=int), mode='same') 
+    
+    # the convolution operation effectively counts how many "True" (1) values exist within a sliding window
+    # centered at each row (time step). The size of the window is defined by dry_window_size.
+    is_timestep_in_a_dry_interval = np.convolve(is_timestep_dry, np.ones(dry_window_size, dtype=int), mode='same') == dry_window_size
+
+    # Group non-dry periods into rainfall events
+    rainfall_events = []
+    start_index = None
+
+    # For each row in the precipitation data,
+    for i in range(len(precip_data)):
+         
+        # If it's a wet time step, then record this as the start of an event, and move to the next row
+        # This means whilst its raining, we will keep moving through the time steps
+        if is_timestep_dry[i] == False:
+            if start_index is None:
+                # Mark the start of a rainfall event
+                start_index = i  
+        
+        # If we encounter a dry time step, but we're not currently inside an event then we pass over it
+        # but don't need to specify this explicitly
+        # elif start_index is not None:
+        #    pass
+        
+        # If we encounter a dry time step, AND we already are within an event, but we're not within
+        # a sufficiently long dry spell for this dry timestep to end the event, then we pass over
+        # this time step to the next one.
+        # but don't need to specify this explicitly
+        # elif start_index is None and is_timestep_in_a_dry_interval[i] == False:  
+        #    pass
+        
+        # Once we get to a dry time step, AND we already are within an event, 
+        # AND we're within a sufficiently long dry spell for us to decide the event has ended 
+        # THEN: end the event and store it, and reset start_index, so we start recording a new
+        # event at the next wet time step
+        elif start_index is not None and is_timestep_in_a_dry_interval[i] == True:  
+            event_data = precip_data[start_index:i]
+            event_time_points = time_coord[start_index:i]
+            event_times = convert_timeformat_array(time_coord[0],event_time_points.points)
+            
+            # Trim leading and trailing zeroes
+            event_data, event_times = trim_arrays(event_data, event_times)
+            
+            rainfall_events.append((event_data, event_times))
+            # Reset start index for the next event
+            start_index = None  
+
+    # If there's a rainfall event that extends to the last time step
+    # We know this because we've gone thru all rows by now, but if the event in progress
+    # had ended, or we weren't within an event, then start_index would now be set to None
+    if start_index is not None:
+        event_data = precip_data[start_index:]
+        event_time_points = time_coord.points[start_index:]
+        rainfall_events.append((event_data, event_time_points))
+        
+    # Output the results
+    # print(f"Number of independent rainfall events: {len(rainfall_events)}")
+    
+    return rainfall_events
 
 def find_independent_events(df, Tb0):
     # Mark periods as dry or not
@@ -33,104 +184,25 @@ def find_independent_events(df, Tb0):
             # Not sure why we need this line
             event_end = end_index if df.at[end_index, 'consecutive_dry'] >= (Tb0*2) else len(df)
 
-            # Add this event to the list, including all rows up to (but not including) the row that marks the end
+            # Add this event to the list, including all rows up to (but not including) the row marking the end
             event_data = df.iloc[start_index:event_end].copy()
             
-def find_top_rainfall_events(rainfall_events, aggregation_window=2):
-    # Calculate total rainfall over the specified aggregation window for each event
-    aggregation_size = int(aggregation_window / 0.5)  # Convert hours to time steps
+def find_top_n_events_for_duration(rainfall_events, n_events, duration_in_hrs):
+    # Account for the data being in 30 minute chunks (Convert hours to time steps)
+    aggregation_size = int(duration_in_hrs *2)  
+    
+    # Create a list to store the size of each event
     event_totals = []
-
+    
+    # Loop thru events
     for event_data, event_time_points in rainfall_events:
+        event_data_mm =event_data/2
         # Sum rainfall over the specified time window
-        summed_rainfall = np.convolve(event_data, np.ones(aggregation_size), mode='valid')
+        summed_rainfall = np.convolve(event_data_mm, np.ones(aggregation_size), mode='valid')
         max_rainfall = summed_rainfall.max() if summed_rainfall.size > 0 else 0
-        event_totals.append((max_rainfall, event_data, event_time_points))
+        event_totals.append((max_rainfall, event_data_mm, event_time_points))
 
     # Sort events by the maximum rainfall in descending order and take the top 40
-    top_events = sorted(event_totals, key=lambda x: x[0], reverse=True)[:40]
+    top_events = sorted(event_totals, key=lambda x: x[0], reverse=True)[:n_events]
 
-    return top_events            
-
-            # Remove trailing 0 values
-            #last_wet_index = event_data[event_data['is_dry'] == False].last_valid_index()
-            #event_data = event_data.loc[:last_wet_index]  # Use loc to keep original indexing
-
-#             # Store event data
-#             rainfall_events.append({
-#                 'start_index': start_index,
-#                 'end_index': event_data.index[-1],  # Adjust if you want to include/exclude the boundary
-#                 'event_data': event_data})            
-            
-
-    # Step 6: Output the results
-    print(f"Number of independent rainfall events: {len(rainfall_events)}")
-    
-#     for idx, event in enumerate(rainfall_events):
-#         event['event_data'].reset_index(inplace=True)
-#         start_time = event['event_data'].iloc[0]['Time']
-#         end_time = event['event_data'].iloc[-1]['Time']
-#         total_rainfall = event['event_data']['precipitation (mm/hr)'].sum()
-#         print(f"Event {idx + 1}: from {start_time} to {end_time}, total rainfall = {total_rainfall:.2f} mm")
-
-#     return rainfall_events
-
-
-def my_find_independent_events(precip_data, time_coord, Tb0, dry_threshold=0.1):
-    # Step 3: Identify the dry periods (where rainfall <= dry_threshold)
-    dry_periods = precip_data < dry_threshold
-
-    # Step 4: Find consecutive dry periods of at least 11 hours
-    dry_window_size = int(Tb0 / 0.5)  # Assuming 30-minute time steps
-    dry_window_size = int(Tb0 * 2) 
-    
-    # Find dry intervals of at least 11 consecutive hours (dry_window_size time steps)
-    dry_intervals = np.convolve(dry_periods, np.ones(dry_window_size, dtype=int), mode='same') == dry_window_size
-    dry_intervals = np.convolve(dry_periods, np.ones(dry_window_size, dtype=int), mode='same') == dry_window_size
-
-
-    # Step 5: Group non-dry periods into rainfall events
-    rainfall_events = []
-    start_index = None
-
-    for i in range(len(precip_data)):
-        if not dry_periods[i] == True:  # If it's a wet time step
-            if start_index is None:
-                start_index = i  # Mark the start of a rainfall event
-        elif start_index is not None and dry_intervals[i]:  # If it's dry and long enough to be independent
-            # End the event and store it
-            event_data = precip_data[start_index:i]
-            event_time_points = time_coord.points[start_index:i]
-#             # Trim trailing zeros from event_data
-#             last_wet_index = np.max(np.nonzero(event_data)) if np.any(event_data) else -1
-            
-#             if last_wet_index >= 0:
-#                 event_data = event_data[:last_wet_index + 1]
-#                 event_time_points = event_time_points[:last_wet_index + 1]
-
-            rainfall_events.append((event_data, event_time_points))
-            start_index = None  # Reset start index for the next event
-
-    # If there's a rainfall event that extends to the last time step
-    if start_index is not None:
-        event_data = precip_data[start_index:]
-        event_time_points = time_coord.points[start_index:]
-
-        # Trim trailing zeros
-       # last_wet_index = np.max(np.nonzero(event_data >= dry_threshold)) if np.any(event_data >= dry_threshold) else -1
-#         last_wet_index = np.max(np.nonzero(event_data)) if np.any(event_data) else -1
-        
-        #if last_wet_index >= 0:
-        #    event_data = event_data[:last_wet_index + 1]
-        #    event_time_points = event_time_points[:last_wet_index + 1]
-
-        rainfall_events.append((event_data, event_time_points))
-        
-    # Step 6: Output the results
-    print(f"Number of independent rainfall events: {len(rainfall_events)}")
-#     for idx, (event_data, event_times) in enumerate(rainfall_events):
-#         start_time = time_coord.units.num2date(event_times[0])
-#         end_time = time_coord.units.num2date(event_times[-1])
-#         print(f"Event {idx + 1}: from {start_time} to {end_time}, total rainfall = {event_data.sum()} mm")
-
-    return rainfall_events
+    return top_events      

@@ -121,6 +121,33 @@ def load_files_to_cubelist(year, filenames_pattern):
     cubes = iris.cube.CubeList([cube for cube in cubes if has_named_dimension_coordinates(cube)])
     return cubes
 
+def clean_cubes_v2 (cubes):
+    
+    ## Get the metadata from one cube, to apply to other cubes
+    metadata = cubes[0].metadata
+    time_metadata = cubes[0].coord('time').metadata
+    
+    for cube_num in range(0,len(cubes)):
+        # Get this cube
+        cube=cubes[cube_num]
+        try:
+            cube.remove_coord("forecast_period")
+        except:
+            pass
+        try:
+            cube.remove_coord("forecast_reference_time")
+        except:
+            pass
+        try:
+            cube.remove_coord("realization")
+        except:
+            pass        
+       
+        ### Set the edited cube back on the cube list
+        cubes[cube_num]=cube
+    
+    return cubes
+
 def clean_cubes (cubes):
     
     ## Get the metadata from one cube, to apply to other cubes
