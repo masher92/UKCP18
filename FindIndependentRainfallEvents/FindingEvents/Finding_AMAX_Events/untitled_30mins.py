@@ -56,7 +56,7 @@ tbo_vals = pd.read_csv('/nfs/a319/gy17m2a/PhD/datadir/RainGauge/interarrival_thr
 sample_cube = iris.load(f'/nfs/a319/gy17m2a/PhD/datadir/UKCP18_every30mins/2.2km_bng/{yrs_range}/{em}/bng_{em}a.pr{sample_yr}01.nc')[0][1,:,:]
 
 
-for yr in range(2074,2076):
+for yr in range(2076,2078):
 
     ######################################################
     ### Get all the data for one year, into one cube
@@ -88,64 +88,65 @@ for yr in range(2074,2076):
         save_cube_as_pickle_file(full_year_cube, pickle_file_filepath)
         
     for gauge_num in range(0,1294):
-        # Find location
-        Tb0, idx_2d = find_gauge_Tb0_and_location_in_grid(tbo_vals, gauge_num, sample_cube)
+        if gauge_num not in [444, 827, 888]:
+            # Find location
+            Tb0, idx_2d = find_gauge_Tb0_and_location_in_grid(tbo_vals, gauge_num, sample_cube)
 
-        # Function to process each gauge
-        print(f"gauge num is {gauge_num}")             
+            # Function to process each gauge
+            print(f"gauge num is {gauge_num}")             
 
-        base_dir = f"/nfs/a161/gy17m2a/PhD/ProcessedData/IndependentEvents/UKCP18_30mins/{timeperiod}/{em}/{gauge_num}/WholeYear"
-        # Create the directory if it doesnt exist
-        if not os.path.isdir(base_dir):
-            os.makedirs(base_dir)
+            base_dir = f"/nfs/a161/gy17m2a/PhD/ProcessedData/IndependentEvents/UKCP18_30mins/{timeperiod}/{em}/{gauge_num}/WholeYear"
+            # Create the directory if it doesnt exist
+            if not os.path.isdir(base_dir):
+                os.makedirs(base_dir)
 
-        print(full_year_cube.shape)      
-        ######################################################
-        ## Check if any files are missing, across the 3 filtering options
-        # If there are: code will continue to run
-        # If not: code will move to next gauge
-        ######################################################                
-        # Create a flag to record whether we are missing any of the files we need
-        missing_files = False
+            print(full_year_cube.shape)      
+            ######################################################
+            ## Check if any files are missing, across the 3 filtering options
+            # If there are: code will continue to run
+            # If not: code will move to next gauge
+            ######################################################                
+            # Create a flag to record whether we are missing any of the files we need
+            missing_files = False
 
-        # Check if we are missing any of the files, and if so, change the flag to True
-        if not any(os.path.exists(f"{base_dir}/{duration}hrs_{yr}_v2_part0.csv") for duration in [0.5, 1, 2, 3, 6, 12, 24]):
-            missing_files = True
-        print(missing_files)
-        # If we are missing some files then get the data for the grid cell, 
-        if missing_files:
+            # Check if we are missing any of the files, and if so, change the flag to True
+            if not any(os.path.exists(f"{base_dir}/{duration}hrs_{yr}_v2_part0.csv") for duration in [0.5, 1, 2, 3, 6, 12, 24]):
+                missing_files = True
+            print(missing_files)
+            # If we are missing some files then get the data for the grid cell, 
+            if missing_files:
 
-            # Extract data for the specified indices
-            start= time.time()
-            one_location_cube = full_year_cube[:, idx_2d[0], idx_2d[1]]
-            data = one_location_cube.data
-            end=time.time()
-            print(f"Time to load data is {round(end-start,2)} seconds")
+                # Extract data for the specified indices
+                start= time.time()
+                one_location_cube = full_year_cube[:, idx_2d[0], idx_2d[1]]
+                data = one_location_cube.data
+                end=time.time()
+                print(f"Time to load data is {round(end-start,2)} seconds")
 
-            ##### Filter cube according to different options
-            # Convert to dataframe
-            df = pd.DataFrame(data, columns=['precipitation (mm/hr)'])
-            df['times'] = one_location_cube.coord('time').units.num2date(one_location_cube.coord('time').points)
-            df['precipitation (mm)'] = df['precipitation (mm/hr)'] / 2   
+                ##### Filter cube according to different options
+                # Convert to dataframe
+                df = pd.DataFrame(data, columns=['precipitation (mm/hr)'])
+                df['times'] = one_location_cube.coord('time').units.num2date(one_location_cube.coord('time').points)
+                df['precipitation (mm)'] = df['precipitation (mm/hr)'] / 2   
 
-            # Search dataframe for events corresponding to durations
-            for duration in [0.5, 1, 2, 3, 6, 12, 24]:
+                # Search dataframe for events corresponding to durations
+                for duration in [0.5, 1, 2, 3, 6, 12, 24]:
 
-                filename =  f"{base_dir}/{duration}hrs_{yr}_v2_part0.csv"
-                if not os.path.exists(filename):
-                    print(f"Finding the AMAX for {duration}hr events for gauge {gauge_num} in year {yr}")
-                    # Find events
-                    events_v2 = search_for_valid_events(df, duration=duration, Tb0=Tb0)
+                    filename =  f"{base_dir}/{duration}hrs_{yr}_v2_part0.csv"
+                    if not os.path.exists(filename):
+                        print(f"Finding the AMAX for {duration}hr events for gauge {gauge_num} in year {yr}")
+                        # Find events
+                        events_v2 = search_for_valid_events(df, duration=duration, Tb0=Tb0)
 
-                    # Save events to CSV
-                    for num, event in enumerate(events_v2):
-                        if len(event) > 1:
-                                event.to_csv(f"{base_dir}/{duration}hrs_{yr}_v2_part{num}.csv")
-                                print(f"{base_dir}/{duration}hrs_{yr}_v2_part{num}.csv")
-                                if event['precipitation (mm/hr)'].isna().any():
-                                    print("NANs in this event")
-                else:
-                    print(f"already exists{filename}")
-                    pass   
-        else:
-            print("Files all already exist")
+                        # Save events to CSV
+                        for num, event in enumerate(events_v2):
+                            if len(event) > 1:
+                                    event.to_csv(f"{base_dir}/{duration}hrs_{yr}_v2_part{num}.csv")
+                                    print(f"{base_dir}/{duration}hrs_{yr}_v2_part{num}.csv")
+                                    if event['precipitation (mm/hr)'].isna().any():
+                                        print("NANs in this event")
+                    else:
+                        print(f"already exists{filename}")
+                        pass   
+            else:
+                print("Files all already exist")
