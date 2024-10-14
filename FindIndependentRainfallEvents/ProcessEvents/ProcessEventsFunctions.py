@@ -80,58 +80,58 @@ def process_events_by_duration(home_dir, time_period, valid_durations, ems, tb0_
             if gauge_num not in [444, 827, 888]:
                 if gauge_num % 100 == 0:
                     print(f"Processing gauge {gauge_num}")
-                    indy_events_fp = home_dir + f"ProcessedData/IndependentEvents/UKCP18_30mins/{time_period}/{em}/{gauge_num}/WholeYear/EventSet/"
+                indy_events_fp = home_dir + f"ProcessedData/IndependentEvents/UKCP18_30mins/{time_period}/{em}/{gauge_num}/WholeYear/EventSet/"
 
-                    files = [f for f in os.listdir(indy_events_fp) if f.endswith('.csv')]
-                    files = np.sort(files)
+                files = [f for f in os.listdir(indy_events_fp) if f.endswith('.csv')]
+                files = np.sort(files)
 
-                    for event_num, file in enumerate(files):
-                        fp = indy_events_fp + f"{file}"
-                        if '2080' in fp:
-                            continue
+                for event_num, file in enumerate(files):
+                    fp = indy_events_fp + f"{file}"
+                    if '2080' in fp:
+                        continue
 
-                        # Get duration for this event
-                        duration_of_this_event = get_dur_for_which_this_is_amax(fp)
-                        if duration_of_this_event not in valid_durations:
-                            continue  # Skip if not in the list of valid durations
+                    # Get duration for this event
+                    duration_of_this_event = get_dur_for_which_this_is_amax(fp)
+                    if duration_of_this_event not in valid_durations:
+                        continue  # Skip if not in the list of valid durations
 
-                        # print(f"Processing event file: {file} with duration: {duration_of_this_event}")
+                    # print(f"Processing event file: {file} with duration: {duration_of_this_event}")
 
-                        # Get event
-                        this_event = read_event(gauge_num, fp)
+                    # Get event
+                    this_event = read_event(gauge_num, fp)
 
-                        # Get times and precipitation values
-                        event_times = this_event['times']
-                        event_precip = this_event['precipitation (mm)']
+                    # Get times and precipitation values
+                    event_times = this_event['times']
+                    event_precip = this_event['precipitation (mm)']
 
-                        # Apply the function to adjust the dates in the 'times' column
-                        event_times_fixed = event_times.apply(adjust_feb_dates)
+                    # Apply the function to adjust the dates in the 'times' column
+                    event_times_fixed = event_times.apply(adjust_feb_dates)
 
-                        # Create the DataFrame with corrected times
-                        event_df = pd.DataFrame({'precipitation (mm)': event_precip, 'times': event_times_fixed})
+                    # Create the DataFrame with corrected times
+                    event_df = pd.DataFrame({'precipitation (mm)': event_precip, 'times': event_times_fixed})
 
-                        # Create characteristics dictionary
-                        event_props = create_event_characteristics_dict(event_df)
+                    # Create characteristics dictionary
+                    event_props = create_event_characteristics_dict(event_df)
 
-                        # Add the duration
-                        event_props['dur_for_which_this_is_amax'] = duration_of_this_event
-                        # Add gauge number and ensemble member
-                        event_props['gauge_num'] = gauge_num
-                        event_props['area'] = tb0_vals.iloc[gauge_num]['within_area']
-                        event_props['em'] = em
-                        event_props['filename'] = file
+                    # Add the duration
+                    event_props['dur_for_which_this_is_amax'] = duration_of_this_event
+                    # Add gauge number and ensemble member
+                    event_props['gauge_num'] = gauge_num
+                    event_props['area'] = tb0_vals.iloc[gauge_num]['within_area']
+                    event_props['em'] = em
+                    event_props['filename'] = file
 
-                        # Store results in corresponding duration category
-                        events_dict[duration_of_this_event][f"{em}, {gauge_num}, {event_num}"] = event_df
-                        event_props_dict[duration_of_this_event][f"{em}, {gauge_num}, {event_num}"] = event_props
-                        event_profiles_dict[duration_of_this_event][f"{em}, {gauge_num}, {event_num}"] = create_profiles_dict(event_df)
+                    # Store results in corresponding duration category
+                    events_dict[duration_of_this_event][f"{em}, {gauge_num}, {event_num}"] = event_df
+                    event_props_dict[duration_of_this_event][f"{em}, {gauge_num}, {event_num}"] = event_props
+                    event_profiles_dict[duration_of_this_event][f"{em}, {gauge_num}, {event_num}"] = create_profiles_dict(event_df)
 
     return events_dict, event_props_dict, event_profiles_dict
 
 
 def process_events_alltogether(home_dir, time_period, ems, tb0_vals):
     events_dict = {}
-    event_props_dict = {}
+    event_props_ls = []
     event_profiles_dict = {}
 
     for em in ems:
@@ -140,16 +140,16 @@ def process_events_alltogether(home_dir, time_period, ems, tb0_vals):
             if gauge_num not in [444, 827, 888]:
                 if gauge_num % 100 == 0:
                     print(f"Processing gauge {gauge_num}")
-                    indy_events_fp = home_dir + f"ProcessedData/IndependentEvents/UKCP18_30mins/{time_period}/{em}/{gauge_num}/WholeYear/"
+                indy_events_fp = home_dir + f"ProcessedData/IndependentEvents/UKCP18_30mins/{time_period}/{em}/{gauge_num}/WholeYear/"
 
-                    files = [f for f in os.listdir(indy_events_fp) if f.endswith('.csv')]
-                    files = np.sort(files)
+                files = [f for f in os.listdir(indy_events_fp) if f.endswith('.csv')]
+                files = np.sort(files)
 
-                    for event_num, file in enumerate(files):
-                        fp = indy_events_fp + f"{file}"
-                        if '2080' in fp:
-                            continue
-                        
+                for event_num, file in enumerate(files):
+                    fp = indy_events_fp + f"{file}"
+                    if '2080' in fp:
+                        continue
+                    try:
                         # Get event
                         this_event = read_event(gauge_num, fp)
 
@@ -177,10 +177,64 @@ def process_events_alltogether(home_dir, time_period, ems, tb0_vals):
                         event_profiles = create_profiles_dict(event_df)
 
                         events_dict[f"{em}, {gauge_num}, {event_num}"] = event_df
-                        event_props_dict[f"{em}, {gauge_num}, {event_num}"] = event_props
+                        event_props_ls.append(event_props)
                         event_profiles_dict[f"{em}, {gauge_num}, {event_num}"] = event_profiles
+                    except:
+                        print(fp)
 
-    return events_dict, event_props_dict, event_profiles_dict
+    return events_dict, event_props_ls, event_profiles_dict
+
+def process_events_alltogether_nimrod(home_dir, tb0_vals):
+    events_dict = {}
+    event_props_ls = []
+    event_profiles_dict = {}
+
+    for gauge_num in range(0, 1293):
+        if gauge_num not in [444, 827, 888]:
+            if gauge_num % 100 == 0:
+                print(f"Processing gauge {gauge_num}")
+            indy_events_fp = home_dir + f"ProcessedData/IndependentEvents/NIMROD_30mins/NIMROD_2.2km_filtered_100/{gauge_num}/WholeYear/"
+            files = [f for f in os.listdir(indy_events_fp) if f.endswith('.csv')]
+            files = np.sort(files)
+
+            for event_num, file in enumerate(files):
+                fp = indy_events_fp + f"{file}"
+                if '2080' in fp:
+                    continue
+
+                # Get event
+                this_event = read_event(gauge_num, fp)
+
+                # Get times and precipitation values
+                event_times = this_event['times']
+                event_precip = this_event['precipitation (mm)']
+
+                # Apply the function to adjust the dates in the 'times' column
+                event_times_fixed = event_times.apply(adjust_feb_dates)
+
+                # Create the DataFrame with corrected times
+                event_df = pd.DataFrame({'precipitation (mm)': event_precip, 'times': event_times_fixed})
+
+                # Create characteristics dictionary
+                event_props = create_event_characteristics_dict(event_df)
+
+                # Add the duration
+                event_props['dur_for_which_this_is_amax'] = get_dur_for_which_this_is_amax(fp)
+                # Add gauge number and ensemble member
+                event_props['gauge_num'] = gauge_num
+                event_props['area'] = tb0_vals.iloc[gauge_num]['within_area']
+                event_props['em'] = 'nimrod'
+                event_props['filename'] = file
+
+                event_profiles = create_profiles_dict(event_df)
+
+                events_dict[f"nimrod, {gauge_num}, {event_num}"] = event_df
+                event_props_ls.append(event_props)
+                event_profiles_dict[f"nimrod, {gauge_num}, {event_num}"] = event_profiles
+
+    return events_dict, event_props_ls, event_profiles_dict
+
+
 
 def calculate_storm_center_of_mass(event_df):
     """
@@ -212,6 +266,12 @@ def calculate_storm_center_of_mass(event_df):
 #     print(event_df)
     return Cm
 
+
+def find_theta(event_df):
+    D =  event_df["times"].dt.dayofyear[0]
+    theta = D*2*np.pi/365.25
+    return theta
+
 def create_event_characteristics_dict(this_event):
     
     max_quintile_molly=find_max_quintile(this_event['precipitation (mm)'],5)
@@ -219,7 +279,7 @@ def create_event_characteristics_dict(this_event):
     max_quintile_steef=analyse_event(this_event['precipitation (mm)'])[0]
     duration = len(this_event) / 2
     DurationRange_personalised_allems = find_dur_category([1.5, 5.0, 11.5, 22.5, 166.5], ['0.25-2.10 hr', '2.10-6.45 hr', '6.45-19.25 hr', '19.25+ hr'], duration)
-    DurationRange_simple = find_dur_category([1.5, 4.0, 12, 166.5], ['<4hr', '4-12hr', '12hr+'], duration)
+    DurationRange_simple = find_dur_category([0, 4.0, 12, 166.5], ['<4hr', '4-12hr', '12hr+'], duration)
     
     DurationRange_notpersonalised = find_dur_category([0.25, 2.10, 6.45, 19.25, 1000], 
                                                       ['0.25-2.10 hr', '2.10-6.45 hr', '6.45-19.25 hr', '19.25+ hr'], duration)
@@ -241,6 +301,7 @@ def create_event_characteristics_dict(this_event):
         'Loading_profile_third_molly':quintile_mapping_thirds[max_third_molly],
         'Loading_profile_steef':quintile_mapping[max_quintile_steef],
         'D50_index': d50_index,
+        'theta': find_theta(this_event),
         'D50': d50,
         'com':calculate_storm_center_of_mass(this_event)}
 

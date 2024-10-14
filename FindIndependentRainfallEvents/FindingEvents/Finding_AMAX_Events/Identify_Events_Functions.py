@@ -143,6 +143,18 @@ def find_rainfall_core(df, duration, Tb0):
 
     # Identify the end index of the window where the maximum total rainfall occurs
     max_rainfall_end_index = df['Rolling_Sum'].idxmax()
+    
+    if max_rainfall_end_index ==0:
+
+        # Find the index of the maximum value in the 'Rolling_Sum' column
+        max_rainfall_end_index = df['Rolling_Sum'].idxmax()
+
+        # Create a copy of the original DataFrame or Series, and set the max value to NaN (or another placeholder)
+        df_temp = df['Rolling_Sum'].copy()
+        df_temp.loc[max_rainfall_end_index] = float('-inf')  # Set the max value to negative infinity
+
+        # Find the index of the second-largest value
+        max_rainfall_end_index = df_temp.idxmax()
 
     # Convert index to a positional integer for slicing
     max_rainfall_end_pos = df.index.get_loc(max_rainfall_end_index)
@@ -177,7 +189,6 @@ def find_rainfall_core(df, duration, Tb0):
         return [event1, event2]
     else:
         return [max_rainfall_window]
-
     
 def search1(df, max_rainfall_window):
     

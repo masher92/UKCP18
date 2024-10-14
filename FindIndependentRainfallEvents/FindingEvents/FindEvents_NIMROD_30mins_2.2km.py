@@ -68,7 +68,7 @@ else:
 # Find events at each gauge
 ######################################################
 failed_gauges = []
-gauge_nums = range(880,1293)
+gauge_nums = range(0,1293)
 # Function to process each gauge
 for gauge_num in gauge_nums:
     if not gauge_num in [423, 444, 827, 888]:
