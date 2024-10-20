@@ -56,7 +56,7 @@ tbo_vals = pd.read_csv('/nfs/a319/gy17m2a/PhD/datadir/RainGauge/interarrival_thr
 sample_cube = iris.load(f'/nfs/a319/gy17m2a/PhD/datadir/UKCP18_every30mins/2.2km_bng/{yrs_range}/{em}/bng_{em}a.pr{sample_yr}01.nc')[0][1,:,:]
 
 
-for yr in range(2074,2076):
+for yr in range(2061,2080):
 
     ######################################################
     ### Get all the data for one year, into one cube
@@ -87,7 +87,7 @@ for yr in range(2074,2076):
 
         save_cube_as_pickle_file(full_year_cube, pickle_file_filepath)
         
-    for gauge_num in range(0,1294):
+    for gauge_num in range(750,1000):
         if gauge_num not in [444, 827, 888]:
             # Find location
             Tb0, idx_2d = find_gauge_Tb0_and_location_in_grid(tbo_vals, gauge_num, sample_cube)

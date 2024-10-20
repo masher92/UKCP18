@@ -1,13 +1,13 @@
 import seaborn as sns
+from statsmodels.graphics.mosaicplot import mosaic
 
-def plot_boxplot(data, ax):
+def plot_boxplot(data, ax, color_mapping):
     sns.boxplot(ax=ax, data=data, x='Loading_profile_molly',
-            y='D50',  dodge=True) 
+            y='D50',  dodge=True, palette=color_mapping) 
     
 def plot_boxplot_by_season(data, ax):
     sns.boxplot(ax=ax, data=data, x='Loading_profile_molly',
             y='D50',  hue='season', dodge=True)       
-    
     
     
 def create_single_variable_mosaic_plot_pctlabels(ax, data, split_variable, order, color_mapping, title):

@@ -181,7 +181,7 @@ def find_rainfall_core(df, duration, Tb0):
         max_rainfall_window.iloc[i, max_rainfall_window.columns.get_loc('consecutive_dry')] = consecutive_dry_count
     
     # Check if the maximum consecutive dry period exceeds twice the Tb0 threshold
-    if np.nanmax(max_rainfall_window['consecutive_dry']) > Tb0 * 2:
+    if np.nanmax(max_rainfall_window['consecutive_dry']) > Tb0 * 2 :
         print('2 events')
         split_index = max_rainfall_window[max_rainfall_window['consecutive_dry'] == (Tb0 * 2)].index[0]
         event1 = max_rainfall_window.loc[:split_index]

@@ -14,7 +14,7 @@ from Steef_Functions import *
 quintile_mapping = {1: 'F2', 2: 'F1', 3: 'C', 4: 'B1', 5: 'B2'}
 quintile_mapping_thirds = {1: 'F', 2: 'C', 3: 'B'}
 
-def remove_leading_and_trailing_zeroes(df, threshold = 0.005):
+def remove_leading_and_trailing_zeroes(df, fp, threshold = 0.05):
     
     # Identify the start and end of the event where values are above the threshold
     event_start = df[df['precipitation (mm)'] >= threshold].index.min()
@@ -22,6 +22,8 @@ def remove_leading_and_trailing_zeroes(df, threshold = 0.005):
 
     # Handle cases where no values are above the threshold
     if pd.isna(event_start) or pd.isna(event_end):
+        print(df)
+        print(fp)
         print("No events found with precipitation >= threshold.")
     else:
         # Remove values < threshold from the start and end of the event
@@ -85,59 +87,6 @@ def read_event(gauge_num, fp):
     return test
 
 
-def process_events_by_duration(home_dir, time_period, duration_bins, ems, tb0_vals):
-    events_dict = {duration: {} for duration in duration_bins}
-    event_props_dict = {duration: {} for duration in duration_bins}
-    event_profiles_dict = {duration: {} for duration in duration_bins}
-    for em in ems:  # You can add more ensemble members as needed
-        print(em)
-        for gauge_num in range(0, 1293):
-            if gauge_num not in [444, 827, 888]:
-                if gauge_num % 100 == 0:
-                    print(f"Processing gauge {gauge_num}")
-                    indy_events_fp = home_dir + f"ProcessedData/IndependentEvents/UKCP18_30mins/{time_period}/{em}/{gauge_num}/WholeYear/EventSet/"
-
-                    files = [f for f in os.listdir(indy_events_fp) if f.endswith('.csv')]
-                    files = np.sort(files)
-
-                    for event_num, file in enumerate(files):
-                        fp = indy_events_fp + f"{file}"
-                        if '2080' in fp:
-                            continue
-
-                        # Get event
-                        this_event = read_event(gauge_num, fp)
-
-                        # Get times and precipitation values
-                        event_times = this_event['times']
-                        event_precip = this_event['precipitation (mm)']
-
-                        # Apply the function to adjust the dates in the 'times' column
-                        event_times_fixed = event_times.apply(adjust_feb_dates)
-
-                        # Create the DataFrame with corrected times
-                        event_df = pd.DataFrame({'precipitation (mm)': event_precip, 'times': event_times_fixed})
-
-                        # Create characteristics dictionary
-                        event_props = create_event_characteristics_dict(event_df)
-                        
-                        # Add the duration
-                        event_props['dur_for_which_this_is_amax'] = get_dur_for_which_this_is_amax(fp)
-                        # Add gauge number and ensemble member
-                        event_props['gauge_num'] = gauge_num
-                        event_props['area'] = tb0_vals.iloc[gauge_num]['within_area']
-                        event_props['em'] = em
-                        event_props['filename'] = file
-
-                        duration_category_of_this_event = event_props['DurationRange_simple']
-                        # Store results in corresponding duration category
-                        events_dict[duration_category_of_this_event][f"{em}, {gauge_num}, {event_num}"] = event_df
-                        event_props_dict[duration_category_of_this_event][f"{em}, {gauge_num}, {event_num}"] = event_props
-                        event_profiles_dict[duration_category_of_this_event][f"{em}, {gauge_num}, {event_num}"] = create_profiles_dict(event_df)
-
-    return events_dict, event_props_dict, event_profiles_dict
-
-
 def process_events_alltogether(home_dir, time_period, ems, tb0_vals, save_dir):
     events_dict = {}
     event_props_ls = []
@@ -172,7 +121,7 @@ def process_events_alltogether(home_dir, time_period, ems, tb0_vals, save_dir):
                     # Create the DataFrame with corrected times
                     event_df = pd.DataFrame({'precipitation (mm)': event_precip, 'times': event_times_fixed})
                     # Remove leading and trailing zeroes
-                    event_df = remove_leading_and_trailing_zeroes(event_df)
+                    event_df = remove_leading_and_trailing_zeroes(event_df, indy_events_fp + f"{file}")
                     # Create characteristics dictionary
                     event_props = create_event_characteristics_dict(event_df)
 
