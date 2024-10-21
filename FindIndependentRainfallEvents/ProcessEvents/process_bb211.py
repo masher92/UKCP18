@@ -25,13 +25,13 @@ tbo_vals.loc[tbo_vals['within_area'] == 'NW, C', 'within_area'] = 'NW'
 tbo_vals.loc[tbo_vals['within_area'] == 'ME, SE', 'within_area'] = 'ME'
 
 # 'bb198', 'bb192', bb225, bb208 bb222 bb201 bb216 bb211 bb219
-ems_future = ['bb225']# 'bb195', 'bb198', 'bb201', 'bb204','bb208' ,'bb211','bb216', 'bb219','bb222','bb225']
+ems_future = ['bb198']# 'bb195', 'bb198', 'bb201', 'bb204','bb208' ,'bb211','bb216', 'bb219','bb222','bb225']
 ems_present = [ 'bc006']# ,   ']
 
-for em in ems_present:
+for em in ems_future:
     just_one_em = [em]
     print(just_one_em)
     # # Now you can call the function for both time periods
-    events_dict_present, event_props_dict_present, event_profiles_dict_present = process_events_alltogether(home_dir2, 'Present',ems_present, tbo_vals, home_dir)
-#     events_dict_future, event_props_dict_future, event_profiles_dict_future = process_events_alltogether(home_dir2, 'Future', ems_future, tbo_vals, home_dir)
+#     events_dict_present, event_props_dict_present, event_profiles_dict_present = process_events_alltogether(home_dir2, 'Present',ems_present, tbo_vals, home_dir)
+    events_dict_future, event_props_dict_future, event_profiles_dict_future = process_events_alltogether(home_dir2, 'Future', ems_future, tbo_vals, home_dir)
 

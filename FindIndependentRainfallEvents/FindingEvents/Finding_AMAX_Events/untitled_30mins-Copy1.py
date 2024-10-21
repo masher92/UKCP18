@@ -41,7 +41,7 @@ warnings.filterwarnings("ignore", category=UserWarning)
 
 
 yrs_range= '2060_2081'
-em = "bb189"
+em = "bb195"
 timeperiod = 'Future'
 print(em)
 
@@ -86,8 +86,8 @@ for yr in range(2061,2080):
         full_year_cube = cubes.concatenate_cube()     
 
         save_cube_as_pickle_file(full_year_cube, pickle_file_filepath)
-        
-    for gauge_num in range(750,1000):
+# 750,1000        
+    for gauge_num in range(500,750):
         if gauge_num not in [444, 827, 888]:
             # Find location
             Tb0, idx_2d = find_gauge_Tb0_and_location_in_grid(tbo_vals, gauge_num, sample_cube)

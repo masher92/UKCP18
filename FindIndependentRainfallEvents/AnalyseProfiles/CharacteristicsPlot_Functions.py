@@ -1,25 +1,17 @@
-def plot_histogram_for_duration(df, variable, duration, duration_variable, ax, bins=25, label=None, color=None, alpha=0.5):
-
+def plot_histogram_for_duration(df, variable, duration, duration_variable, ax, bins=25, label=None, color=None, alpha=0.5, density=True):
     # Filter the DataFrame for the specified duration
-    duration_data = df[df[variable] == duration]
-
-    # Plot histogram for the specified duration
+    duration_data = df[df[duration_variable].apply(
+        lambda x: isinstance(x, list) and str(duration) in x or x == str(duration))]
+    # Plot histogram for the specified duration with density normalization
     if not duration_data.empty:
-#         ax.hist(duration_data[variable], bins=bins, alpha=alpha, label = label, color = color, edgecolor='black')
-        n, bins_used, patches = ax.hist(duration_data[variable], bins=bins, alpha=alpha, label=label, color=color, edgecolor='black')
-        
-        #ax.set_title(f"{variable} Distribution - {duration}", fontsize=12)
-        #ax.grid(True)
+        n, bins_used, patches = ax.hist(duration_data[variable], bins=bins, alpha=alpha, label=label, color=color, edgecolor='black', density=density)
     else:
         pass
-        #ax.set_title(f"{variable} Distribution - {duration} (No Data)", fontsize=12)
-        #ax.grid(True)
 
     # Set y-axis label to the specific duration bin it refers to
     ax.set_ylabel(f"{duration}hrs", fontsize=10, rotation=0)
     # Remove y-tick labels
-    ax.set_yticks([])
-    
+    # ax.set_yticks([])
 
 def plot_density_for_duration(event_props_dict, variable, duration, duration_variable, ax, label=None, color=None, alpha=0.5):
     """

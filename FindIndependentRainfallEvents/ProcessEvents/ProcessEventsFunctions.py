@@ -94,7 +94,7 @@ def process_events_alltogether(home_dir, time_period, ems, tb0_vals, save_dir):
 
     for em in ems:
         print(em)
-        for gauge_num in range(0, 1294):
+        for gauge_num in range(300, 1294):
             if gauge_num not in [444, 827, 888]:
                 if gauge_num % 100 == 0:
                     print(f"Processing gauge {gauge_num}")
@@ -105,6 +105,7 @@ def process_events_alltogether(home_dir, time_period, ems, tb0_vals, save_dir):
 
                 for event_num, file in enumerate(files):
                     fp = indy_events_fp + f"{file}"
+                    print(fp)
                     if '2080' in fp:
                         continue
 
