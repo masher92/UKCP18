@@ -3,17 +3,17 @@
 # Redirect all output to the log file and also print to the screen
 exec > >(tee -a "$log_file") 2>&1
 
-start_year=2065 #2001
-end_year=2066 #2020
+start_year=2061 #2001
+end_year=2079 #2020
 start_gauge=0
-end_gauge=10
+end_gauge=1294
 yrs_range='2060_2081' # '2002_2020'
 timeperiod='Future'
 
 # Define the batch size
 batch_size=20
 em=$1
-log_file="/nfs/a319/gy17m2a/PhD/logs/centralized_log_$em.log"
+log_file="/nfs/a319/gy17m2a/PhD/logs/centralized_log2_$em.log"
 touch "$log_file"  # Create the log file if it doesn't exist
 echo $em
 

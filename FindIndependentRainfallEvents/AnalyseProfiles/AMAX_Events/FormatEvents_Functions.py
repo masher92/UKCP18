@@ -62,8 +62,7 @@ def get_season(date):
     else:
         return 'Autumn'
     
-# Define the function
-def group_data_calc_means(df, group_by_vars):
+def group_data_calc_means(df, d50_variable, group_by_vars):
     
     # Grouping the dataframe by the specified variables
     grouped = df.groupby(group_by_vars)
@@ -77,17 +76,29 @@ def group_data_calc_means(df, group_by_vars):
         if len(group_by_vars) == 1:
             group_keys = (group_keys,)  # Make it a tuple if only one grouping variable
         
-        # Calculate R (assuming `calculate_R` is a defined function)
+        # Calculate R (assuming calculate_R is a defined function)
         R = calculate_R(group['theta'])
 
-        # Store the mean of theta and R in the results list for each group
+        # Calculate the percentage of events where 'loading_profile_molly' == 'F2'
+        total_events = len(group)  # Total number of events in the group
+        F2_events = len(group[group['Loading_profile_molly'] == 'F2'])  # Number of 'F2' events
+        F2_percentage = (F2_events / total_events) * 100 if total_events > 0 else 0  # Percentage of 'F2' events
+        
+        B2_events = len(group[group['Loading_profile_molly'] == 'B2'])  # Number of 'F2' events
+        B2_percentage = (B2_events / total_events) * 100 if total_events > 0 else 0  # Percentage of 'F2' events        
+
+        # Store the mean of theta, R, and other statistics in the results list for each group
         results.append({
             **dict(zip(group_by_vars, group_keys)),  # Unpack the group keys into the result dictionary
             'theta_mean': np.mean(group['theta']),  # Mean theta for the group
             'D_mean': np.mean(group['D']),          # Mean of D for the group
             'R': R,                                 # R value for the group
-            'D50_mean': np.mean(group['D50']),      # Mean of D50 for the group
-            'D50_median': np.median(group['D50']),  # Median of D50 for the group
+            'D50_mean': np.mean(group[d50_variable]),      # Mean of D50 for the group
+            'D50_P90': np.percentile(group[d50_variable], 90),
+            'D50_P10': np.percentile(group[d50_variable], 10),
+            'D50_median': np.median(group[d50_variable]),  # Median of D50 for the group
+            'F2_percentage': F2_percentage,           # Percentage of 'F2' events
+            'B2_percentage': B2_percentage           # Percentage of 'F2' events
         })
 
     # Convert the results list into a DataFrame
@@ -107,7 +118,11 @@ def find_change_values_in_groups_new(grouped, group_by_columns, sampling_duratio
         'D_mean': 'D_mean_present',
         'R': 'R_present',
         'D50_mean': 'D50_mean_present',
-        'D50_median': 'D50_median_present'
+        'D50_median': 'D50_median_present',
+        'D50_P90': 'D50_P90_present',
+        'D50_P10': 'D50_P10_present',    
+        'F2_percentage': 'F2_percentage_present',   
+        'B2_percentage': 'B2_percentage_present',   
     })
 
     df_future = df_future.rename(columns={
@@ -115,7 +130,11 @@ def find_change_values_in_groups_new(grouped, group_by_columns, sampling_duratio
         'D_mean': 'D_mean_future',
         'R': 'R_future',
         'D50_mean': 'D50_mean_future',
-        'D50_median': 'D50_median_future'
+        'D50_median': 'D50_median_future',
+        'D50_P90': 'D50_P90_future',
+        'D50_P10': 'D50_P10_future',      
+        'F2_percentage': 'F2_percentage_future',  
+        'B2_percentage': 'B2_percentage_future',           
     })
 
     merged_df = pd.merge(df_present, df_future, 
@@ -129,7 +148,10 @@ def find_change_values_in_groups_new(grouped, group_by_columns, sampling_duratio
     merged_df['R_diff'] = merged_df['R_future'] - merged_df['R_present']
     merged_df['D50_mean_diff'] = merged_df['D50_mean_future'] - merged_df['D50_mean_present']
     merged_df['D50_median_diff'] = merged_df['D50_median_future'] - merged_df['D50_median_present']
-    
+    merged_df['D50_P90_diff'] = merged_df['D50_P90_future'] - merged_df['D50_P90_present']
+    merged_df['D50_P10_diff'] = merged_df['D50_P10_future'] - merged_df['D50_P10_present']    
+    merged_df['F2_percentage_diff'] = merged_df['F2_percentage_future'] - merged_df['F2_percentage_present']    
+    merged_df['B2_percentage_diff'] = merged_df['B2_percentage_future'] - merged_df['B2_percentage_present']      
     merged_df.drop(['Climate_present', 'Climate_future'], axis=1, inplace=True)
     
     merged_df['sampling_duration'] = sampling_duration

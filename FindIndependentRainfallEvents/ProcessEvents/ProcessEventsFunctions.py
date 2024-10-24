@@ -93,8 +93,7 @@ def process_events_alltogether(home_dir, time_period, ems, tb0_vals, save_dir):
     event_profiles_dict = {}
 
     for em in ems:
-        print(em)
-        for gauge_num in range(300, 1294):
+        for gauge_num in range(0, 1294):
             if gauge_num not in [444, 827, 888]:
                 if gauge_num % 100 == 0:
                     print(f"Processing gauge {gauge_num}")
@@ -105,7 +104,6 @@ def process_events_alltogether(home_dir, time_period, ems, tb0_vals, save_dir):
 
                 for event_num, file in enumerate(files):
                     fp = indy_events_fp + f"{file}"
-                    print(fp)
                     if '2080' in fp:
                         continue
 
@@ -153,6 +151,7 @@ def process_events_alltogether(home_dir, time_period, ems, tb0_vals, save_dir):
                     if matched_dict:
                         # print("A matching dictionary found:", matched_dict, event_props)
 
+                        ### Add duration
                         new_value = event_props['dur_for_which_this_is_amax']
                         existing_value = matched_dict.get('dur_for_which_this_is_amax', '')
                         # Create or update the value as a list
@@ -161,6 +160,17 @@ def process_events_alltogether(home_dir, time_period, ems, tb0_vals, save_dir):
                         else:
                             existing_value = [existing_value, new_value]  # Convert existing string to list and add 'yes'
                         matched_dict['dur_for_which_this_is_amax'] = existing_value
+
+                        ### Add filepath
+                        new_value_fp = event_props['filename']
+                        existing_value_fp = matched_dict.get('filename', '')
+
+                        # Create or update the value as a list
+                        if isinstance(existing_value_fp, list):
+                            existing_value_fp.append(new_value_fp)
+                        else:
+                            existing_value_fp = [existing_value_fp, new_value_fp]  # Convert existing string to list and add 'yes'
+                        matched_dict['filename'] = existing_value_fp
 
                         event_props_ls[index]= matched_dict
 
@@ -171,19 +181,54 @@ def process_events_alltogether(home_dir, time_period, ems, tb0_vals, save_dir):
                         events_dict[f"{em}, {gauge_num}, {event_num}"] = event_df
                         event_props_ls.append(event_props)
                         event_profiles_dict[f"{em}, {gauge_num}, {event_num}"] = create_profiles_dict(event_df)
-
-        print(f"Finished {em}")                        
         
-        with open(save_dir + f"ProcessedData/AMAX_Events/UKCP18_30mins/{time_period}/events_dict_{em}.pickle", 'wb') as handle:
+        with open(save_dir + f"ProcessedData/AMAX_Events/UKCP18_30mins/{time_period}/events_dict_{em}_new.pickle", 'wb') as handle:
             pickle.dump(events_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
-        with open(save_dir + f"ProcessedData/AMAX_Events/UKCP18_30mins/{time_period}/event_profiles_dict_{em}.pickle", 'wb') as handle:
+        with open(save_dir + f"ProcessedData/AMAX_Events/UKCP18_30mins/{time_period}/event_profiles_dict_{em}_new.pickle", 'wb') as handle:
             pickle.dump(event_profiles_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
-        with open(save_dir + f"ProcessedData/AMAX_Events/UKCP18_30mins/{time_period}/event_props_dict_{em}.pickle", 'wb') as handle:
+        with open(save_dir + f"ProcessedData/AMAX_Events/UKCP18_30mins/{time_period}/event_props_dict_{em}_new.pickle", 'wb') as handle:
             pickle.dump(event_props_ls, handle, protocol=pickle.HIGHEST_PROTOCOL)                       
 
     return events_dict, event_props_ls, event_profiles_dict
+
+def calc_d50_with_interpolation(sample):
+    n=5
+    cumulative_rainfall, cumulative_rainfall_times = create_cumulative_event(sample)
+    dimensionless_cumulative_rainfall, dimensionless_times =  create_dimensionless_event(cumulative_rainfall, cumulative_rainfall_times)
+    interpolated_n_cumulative_rainfall, interpolated_n_times = interpolate_rainfall(dimensionless_cumulative_rainfall,n)
+    interpolated_n_incremental_rainfall = create_incremental_event(interpolated_n_cumulative_rainfall)
+    max_quintile_profile = find_part_with_most_rain(interpolated_n_incremental_rainfall, n)
+    
+    percentile = 0.5
+    
+    time_percentage = (np.arange(0, len(sample) + 1) / len(sample)) * 100
+    
+    # Find the indices where the cumulative rainfall crosses the percentile_value
+    indices_below = np.where(dimensionless_cumulative_rainfall < percentile)[0]
+    indices_above = np.where(dimensionless_cumulative_rainfall >= percentile)[0]
+
+    # Ensure there are indices both below and above the percentile value
+    if len(indices_below) > 0 and len(indices_above) > 0:
+        index_below = indices_below[-1]  # Last index below the percentile value
+        index_above = indices_above[0]    # First index above the percentile value
+
+        # Perform linear interpolation to find the exact intersection point
+        x_below = time_percentage[index_below]
+        y_below = dimensionless_cumulative_rainfall[index_below]
+
+        x_above = time_percentage[index_above]
+        y_above = dimensionless_cumulative_rainfall[index_above]
+
+        # Calculate the slope
+        slope = (y_above - y_below) / (x_above - x_below)
+        # Use the formula to find the exact x value where the y value equals percentile_value
+        time_for_percentile = x_below + (percentile - y_below) / slope
+
+        return time_for_percentile
+
+
 
 def process_events_alltogether_nimrod(home_dir, tb0_vals):
     events_dict = {}
@@ -328,6 +373,9 @@ def create_event_characteristics_dict(this_event):
     DurationRange_notpersonalised = find_dur_category([0.25, 2.10, 6.45, 19.25, 1000], 
                                                       ['0.25-2.10 hr', '2.10-6.45 hr', '6.45-19.25 hr', '19.25+ hr'], duration)
     d50, d50_index, cumulative_precip =calculate_D50(this_event['precipitation (mm)'])
+    d50_new = calc_d50_with_interpolation(this_event['precipitation (mm)'])
+    
+    
     return {
         "season" : get_season(this_event['times'][0]),
         'duration':duration,
@@ -347,6 +395,7 @@ def create_event_characteristics_dict(this_event):
         'D50_index': d50_index,
         'theta': find_theta(this_event),
         'D50': d50,
+        'D50_new':d50_new,
         'com':calculate_storm_center_of_mass(this_event)}
 
 def find_max_quintile (precip, n):
