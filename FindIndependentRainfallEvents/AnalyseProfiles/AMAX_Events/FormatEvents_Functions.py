@@ -2,6 +2,25 @@ import numpy as np
 import datetime
 import pandas as pd
 
+def calc_mean_day_and_dispersion(theta):
+    
+    x = np.cos(theta)
+    y = np.sin(theta)
+
+    x_mean = np.mean(x)
+    y_mean = np.mean(y)
+    
+    if x_mean <= 0:
+        D_mean = (np.arctan(y_mean/x_mean) + np.pi) * 365.25/(2*np.pi)
+    elif x_mean > 0 and y_mean >= 0:
+        D_mean = np.arctan(y_mean/x_mean) * 365.25/(2*np.pi)
+    elif x_mean > 0 and y_mean < 0:
+        D_mean = (np.arctan(y_mean/x_mean) + 2*np.pi) * 365.25/(2*np.pi)
+    
+    R = np.sqrt(x_mean**2 + y_mean**2)
+
+    return D_mean, R
+
 def calculate_R(theta):
     """
     Calculate theta (angle in radians) and R (resultant length) for a series of dates.
@@ -63,97 +82,83 @@ def get_season(date):
         return 'Autumn'
     
 def group_data_calc_means(df, d50_variable, group_by_vars):
-    
-    # Grouping the dataframe by the specified variables
+    # Group the dataframe by the specified variables
     grouped = df.groupby(group_by_vars)
-
-    # Define a list to hold results
     results = []
 
-    # Iterate through each group
     for group_keys, group in grouped:
-        # If group_keys is a tuple, unpack it based on the number of group-by variables
-        if len(group_by_vars) == 1:
-            group_keys = (group_keys,)  # Make it a tuple if only one grouping variable
+        # Ensure group_keys is a tuple for consistency
+        group_keys = (group_keys,) if isinstance(group_keys, str) else group_keys
         
-        # Calculate R (assuming calculate_R is a defined function)
-        R = calculate_R(group['theta'])
-
-        # Calculate the percentage of events where 'loading_profile_molly' == 'F2'
-        total_events = len(group)  # Total number of events in the group
-        F2_events = len(group[group['Loading_profile_molly'] == 'F2'])  # Number of 'F2' events
-        F2_percentage = (F2_events / total_events) * 100 if total_events > 0 else 0  # Percentage of 'F2' events
+        # Calculate mean day and dispersion
+        D_mean, R = calc_mean_day_and_dispersion(group['theta'])
+        total_events = len(group)
         
-        B2_events = len(group[group['Loading_profile_molly'] == 'B2'])  # Number of 'F2' events
-        B2_percentage = (B2_events / total_events) * 100 if total_events > 0 else 0  # Percentage of 'F2' events        
+        # Calculate percentages for each loading profile type
+        profile_counts = group['Loading_profile_molly'].value_counts(normalize=True) * 100
+        F2_percentage = profile_counts.get('F2', 0)
+        B2_percentage = profile_counts.get('B2', 0)
+        C_percentage = profile_counts.get('C', 0)
+        F1_percentage = profile_counts.get('F1', 0)
+        B1_percentage = profile_counts.get('B1', 0)
 
-        # Store the mean of theta, R, and other statistics in the results list for each group
+        # Collect all statistics for each group
         results.append({
-            **dict(zip(group_by_vars, group_keys)),  # Unpack the group keys into the result dictionary
-            'theta_mean': np.mean(group['theta']),  # Mean theta for the group
-            'D_mean': np.mean(group['D']),          # Mean of D for the group
-            'R': R,                                 # R value for the group
-            'D50_mean': np.mean(group[d50_variable]),      # Mean of D50 for the group
-            'D50_P90': np.percentile(group[d50_variable], 90),
-            'D50_P10': np.percentile(group[d50_variable], 10),
-            'D50_median': np.median(group[d50_variable]),  # Median of D50 for the group
-            'F2_percentage': F2_percentage,           # Percentage of 'F2' events
-            'B2_percentage': B2_percentage           # Percentage of 'F2' events
+            **dict(zip(group_by_vars, group_keys)),
+            'D_mean': D_mean,
+            'R': R,
+            'D50_mean': group[d50_variable].mean(),
+            'D50_P90': group[d50_variable].quantile(0.9),
+            'D50_P10': group[d50_variable].quantile(0.1),
+            'D50_median': group[d50_variable].median(),
+            'F2_percentage': F2_percentage,
+            'B2_percentage': B2_percentage,
+            'C_percentage': C_percentage,
+            'F1_percentage': F1_percentage,
+            'B1_percentage': B1_percentage
         })
 
-    # Convert the results list into a DataFrame
     return pd.DataFrame(results)
 
 
-def find_change_values_in_groups_new(grouped, group_by_columns, sampling_duration):
-    group_by_columns_copy = group_by_columns.copy()
-    group_by_columns_copy.remove('Climate')
-    # Split the dataframe into present and future data
-    df_present = grouped[grouped['Climate'] == 'Present'].copy()
-    df_future = grouped[grouped['Climate'] == 'Future'].copy()
-
-    # Rename columns for clarity when merging
-    df_present = df_present.rename(columns={
-        'theta_mean': 'theta_mean_present',
-        'D_mean': 'D_mean_present',
-        'R': 'R_present',
-        'D50_mean': 'D50_mean_present',
-        'D50_median': 'D50_median_present',
-        'D50_P90': 'D50_P90_present',
-        'D50_P10': 'D50_P10_present',    
-        'F2_percentage': 'F2_percentage_present',   
-        'B2_percentage': 'B2_percentage_present',   
-    })
-
-    df_future = df_future.rename(columns={
-        'theta_mean': 'theta_mean_future',
-        'D_mean': 'D_mean_future',
-        'R': 'R_future',
-        'D50_mean': 'D50_mean_future',
-        'D50_median': 'D50_median_future',
-        'D50_P90': 'D50_P90_future',
-        'D50_P10': 'D50_P10_future',      
-        'F2_percentage': 'F2_percentage_future',  
-        'B2_percentage': 'B2_percentage_future',           
-    })
-
-    merged_df = pd.merge(df_present, df_future, 
-                         on=group_by_columns_copy, 
-                         how='outer',  # Use 'outer' for an outer join
-                         suffixes=('_present', '_future'))
+def find_change_values_in_groups_new(grouped_df, group_by_columns, sampling_duration):
+    group_by_columns_no_climate = [col for col in group_by_columns if col != 'Climate']
     
-    # Calculate the differences between present and future values
-    merged_df['theta_mean_diff'] = merged_df['theta_mean_future'] - merged_df['theta_mean_present']
-    merged_df['D_mean_diff'] = merged_df['D_mean_future'] - merged_df['D_mean_present']
-    merged_df['R_diff'] = merged_df['R_future'] - merged_df['R_present']
-    merged_df['D50_mean_diff'] = merged_df['D50_mean_future'] - merged_df['D50_mean_present']
-    merged_df['D50_median_diff'] = merged_df['D50_median_future'] - merged_df['D50_median_present']
-    merged_df['D50_P90_diff'] = merged_df['D50_P90_future'] - merged_df['D50_P90_present']
-    merged_df['D50_P10_diff'] = merged_df['D50_P10_future'] - merged_df['D50_P10_present']    
-    merged_df['F2_percentage_diff'] = merged_df['F2_percentage_future'] - merged_df['F2_percentage_present']    
-    merged_df['B2_percentage_diff'] = merged_df['B2_percentage_future'] - merged_df['B2_percentage_present']      
-    merged_df.drop(['Climate_present', 'Climate_future'], axis=1, inplace=True)
+    # Split data into present and future, renaming columns
+    present_df = grouped_df[grouped_df['Climate'] == 'Present'].copy().rename(columns=lambda x: x + '_present' if x not in group_by_columns_no_climate else x)
+    future_df = grouped_df[grouped_df['Climate'] == 'Future'].copy().rename(columns=lambda x: x + '_future' if x not in group_by_columns_no_climate else x)
+
+    # Merge present and future data on common columns
+    merged_df = pd.merge(present_df, future_df, on=group_by_columns_no_climate, how='outer', suffixes=('_present', '_future'))
+
+    # Calculate differences between present and future values
+    for metric in ['D_mean', 'R', 'D50_mean', 'D50_median', 'D50_P90', 'D50_P10', 'F2_percentage', 'B2_percentage', 'C_percentage', 'F1_percentage', 'B1_percentage']:
+        merged_df[f'{metric}_diff'] = merged_df[f'{metric}_future'] - merged_df[f'{metric}_present']
     
     merged_df['sampling_duration'] = sampling_duration
+
+    # Step 2: Apply the function to the DataFrame columns and create a new column
+    merged_df['D_mean_diff_new'] = merged_df.apply(
+        lambda row: circular_day_difference(row['D_mean_present'], row['D_mean_future']), axis=1)
+    merged_df['dff'] = merged_df['D_mean_diff'] - merged_df['D_mean_diff_new']
     
-    return merged_df
+    return merged_df.drop(columns=['Climate_present', 'Climate_future'], errors='ignore')
+
+
+def find_change_values_in_groups_new(grouped_df, group_by_columns, sampling_duration):
+    group_by_columns_no_climate = [col for col in group_by_columns if col != 'Climate']
+    
+    # Split data into present and future, renaming columns
+    present_df = grouped_df[grouped_df['Climate'] == 'Present'].copy().rename(columns=lambda x: x + '_present' if x not in group_by_columns_no_climate else x)
+    future_df = grouped_df[grouped_df['Climate'] == 'Future'].copy().rename(columns=lambda x: x + '_future' if x not in group_by_columns_no_climate else x)
+
+    # Merge present and future data on common columns
+    merged_df = pd.merge(present_df, future_df, on=group_by_columns_no_climate, how='outer', suffixes=('_present', '_future'))
+
+    # Calculate differences between present and future values
+    for metric in ['D_mean', 'R', 'D50_mean', 'D50_median', 'D50_P90', 'D50_P10', 'F2_percentage', 'B2_percentage', 'C_percentage', 'F1_percentage', 'B1_percentage']:
+        merged_df[f'{metric}_diff'] = merged_df[f'{metric}_future'] - merged_df[f'{metric}_present']
+    
+    merged_df['sampling_duration'] = sampling_duration
+
+    return merged_df.drop(columns=['Climate_present', 'Climate_future'], errors='ignore')

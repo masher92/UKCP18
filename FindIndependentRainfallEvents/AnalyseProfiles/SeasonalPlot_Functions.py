@@ -111,8 +111,8 @@ def plot_polar_months_plot(df, ax, title_on, title, rmax, name_variable_to_plot)
     
     # Define colors for each month
     colors = [
-              '#0033cc',  # Jan (Light Blue)
-              '#0033cc',  # Feb (Very Light Blue)
+              'royalblue',  # Jan (Light Blue)
+              'royalblue',  # Feb (Very Light Blue)
               '#ffcc00',  # Mar (Purple)
               '#ffcc00',  # Apr (Medium Purple)
               '#ffcc00',  # May (Bright Yellow)
@@ -122,7 +122,7 @@ def plot_polar_months_plot(df, ax, title_on, title, rmax, name_variable_to_plot)
               '#8b4513',  # Sep (Saddle Brown)
               '#8b4513',  # Oct (Orange)
               '#8b4513',# Nov (Dark Goldenrod)
-              '#0033cc',  # Dec (Dark Blue)
+              'royalblue',  # Dec (Dark Blue)
     ]  
     colors.reverse()
     

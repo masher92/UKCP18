@@ -93,7 +93,7 @@ def process_events_alltogether(home_dir, time_period, ems, tb0_vals, save_dir):
     event_profiles_dict = {}
 
     for em in ems:
-        for gauge_num in range(0, 1294):
+        for gauge_num in range(0, 10):
             if gauge_num not in [444, 827, 888]:
                 if gauge_num % 100 == 0:
                     print(f"Processing gauge {gauge_num}")
