@@ -228,8 +228,6 @@ def calc_d50_with_interpolation(sample):
 
         return time_for_percentile
 
-
-
 def process_events_alltogether_nimrod(home_dir, tb0_vals):
     events_dict = {}
     event_props_ls = []

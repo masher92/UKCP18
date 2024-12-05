@@ -78,7 +78,7 @@ def find_gauge_Tb0_and_location_in_grid(tbo_vals, gauge_num, sample_cube):
     closest_point, idx_2d = find_position_obs(sample_cube, gauge1['Lat'], gauge1['Lon'], plot_radius=10, plot=False)
     return Tb0, idx_2d
 
-def find_amax_indy_events_v2(df, duration, Tb0):
+def find_amax_indy_events_v2(df, duration, Tb0, gauge_num, yr):
     rainfall_cores = find_rainfall_core(df, duration=duration, Tb0=Tb0)
     rainfall_events_expanded = []
 
@@ -89,7 +89,17 @@ def find_amax_indy_events_v2(df, duration, Tb0):
         if len(rainfall_core_after_search3[rainfall_core_after_search3['precipitation (mm/hr)'] > 0.1]) > 0:
             rainfall_events_expanded.append(rainfall_core_after_search3)
     
-    return rainfall_events_expanded
+    # Collect all 'times' values from each DataFrame
+    all_times = pd.Series(dtype='datetime64[ns]')  # Create an empty series with datetime type
+    all_times = pd.concat([all_times] + [a_df['times'] for a_df in rainfall_events_expanded], ignore_index=True)
+
+    # Check for duplicates and raise an exception if any are found
+    if all_times.duplicated().any():
+        raise ValueError(f"Overlapping times detected in the DataFrames {gauge_num}, {duration} {yr} {rainfall_events_expanded[0]} {rainfall_events_expanded[1]},{rainfall_cores[0]} {rainfall_cores[1]} {all_times}")
+    else:
+        print(f"No overlapping times {gauge_num}, {duration} {yr}")
+    
+        return rainfall_events_expanded
 
 def search_for_valid_events(df, duration, Tb0):
     # while True means the code will continue to execute until a 'return' statement is reached
@@ -114,6 +124,22 @@ def search_for_valid_events(df, duration, Tb0):
             print(f"Event doesnt contain NAN, total event precip is {events_v2[0]['precipitation (mm)'].sum()}")
             return events_v2
 
+def remove_leading_and_trailing_zeroes(df, threshold = 0.05):
+    
+    # Identify the start and end of the event where values are above the threshold
+    event_start = df[df['precipitation (mm)'] >= threshold].index.min()
+    event_end = df[df['precipitation (mm)'] >= threshold].index.max()
+
+    # Handle cases where no values are above the threshold
+    if pd.isna(event_start) or pd.isna(event_end):
+        print(df)
+        print(fp)
+        print("No events found with precipitation >= threshold.")
+    else:
+        # Remove values < threshold from the start and end of the event
+        trimmed_test = df.loc[event_start:event_end]#.reset_index(drop=True)
+    
+    return trimmed_test        
 
 def find_rainfall_core(df, duration, Tb0):
     """
@@ -143,7 +169,7 @@ def find_rainfall_core(df, duration, Tb0):
 
     # Identify the end index of the window where the maximum total rainfall occurs
     max_rainfall_end_index = df['Rolling_Sum'].idxmax()
-    
+
     if max_rainfall_end_index ==0:
 
         # Find the index of the maximum value in the 'Rolling_Sum' column
@@ -157,14 +183,21 @@ def find_rainfall_core(df, duration, Tb0):
         max_rainfall_end_index = df_temp.idxmax()
 
     # Convert index to a positional integer for slicing
-    max_rainfall_end_pos = df.index.get_loc(max_rainfall_end_index)
+    max_rainfall_end_pos = df.index.get_loc(max_rainfall_end_index) 
 
     # Calculate the start position of the window, ensuring it doesn't go below the DataFrame's range
     max_rainfall_start_pos = max(0, max_rainfall_end_pos - window_length)
 
     # Extract the window of maximum rainfall from the DataFrame
-    max_rainfall_window = df.iloc[max_rainfall_start_pos:max_rainfall_end_pos].copy()
+    max_rainfall_window = df.iloc[max_rainfall_start_pos+1:max_rainfall_end_pos+1].copy()
 
+    ################
+    # Remove leading and trailing zeroes????
+    ################
+    print(f"len of full {duration}h window before trimming:" , len(max_rainfall_window))
+    max_rainfall_window = remove_leading_and_trailing_zeroes(max_rainfall_window)
+    print(f"len of full {duration}h window after trimming:" , len(max_rainfall_window))
+    
     ################
     # Check whether this is one independent event, or two
     ################
@@ -184,11 +217,19 @@ def find_rainfall_core(df, duration, Tb0):
     if np.nanmax(max_rainfall_window['consecutive_dry']) > Tb0 * 2 :
         print('2 events')
         split_index = max_rainfall_window[max_rainfall_window['consecutive_dry'] == (Tb0 * 2)].index[0]
+        
         event1 = max_rainfall_window.loc[:split_index]
         event2 = max_rainfall_window.loc[split_index:]
+        print('Before trimming: event1 is ', len(event1), ', event2 is ', len(event2))
+        
+        event1 = remove_leading_and_trailing_zeroes(event1)
+        event2 = remove_leading_and_trailing_zeroes(event2)
+        print('After trimming: event1 is ', len(event1), ', event2 is ', len(event2))
         return [event1, event2]
     else:
+        print("1 event", len(max_rainfall_window))
         return [max_rainfall_window]
+    
     
 def search1(df, max_rainfall_window):
     
@@ -337,7 +378,7 @@ def search3(df, max_rainfall_window, Tb0):
         # e.g. (the row afer the max_rainfall_window)
         forward_search_start_position = end_index + 1
         # and ending from (e.g. 2*Tb0 after where it starts)
-        forward_search_end_position = min(len(df), forward_search_start_position + (Tb0*2) + 1)  # Define the limit for forward search
+        forward_search_end_position = min(len(df), forward_search_start_position + (Tb0*2))  # Define the limit for forward search
         # Get the forward slice
         forward_slice = df.iloc[forward_search_start_position:forward_search_end_position]
         # Check for rows meeting the condition (> 1 mm/hr)

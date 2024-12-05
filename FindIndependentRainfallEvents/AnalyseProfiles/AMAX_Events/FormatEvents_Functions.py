@@ -120,6 +120,10 @@ def group_data_calc_means(df, d50_variable, group_by_vars):
 
     return pd.DataFrame(results)
 
+def circular_day_difference(present_day, future_day):
+    # Compute the circular difference
+    circular_diff = ((future_day - present_day + 182.625) % 365.25) - 182.625
+    return circular_diff
 
 def find_change_values_in_groups_new(grouped_df, group_by_columns, sampling_duration):
     group_by_columns_no_climate = [col for col in group_by_columns if col != 'Climate']
@@ -130,35 +134,34 @@ def find_change_values_in_groups_new(grouped_df, group_by_columns, sampling_dura
 
     # Merge present and future data on common columns
     merged_df = pd.merge(present_df, future_df, on=group_by_columns_no_climate, how='outer', suffixes=('_present', '_future'))
-
+    print(merged_df.columns)
     # Calculate differences between present and future values
-    for metric in ['D_mean', 'R', 'D50_mean', 'D50_median', 'D50_P90', 'D50_P10', 'F2_percentage', 'B2_percentage', 'C_percentage', 'F1_percentage', 'B1_percentage']:
+    for metric in ['R', 'D50_mean', 'D50_median', 'D50_P90', 'D50_P10', 'F2_percentage', 'B2_percentage', 'C_percentage', 'F1_percentage', 'B1_percentage']:
         merged_df[f'{metric}_diff'] = merged_df[f'{metric}_future'] - merged_df[f'{metric}_present']
     
     merged_df['sampling_duration'] = sampling_duration
 
     # Step 2: Apply the function to the DataFrame columns and create a new column
-    merged_df['D_mean_diff_new'] = merged_df.apply(
+    merged_df['D_mean_diff'] = merged_df.apply(
         lambda row: circular_day_difference(row['D_mean_present'], row['D_mean_future']), axis=1)
-    merged_df['dff'] = merged_df['D_mean_diff'] - merged_df['D_mean_diff_new']
     
     return merged_df.drop(columns=['Climate_present', 'Climate_future'], errors='ignore')
 
 
-def find_change_values_in_groups_new(grouped_df, group_by_columns, sampling_duration):
-    group_by_columns_no_climate = [col for col in group_by_columns if col != 'Climate']
+# def find_change_values_in_groups_new(grouped_df, group_by_columns, sampling_duration):
+#     group_by_columns_no_climate = [col for col in group_by_columns if col != 'Climate']
     
-    # Split data into present and future, renaming columns
-    present_df = grouped_df[grouped_df['Climate'] == 'Present'].copy().rename(columns=lambda x: x + '_present' if x not in group_by_columns_no_climate else x)
-    future_df = grouped_df[grouped_df['Climate'] == 'Future'].copy().rename(columns=lambda x: x + '_future' if x not in group_by_columns_no_climate else x)
+#     # Split data into present and future, renaming columns
+#     present_df = grouped_df[grouped_df['Climate'] == 'Present'].copy().rename(columns=lambda x: x + '_present' if x not in group_by_columns_no_climate else x)
+#     future_df = grouped_df[grouped_df['Climate'] == 'Future'].copy().rename(columns=lambda x: x + '_future' if x not in group_by_columns_no_climate else x)
 
-    # Merge present and future data on common columns
-    merged_df = pd.merge(present_df, future_df, on=group_by_columns_no_climate, how='outer', suffixes=('_present', '_future'))
+#     # Merge present and future data on common columns
+#     merged_df = pd.merge(present_df, future_df, on=group_by_columns_no_climate, how='outer', suffixes=('_present', '_future'))
 
-    # Calculate differences between present and future values
-    for metric in ['D_mean', 'R', 'D50_mean', 'D50_median', 'D50_P90', 'D50_P10', 'F2_percentage', 'B2_percentage', 'C_percentage', 'F1_percentage', 'B1_percentage']:
-        merged_df[f'{metric}_diff'] = merged_df[f'{metric}_future'] - merged_df[f'{metric}_present']
+#     # Calculate differences between present and future values
+#     for metric in ['D_mean', 'R', 'D50_mean', 'D50_median', 'D50_P90', 'D50_P10', 'F2_percentage', 'B2_percentage', 'C_percentage', 'F1_percentage', 'B1_percentage']:
+#         merged_df[f'{metric}_diff'] = merged_df[f'{metric}_future'] - merged_df[f'{metric}_present']
     
-    merged_df['sampling_duration'] = sampling_duration
+#     merged_df['sampling_duration'] = sampling_duration
 
-    return merged_df.drop(columns=['Climate_present', 'Climate_future'], errors='ignore')
+#     return merged_df.drop(columns=['Climate_present', 'Climate_future'], errors='ignore')

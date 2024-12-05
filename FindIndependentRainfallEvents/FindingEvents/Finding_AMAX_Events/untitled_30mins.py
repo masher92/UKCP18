@@ -90,12 +90,13 @@ Tb0, idx_2d = find_gauge_Tb0_and_location_in_grid(tbo_vals, gauge_num, sample_cu
 # Function to process each gauge
 print(f"gauge num is {gauge_num}")             
 
-base_dir = f"/nfs/a161/gy17m2a/PhD/ProcessedData/IndependentEvents/UKCP18_30mins/{timeperiod}/{em}/{gauge_num}/WholeYear"
+base_dir = f"/nfs/a161/gy17m2a/PhD/ProcessedData/IndependentEvents/UKCP18_30mins/{em}/{gauge_num}/WholeYear"
 # Create the directory if it doesnt exist
 if not os.path.isdir(base_dir):
     os.makedirs(base_dir)
+    
+print(full_year_cube.shape)     
 
-print(full_year_cube.shape)      
 ######################################################
 ## Check if any files are missing, across the 3 filtering options
 # If there are: code will continue to run
@@ -103,14 +104,15 @@ print(full_year_cube.shape)
 ######################################################                
 # Create a flag to record whether we are missing any of the files we need
 missing_files = False
+    
 
 # Check if we are missing any of the files, and if so, change the flag to True
 if not all(os.path.exists(f"{base_dir}/{duration}hrs_{yr}_v2_part0.csv") for duration in [0.5, 1, 2, 3, 6, 12, 24]):
-    missing_files = True
+    missing_files = True    
 
 # If we are missing some files then get the data for the grid cell, 
 if missing_files:
-
+        
     # Extract data for the specified indices
     start= time.time()
     one_location_cube = full_year_cube[:, idx_2d[0], idx_2d[1]]
@@ -126,22 +128,22 @@ if missing_files:
 
     # Search dataframe for events corresponding to durations
     for duration in [0.5, 1, 2, 3, 6, 12, 24]:
+        base_dir = f"/nfs/a161/gy17m2a/PhD/ProcessedData/IndependentEvents/UKCP18_30mins/{em}/{gauge_num}/WholeYear"
 
         filename =  f"{base_dir}/{duration}hrs_{yr}_v2_part0.csv"
         if not os.path.exists(filename):
             print(f"Finding the AMAX for {duration}hr events for gauge {gauge_num} in year {yr}")
             # Find events
-            events_v2 = search_for_valid_events(df, duration=duration, Tb0=Tb0)
+            # events_v2 = search_for_valid_events(df, duration=duration, Tb0=Tb0)
+            events_v2 = find_amax_indy_events_v2(df, duration=duration, Tb0=Tb0, gauge_num=gauge_num, yr=yr)
 
             # Save events to CSV
             for num, event in enumerate(events_v2):
-                if len(event) > 1:
-                        event.to_csv(f"{base_dir}/{duration}hrs_{yr}_v2_part{num}.csv")
-                        print(f"{base_dir}/{duration}hrs_{yr}_v2_part{num}.csv")
-                        if event['precipitation (mm/hr)'].isna().any():
-                            print("NANs in this event")
+                event.to_csv(f"{base_dir}/{duration}hrs_{yr}_v2_part{num}.csv")
+                if event['precipitation (mm/hr)'].isna().any():
+                    print("NANs in this event")
         else:
             print(f"already exists{filename}")
-            pass   
+            pass 
 else:
     print("Files all already exist")

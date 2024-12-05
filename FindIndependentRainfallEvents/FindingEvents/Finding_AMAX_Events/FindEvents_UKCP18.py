@@ -75,7 +75,6 @@ else:
     save_cube_as_pickle_file(full_year_cube, pickle_file_filepath)
 
     
-failed_gauges = []
 gauge_nums = range(0,1293)
 # Function to process each gauge
 for gauge_num in gauge_nums:
@@ -126,16 +125,14 @@ for gauge_num in gauge_nums:
                     if not os.path.exists(filename):
                         print(f"Finding the AMAX for {duration}hr events for gauge {gauge_num} in year {yr}")
                         # Find events
-                        events_v2 = search_for_valid_events(df, duration=duration, Tb0=Tb0)
+                        # events_v2 = search_for_valid_events(df, duration=duration, Tb0=Tb0)
+                        events_v2 = find_amax_indy_events_v2(df, duration=duration, Tb0=Tb0)
 
                         # Save events to CSV
                         for num, event in enumerate(events_v2):
-                            if len(event) > 1:
-                                    event.to_csv(f"{base_dir}/{duration}hrs_{yr}_v2_part{num}.csv")
-                                    if event['precipitation (mm/hr)'].isna().any():
-                                        print("NANs in this event")
+                            event.to_csv(f"{base_dir}/{duration}hrs_{yr}_v2_part{num}.csv")
+                            if event['precipitation (mm/hr)'].isna().any():
+                                print("NANs in this event")
                     else:
                         print(f"already exists{filename}")
                         pass   
-
-print(f"failed gauges are: {failed_gauges}")
