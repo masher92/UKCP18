@@ -13,7 +13,7 @@ from matplotlib.colors import LinearSegmentedColormap
 from scipy.stats import ks_2samp
 import datetime as dt
 import matplotlib.colors as mcolors
-from matplotlib.ticker import FixedLocator, FixedFormatter, FormatStrFormatter, PercentFormatter
+from matplotlib.ticker import FixedLocator, FixedFormatter, FormatStrFormatter, PercentFormatter, ScalarFormatter, MaxNLocator, LogLocator
 
 # Filter for Great Britain
 gdf = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
@@ -484,15 +484,13 @@ def plot_values_on_map(ax, data, title, tbo_vals, value_column, vmin, vmax, cmap
     # Scatter plot for the specified value column
     scatter = ax.scatter(
         lon, lat, c=data[value_column], cmap=cmap, edgecolor=None, alpha=1, s=10, marker='o',
-        vmin=vmin, vmax=vmax
-    )
+        vmin=vmin, vmax=vmax)
     if 'present' in value_column:
         ax.set_title(title, fontsize=20)
     ax.set_xticklabels([])
     ax.set_yticklabels([])
     
     return scatter
-     
     
 def make_plot(df_changes_all, df_changes_byduration, variable, cmap, diffs_dict, low_lim=None, high_lim=None):
     
@@ -500,7 +498,6 @@ def make_plot(df_changes_all, df_changes_byduration, variable, cmap, diffs_dict,
     df_changes_byduration = df_changes_byduration.copy()
     
     df_changes_all['sig'] = diffs_dict['All']
-    print(np.unique(diffs_dict['All'],return_counts=True))
     
     fig, axes = plt.subplots(3, 4, figsize=(16, 13))
 
@@ -649,34 +646,131 @@ def day_to_date(day_of_year):
     
     return date.strftime('%d %b')  # Format the date as "01 February"
 
-def make_plot_D_seasonal(df_changes_all, df_changes_byduration, variable, diffs_dict):
+def make_plot_durcats(df_changes_all, df_changes_byduration, variable, cmap, diffs_dict, low_lim=None, high_lim=None):
+    
+    df_changes_all = df_changes_all.copy()
+    df_changes_byduration = df_changes_byduration.copy()
+    
+    df_changes_all['sig'] = diffs_dict['All']
+    
+    fig, axes = plt.subplots(3, 5, figsize=(16, 10))
+
+    #################################################
+    # Shift January Days in Both Present and Future
+    #################################################
+    variable_present = f'{variable}_present'
+    variable_future = f'{variable}_future'
+    
+    #################################################
+    # Determine Color Limits Based on Both Datasets
+    #################################################
+    if high_lim is None:
+        low_lim = min(df_changes_all[variable_present].min(), df_changes_all[variable_present].min(), 
+                      df_changes_byduration[variable_future].min(), df_changes_byduration[variable_future].min())
+
+        high_lim = max(df_changes_all[variable_present].max(), df_changes_all[variable_present].max(), 
+                      df_changes_byduration[variable_future].max(), df_changes_byduration[variable_future].max())   
+
+    #################################################
+    # Plot Present Data for Each Duration
+    #################################################
+    # Using the adjusted `low_lim` and `high_lim`
+    for i, duration in enumerate(['0.25-2.10 hr','2.10-6.45 hr', '6.45-19.25 hr', '19.25+ hr']):
+        this_duration = df_changes_byduration[df_changes_byduration["sampling_duration"] == duration][['gauge_num', variable_present]]        
+        plot_values_on_map(axes[0, i], this_duration, f'{duration}h', tbo_vals, variable_present, low_lim, high_lim, cmap)
+
+    # Plot 'All' present values
+    scatter = plot_values_on_map(axes[0, 4], df_changes_all[['gauge_num', variable_present]], 'All', tbo_vals, variable_present, low_lim, high_lim, cmap)
+
+    cbar_ax = fig.add_axes([1.005, 0.685, 0.01, 0.26])  # [left, bottom, width, height]
+    cbar = fig.colorbar(scatter, cax=cbar_ax, orientation='vertical')
+    cbar.ax.tick_params(labelsize=16) 
+    if 'percentage' in variable:
+        cbar.ax.yaxis.set_major_formatter(FuncFormatter(percent_formatter))
+    
+    #################################################
+    # Plot Future Data for Each Duration
+    #################################################
+    for i, duration in enumerate(['0.25-2.10 hr','2.10-6.45 hr', '6.45-19.25 hr', '19.25+ hr']):
+        this_duration = df_changes_byduration[df_changes_byduration["sampling_duration"] == duration][['gauge_num', variable_future]]
+        plot_values_on_map(axes[1, i], this_duration, f'{duration}h', tbo_vals, variable_future, low_lim, high_lim, cmap)
+
+    # Plot 'All' future values
+    scatter = plot_values_on_map(axes[1, 4], df_changes_all[['gauge_num', variable_future]], 'All', tbo_vals, variable_future, low_lim, high_lim, cmap)
+    cbar_ax = fig.add_axes([1.005, 0.368, 0.01, 0.26])  # [left, bottom, width, height]
+    cbar = fig.colorbar(scatter, cax=cbar_ax, orientation='vertical')
+    cbar.ax.tick_params(labelsize=16) 
+    
+    if 'percentage' in variable:
+        cbar.ax.yaxis.set_major_formatter(FuncFormatter(percent_formatter))
+    
+    #################################################
+    # Plot Difference Data if Available
+    #################################################
+    variable_diff = f'{variable}_diff'
+
+    # Calculate and apply color limits centered around 0 for the difference
+    low_lim_diff = -max(abs(df_changes_all[variable_diff].min()), abs(df_changes_all[variable_diff].max()),
+                        abs(df_changes_byduration[variable_diff].min()), abs(df_changes_byduration[variable_diff].max()))
+    # low_lim_diff=-6
+    high_lim_diff = -low_lim_diff
+
+    for i, duration in enumerate(['0.25-2.10 hr','2.10-6.45 hr', '6.45-19.25 hr', '19.25+ hr']):
+        this_duration = df_changes_byduration[df_changes_byduration["sampling_duration"] == duration][['gauge_num',  f'{variable}_diff']]
+        
+        this_duration[f'{variable}_diff'] = this_duration[f'{variable}_diff'].clip(lower=-80, upper=80)
+        scatter = plot_values_on_map(axes[2, i], this_duration, f'{duration}h', tbo_vals, f'{variable}_diff',
+                                             low_lim_diff, high_lim_diff, 'bwr')
+    
+    # Plot 'All' differences
+    scatter = plot_values_on_map(axes[2, 4], df_changes_all[['gauge_num', variable_diff, 'sig']], 'All', tbo_vals,
+                                         variable_diff, low_lim_diff, high_lim_diff, 'bwr')    
+    
+    # Create the colorbar in this new axis
+    cbar_ax = fig.add_axes([1.007, 0.054, 0.01, 0.26])  # [left, bottom, width, height]
+    cbar = fig.colorbar(scatter, cax=cbar_ax, orientation='vertical')
+    cbar.ax.tick_params(labelsize=16) 
+    if 'percentage' in variable:
+        cbar.ax.yaxis.set_major_formatter(FuncFormatter(percent_formatter))
+    
+    fig.text(-0.035, 0.82, 'Present', va='center', ha='center', fontsize=17, rotation='horizontal')
+    fig.text(-0.035, 0.48, 'Future', va='center', ha='center', fontsize=17, rotation='horizontal')
+    fig.text(-0.035, 0.18, 'Change', va='center', ha='center', fontsize=17, rotation='horizontal')
+    
+    plt.subplots_adjust(hspace=-0.05)
+    
+    plt.tight_layout()
+    
+
+def make_plot_D_seasonal_durcats(df_changes_all, df_changes_byduration, variable, diffs_dict):
 
     colors = [
         "#00adc9",   # January
-        "#00a987",    # February
-        "#02ae4c",    # March
-        "#f6ec08",    # April
-        "#fec20c",    # May
-        "#f46c21",    # June
-        "#ef154a",    # July
-        "#ef0c6a",    # August
-        "#e00882",    # September
-        "#323294",    # October
-        "#0166b5",    # November
-        "#0099df"     # December
+        "#00a987",   # February
+        "#02ae4c",   # March
+        "#e3c700",   # April (compressed yellow)
+        "#f2a800",   # May (compressed orange)
+        "#f97c00",   # June (orange-red)
+        "#e93e26",   # July (strong red-orange)
+        "#d5005c",   # August (vivid pink)
+        "#9a007f",   # September (deep magenta)
+        "#323294",   # October
+        "#0166b5",   # November
+        "#0099df"    # December
     ]
-
     # Create a ListedColormap with these colors
-    month_cmap = mcolors.ListedColormap(colors, name="month_cmap")    
-    cmap = month_cmap.reversed()
+    month_cmap = mcolors.ListedColormap(colors, name="month_cmap")
+    month_cmap = LinearSegmentedColormap.from_list("month_cmap", colors, N=12)
 
+    cmap = month_cmap  # This will give a smoother gradient between June and July
+    
     df_changes_all = df_changes_all.copy()
     df_changes_byduration = df_changes_byduration.copy()
     
     # Add sifnificance of changes
     df_changes_all['sig'] = diffs_dict['All']
 
-    fig, axes = plt.subplots(3, 4, figsize=(16, 13))
+    fig, axes = plt.subplots(3, 5, figsize=(16, 10))
 
     #################################################
     # Shift January Days in Both Present and Future
@@ -688,15 +782,16 @@ def make_plot_D_seasonal(df_changes_all, df_changes_byduration, variable, diffs_
     # Plot Present Data for Each Duration
     #################################################
     # Using the adjusted `low_lim` and `high_lim`
-    for i, duration in enumerate([1, 6, 24]):
-        this_duration = df_changes_byduration[df_changes_byduration['sampling_duration'] == float(duration)][['gauge_num', variable_present]]
-        this_duration['month'] = this_duration['D_mean_present'].apply(get_month_from_doy)
-        plot_values_on_map(axes[0, i], this_duration, f'{duration}h', tbo_vals, 'month', 1, 12, cmap)
+    
+    for i, duration in enumerate(['0.25-2.10 hr','2.10-6.45 hr', '6.45-19.25 hr', '19.25+ hr']):
+        this_duration = df_changes_byduration[df_changes_byduration["sampling_duration"] == duration][['gauge_num', variable_present]]
+        this_duration['month_present'] = this_duration['D_mean_present'].apply(get_month_from_doy)
+        plot_values_on_map(axes[0, i], this_duration, f'{duration}h', tbo_vals, 'month_present', 1, 12, cmap)
 
     # Plot 'All' present values
-    df_changes_all['month'] = df_changes_all['D_mean_present'].apply(get_month_from_doy)
-    scatter = plot_values_on_map(axes[0, 3], df_changes_all[['gauge_num', variable_present, 'month', 'sig']], 'All', tbo_vals,
-                                 'month', 1, 12, cmap)
+    df_changes_all['month_present'] = df_changes_all['D_mean_present'].apply(get_month_from_doy)
+    scatter = plot_values_on_map(axes[0, 4], df_changes_all[['gauge_num', variable_present, 'month_present', 'sig']], 'All', tbo_vals,
+                                 'month_present', 1, 12, cmap)
 
 
     # Define month names
@@ -720,15 +815,15 @@ def make_plot_D_seasonal(df_changes_all, df_changes_byduration, variable, diffs_
     #################################################
     # Plot Future Data for Each Duration
     #################################################
-    for i, duration in enumerate([1, 6, 24]):
-        this_duration = df_changes_byduration[df_changes_byduration['sampling_duration'] == float(duration)][['gauge_num', variable_future]]
-        this_duration['month'] = this_duration['D_mean_future'].apply(get_month_from_doy)
-        plot_values_on_map(axes[1, i], this_duration, f'{duration}h', tbo_vals, 'month', 1, 12, cmap)
+    for i, duration in enumerate(['0.25-2.10 hr','2.10-6.45 hr', '6.45-19.25 hr', '19.25+ hr']):
+        this_duration = df_changes_byduration[df_changes_byduration["sampling_duration"] == duration][['gauge_num', variable_future]]
+        this_duration['month_future'] = this_duration['D_mean_future'].apply(get_month_from_doy)
+        plot_values_on_map(axes[1, i], this_duration, f'{duration}h', tbo_vals, 'month_future', 1, 12, cmap)
 
     # Plot 'All' future values
-    df_changes_all['month'] = df_changes_all['D_mean_future'].apply(get_month_from_doy)
-    scatter = plot_values_on_map(axes[1, 3], df_changes_all[['gauge_num', variable_future, 'month']], 'All', tbo_vals, 
-                                 'month', 1, 12, cmap)
+    df_changes_all['month_future'] = df_changes_all['D_mean_future'].apply(get_month_from_doy)
+    scatter = plot_values_on_map(axes[1, 4], df_changes_all[['gauge_num', variable_future, 'month_future']], 'All', tbo_vals, 
+                                 'month_future', 1, 12, cmap)
 
 
     cbar_ax = fig.add_axes([1.005, 0.368, 0.01, 0.26])  # [left, bottom, width, height]
@@ -765,7 +860,158 @@ def make_plot_D_seasonal(df_changes_all, df_changes_byduration, variable, diffs_
     # Calculate and apply color limits centered around 0 for the difference
     low_lim_diff = -max(abs(df_changes_all[variable_diff].min()), abs(df_changes_all[variable_diff].max()),
                         abs(df_changes_byduration[variable_diff].min()), abs(df_changes_byduration[variable_diff].max()))
-    low_lim_diff = -80
+    low_lim_diff = -50
+    high_lim_diff = -low_lim_diff
+
+    # Plot Difference Data if Available
+    for i, duration in enumerate(['0.25-2.10 hr','2.10-6.45 hr', '6.45-19.25 hr', '19.25+ hr']):
+        this_duration = df_changes_byduration[df_changes_byduration["sampling_duration"] == duration][['gauge_num',  f'{variable}_diff']]
+        
+    #for i, duration in enumerate([1, 6, 24]):
+    #    this_duration = df_changes_byduration[df_changes_byduration['sampling_duration'] == float(duration)][['gauge_num', f'{variable}_diff']]
+        this_duration[f'{variable}_diff'] = this_duration[f'{variable}_diff'].clip(lower=-80, upper=80)
+        #this_duration['sig'] =diffs_dict[duration] 
+        scatter = plot_values_on_map(axes[2, i], this_duration, f'{duration}h', tbo_vals, f'{variable}_diff', low_lim_diff, high_lim_diff, cmap_diff)
+
+    # Plot 'All' differences
+    scatter = plot_values_on_map(axes[2, 4], df_changes_all[['gauge_num', variable_diff, 'sig']], 'All', tbo_vals, variable_diff, low_lim_diff, high_lim_diff, 'bwr')
+
+    # Create the colorbar in this new axis
+    cbar_ax = fig.add_axes([1.007, 0.054, 0.01, 0.26])  # [left, bottom, width, height]
+    cbar = fig.colorbar(scatter, cax=cbar_ax, orientation='vertical')
+    #cbar.set_label('Difference', fontsize=15)
+    cbar.ax.tick_params(labelsize=16) 
+
+    fig.text(-0.035, 0.82, 'Present', va='center', ha='center', fontsize=17, rotation='horizontal')
+    fig.text(-0.035, 0.48, 'Future', va='center', ha='center', fontsize=17, rotation='horizontal')
+    fig.text(-0.035, 0.18, 'Change', va='center', ha='center', fontsize=17, rotation='horizontal')
+
+    plt.subplots_adjust(hspace=-0.15)
+
+    plt.tight_layout()
+    
+    
+
+
+
+def make_plot_D_seasonal(df_changes_all, df_changes_byduration, variable, diffs_dict):
+
+    colors = [
+        "#00adc9",   # January
+        "#00a987",   # February
+        "#02ae4c",   # March
+        "#e3c700",   # April (compressed yellow)
+        "#f2a800",   # May (compressed orange)
+        "#f97c00",   # June (orange-red)
+        "#e93e26",   # July (strong red-orange)
+        "#d5005c",   # August (vivid pink)
+        "#9a007f",   # September (deep magenta)
+        "#323294",   # October
+        "#0166b5",   # November
+        "#0099df"    # December
+    ]
+    # Create a ListedColormap with these colors
+    month_cmap = mcolors.ListedColormap(colors, name="month_cmap")
+    month_cmap = LinearSegmentedColormap.from_list("month_cmap", colors, N=12)
+
+    cmap = month_cmap  # This will give a smoother gradient between June and July
+    
+    df_changes_all = df_changes_all.copy()
+    df_changes_byduration = df_changes_byduration.copy()
+    
+    # Add sifnificance of changes
+    df_changes_all['sig'] = diffs_dict['All']
+
+    fig, axes = plt.subplots(3, 4, figsize=(16, 13))
+
+    #################################################
+    # Shift January Days in Both Present and Future
+    #################################################
+    variable_present = f'{variable}_present'
+    variable_future = f'{variable}_future'
+
+    #################################################
+    # Plot Present Data for Each Duration
+    #################################################
+    # Using the adjusted `low_lim` and `high_lim`
+    for i, duration in enumerate([1, 6, 24]):
+        this_duration = df_changes_byduration[df_changes_byduration['sampling_duration'] == float(duration)][['gauge_num', variable_present]]
+        this_duration['month_present'] = this_duration['D_mean_present'].apply(get_month_from_doy)
+        plot_values_on_map(axes[0, i], this_duration, f'{duration}h', tbo_vals, 'month_present', 1, 12, cmap)
+
+    # Plot 'All' present values
+    df_changes_all['month_present'] = df_changes_all['D_mean_present'].apply(get_month_from_doy)
+    scatter = plot_values_on_map(axes[0, 3], df_changes_all[['gauge_num', variable_present, 'month_present', 'sig']], 'All', tbo_vals,
+                                 'month_present', 1, 12, cmap)
+
+
+    # Define month names
+    month_labels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", 
+                    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+
+
+    cbar_ax = fig.add_axes([1.005, 0.685, 0.01, 0.26])  # [left, bottom, width, height]
+    cbar = fig.colorbar(scatter, cax=cbar_ax, orientation='vertical')
+
+    # Set ticks at the center of each color block
+    tick_positions = np.arange(1, 13)  # Values 1 through 12
+    cbar.set_ticks(tick_positions)
+
+    # Label each tick with the corresponding month name
+    cbar.set_ticklabels(month_labels)
+
+    # Reverse the tick direction to match reversed colorbar
+    cbar.ax.invert_yaxis()
+
+    #################################################
+    # Plot Future Data for Each Duration
+    #################################################
+    for i, duration in enumerate([1, 6, 24]):
+        this_duration = df_changes_byduration[df_changes_byduration['sampling_duration'] == float(duration)][['gauge_num', variable_future]]
+        this_duration['month_future'] = this_duration['D_mean_future'].apply(get_month_from_doy)
+        plot_values_on_map(axes[1, i], this_duration, f'{duration}h', tbo_vals, 'month_future', 1, 12, cmap)
+
+    # Plot 'All' future values
+    df_changes_all['month_future'] = df_changes_all['D_mean_future'].apply(get_month_from_doy)
+    scatter = plot_values_on_map(axes[1, 3], df_changes_all[['gauge_num', variable_future, 'month_future']], 'All', tbo_vals, 
+                                 'month_future', 1, 12, cmap)
+
+
+    cbar_ax = fig.add_axes([1.005, 0.368, 0.01, 0.26])  # [left, bottom, width, height]
+    cbar = fig.colorbar(scatter, cax=cbar_ax, orientation='vertical')
+
+    # Set ticks at the center of each color block
+    tick_positions = np.arange(1, 13)  # Values 1 through 12
+    cbar.set_ticks(tick_positions)
+
+    # Label each tick with the corresponding month name
+    cbar.set_ticklabels(month_labels)
+
+    # Reverse the tick direction to match reversed colorbar
+    cbar.ax.invert_yaxis()
+
+    #################################################
+    # Plot Difference Data if Available
+    #################################################
+    # Apply the transformation to both present and future values
+    df_changes_all['D_mean_present'] = df_changes_all['D_mean_present'].apply(lambda x: x + 365 if x < 50 else x)
+    df_changes_all['D_mean_future'] = df_changes_all['D_mean_future'].apply(lambda x: x + 365 if x < 50 else x)
+    df_changes_all['D_mean_diff'] = df_changes_all['D_mean_future'] - df_changes_all['D_mean_present']   
+    
+    df_changes_byduration['D_mean_present'] = df_changes_byduration['D_mean_present'].apply(lambda x: x + 365 if x < 50 else x)
+    df_changes_byduration['D_mean_future'] = df_changes_byduration['D_mean_future'].apply(lambda x: x + 365 if x < 50 else x)
+    df_changes_byduration['D_mean_diff'] = df_changes_byduration['D_mean_future'] - df_changes_byduration['D_mean_present']   
+    
+    # Color map setup for difference plot
+    colors = [(0, "blue"), (0.35, "lightblue"), (0.5, "white"), (0.7, "lightcoral"), (1, "red")]
+    cmap_diff = LinearSegmentedColormap.from_list("custom_cmap", colors)    
+
+    variable_diff = f'{variable}_diff'
+
+    # Calculate and apply color limits centered around 0 for the difference
+    low_lim_diff = -max(abs(df_changes_all[variable_diff].min()), abs(df_changes_all[variable_diff].max()),
+                        abs(df_changes_byduration[variable_diff].min()), abs(df_changes_byduration[variable_diff].max()))
+    low_lim_diff = -50
     high_lim_diff = -low_lim_diff
 
     # Plot Difference Data if Available
@@ -791,6 +1037,32 @@ def make_plot_D_seasonal(df_changes_all, df_changes_byduration, variable, diffs_
     plt.subplots_adjust(hspace=-0.05)
 
     plt.tight_layout()
+    
+    
+def plot_quintile_hist_with_overlap_shading(ax, present_data, future_data, bins, color_present='royalblue', color_future='indianred', overlap_color='lightgray'):
+    # Calculate histogram counts and bin edges
+    present_counts, bin_edges = np.histogram(present_data, bins=bins)
+    future_counts, _ = np.histogram(future_data, bins=bin_edges)  # Use the same bin edges
+
+    # Normalize counts to get proportions
+    present_props = present_counts / np.sum(present_counts)
+    print(present_props)
+    future_props = future_counts / np.sum(future_counts)
+
+    # Plot the histograms for Present and Future with proportions
+    ax.hist(present_data, bins=bin_edges, color=color_present, alpha=0.3, edgecolor='black', label="Present", weights=np.ones_like(present_data) / len(present_data))
+    ax.hist(future_data, bins=bin_edges, color=color_future, alpha=0.3, edgecolor='black', label="Future", weights=np.ones_like(future_data) / len(future_data))
+
+    # Prepare data for shading by repeating proportions to span full bin widths
+    x_values = np.repeat(bin_edges, 2)[1:-1]
+    present_props_extended = np.repeat(present_props, 2)
+    future_props_extended = np.repeat(future_props, 2)
+    overlap_props_extended = np.minimum(present_props_extended, future_props_extended)
+
+    # Shade overlap and non-overlap regions
+    ax.fill_between(x_values, 0, overlap_props_extended, color=overlap_color, label="Overlap", alpha=1)
+    ax.fill_between(x_values, overlap_props_extended, present_props_extended, where=(present_props_extended > future_props_extended), color=color_present, alpha=1)
+    ax.fill_between(x_values, overlap_props_extended, future_props_extended, where=(future_props_extended > present_props_extended), color=color_future, alpha=1)
 
     
 def make_plot_D(df_changes_all, df_changes_byduration, variable, cmap, diffs_dict, low_lim=None, high_lim=None):
@@ -919,6 +1191,7 @@ def make_plot_D(df_changes_all, df_changes_byduration, variable, cmap, diffs_dic
     plt.tight_layout()
 
 
+
 # Custom function to format ticks as percentages
 def percent_formatter(x, pos):
     return f"{x:.0f}%"  # Format the tick as an integer percentage (no decimals) 
@@ -1013,7 +1286,7 @@ def plot_contour(fig, ax, data_x, data_y, x_label, y_label, title, cmap='Blues')
     if cmap == 'Blues':
         ax.set_title(title, fontsize=15)    
     
-def plot_contour_all_events(ax, data_x, data_y, title, cmap='Blues'):
+def plot_contour_all_events(ax, data_x, data_y,cmap):
     # Create a grid for the contour plot
     x_grid = np.linspace(data_x.min(), data_x.max(), 100)
     y_grid = np.linspace(data_y.min(), data_y.max(), 100)
@@ -1039,36 +1312,47 @@ def plot_contour_all_events(ax, data_x, data_y, title, cmap='Blues'):
     # ax.set_xlabel('%' if ax in [axs[1, 0], axs[1, 1]] else '')
     ax.set_ylabel("$D_{50}$",fontsize=18)
     ax.set_xlim(0,366)
-    ax.set_ylim(0,6)
+#     ax.set_ylim(0,6)
     
-def plot_polar_months_plot(df, ax, title_on, title, rmax, name_variable_to_plot):
+def plot_polar_months_plot(df, ax, title_on, title, rmax, name_variable_to_plot, original_D_mean, R):
+    """
+    Plots a polar bar chart showing monthly data, with an added red line indicating the mean day of the year and its seasonal concentration.
     
+    Parameters:
+    - df: DataFrame containing the month column to be plotted.
+    - ax: Axis object for the plot.
+    - title_on: Boolean to toggle the title display.
+    - title: Title text for the plot.
+    - rmax: Maximum radius of the polar plot.
+    - name_variable_to_plot: 'Percentage' or 'Count' to determine the plotted variable.
+    - D_mean: Mean day of the year (1-365).
+    - R: Seasonal concentration (0 to 1).
+    """
+    D_mean = 365  - round(original_D_mean,0)
     N = 12
-    width = (2*np.pi) / N
-    bottom = 8
+    width = (2 * np.pi) / N
     
     # Define bins and their positions
     circular_bins = np.linspace(0.0, 2 * np.pi, N, endpoint=False)
     circular_bins = np.append(circular_bins, 2 * np.pi)
-    circular_plot_position = circular_bins + 0.5*np.diff(circular_bins)[0]
+    circular_plot_position = circular_bins + 0.5 * np.diff(circular_bins)[0]
     circular_plot_position = circular_plot_position[:-1]
-    circular_plot_position = circular_plot_position + 0.5*np.pi
+    circular_plot_position = circular_plot_position + 0.5 * np.pi  # Align to start at March
     
     # Count numbers in each month
     count = df['month'].value_counts().sort_index()
-    # Reindex to ensure all months from 1 to 12 are included, filling missing months with 0
-    count = count.reindex(list(range(1, 13)), fill_value=0)
+    count = count.reindex(list(range(1, 13)), fill_value=0)  # Ensure all months included
 
     # Calculate percentage
     total_events = count.sum()
-    percentage = (count / total_events) * 100  # Calculate percentage for each month
+    percentage = (count / total_events) * 100
     
     if name_variable_to_plot == 'Percentage':
         variable_to_plot = percentage
     elif name_variable_to_plot == 'Count':
         variable_to_plot = count
     
-    # Define colors for each month
+    # Define colors for each month (reversed order for clockwise plot)
     colors = [
               '#C2DFFF',  # Jan (Light Blue)
               '#C2DFFF',  # Feb (Very Light Blue)
@@ -1083,24 +1367,59 @@ def plot_polar_months_plot(df, ax, title_on, title, rmax, name_variable_to_plot)
               '#FFABAB',# Nov (Dark Goldenrod)
               '#C2DFFF',  # Dec (Dark Blue)
     ]  
+#         colors = [
+#         "#00adc9",   # January
+#         "#00a987",    # February
+#         "#02ae4c",    # March
+#         "#f6ec08",    # April
+#         "#fec20c",    # May
+#         "#f46c21",    # June
+#         "#ef154a",    # July
+#         "#ef0c6a",    # August
+#         "#e00882",    # September
+#         "#323294",    # October
+#         "#0166b5",    # November
+#         "#0099df"     # December
+#     ]
+    
+    
     colors.reverse()
     
-    # Plot
+    # Plot bars
     ax.bar(circular_plot_position, variable_to_plot.iloc[::-1], width=width, color=colors)
+    
+    # --- Add season separators (black dashed lines) ---
+    season_boundaries = [circular_plot_position[0]+5, circular_plot_position[3]+5, circular_plot_position[6]+5, circular_plot_position[9]+5]
+#     for boundary in season_boundaries:
+#         ax.plot([boundary, boundary], [0, rmax], color='black', linewidth=1, linestyle='--')
+    
+    # --- Add red line for mean day of the year (D_mean) with length proportional to R ---
+    mean_angle = (D_mean / 365) * 2 * np.pi + 0.5 * np.pi  # Convert D_mean to radians
+    line_length = R * rmax  # Scaled length based on R value
+    
+    ax.annotate('', xy=(mean_angle, line_length), xytext=(mean_angle, 0),
+            arrowprops=dict(facecolor='black', edgecolor='black', arrowstyle='-|>', linewidth=4))
+    
+    ax.text(
+        0.8, 0.35, 
+        f'D: {int(original_D_mean)} \n R: {round(R,2)}',  # D with a line over it and R on a new line
+        ha='center', va='center', 
+        transform=ax.transAxes, 
+        fontsize=12, fontweight='bold'
+    )
 
-    # Format
-    if title_on ==True:
+    # Format plot
+    if title_on:
         ax.set_title(title, fontsize=20, pad=50)
     ax.set_rlabel_position(90)
     ax.xaxis.grid(False)
+    
     if name_variable_to_plot == 'Percentage':
         ax.set_ylim(0, rmax)
-    ax.set_xticks(circular_plot_position - 0.5*np.pi)
-    ax.set_xticklabels(['Mar', 'Feb', 'Jan',
-                         'Dec', 'Nov', 'Oct',
-                        'Sep', 'Aug', 'Jul',
-                        'Jun', 'May', 'Apr'])
-
+    
+    # Set custom labels for months
+    ax.set_xticks(circular_plot_position - 0.5 * np.pi)
+    ax.set_xticklabels(['Mar', 'Feb', 'Jan', 'Dec', 'Nov', 'Oct', 'Sep', 'Aug', 'Jul', 'Jun', 'May', 'Apr'])
 
 def plot_polar_months_plot_overlay(df_present, df_future, ax, title_on, title, legend_on, vmax):
     
@@ -1132,10 +1451,9 @@ def plot_polar_months_plot_overlay(df_present, df_future, ax, title_on, title, l
 
     # Plot the overlapping regions in gray
     
-    
     # Define colors for each dataset
-    colors_present = 'indianred'  # Yellow for present
-    colors_future = 'royalblue'    # Blue for future
+    colors_present = 'royalblue'  # Yellow for present
+    colors_future = 'indianred'    # Blue for future
 
     # Plot percentage for present and future datasets
     ax.bar(circular_plot_position, percentage_present.iloc[::-1], width=width, color=colors_present, alpha=1, label='Present')
@@ -1182,16 +1500,26 @@ def plot_histogram(df, variable, duration, duration_variable, ax, bins=25, label
     # ax.set_yticks([])
         
 def plot_histogram_with_shaded_difference_all(present_data, future_data, variable, ax, bins, alpha=0.5):
+    # Use logarithmic binning for the x-axis to focus on smaller values
+    log_bins = np.logspace(np.log10(min(present_data[variable])), np.log10(max(present_data[variable])), bins)
+    
+    if variable =='duration':
+        # Round each bin to the nearest multiple of 0.5
+        log_bins = np.round(log_bins * 2) / 2  # Multiply by 2, round, then divide by 2 to ensure multiples of 0.5
 
+        # Ensure that the bins are sorted correctly (rounding may cause misordering)
+        log_bins = np.sort(log_bins)
+        log_bins = np.unique(log_bins)
+    
     # Calculate histogram bin counts without plotting, to ensure matching shapes
-    present_counts, bins_used = np.histogram(present_data[variable], bins=bins, density=True)
-    future_counts, _ = np.histogram(future_data[variable], bins=bins, density=True)
+    present_counts, bins_used = np.histogram(present_data[variable], bins=log_bins, density=True)
+    future_counts, _ = np.histogram(future_data[variable], bins=log_bins, density=True)
     
     # Plot the histograms for each dataset as step lines (no fill initially)
-    ax.hist(present_data[variable], bins=bins, alpha=0.3, label="Present", color='grey', edgecolor='black', density=True)
-    ax.hist(future_data[variable], bins=bins, alpha=0.3, label="Future", color='grey', edgecolor='black', density=True)
+    ax.hist(present_data[variable], bins=log_bins, alpha=0.3, label="Present", color='grey', edgecolor='black', density=True)
+    ax.hist(future_data[variable], bins=log_bins, alpha=0.3, label="Future", color='grey', edgecolor='black', density=True)
     
-    # Calculate the bin centers
+    # Calculate the bin centers for plotting
     bin_centers = (bins_used[:-1] + bins_used[1:]) / 2
 
     # Fill the regions where `present` is greater than `future`
@@ -1201,6 +1529,19 @@ def plot_histogram_with_shaded_difference_all(present_data, future_data, variabl
     # Optional: fill where `future` is greater than `present` in a different color
     ax.fill_between(bin_centers, present_counts, future_counts, where=(future_counts > present_counts),
                    color="indianred", alpha=alpha, step='mid', label="Future > Present")
+    
+    # Set the x-axis to logarithmic scale to match the binning
+    ax.set_xscale('log')
+
+    # Reduce the number of ticks by manually setting tick positions
+    ticks = [1, 2, 5, 10, 20, 50, 100, 200]  # Example ticks
+    ax.set_xticks(ticks)
+
+    # Format the x-axis labels with normal numbers (no scientific notation)
+    ax.xaxis.set_major_formatter(ScalarFormatter())
+
+    # Rotate tick labels to 45 degrees using tick_params
+    ax.tick_params(axis='x', rotation=90)
 
 def plot_histogram_with_shaded_difference(present_data, future_data, variable, duration, duration_variable, ax, bins, alpha=0.5):
     # Filter the DataFrame for the specified duration for each dataset
@@ -1208,16 +1549,27 @@ def plot_histogram_with_shaded_difference(present_data, future_data, variable, d
         lambda x: isinstance(x, list) and str(duration) in x or x == str(duration))]
     future_duration_data = future_data[future_data[duration_variable].apply(
         lambda x: isinstance(x, list) and str(duration) in x or x == str(duration))]
+    
+    # Use logarithmic binning for the x-axis to focus on smaller values
+    log_bins = np.logspace(np.log10(min(present_duration_data[variable])), np.log10(max(present_duration_data[variable])), bins)
+    
+    if variable =='duration':
+        # Round each bin to the nearest multiple of 0.5
+        log_bins = np.round(log_bins * 2) / 2  # Multiply by 2, round, then divide by 2 to ensure multiples of 0.5
 
+        # Ensure that the bins are sorted correctly (rounding may cause misordering)
+        log_bins = np.sort(log_bins)
+        log_bins = np.unique(log_bins)
+    
     # Calculate histogram bin counts without plotting, to ensure matching shapes
-    present_counts, bins_used = np.histogram(present_duration_data[variable], bins=bins, density=True)
-    future_counts, _ = np.histogram(future_duration_data[variable], bins=bins, density=True)
+    present_counts, bins_used = np.histogram(present_duration_data[variable], bins=log_bins, density=True)
+    future_counts, _ = np.histogram(future_duration_data[variable], bins=log_bins, density=True)
     
     # Plot the histograms for each dataset as step lines (no fill initially)
-    ax.hist(present_duration_data[variable], bins=bins, alpha=0.3, label="Present", color='grey', edgecolor='black', density=True)
-    ax.hist(future_duration_data[variable], bins=bins, alpha=0.3, label="Future", color='grey', edgecolor='black', density=True)
+    ax.hist(present_duration_data[variable], bins=log_bins, alpha=0.3, label="Present", color='grey', edgecolor='black', density=True)
+    ax.hist(future_duration_data[variable], bins=log_bins, alpha=0.3, label="Future", color='grey', edgecolor='black', density=True)
     
-    # Calculate the bin centers
+    # Calculate the bin centers for plotting
     bin_centers = (bins_used[:-1] + bins_used[1:]) / 2
 
     # Fill the regions where `present` is greater than `future`
@@ -1226,7 +1578,23 @@ def plot_histogram_with_shaded_difference(present_data, future_data, variable, d
     
     # Optional: fill where `future` is greater than `present` in a different color
     ax.fill_between(bin_centers, present_counts, future_counts, where=(future_counts > present_counts),
-                    color="indianred", alpha=alpha, step='mid', label="Future > Present") 
+                    color="indianred", alpha=alpha, step='mid', label="Future > Present")
+    
+    # Set the x-axis to logarithmic scale to match the binning
+    ax.set_xscale('log')
+
+    # Reduce the number of ticks by manually setting tick positions
+    ticks = [1, 2, 5, 10, 20, 50, 100, 200]  # Example ticks
+    ax.set_xticks(ticks)
+
+    # Format the x-axis labels with normal numbers (no scientific notation)
+    ax.xaxis.set_major_formatter(ScalarFormatter())
+
+    # Rotate tick labels if necessary
+    ax.tick_params(axis='x', rotation=90)
+    
+    # Optional: Adjust tick parameters to ensure the labels fit
+    ax.tick_params(axis='x', which='both', labelbottom=True)
     
     
    # Function to plot with shaded overlapping regions
@@ -1277,3 +1645,72 @@ def plot_hist_with_overlap_shading(ax, present_data, future_data, bins, color_pr
     ax.fill_between(x_values, overlap_counts_extended, present_counts_extended, where=(present_counts_extended > future_counts_extended), color=color_present, alpha=1, step='mid')
     ax.fill_between(x_values, overlap_counts_extended, future_counts_extended, where=(future_counts_extended > present_counts_extended), color=color_future, alpha=1, step='mid')
      
+def plot_circular_colorbar(colors, month_labels):
+    # colors = colors[::-1]
+    # Create a ListedColormap with the provided colors
+    cmap = ListedColormap(colors, name="month_cmap")
+
+    # Generate polar coordinates for the circular colorbar
+    theta = np.linspace(0, 2 * np.pi, 1000)  # 1000 points for smooth gradient
+    r = np.linspace(0.9, 1, 2)  # Narrow ring
+
+    # Create a meshgrid for plotting
+    theta, r = np.meshgrid(theta, r)
+    z = theta  # Use theta to map colors
+
+    # Plot the circular colorbar
+    fig, ax = plt.subplots(figsize=(6, 6), subplot_kw={'projection': 'polar'})
+    c = ax.pcolormesh(theta, r, z, cmap=cmap, shading='auto')
+
+    # Adjust angles to center labels in each color segment
+    label_angles = np.linspace(0, 2 * np.pi, len(month_labels), endpoint=False) + (np.pi / 12)
+
+    # Add labels for each month at the centered positions
+    for angle, label in zip(label_angles, month_labels):
+        ax.text(angle, 1.08, label, ha='center', va='center', fontsize=12)
+
+    # Hide gridlines and ticks
+    ax.set_xticks([])
+    ax.set_yticks([])
+    ax.spines['polar'].set_visible(False)
+
+    # Display the plot
+    plt.show()        
+ 
+def plot_2d_heatmap(ax, x, y, z, cmap="Blues", xlabel="Day of Year", ylabel="$D_{50}$", colorbar_label="Value"):
+    """
+    Plots a 2D heatmap on the given axes.
+
+    Parameters:
+        ax: Matplotlib Axes object where the heatmap will be plotted.
+        x: 1D array-like. Data for the x-axis (e.g., day of the year).
+        y: 1D array-like. Data for the y-axis (e.g., $D_{50}$ values).
+        z: 1D array-like. Data for the color intensity (e.g., percentages or values to represent in heatmap).
+        cmap: Colormap for the heatmap.
+        xlabel: Label for the x-axis.
+        ylabel: Label for the y-axis.
+        colorbar_label: Label for the colorbar.
+    """
+    # Create a grid for the heatmap
+    heatmap_data, xedges, yedges = np.histogram2d(x, y, bins=[100, 100], weights=z, density=False)
+    
+    # Normalize the grid to remove empty spaces
+    extent = [xedges[0], xedges[-1], yedges[0], yedges[-1]]
+    
+    # Plot heatmap
+    cax = ax.imshow(
+        heatmap_data.T,
+        origin='lower',
+        extent=extent,
+        aspect='auto',
+        cmap=cmap,
+        interpolation='nearest',
+    )
+    
+    # Add a colorbar
+    cbar = plt.colorbar(cax, ax=ax, pad=0.01)
+    cbar.set_label(colorbar_label, fontsize=14)
+    
+    # Set axis labels
+    ax.set_xlabel(xlabel, fontsize=14)
+    ax.set_ylabel(ylabel, fontsize=14)

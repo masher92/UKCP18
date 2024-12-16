@@ -107,6 +107,7 @@ def group_data_calc_means(df, d50_variable, group_by_vars):
             **dict(zip(group_by_vars, group_keys)),
             'D_mean': D_mean,
             'R': R,
+            'duration_mean' : group['duration'].mean(),
             'D50_mean': group[d50_variable].mean(),
             'D50_P90': group[d50_variable].quantile(0.9),
             'D50_P10': group[d50_variable].quantile(0.1),
@@ -134,9 +135,9 @@ def find_change_values_in_groups_new(grouped_df, group_by_columns, sampling_dura
 
     # Merge present and future data on common columns
     merged_df = pd.merge(present_df, future_df, on=group_by_columns_no_climate, how='outer', suffixes=('_present', '_future'))
-    print(merged_df.columns)
     # Calculate differences between present and future values
-    for metric in ['R', 'D50_mean', 'D50_median', 'D50_P90', 'D50_P10', 'F2_percentage', 'B2_percentage', 'C_percentage', 'F1_percentage', 'B1_percentage']:
+    for metric in ['R', 'D50_mean', 'D50_median', 'D50_P90', 'D50_P10', 'F2_percentage', 'B2_percentage', 'C_percentage', 'F1_percentage', 'B1_percentage',
+                  "duration_mean"]:
         merged_df[f'{metric}_diff'] = merged_df[f'{metric}_future'] - merged_df[f'{metric}_present']
     
     merged_df['sampling_duration'] = sampling_duration
