@@ -93,11 +93,11 @@ def process_events_alltogether(home_dir, time_period, ems, tb0_vals, save_dir):
     event_profiles_dict = {}
 
     for em in ems:
-        for gauge_num in range(0, 10):
+        for gauge_num in range(0, 1294):
             if gauge_num not in [444, 827, 888]:
                 if gauge_num % 100 == 0:
                     print(f"Processing gauge {gauge_num}")
-                indy_events_fp = home_dir + f"ProcessedData/IndependentEvents/UKCP18_30mins/{time_period}/{em}/{gauge_num}/WholeYear/EventSet/"
+                indy_events_fp = home_dir + f"ProcessedData/IndependentEvents/UKCP18_30mins/{em}/{gauge_num}/WholeYear/"
 
                 files = [f for f in os.listdir(indy_events_fp) if f.endswith('.csv')]
                 files = np.sort(files)
@@ -106,7 +106,6 @@ def process_events_alltogether(home_dir, time_period, ems, tb0_vals, save_dir):
                     fp = indy_events_fp + f"{file}"
                     if '2080' in fp:
                         continue
-
                     # Get event
                     this_event = read_event(gauge_num, fp)
 
@@ -131,6 +130,9 @@ def process_events_alltogether(home_dir, time_period, ems, tb0_vals, save_dir):
                     event_props['area'] = tb0_vals.iloc[gauge_num]['within_area']
                     event_props['em'] = em
                     event_props['filename'] = file
+                    
+                    event_props["max_precip"] =np.max(event_precip)
+                    event_props["mean_precip"]= np.mean(event_precip)
 
                     ##########################################
                     # Specify the keys you want to check
@@ -149,7 +151,6 @@ def process_events_alltogether(home_dir, time_period, ems, tb0_vals, save_dir):
                             break  # Exit the loop since we found a match
 
                     if matched_dict:
-                        # print("A matching dictionary found:", matched_dict, event_props)
 
                         ### Add duration
                         new_value = event_props['dur_for_which_this_is_amax']
@@ -182,16 +183,19 @@ def process_events_alltogether(home_dir, time_period, ems, tb0_vals, save_dir):
                         event_props_ls.append(event_props)
                         event_profiles_dict[f"{em}, {gauge_num}, {event_num}"] = create_profiles_dict(event_df)
         
-        with open(save_dir + f"ProcessedData/AMAX_Events/UKCP18_30mins/{time_period}/events_dict_{em}_new.pickle", 'wb') as handle:
+        with open(save_dir + f"ProcessedData/AMAX_Events/UKCP18_30mins/{time_period}/events_dict_{em}_NEW.pickle", 'wb') as handle:
             pickle.dump(events_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
-        with open(save_dir + f"ProcessedData/AMAX_Events/UKCP18_30mins/{time_period}/event_profiles_dict_{em}_new.pickle", 'wb') as handle:
+        with open(save_dir + f"ProcessedData/AMAX_Events/UKCP18_30mins/{time_period}/event_profiles_dict_{em}_NEW.pickle", 'wb') as handle:
             pickle.dump(event_profiles_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
-        with open(save_dir + f"ProcessedData/AMAX_Events/UKCP18_30mins/{time_period}/event_props_dict_{em}_new.pickle", 'wb') as handle:
+        with open(save_dir + f"ProcessedData/AMAX_Events/UKCP18_30mins/{time_period}/event_props_dict_{em}_NEW.pickle", 'wb') as handle:
             pickle.dump(event_props_ls, handle, protocol=pickle.HIGHEST_PROTOCOL)                       
 
+    return events_dict, event_props_ls, event_profiles_dict                  
+
     return events_dict, event_props_ls, event_profiles_dict
+
 
 def calc_d50_with_interpolation(sample):
     n=5
