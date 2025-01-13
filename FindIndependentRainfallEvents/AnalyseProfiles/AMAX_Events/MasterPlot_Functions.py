@@ -15,6 +15,7 @@ import datetime as dt
 import matplotlib.colors as mcolors
 from matplotlib.ticker import FixedLocator, FixedFormatter, FormatStrFormatter, PercentFormatter, ScalarFormatter, MaxNLocator, LogLocator
 import matplotlib.cm as cm
+from scipy.stats import chi2_contingency
 
 # Filter for Great Britain
 gdf = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
@@ -26,373 +27,24 @@ tbo_vals = pd.read_csv(home_dir + 'datadir/RainGauge/interarrival_thresholds_CDD
 tbo_vals = tbo_vals[tbo_vals['Lon']!=-999.0]
 tbo_vals['gauge_num'] = tbo_vals.index
 
-def categorize_d50(value):
-    if 0 <= value < 20:
-        return 'F2'
-    elif 20 <= value < 40:
-        return 'F1'
-    elif 40 <= value < 60:
-        return 'C'
-    elif 60 <= value < 80:
-        return 'B1'
-    elif 80 <= value <= 100:
-        return 'B2'
-    else:
-        return None  # For any values outside the specified range            
 
-# Define a function to create a customized colormap with emphasis on the middle
-def create_custom_colormap(cmap):
-    # Create a colormap using a diverging color palette (like "coolwarm")
-    cmap = cm.get_cmap(cmap)
+##########################################################################################
+##########################################################################################
+##########################################################################################
+################################## DATE ADJUSTING ########################################
+##########################################################################################
+##########################################################################################
+##########################################################################################
 
-    # Adjust the colormap to emphasize the center (modify the range around the midpoint)
-    new_colors = cmap(np.linspace(0, 1, 15))
-
-    # Define the modified colormap
-    new_cmap = mcolors.LinearSegmentedColormap.from_list("custom_cmap", new_colors)
-
-    return new_cmap
-
-def plot_proportion_histogram_with_overlap(ax, present, future, bins):
-    # Calculate the histogram counts and bin edges for both distributions
-    present_counts, present_bin_edges = np.histogram(present, bins=bins, density=True)
-    future_counts, future_bin_edges = np.histogram(future, bins=bins, density=True)
-    
-    # Normalize counts to get proportions (i.e., counts / total count)
-    present_proportions = present_counts / np.sum(present_counts)
-    future_proportions = future_counts / np.sum(future_counts)
-    
-    # If no axes are passed, create a new plot
-    if ax is None:
-        fig, ax = plt.subplots(figsize=(8, 6))
-    
-    # Plot the histograms as bar charts showing the proportions
-    ax.bar(present_bin_edges[:-1], present_proportions, width=np.diff(present_bin_edges), color='royalblue', edgecolor='black', alpha=1, label='Present', align='edge')
-    ax.bar(future_bin_edges[:-1], future_proportions, width=np.diff(future_bin_edges), color='indianred', edgecolor='black', alpha=1, label='Future', align='edge')
-    
-    # Prepare data for shading the overlap region
-    overlap_props = np.minimum(present_proportions, future_proportions)
-    # Shade the overlap area
-    ax.bar(future_bin_edges[:-1], overlap_props, width=np.diff(future_bin_edges), color='lightgrey', edgecolor='black', alpha=1, label='Both', align='edge',
-          linewidth=0.5)
-    
-    # Format the y-axis to show percentages
-    ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'{x*100:.0f}%'))
-    
-    # Show legend
-    ax.legend(loc='upper right')
-    # Display the plot
-    plt.tight_layout()
-
-def make_scatter_plot_durcats(df, duration, timeperiod, loadings, axes, ax_row):
-    df["D_mean_present"] = df["D_mean_present"].apply(lambda x: x + 365 if x < 50 else x)
-    df["D_mean_future"] = df["D_mean_future"].apply(lambda x: x + 365 if x < 50 else x)
-    
-    for ax_num, (loading, title) in enumerate(zip(loadings, loadings)):
-        title = title if ax_row in[0,4] else ''
-        
-        if duration in ['<=7hr', '7-16hr','16hr+']:
-            
-            this_duration = df[df['sampling_duration'] == duration]
-            make_point_density_plot(
-                axes[ax_row][ax_num],  # Updated indexing
-                this_duration[f"D_mean_{timeperiod}"],
-                this_duration[f"{loading}_percentage_{timeperiod}"],
-                title
-            )
-        else:
-            make_point_density_plot(
-                axes[ax_row][ax_num],  # Updated indexing
-                df[f"D_mean_{timeperiod}"],
-                df[f"{loading}_percentage_{timeperiod}"],
-                title
-            )    
-
-def make_scatter_plot_onevariable(df_changes_byduration, df_changes_all, variable, label):
-    
-    durations =[1,6,24]
-
-    df_changes_all_test =df_changes_all.copy()
-    df_changes_byduration_test = df_changes_byduration.copy()
-    
-    df_changes_all_test["D_mean_present"] = df_changes_all_test["D_mean_present"].apply(lambda x: x + 365 if x < 50 else x)
-    df_changes_all_test["D_mean_future"] = df_changes_all_test["D_mean_future"].apply(lambda x: x + 365 if x < 50 else x)
-    
-    fig, axes = plt.subplots(2, 4, figsize=(16, 8), sharey='all', sharex='all', gridspec_kw={'hspace': 0.05, 'wspace':0.14})
-    
-    for ax_num, (duration, title) in enumerate(zip(durations, durations )):
-        this_duration = df_changes_byduration_test[df_changes_byduration_test['sampling_duration'] == float(duration)][['gauge_num', f'{variable}_present', 'D_mean_present']]
-        this_duration["D_mean_present"] = this_duration["D_mean_present"].apply(lambda x: x + 365 if x < 50 else x)
-        make_point_density_plot(axes[0, ax_num], this_duration["D_mean_present"], this_duration[f'{variable}_present'], title)
-    make_point_density_plot(axes[0, 3], df_changes_all_test["D_mean_present"], df_changes_all_test[f'{variable}_present'], 'All')
-    fig.text(0.04, 0.7, 'Present', va='center', ha='center', fontsize=18, rotation='horizontal');
-    
-    for ax_num, (duration, title) in enumerate(zip(durations, durations)):
-        this_duration = df_changes_byduration_test[df_changes_byduration_test['sampling_duration'] == float(duration)][['gauge_num', f'{variable}_future', 'D_mean_future']]
-        this_duration["D_mean_future"] = this_duration["D_mean_future"].apply(lambda x: x + 365 if x < 50 else x)
-        make_point_density_plot(axes[1, ax_num], this_duration["D_mean_future"], this_duration[f'{variable}_future'], title)
-    make_point_density_plot(axes[1, 3], df_changes_all_test["D_mean_future"], df_changes_all_test[f'{variable}_future'], 'All')
-    fig.text(0.04, 0.3, 'Future', va='center', ha='center', fontsize=18, rotation='horizontal');   
-    
-    
-    axes[0, 0].set_ylabel(label, fontsize=12)
-    axes[1, 0].set_ylabel(label, fontsize=12)
-    
-    # After plotting, convert Julian day ticks to calendar dates
-    for ax in axes.flatten():
-        
-        if ax is not None:  # In case of unused subplots
-            # Get the current axis limits
-            x_min, x_max = ax.get_xlim()
-
-            # Restrict ticks to the visible range
-            ticks = ax.get_xticks()
-            visible_ticks = [tick for tick in ticks if x_min <= tick <= x_max]
-
-            # Convert the visible ticks to date labels
-            tick_labels = [julian_to_date(int(tick)) for tick in visible_ticks]
-
-            # Apply the visible ticks and corresponding labels
-            ax.set_xticks(visible_ticks)  # Restrict ticks to the visible range
-            ax.xaxis.set_major_formatter(FixedFormatter(tick_labels))  # Set formatted labels
-            ax.tick_params(axis='x', rotation=45)  # Rotate labels for better visibility
-
-        ax.yaxis.set_major_formatter(FormatStrFormatter('%.0f'))  # 2 decimal places
-
-def make_point_density_plot(ax, data_x, data_y, title):
-    # Calculate point density
-    xy = np.vstack([data_x, data_y])
-    density = gaussian_kde(xy)(xy)
-
-    # Scatter plot with density-based coloring
-    sc = ax.scatter(
-        data_x, 
-        data_y, 
-        c=density, 
-        cmap='viridis', 
-        s=10, 
-        alpha=0.7
-    )
-
-    # Linear regression for the line of best fit
-    slope, intercept, r_value, p_value, std_err = linregress(data_x, data_y)
-
-    # Generate the best-fit line
-    x_line = np.linspace(min(data_x), max(data_x), 500)
-    y_line = slope * x_line + intercept
-    ax.plot(x_line, y_line, color='black')
-
-    # Annotate with R² and p-value
-    r_squared = r_value ** 2
-    
-    if p_value <0.05:
-        p_value ='<0.05'
-    else:
-        p_value = '> 0.05'
-    
-    ax.text(
-        0.05, 0.95, 
-        f"$R^2$ = {r_squared:.2f}, $p$ {p_value}", 
-        transform=ax.transAxes, 
-        fontsize=10, 
-        verticalalignment='top',
-        bbox=dict(facecolor='white', alpha=0.6)
-    )
-    
-    ax.set_title(title)
-    return sc
-
-def reverse_colormap(cmap):
-    """
-    Reverse the given colormap.
-    
-    Args:
-        cmap: The original colormap
-    
-    Returns:
-        A reversed colormap
-    """
-    # Get the original colormap with 256 discrete colors
-    colors = cmap(np.linspace(0, 1, 256))
-    
-    # Reverse the colormap
-    reversed_colors = colors[::-1]
-    
-    # Create a new colormap from the reversed colors
-    reversed_cmap = mcolors.LinearSegmentedColormap.from_list("reversed_cmap", reversed_colors)
-    
-    return reversed_cmap
-
-def make_scatter_plot(df, duration, timeperiod, loadings, axes, ax_row):
-    df["D_mean_present"] = df["D_mean_present"].apply(lambda x: x + 365 if x < 50 else x)
-    df["D_mean_future"] = df["D_mean_future"].apply(lambda x: x + 365 if x < 50 else x)
-    
-    for ax_num, (loading, title) in enumerate(zip(loadings, loadings)):
-        title = title if ax_row in[0,5] else ''
-        
-        if duration in [1, 6, 24]:
-            this_duration = df[df['sampling_duration'] == float(duration)]
-            make_point_density_plot(
-                axes[ax_row][ax_num],  # Updated indexing
-                this_duration[f"D_mean_{timeperiod}"],
-                this_duration[f"{loading}_percentage_{timeperiod}"],
-                title
-            )
-        else:
-            make_point_density_plot(
-                axes[ax_row][ax_num],  # Updated indexing
-                df[f"D_mean_{timeperiod}"],
-                df[f"{loading}_percentage_{timeperiod}"],
-                title
-            )
-
+def date_to_julian_day(date):
+    """Convert a date (YYYY-MM-DD) to its Julian day of the year."""
+    date = datetime.strptime(date, "%Y-%m-%d")
+    return date.timetuple().tm_yday
 
 def julian_to_date(julian_day):
     """Convert Julian day to calendar date."""
     base_date = datetime(2000, 1, 1)  # Use an arbitrary base year for reference
     return (base_date + timedelta(days=julian_day - 1)).strftime('%d %b')  # Format as '1 Feb', '21 Mar', etc.
-
-def plot_contour(fig, ax, data_x, data_y, x_label, y_label, title, cmap='Blues'):
-    
-    # Create a grid for the contour plot
-    x_grid = np.linspace(data_x.min(), data_x.max(), 100)
-    y_grid = np.linspace(data_y.min(), data_y.max(), 100)
-    X, Y = np.meshgrid(x_grid, y_grid)
-
-    # Perform Kernel Density Estimation (KDE)
-    kde = gaussian_kde([data_x, data_y])
-    Z = kde(np.vstack([X.ravel(), Y.ravel()])).reshape(X.shape)
-
-    # Normalize the density values to be between 0 and 1
-    Z_normalized = (Z - Z.min()) / (Z.max() - Z.min())
-
-    # Create the contour plot with fixed color limits between 0 and 1
-    contour = ax.contourf(X, Y, Z_normalized, levels=15, cmap=cmap, alpha=0.6, vmin=0, vmax=1)
-    if title =='All':
-        cbar = fig.colorbar(contour, ax=ax)
-        cbar.set_label('Density (normalized)')
-
-    # Calculate the R^2 value
-    slope, intercept, r_value, p_value, std_err = linregress(data_x, data_y)
-    r_squared = r_value**2
-    
-    if p_value <0.05:
-        p_value ='<0.05'
-    else:
-        p_value = '> 0.05'
-    
-    # Annotate the R^2 value on the plot
-    ax.text(0.95, 0.05, f'$R^2 = {r_squared:.2f}$, $P {p_value}$', transform=ax.transAxes,
-            ha='right', va='bottom', fontsize=10, bbox=dict(facecolor='white', alpha=0.6))
-
-    # Set labels
-    if title =='1hrs':
-        ax.set_ylabel(y_label, fontsize=15)
-    if cmap == 'Reds':
-        ax.set_xlabel(x_label, fontsize=15)
-    if cmap == 'Blues':
-        ax.set_title(title, fontsize=15)  
-        
-def make_scatter_plot_one_duration(df_changes_byduration, df_changes_all, duration):
-    
-    loadings =['B2', 'B1', 'C', 'F1', 'F2']
-    
-    if duration in [1,6,24]:
-        df = df_changes_byduration.copy()
-    else:
-        df = df_changes_all.copy()
-    
-    df["D_mean_present"] = df["D_mean_present"].apply(lambda x: x + 365 if x < 50 else x)
-    df["D_mean_future"] = df["D_mean_future"].apply(lambda x: x + 365 if x < 50 else x)
-    
-    fig, axes = plt.subplots(2, 5, figsize=(16, 8), sharey='all', sharex='all', gridspec_kw={'hspace': 0.05, 'wspace':0.14})
-    
-    for ax_num, (loading, title) in enumerate(zip(loadings, loadings)):
-        if duration in [1,6,24]:
-            this_duration = df[df['sampling_duration'] == float(duration)][['gauge_num', f'{loading}_percentage_present', 'D_mean_present']]
-            make_point_density_plot(axes[0, ax_num], this_duration["D_mean_present"], this_duration[f'{loading}_percentage_present'], title)
-        else:
-            make_point_density_plot(axes[0, ax_num], df["D_mean_present"], df[f'{loading}_percentage_present'], title)
-    fig.text(0.04, 0.7, 'Present', va='center', ha='center', fontsize=18, rotation='horizontal');
-    
-    for ax_num, (loading, title) in enumerate(zip(loadings, loadings)):
-        if duration in [1,6,24]:
-            this_duration = df[df['sampling_duration'] == float(duration)][['gauge_num', f'{loading}_percentage_future', 'D_mean_future']]
-            make_point_density_plot(axes[1, ax_num], this_duration["D_mean_future"], this_duration[f'{loading}_percentage_future'], '')
-        else:
-            make_point_density_plot(axes[1, ax_num], df["D_mean_future"], df[f'{loading}_percentage_future'], '')
-    fig.text(0.04, 0.3, 'Future', va='center', ha='center', fontsize=18, rotation='horizontal');   
-    
-    
-    # After plotting, convert Julian day ticks to calendar dates
-    for ax in axes.flatten():
-        if ax is not None:  # In case of unused subplots
-            # Get the current axis limits
-            x_min, x_max = ax.get_xlim()
-
-            # Restrict ticks to the visible range
-            ticks = ax.get_xticks()
-            visible_ticks = [tick for tick in ticks if x_min <= tick <= x_max]
-
-            # Convert the visible ticks to date labels
-            tick_labels = [julian_to_date(int(tick)) for tick in visible_ticks]
-
-            # Apply the visible ticks and corresponding labels
-            ax.set_xticks(visible_ticks)  # Restrict ticks to the visible range
-            ax.xaxis.set_major_formatter(FixedFormatter(tick_labels))  # Set formatted labels
-            ax.tick_params(axis='x', rotation=45)  # Rotate labels for better visibility
-
-        ax.yaxis.set_major_formatter(FormatStrFormatter('%.0f'))  # 2 decimal places
-        
-    fig.suptitle(f"{duration} hours", fontsize =20)
-
-def make_contour_plot(df_changes_byduration, df_changes_all, variable):
-    
-    durations =[1,6,24]
-
-    df_changes_all_test =df_changes_all.copy()
-    df_changes_byduration_test = df_changes_byduration.copy()
-    
-    df_changes_all_test["D_mean_present"] = df_changes_all_test["D_mean_present"].apply(lambda x: x + 365 if x < 50 else x)
-    df_changes_all_test["D_mean_future"] = df_changes_all_test["D_mean_future"].apply(lambda x: x + 365 if x < 50 else x)
-    
-    fig, axes = plt.subplots(2, 4, figsize=(16, 8), sharey=False, sharex=False, gridspec_kw={'hspace': 0.2, 'wspace':0.14})
-    
-    for ax_num, (duration, title) in enumerate(zip(durations, durations)):
-        this_duration = df_changes_byduration_test[df_changes_byduration_test['sampling_duration'] == float(duration)][['gauge_num', f'{variable}_present', 'D_mean_present']]
-        this_duration["D_mean_present"] = this_duration["D_mean_present"].apply(lambda x: x + 365 if x < 50 else x)
-        plot_contour(fig, axes[0, ax_num], this_duration['D_mean_present'],this_duration[f'{variable}_present'], "Day of year", f"{variable[:2]} %", f"{duration}hrs" )
-    plot_contour(fig, axes[0, 3], df_changes_all_test["D_mean_present"],  df_changes_all_test[f'{variable}_present'],"Day of year", f"{variable[:2]} %", "All"  )
-    fig.text(0.04, 0.7, 'Present', va='center', ha='center', fontsize=18, rotation='horizontal');
-    
-    for ax_num, (duration, title) in enumerate(zip(durations, titles)):
-        this_duration = df_changes_byduration_test[df_changes_byduration_test['sampling_duration'] == float(duration)][['gauge_num', f'{variable}_future', 'D_mean_future']]
-        this_duration["D_mean_future"] = this_duration["D_mean_future"].apply(lambda x: x + 365 if x < 50 else x)
-        plot_contour(fig, axes[1, ax_num], this_duration['D_mean_future'], this_duration[f'{variable}_future'], "Day of year", f"{variable[:2]} %" , f"{duration}hrs", 'Reds')   
-    plot_contour(fig, axes[1, 3], df_changes_all_test['D_mean_future'], df_changes_all_test[f'{variable}_future'],  "Day of year", f"{variable[:2]} %" ,"All" , 'Reds')
-    fig.text(0.04, 0.3, 'Future', va='center', ha='center', fontsize=18, rotation='horizontal');   
-
-    # After plotting, convert Julian day ticks to calendar dates
-    for ax in axes.flatten():
-        if ax is not None:  # In case of unused subplots
-            # Get the current axis limits
-            x_min, x_max = ax.get_xlim()
-
-            # Restrict ticks to the visible range
-            ticks = ax.get_xticks()
-            visible_ticks = [tick for tick in ticks if x_min <= tick <= x_max]
-
-            # Convert the visible ticks to date labels
-            tick_labels = [julian_to_date(int(tick)) for tick in visible_ticks]
-
-            # Apply the visible ticks and corresponding labels
-            ax.set_xticks(visible_ticks)  # Restrict ticks to the visible range
-            ax.xaxis.set_major_formatter(FixedFormatter(tick_labels))  # Set formatted labels
-            ax.tick_params(axis='x', rotation=45)  # Rotate labels for better visibility
-
-        ax.yaxis.set_major_formatter(FormatStrFormatter('%.0f'))  # 2 decimal places
-
-
 
 # Function to calculate the month from the day of the year
 def get_month_from_doy(day_of_year):
@@ -411,581 +63,41 @@ def get_month_from_doy(day_of_year):
     date = dt.datetime.strptime(str(day_of_year), '%j')
     return date.month
 
-def plot_boxplot(data, ax, color_mapping):
-    sns.swarmplot(ax=ax, data=data, x='Loading_profile_molly',
-            y='D50',  dodge=True, palette=color_mapping)
-    ax.set_xlabel('Quintile classification', fontsize=15)
-    ax.set_ylabel("$D_{50}$", fontsize=15)
-    
-def plot_boxplot_by_season(data, ax):
-    season_palette = {"Autumn": "darkorange", "Summer": "yellow", "Winter":"lightskyblue", 'Spring':'lightgreen'}
-    sns.boxplot(ax=ax, data=data, x='Loading_profile_molly',
-            y='D50',  hue='season', dodge=True, palette = season_palette)       
+##########################################################################################
+##########################################################################################
+##########################################################################################
+##################################### COLOUR MAPS ########################################
+##########################################################################################
+##########################################################################################
+##########################################################################################
 
-def plot_boxplot_by_duration(data, duration, ax, color_mapping):
-    
-        h1 = data[data['dur_for_which_this_is_amax'].apply(
-            lambda x: isinstance(x, list) and str(1) in x or x == str(1))] 
-        h6 = data[data['dur_for_which_this_is_amax'].apply(
-            lambda x: isinstance(x, list) and str(6) in x or x == str(6))] 
-        h24 = data[data['dur_for_which_this_is_amax'].apply(
-            lambda x: isinstance(x, list) and str(24) in x or x == str(24))]        
-        
-        test=pd.concat([h1,h6,h24])
-        
-        print(len(this_duration))
-        sns.boxplot(ax=ax, data=test, x='Loading_profile_molly',
-            y='D50',  hue='dur_for_which_this_is_amax', dodge=True)   
-        
-        ax.set_xlabel('Quintile classification', fontsize=15)
-        if duration =='1':
-            ax.set_ylabel("$D_{50}$", fontsize=15)        
-    
+# Define a function to create a customized colormap with emphasis on the middle
+def create_custom_colormap(cmap):
+    # Create a colormap using a diverging color palette (like "coolwarm")
+    cmap = cm.get_cmap(cmap)
 
-def create_single_variable_mosaic_plot_pctlabels(ax, data, split_variable, order, color_mapping, title):
-           
-    # Count the occurrences and reshape for mosaic plot
-    count_data = data[split_variable].value_counts().reindex(order, fill_value=0)
-    # Convert to dictionary format suitable for mosaic plot
-    mosaic_data = count_data.to_dict()
-    
-    # Function to specify properties including colors based on cross_variable
-    def props(key):
-        # Extract category from key if it's a tuple
-        if isinstance(key, tuple):
-            category = key[0]  # Extract the first element from the tuple
-        else:
-            category = key  # Use directly if it's not a tuple
-        color = color_mapping.get(category, (0.0, 0.0, 0.0, 0.6))  # Default to black if not found
-        return {'color': color}
-    
-    # Calculate total number of occurrences for percentage calculation
-    total_count = count_data.sum()
-    
-    # Plot the mosaic plot with automatic labels
-    labelizer = lambda key: ''
-    fig, rects = mosaic(mosaic_data, title='', labelizer = labelizer, properties=props, ax=ax, gap=0.015, horizontal=True)
-    ax.invert_yaxis()  # Optional: Invert y-axis to match standard bar plot orientation
-    ax.set_xticklabels([])  # Remove x-axis labels
-    
-    the_ls = range(0,len(order))
-    if split_variable == 'Loading_profile_molly': 
-        the_ls = [the_ls[0]] + [x * 6 for x in the_ls[1:]]
-    if split_variable == 'loading_profile_d50': 
-        the_ls = [the_ls[0]] + [x * 6 for x in the_ls[1:]]
+    # Adjust the colormap to emphasize the center (modify the range around the midpoint)
+    new_colors = cmap(np.linspace(0, 1, 15))
 
-    # Manually replace the labels with percentage labels
-    counter=0
-    for key, (x1, y1, x2, y2) in rects.items():
-        count = mosaic_data[key[0]]
-        percentage = (count / total_count) * 100
-        label = f'{percentage:.1f}%'
-        
-        # Find the label at this position and replace its text
-        for text in ax.texts:
-            if counter in the_ls:
-                text.set_text(label)
-                text.set_fontsize(17)
-                text.set_color('black')
-            counter=counter+1
-            
-    for key, (x1, y1, x2, y2) in rects.items():
-        if x1 == 0:  # Check if this is the leftmost bar
-            ax.text(x1-0.01, (y1 + y2) / 2, title, va='center', ha='right', fontsize=15, color='black', weight='bold')  
-            ax.text(x1-0.01, (y1 + y2) / 2, title, va='center', ha='right', fontsize=15, color='black', weight='bold')     
+    # Define the modified colormap
+    new_cmap = mcolors.LinearSegmentedColormap.from_list("custom_cmap", new_colors)
 
-def plot_present_future_changes(axes, row, input_df_changes, variable, variable_to_plot_present, variable_to_plot_future, 
-                                variable_to_plot_diff, cmap, cmap_diff, low_lim, high_lim, diff_high_lim, diff_low_lim):
-    # Present Climate 
-    present_data = input_df_changes[['gauge_num', variable_to_plot_present]].copy()
-    present_data['Climate'] = 'present'  # Add a Climate column for clarity
-    # Future Climate
-    future_data = input_df_changes[['gauge_num', variable_to_plot_future]].copy()
-    future_data['Climate'] = 'future'  # Add a Climate column for clarity
-    # Change 
-    change_data = input_df_changes[['gauge_num', variable_to_plot_diff]].copy()
-    change_data['Climate'] = 'change'  # Add a Climate column for clarity
+    return new_cmap
 
-    global_min = min(present_data[variable_to_plot_present].min(),
-                     future_data[variable_to_plot_future].min())
-    global_max = max(present_data[variable_to_plot_present].max(),
-                     future_data[variable_to_plot_future].max())
-    
-    ### Plot
-    if len(axes.shape) == 1:
-        # Case with just one row of axes
-        plot_values_on_map(axes[0], present_data, f'Present Climate - {variable} Values', tbo_vals,
-                           variable_to_plot_present, low_lim, high_lim, cmap)
-        plot_values_on_map(axes[1], future_data, f'Future Climate - {variable} Values', tbo_vals, 
-                           variable_to_plot_future, low_lim, high_lim, cmap)
-        plot_values_on_map(axes[2], change_data, f'Change in {variable} Values', tbo_vals, 
-                           variable_to_plot_diff, vmin=diff_low_lim, vmax=diff_high_lim, cmap=cmap_diff)
-    else:
-        # Case with multiple rows of axes
-        plot_values_on_map(axes[row, 0], present_data, f'Present Climate - {variable} Values', tbo_vals,
-                           variable_to_plot_present, low_lim, high_lim, cmap)
-        plot_values_on_map(axes[row, 1], future_data, f'Future Climate - {variable} Values', tbo_vals, 
-                           variable_to_plot_future, low_lim, high_lim, cmap)
-        plot_values_on_map(axes[row, 2], change_data, f'Change in {variable} Values', tbo_vals, 
-                           variable_to_plot_diff, vmin=diff_low_lim, vmax=diff_high_lim, cmap=cmap_diff)
-        
-    # Adjust layout
-    plt.tight_layout()  
-    
-    
-def plot_values_on_map_withsig(ax, data, title, tbo_vals, value_column, vmin, vmax, cmap='viridis'):
-    # Extract location data for plotting
-    gauge_locs = data['gauge_num'].copy()
-    lon = tbo_vals.loc[gauge_locs, 'Lon']
-    lat = tbo_vals.loc[gauge_locs, 'Lat']
-    
-    # Plot the background outline of Great Britain
-    gb_outline.plot(ax=ax, color='darkgrey', edgecolor='black', linewidth=1)
-    
-    # Identify points with and without significant values
-    significant_points = data[data['sig'] == 1]
-    nonsignificant_points = data[data['sig'] != 1]
-    
-    # Plot nonsignificant points without an outline
-    ax.scatter(
-        tbo_vals.loc[nonsignificant_points['gauge_num'], 'Lon'],
-        tbo_vals.loc[nonsignificant_points['gauge_num'], 'Lat'],
-        c=nonsignificant_points[value_column], cmap=cmap, edgecolor=None, alpha=0.9, s=10, marker='o',
-        vmin=vmin, vmax=vmax
-    )
-    
-    # Plot significant points with a black outline
-    scatter = ax.scatter(
-        tbo_vals.loc[significant_points['gauge_num'], 'Lon'],
-        tbo_vals.loc[significant_points['gauge_num'], 'Lat'],
-        c=significant_points[value_column], cmap=cmap, edgecolor='black', linewidth=1, alpha=0.9, s=20, marker='o',
-        vmin=vmin, vmax=vmax
-    )
-    
-    # Set title and remove axis tick labels
-    if 'present' in value_column:
-        ax.set_title(title, fontsize=20)
-    ax.set_xticklabels([])
-    ax.set_yticklabels([])
-    
-    return scatter
 
-# Function to plot values on map with the customized color map
-def plot_values_on_map_norm(ax, data, title, tbo_vals, value_column, low_lim, high_lim, norm, cmap='coolwarm'):
-    gauge_locs = data['gauge_num'].copy()
-    lon = tbo_vals.loc[gauge_locs, 'Lon']
-    lat = tbo_vals.loc[gauge_locs, 'Lat']
+def reverse_colormap(cmap):
+    # Get the original colormap with 256 discrete colors
+    colors = cmap(np.linspace(0, 1, 256))
+    
+    # Reverse the colormap
+    reversed_colors = colors[::-1]
+    
+    # Create a new colormap from the reversed colors
+    reversed_cmap = mcolors.LinearSegmentedColormap.from_list("reversed_cmap", reversed_colors)
+    
+    return reversed_cmap
 
-    # Plot the background outline of Great Britain
-    gb_outline.plot(ax=ax, color='darkgrey', edgecolor='black', linewidth=1)
-
-    # Identify points with and without significant values
-    significant_points = data[data['sig'] == 1]
-    nonsignificant_points = data[data['sig'] != 1]
-    
-    # Scatter plot for the specified value column
-    scatter =  ax.scatter(
-        tbo_vals.loc[nonsignificant_points['gauge_num'], 'Lon'],
-        tbo_vals.loc[nonsignificant_points['gauge_num'], 'Lat'],
-        c=nonsignificant_points[value_column], cmap=cmap, edgecolor=None, alpha=0.9, s=10, marker='o',
-         norm=norm
-    )
-    
-    if 'present' in value_column:
-        ax.set_title(title, fontsize=20, fontweight ='bold')
-    ax.set_xticklabels([])  # No axis labels
-    ax.set_yticklabels([])  # No axis labels
-    
-    return scatter    
-def plot_values_on_map(ax, data, title, tbo_vals, value_column, low_lim, high_lim, cmap='coolwarm'):
-    gauge_locs = data['gauge_num'].copy()
-    lon = tbo_vals.loc[gauge_locs, 'Lon']
-    lat = tbo_vals.loc[gauge_locs, 'Lat']
-
-    # Plot the background outline of Great Britain
-    gb_outline.plot(ax=ax, color='darkgrey', edgecolor='black', linewidth=1)
-
-    # Scatter plot for the specified value column
-    scatter = ax.scatter(
-        lon, lat, c=data[value_column], cmap=cmap, edgecolor=None, alpha=1, s=10, marker='o',
-         vmin=low_lim,vmax=high_lim    )
-    if 'present' in value_column:
-        ax.set_title(title, fontsize=20, fontweight ='bold')
-    ax.set_xticklabels([])  # No axis labels
-    ax.set_yticklabels([])  # No axis labels
-    
-    return scatter
-
-    
-def make_plot(df_changes_all, df_changes_byduration, variable, cmap, diffs_dict, low_lim=None, high_lim=None):
-    
-    df_changes_all = df_changes_all.copy()
-    df_changes_byduration = df_changes_byduration.copy()
-    
-    df_changes_all['sig'] = diffs_dict['All']
-    
-    fig, axes = plt.subplots(3, 4, figsize=(16, 13))
-
-    #################################################
-    # Shift January Days in Both Present and Future
-    #################################################
-    variable_present = f'{variable}_present'
-    variable_future = f'{variable}_future'
-    
-    #################################################
-    # Determine Color Limits Based on Both Datasets
-    #################################################
-    if high_lim is None:
-        low_lim = min(df_changes_all[variable_present].min(), df_changes_all[variable_present].min(), 
-                      df_changes_byduration[variable_future].min(), df_changes_byduration[variable_future].min())
-        # low_lim = 45.5
-
-        high_lim = max(df_changes_all[variable_present].max(), df_changes_all[variable_present].max(), 
-                      df_changes_byduration[variable_future].max(), df_changes_byduration[variable_future].max())   
-        # high_lim=54.5
-
-    #################################################
-    # Plot Present Data for Each Duration
-    #################################################
-    # Using the adjusted `low_lim` and `high_lim`
-    for i, duration in enumerate([1, 6, 24]):
-        this_duration = df_changes_byduration[df_changes_byduration['sampling_duration'] == float(duration)][['gauge_num', variable_present]]
-        plot_values_on_map(axes[0, i], this_duration, f'{duration}h', tbo_vals, variable_present, low_lim, high_lim, cmap)
-
-    # Plot 'All' present values
-    scatter = plot_values_on_map(axes[0, 3], df_changes_all[['gauge_num', variable_present]], 'All', tbo_vals, variable_present, low_lim, high_lim, cmap)
-
-    cbar_ax = fig.add_axes([1.005, 0.685, 0.01, 0.26])  # [left, bottom, width, height]
-    cbar = fig.colorbar(scatter, cax=cbar_ax, orientation='vertical')
-    cbar.ax.tick_params(labelsize=16) 
-    if 'percentage' in variable:
-        cbar.ax.yaxis.set_major_formatter(FuncFormatter(percent_formatter))
-    
-    #################################################
-    # Plot Future Data for Each Duration
-    #################################################
-    for i, duration in enumerate([1, 6, 24]):
-        this_duration = df_changes_byduration[df_changes_byduration['sampling_duration'] == float(duration)][['gauge_num', variable_future]]
-        plot_values_on_map(axes[1, i], this_duration, f'{duration}h', tbo_vals, variable_future, low_lim, high_lim, cmap)
-
-    # Plot 'All' future values
-    scatter = plot_values_on_map(axes[1, 3], df_changes_all[['gauge_num', variable_future]], 'All', tbo_vals, variable_future, low_lim, high_lim, cmap)
-    cbar_ax = fig.add_axes([1.005, 0.368, 0.01, 0.26])  # [left, bottom, width, height]
-    cbar = fig.colorbar(scatter, cax=cbar_ax, orientation='vertical')
-    cbar.ax.tick_params(labelsize=16) 
-    
-    if 'percentage' in variable:
-        cbar.ax.yaxis.set_major_formatter(FuncFormatter(percent_formatter))
-    
-    #################################################
-    # Plot Difference Data if Available
-    #################################################
-    variable_diff = f'{variable}_diff'
-
-    # Calculate and apply color limits centered around 0 for the difference
-    low_lim_diff = -max(abs(df_changes_all[variable_diff].min()), abs(df_changes_all[variable_diff].max()),
-                        abs(df_changes_byduration[variable_diff].min()), abs(df_changes_byduration[variable_diff].max()))
-    low_lim_diff=-6
-    high_lim_diff = -low_lim_diff
-
-    for i, duration in enumerate([1, 6, 24]):
-        this_duration = df_changes_byduration[df_changes_byduration['sampling_duration'] == float(duration)][['gauge_num', f'{variable}_diff']]
-        this_duration[f'{variable}_diff'] = this_duration[f'{variable}_diff'].clip(lower=-80, upper=80)
-        this_duration['sig'] =diffs_dict[duration] 
-        scatter = plot_values_on_map_withsig(axes[2, i], this_duration, f'{duration}h', tbo_vals, f'{variable}_diff',
-                                             low_lim_diff, high_lim_diff, 'bwr')
-    
-    # Plot 'All' differences
-    scatter = plot_values_on_map_withsig(axes[2, 3], df_changes_all[['gauge_num', variable_diff, 'sig']], 'All', tbo_vals,
-                                         variable_diff, low_lim_diff, high_lim_diff, 'bwr')    
-    
-    # Create the colorbar in this new axis
-    cbar_ax = fig.add_axes([1.007, 0.054, 0.01, 0.26])  # [left, bottom, width, height]
-    cbar = fig.colorbar(scatter, cax=cbar_ax, orientation='vertical')
-    cbar.ax.tick_params(labelsize=16) 
-    if 'percentage' in variable:
-        cbar.ax.yaxis.set_major_formatter(FuncFormatter(percent_formatter))
-    
-    fig.text(-0.035, 0.82, 'Present', va='center', ha='center', fontsize=17, rotation='horizontal')
-    fig.text(-0.035, 0.48, 'Future', va='center', ha='center', fontsize=17, rotation='horizontal')
-    fig.text(-0.035, 0.18, 'Change', va='center', ha='center', fontsize=17, rotation='horizontal')
-    
-    plt.subplots_adjust(hspace=-0.05)
-    
-    plt.tight_layout()
-    
-def find_significance_of_differences (present, future, variable):
-    
-    diffs_dict={}
-    gauge_nums=[]
-    
-    present['D'] = present['D'].apply(lambda x: x + 365 if x < 50 else x)
-    future['D'] = future['D'].apply(lambda x: x + 365 if x < 50 else x)
-
-    for dur in ['All', 1,6,24]:
-        # print(dur)
-        present_data = present[present['dur_for_which_this_is_amax'].apply(
-            lambda x: isinstance(x, list) and str(dur) in x or x == str(dur))]
-        future_data = future[future['dur_for_which_this_is_amax'].apply(
-            lambda x: isinstance(x, list) and str(dur) in x or x == str(dur))]
-
-        if dur == 'All':
-            present_data = present
-            future_data = future
-
-        diff = []
-        for gauge_num in range(0,1294):
-            if gauge_num not in [444,827,888]:
-                if dur == 1:
-                    gauge_nums.append(gauge_num)
-
-                this_g_present = present_data[present_data['gauge_num'] == gauge_num]
-                this_g_future = future_data[future_data['gauge_num'] == gauge_num]
-
-                # Perform KS test
-                ks_stat, p_value = ks_2samp(this_g_present[variable], this_g_future[variable])
-
-                if p_value < 0.05:
-                    diff.append(1)
-                else:
-                    diff.append(0) 
-        diffs_dict[dur]=diff
-    
-    df = pd.DataFrame({'gauge_num':gauge_nums, 'Sig_Diff_1h':np.array(diffs_dict[1]),
-                    'Sig_Diff_6h':np.array(diffs_dict[6]), 'Sig_Diff_24h':np.array(diffs_dict[24]),
-                      'Sig_Diff_All':np.array(diffs_dict['All'])})    
-    
-    return df, diffs_dict
-
-def day_to_date(day_of_year):
-    # Handle days from 1 to 365 (current year)
-    if day_of_year <= 365:
-        # Convert to current year's date
-        start_date = datetime(datetime.now().year, 1, 1)  # Start of the current year
-        date = start_date + timedelta(days=day_of_year - 1)  # Subtract 1 to get correct date
-    else:
-        # Handle days beyond 365 (next year's January)
-        day_of_year -= 365  # Adjust to start from 1 (for next January)
-        start_date = datetime(datetime.now().year + 1, 1, 1)  # Start of the next year
-        date = start_date + timedelta(days=day_of_year - 1)  # Subtract 1 to get correct date
-    
-    return date.strftime('%d %b')  # Format the date as "01 February"
-
-def make_plot_durcats(df_changes_all, df_changes_byduration, variable, cmap, diff_cmap, diffs_dict, low_lim=None, high_lim=None):
-    df_changes_all = df_changes_all.copy()
-    df_changes_byduration = df_changes_byduration.copy()
-    
-    df_changes_all['sig'] = diffs_dict['All']
-    
-    fig, axes = plt.subplots(3, 4, figsize=(16, 13))
-
-    #################################################
-    # Shift January Days in Both Present and Future
-    #################################################
-    variable_present = f'{variable}_present'
-    variable_future = f'{variable}_future'
-    
-    #################################################
-    # Determine Color Limits Based on Both Datasets
-    #################################################
-    if high_lim is None:
-        low_lim = min(df_changes_all[variable_present].min(), df_changes_all[variable_present].min(), 
-                      df_changes_byduration[variable_future].min(), df_changes_byduration[variable_future].min())
-        high_lim = max(df_changes_all[variable_present].max(), df_changes_all[variable_present].max(), 
-                      df_changes_byduration[variable_future].max(), df_changes_byduration[variable_future].max())   
-    
-    # Use a `TwoSlopeNorm` to focus on the middle (50 in this case)
-    high_lim= high_lim
-    low_lim = low_lim
-    
-    if variable == 'D50_new':
-        norm = TwoSlopeNorm(vmin=low_lim, vcenter=50, vmax=high_lim)
-    else:
-        norm = Normalize(vmin=low_lim, vmax=high_lim)
-        # Emphasize the middle range (e.g., midpoint = 17.5)
-        #norm = TwoSlopeNorm(vmin=low_lim, vmax=high_lim, vcenter=(high_lim-low_lim)/2)
-
-    #################################################
-    # Plot Present Data for Each Duration
-    #################################################
-    for i, duration in enumerate(['<=7hr', '7-16hr','16hr+']):
-        this_duration = df_changes_byduration[df_changes_byduration["sampling_duration"] == duration]
-        print(this_duration.columns)
-        mean = this_duration[variable_present].mean()
-        this_min = this_duration[variable_present].min()
-        this_max= this_duration[variable_present].max()
-        
-        scatter = plot_values_on_map_norm(
-            axes[0, i], this_duration, f'{duration}', tbo_vals, variable_present,
-            low_lim, high_lim, norm, cmap )
-        
-        # Add the mean value to the top-right corner of the plot
-        axes[0, i].text(
-            0.98, 0.98,  # Position (98% along x, 98% along y in axis coordinates)
-            f"Mean: {mean:.1f} \n Min: {this_min:.1f} \n Max: {this_max:.1f}",  # Format the mean value with 1 decimal place
-            ha='right', va='top',  # Align text to the top-right
-            transform=axes[0, i].transAxes,  # Use axis coordinates
-            fontsize=15, color='black' )
-             
-    # Plot 'All' present values
-    scatter = plot_values_on_map_norm(axes[0, 3], df_changes_all, 'All', tbo_vals,
-                                 variable_present, low_lim, high_lim, norm, cmap)
-    mean = df_changes_all[variable_present].mean()
-    this_min = df_changes_all[variable_present].min()
-    this_max= df_changes_all[variable_present].max()
-
-    # Add the mean value to the top-right corner of the plot
-    axes[0, 3].text(
-            0.98, 0.98,  # Position (98% along x, 98% along y in axis coordinates)
-            f"Mean: {mean:.1f} \n Min: {this_min:.1f} \n Max: {this_max:.1f}",  # Format the mean value with 1 decimal place
-            ha='right', va='top',  # Align text to the top-right
-            transform=axes[0, 3].transAxes,  # Use axis coordinates
-            fontsize=15, color='black' )
-
-    cbar_ax = fig.add_axes([1.005, 0.68, 0.01, 0.26])  # [left, bottom, width, height]
-    cbar = fig.colorbar(scatter, cax=cbar_ax, orientation='vertical', norm=norm)
-    cbar.ax.tick_params(labelsize=16) 
-    
-    # Set ticks at the bottom, middle, and top
-    if variable =='D50_new':
-        cbar.set_ticks([low_lim, 50, high_lim])
-        # Set custom labels for the ticks
-        cbar.ax.set_yticklabels([f'{low_lim:.1f}', '50', f'{high_lim:.1f}'], fontsize=16)
-
-    #################################################
-    # Plot Future Data for Each Duration
-    #################################################
-    for i, duration in enumerate(['<=7hr', '7-16hr','16hr+']):
-        this_duration = df_changes_byduration[df_changes_byduration["sampling_duration"] == duration][['gauge_num', variable_future]]
-        mean = this_duration[variable_future].mean()
-        this_min = this_duration[variable_future].min()
-        this_max= this_duration[variable_future].max()
-        
-        scatter = plot_values_on_map_norm(
-            axes[1, i], this_duration, f'{duration}', tbo_vals, variable_future,
-            low_lim, high_lim, norm, cmap )
-        # Add the mean value to the top-right corner of the plot
-        axes[1, i].text(
-            0.98, 0.98,  # Position (98% along x, 98% along y in axis coordinates)
-            f"Mean: {mean:.1f} \n Min: {this_min:.1f} \n Max: {this_max:.1f}",  # Format the mean value with 1 decimal place
-            ha='right', va='top',  # Align text to the top-right
-            transform=axes[1, i].transAxes,  # Use axis coordinates
-            fontsize=15, color='black' )
-             
-        
-    # Plot 'All' future values
-    scatter = plot_values_on_map_norm(axes[1, 3], df_changes_all, 'All', tbo_vals,
-                                 variable_future, low_lim, high_lim, norm, cmap)
-    mean = df_changes_all[variable_future].mean()
-    this_min = df_changes_all[variable_future].min()
-    this_max= df_changes_all[variable_future].max()
-    # Add the mean value to the top-right corner of the plot
-    axes[1, 3].text(
-            0.98, 0.98,  # Position (98% along x, 98% along y in axis coordinates)
-            f"Mean: {mean:.1f} \n Min: {this_min:.1f} \n Max: {this_max:.1f}",  # Format the mean value with 1 decimal place
-            ha='right', va='top',  # Align text to the top-right
-            transform=axes[1, 3].transAxes,  # Use axis coordinates
-            fontsize=15, color='black' )
-    
-    #################################################
-    # Add Colorbar for Future Data
-    #################################################
-    cbar_ax = fig.add_axes([1.005, 0.38, 0.01, 0.24])  # [left, bottom, width, height]
-    cbar = fig.colorbar(scatter, cax=cbar_ax, orientation='vertical')
-    cbar.ax.tick_params(labelsize=16)
-
-    # Set ticks at the bottom, middle, and top
-    if variable =='D50_new':
-        cbar.set_ticks([low_lim, 50, high_lim])
-        # Set custom labels for the ticks
-        cbar.ax.set_yticklabels([f'{low_lim:.1f}', '50', f'{high_lim:.1f}'], fontsize=16)
-    
-    #################################################
-    # Plot Difference Data if Available
-    #################################################
-    variable_diff = f'{variable}_diff'
-
-    # Calculate and apply color limits centered around 0 for the difference
-    low_lim_diff = -max(abs(df_changes_all[variable_diff].min()), abs(df_changes_all[variable_diff].max()),
-                        abs(df_changes_byduration[variable_diff].min()), abs(df_changes_byduration[variable_diff].max()))
-#     low_lim_diff=-6
-    high_lim_diff = -low_lim_diff
-
-    for i, duration in enumerate(['<=7hr', '7-16hr','16hr+']):
-        this_duration = df_changes_byduration[df_changes_byduration["sampling_duration"] == duration]
-        
-        this_duration[f'{variable}_diff'] = this_duration[f'{variable}_diff'].clip(lower=-80, upper=80)
-        scatter = plot_values_on_map(axes[2, i], this_duration, f'{duration}', tbo_vals, f'{variable}_diff',
-                                             low_lim_diff, high_lim_diff, diff_cmap)
-        
-        mean = this_duration[variable_diff].mean()
-        this_min = this_duration[variable_diff].min()
-        this_max= this_duration[variable_diff].max()
-        # Add the mean value to the top-right corner of the plot
-        axes[2, i].text(
-                0.98, 0.98,  # Position (98% along x, 98% along y in axis coordinates)
-                f"Mean: {mean:.1f} \n Min: {this_min:.1f} \n Max: {this_max:.1f}",  # Format the mean value with 1 decimal place
-                ha='right', va='top',  # Align text to the top-right
-                transform=axes[2, i].transAxes,  # Use axis coordinates
-                fontsize=15, color='black' )
-
-    # Plot 'All' differences
-    scatter = plot_values_on_map(axes[2, 3], df_changes_all, 'All', tbo_vals,
-                                         variable_diff, low_lim_diff, high_lim_diff, diff_cmap)    
-    
-    mean = df_changes_all[variable_diff].mean()
-    this_min = df_changes_all[variable_diff].min()
-    this_max= df_changes_all[variable_diff].max()
-    # Add the mean value to the top-right corner of the plot
-    axes[2, 3].text(
-            0.98, 0.98,  # Position (98% along x, 98% along y in axis coordinates)
-            f"Mean: {mean:.1f} \n Min: {this_min:.1f} \n Max: {this_max:.1f}",  # Format the mean value with 1 decimal place
-            ha='right', va='top',  # Align text to the top-right
-            transform=axes[2, 3].transAxes,  # Use axis coordinates
-            fontsize=15, color='black' )
-    
-    
-    # Create the colorbar in this new axis
-    cbar_ax = fig.add_axes([1.007, 0.054, 0.01, 0.26])  # [left, bottom, width, height]
-    cbar = fig.colorbar(scatter, cax=cbar_ax, orientation='vertical')
-    
-    # Customize colorbar ticks and labels
-    ticks = np.linspace(low_lim_diff, high_lim_diff, 5)  # Define 11 tick positions (e.g., from 0 to 1)
-    cbar.set_ticks(ticks)  # Set the tick positions
-    if variable == 'R':
-        cbar.set_ticklabels([f'{tick:.1f}' for tick in ticks])  # Optional: set the labels with formatting
-    else:
-        cbar.set_ticklabels([f'{tick:.0f}' for tick in ticks])  # Optional: set the labels with formatting        
-
-    # Adjust label size and display colorbar
-    cbar.ax.tick_params(labelsize=16)  # Set the font size for labels
-    
-#     cbar.set_ticks([low_lim_diff, '0', high_lim_diff])
-#     # Set custom labels for the ticks
-#     cbar.ax.set_yticklabels([f'{low_lim_diff:.0f}',  f'{high_lim_diff:.0f}'], fontsize=16)
-    
-    if 'percentage' in variable:
-        cbar.ax.yaxis.set_major_formatter(FuncFormatter(percent_formatter))
-    
-    fig.text(-0.035, 0.82, 'Present', va='center', ha='center', fontsize=17, rotation='horizontal')
-    fig.text(-0.035, 0.48, 'Future', va='center', ha='center', fontsize=17, rotation='horizontal')
-    fig.text(-0.035, 0.18, 'Change', va='center', ha='center', fontsize=17, rotation='horizontal')
-    
-    plt.subplots_adjust(hspace=-0.1)
-    
-    plt.tight_layout()  
-    
 def modify_colormap(cmap, gamma=2.0):
-    """
-    Modify the colormap to emphasize the center by applying a power law transformation.
-    
-    Args:
-        cmap: The original colormap
-        gamma: The degree of emphasis on the center (higher gamma = more emphasis in the middle)
-    
-    Returns:
-        A new colormap emphasizing the center
-    """
     # Get the original colormap with 256 discrete colors
     colors = cmap(np.linspace(0, 1, 256))
     
@@ -1003,329 +115,106 @@ def modify_colormap(cmap, gamma=2.0):
     
     return new_cmap       
     
+##########################################################################################
+##########################################################################################
+##########################################################################################
+##################################### MISCELLANEOUS ######################################
+##########################################################################################
+##########################################################################################
+##########################################################################################
 
-def make_plot_D_seasonal_durcats(df_changes_all, df_changes_byduration, variable, diff_cmap, diffs_dict):
+def test_proportions(present, future, categories, variable):
+    results = []
+    total_present = len(present)
+    total_future = len(future)
 
-    colors = [ "#00adc9","#00a987","#02ae4c","#e3c700","#f2a800","#f97c00","#e93e26","#d5005c","#9a007f","#323294","#0166b5", 
-              "#0099df" ]  
-        # Create a ListedColormap with these colors
-    month_cmap = mcolors.ListedColormap(colors, name="month_cmap")
-    month_cmap = LinearSegmentedColormap.from_list("month_cmap", colors, N=12)
-    cmap = month_cmap 
+    for category in categories:
+        # Calculate proportions
+        present_count = (present[variable] == category).sum()
+        future_count = (future[variable] == category).sum()
+
+        present_prop = present_count / total_present
+        future_prop = future_count / total_future
+
+        # Build a contingency table using counts
+        contingency_table = np.array([[present_count, future_count],
+                                       [total_present - present_count, total_future - future_count]])
+
+        # Perform chi-square test
+        chi2, p_value, _, _ = chi2_contingency(contingency_table)
+
+        results.append({
+            'category': category,
+            'present_count': present_count,
+            'future_count': future_count,
+            'present_prop': present_prop,
+            'future_prop': future_prop,
+            'chi2': chi2,
+            'p_value': p_value
+        })
+
+    return pd.DataFrame(results)
+
+def plot_boxplot(data, ax, color_mapping):
+    sns.swarmplot(ax=ax, data=data, x='Loading_profile_molly',
+            y='D50',  dodge=True, palette=color_mapping)
+    ax.set_xlabel('Quintile classification', fontsize=15)
+    ax.set_ylabel("$D_{50}$", fontsize=15)
+   
+     
+def find_significance_of_differences (present, future, variable):
     
-    df_changes_all = df_changes_all.copy()
-    df_changes_byduration = df_changes_byduration.copy()
+    diffs_dict={}
+    gauge_nums=[]
     
-    # Add sifnificance of changes
-    df_changes_all['sig'] = diffs_dict['All']
+    present['D'] = present['D'].apply(lambda x: x + 365 if x < 50 else x)
+    future['D'] = future['D'].apply(lambda x: x + 365 if x < 50 else x)
 
-    fig, axes = plt.subplots(3, 4, figsize=(16, 13))
-
-    #################################################
-    # Shift January Days in Both Present and Future
-    #################################################
-    variable_present = f'{variable}_present'
-    variable_future = f'{variable}_future'
-
-    #################################################
-    # Plot Present Data for Each Duration
-    #################################################
-    # Using the adjusted `low_lim` and `high_lim`
-    
-    for i, duration in enumerate(['<=7hr', '7-16hr', '16hr+']):
-        this_duration = df_changes_byduration[df_changes_byduration["sampling_duration"] == duration][['gauge_num', variable_present]]
-        this_duration['month_present'] = this_duration['D_mean_present'].apply(get_month_from_doy)
-        mean = this_duration[variable_present].mean()
-        this_min = this_duration[variable_present].min()
-        this_max = this_duration[variable_present].max()
-        plot_values_on_map(axes[0, i], this_duration, f'{duration}', tbo_vals, 'month_present', 1, 12, cmap)
-        # Add the mean value to the top-right corner of the plot
-        axes[0, i].text(
-            0.98, 0.98,  # Position (98% along x, 98% along y in axis coordinates)
-            f"Mean: {mean:.0f} \n Min: {this_min:.1f} \n Max: {this_max:.1f}",  # Format the mean value with 1 decimal place
-            ha='right', va='top',  # Align text to the top-right
-            transform=axes[0, i].transAxes,  # Use axis coordinates
-            fontsize=15, color='black' )
-
-    # Plot 'All' present values
-    df_changes_all['month_present'] = df_changes_all['D_mean_present'].apply(get_month_from_doy)
-    mean = df_changes_all[variable_present].mean()
-    this_min = df_changes_all[variable_present].min()
-    this_max = df_changes_all[variable_present].max()
-    scatter = plot_values_on_map(axes[0, 3], df_changes_all[['gauge_num', variable_present, 'month_present', 'sig']], 'All', tbo_vals,
-                                 'month_present', 1, 12, cmap)
-    
-    # Add the mean value to the top-right corner of the plot
-    axes[0, 3].text(
-        0.98, 0.98,  # Position (98% along x, 98% along y in axis coordinates)
-        f"Mean: {mean:.0f} \n Min: {this_min:.1f} \n Max: {this_max:.1f}",  # Format the mean value with 1 decimal place
-        ha='right', va='top',  # Align text to the top-right
-        transform=axes[0, 3].transAxes,  # Use axis coordinates
-        fontsize=15, color='black' )
-
-    # Define month names
-    month_labels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", 
-                    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-
-
-    cbar_ax = fig.add_axes([1.005, 0.685, 0.01, 0.26])  # [left, bottom, width, height]
-    cbar = fig.colorbar(scatter, cax=cbar_ax, orientation='vertical')
-
-    # Set ticks at the center of each color block
-    tick_positions = np.arange(1, 13)  # Values 1 through 12
-    cbar.set_ticks(tick_positions)
-
-    # Label each tick with the corresponding month name
-    cbar.set_ticklabels(month_labels)
-
-    # Reverse the tick direction to match reversed colorbar
-    cbar.ax.invert_yaxis()
-
-    #################################################
-    # Plot Future Data for Each Duration
-    #################################################
-    for i, duration in enumerate(['<=7hr', '7-16hr', '16hr+']):
-        this_duration = df_changes_byduration[df_changes_byduration["sampling_duration"] == duration][['gauge_num', variable_future]]
-        this_duration['month_future'] = this_duration['D_mean_future'].apply(get_month_from_doy)
-        mean = this_duration[variable_future].mean()
-        this_min = this_duration[variable_future].min()
-        this_max = this_duration[variable_future].max()
+    for i, dur in enumerate(['<=7hr', '7-16hr','16hr+', 'All']):
+        present_data = present[present["duration_category_onemore"] == dur]
+        future_data = future[future["duration_category_onemore"] == dur]       
         
-        plot_values_on_map(axes[1, i], this_duration, f'{duration}', tbo_vals, 'month_future', 1, 12, cmap)
-        axes[1, i].text(
-            0.98, 0.98,  # Position (98% along x, 98% along y in axis coordinates)
-            f"Mean: {mean:.0f} \n Min: {this_min:.1f} \n Max: {this_max:.1f}",  # Format the mean value with 1 decimal place
-            ha='right', va='top',  # Align text to the top-right
-            transform=axes[1, i].transAxes,  # Use axis coordinates
-            fontsize=15, color='black' )
-    # Plot 'All' future values
-    df_changes_all['month_future'] = df_changes_all['D_mean_future'].apply(get_month_from_doy)
-    mean = df_changes_all[variable_future].mean()
-    this_min = df_changes_all[variable_future].min()
-    this_max = df_changes_all[variable_future].max()
+        if dur == 'All':
+            present_data = present
+            future_data = future
+
+        diff = []
+        for gauge_num in range(0,1294):
+            if gauge_num not in [444,827,888]:
+                if dur == '<=7hr':
+                    gauge_nums.append(gauge_num)
+
+                this_g_present = present_data[present_data['gauge_num'] == gauge_num]
+                this_g_future = future_data[future_data['gauge_num'] == gauge_num]
+
+                # Perform KS test
+                ks_stat, p_value = ks_2samp(this_g_present[variable], this_g_future[variable])
+
+                if p_value < 0.05:
+                    diff.append(1)
+                else:
+                    diff.append(0) 
+        diffs_dict[dur]=diff
     
-    scatter = plot_values_on_map(axes[1, 3], df_changes_all[['gauge_num', variable_future, 'month_future']], 'All', tbo_vals, 
-                                 'month_future', 1, 12, cmap)
-    axes[1, 3].text(
-            0.98, 0.98,  # Position (98% along x, 98% along y in axis coordinates)
-            f"Mean: {mean:.0f} \n Min: {this_min:.1f} \n Max: {this_max:.1f}",  # Format the mean value with 1 decimal place
-            ha='right', va='top',  # Align text to the top-right
-            transform=axes[1, 3].transAxes,  # Use axis coordinates
-            fontsize=15, color='black' )
-
-
-    cbar_ax = fig.add_axes([1.005, 0.368, 0.01, 0.26])  # [left, bottom, width, height]
-    cbar = fig.colorbar(scatter, cax=cbar_ax, orientation='vertical')
-
-    # Set ticks at the center of each color block
-    tick_positions = np.arange(1, 13)  # Values 1 through 12
-    cbar.set_ticks(tick_positions)
-
-    # Label each tick with the corresponding month name
-    cbar.set_ticklabels(month_labels)
-
-    # Reverse the tick direction to match reversed colorbar
-    cbar.ax.invert_yaxis()
-
-    #################################################
-    # Plot Difference Data if Available
-    #################################################
-    # Apply the transformation to both present and future values
-    df_changes_all['D_mean_present'] = df_changes_all['D_mean_present'].apply(lambda x: x + 365 if x < 50 else x)
-    df_changes_all['D_mean_future'] = df_changes_all['D_mean_future'].apply(lambda x: x + 365 if x < 50 else x)
-    df_changes_all['D_mean_diff'] = df_changes_all['D_mean_future'] - df_changes_all['D_mean_present']   
+    df = pd.DataFrame({'gauge_num':gauge_nums, 'Sig_Diff_1h':np.array(diffs_dict['<=7hr']),
+                    'Sig_Diff_6h':np.array(diffs_dict['7-16hr']), 'Sig_Diff_24h':np.array(diffs_dict['16hr+']),
+                      'Sig_Diff_All':np.array(diffs_dict['All'])})    
     
-    df_changes_byduration['D_mean_present'] = df_changes_byduration['D_mean_present'].apply(lambda x: x + 365 if x < 50 else x)
-    df_changes_byduration['D_mean_future'] = df_changes_byduration['D_mean_future'].apply(lambda x: x + 365 if x < 50 else x)
-    df_changes_byduration['D_mean_diff'] = df_changes_byduration['D_mean_future'] - df_changes_byduration['D_mean_present']   
-        
-    
-    # Color map setup for difference plot
-    colors = [(0, "blue"), (0.35, "lightblue"), (0.5, "white"), (0.7, "lightcoral"), (1, "red")]
-    cmap_diff = LinearSegmentedColormap.from_list("custom_cmap", colors)    
-
-    variable_diff = f'{variable}_diff'
-
-    # Calculate and apply color limits centered around 0 for the difference
-    low_lim_diff = -max(abs(df_changes_all[variable_diff].min()), abs(df_changes_all[variable_diff].max()),
-                        abs(df_changes_byduration[variable_diff].min()), abs(df_changes_byduration[variable_diff].max()))
-    low_lim_diff = -50
-    high_lim_diff = -low_lim_diff
-
-    # Plot Difference Data if Available
-    for i, duration in enumerate(['<=7hr', '7-16hr', '16hr+']):
-        this_duration = df_changes_byduration[df_changes_byduration["sampling_duration"] == duration][['gauge_num',  f'{variable}_diff']]
-        this_duration[variable_diff] = this_duration[variable_diff].clip(lower=-80, upper=80)
-        mean = this_duration[variable_diff].mean()
-        this_min = this_duration[variable_diff].min()
-        this_max = this_duration[variable_diff].max()
-        scatter = plot_values_on_map(axes[2, i], this_duration, f'{duration}', tbo_vals, f'{variable}_diff', low_lim_diff, 
-                                     high_lim_diff, cmap_diff)
-        axes[2, i].text(
-            0.98, 0.98,  # Position (98% along x, 98% along y in axis coordinates)
-            f"Mean: {mean:.0f} \n Min: {this_min:.1f} \n Max: {this_max:.1f}",  # Format the mean value with 1 decimal place
-            ha='right', va='top',  # Align text to the top-right
-            transform=axes[2, i].transAxes,  # Use axis coordinates
-            fontsize=15, color='black' )
-
-    # Plot 'All' differences
-    scatter = plot_values_on_map(axes[2, 3], df_changes_all[['gauge_num', variable_diff, 'sig']], 'All', tbo_vals, 
-                                 variable_diff, low_lim_diff, high_lim_diff, cmap_diff)
-    mean = df_changes_all[variable_diff].mean()
-    this_min = df_changes_all[variable_diff].min()
-    this_max = df_changes_all[variable_diff].max()    
-    
-    axes[2, 3].text(
-            0.98, 0.98,  # Position (98% along x, 98% along y in axis coordinates)
-            f"Mean: {mean:.0f} \n Min: {this_min:.1f} \n Max: {this_max:.1f}",  # Format the mean value with 1 decimal place
-            ha='right', va='top',  # Align text to the top-right
-            transform=axes[2, 3].transAxes,  # Use axis coordinates
-            fontsize=15, color='black' )
-
-    # Create the colorbar in this new axis
-    cbar_ax = fig.add_axes([1.007, 0.054, 0.01, 0.26])  # [left, bottom, width, height]
-    cbar = fig.colorbar(scatter, cax=cbar_ax, orientation='vertical')
-    
-    # Customize colorbar ticks and labels
-    ticks = np.linspace(low_lim_diff, high_lim_diff, 5)  # Define 11 tick positions (e.g., from 0 to 1)
-    cbar.set_ticks(ticks)  # Set the tick positions
-    if variable == 'R':
-        cbar.set_ticklabels([f'{tick:.1f}' for tick in ticks])  # Optional: set the labels with formatting
-    else:
-        cbar.set_ticklabels([f'{tick:.0f}' for tick in ticks])  # Optional: set the labels with formatting        
-
-    # Adjust label size and display colorbar
-    cbar.ax.tick_params(labelsize=16)  # Set the font size for labels
-    
-
-    fig.text(-0.035, 0.82, 'Present', va='center', ha='center', fontsize=17, rotation='horizontal')
-    fig.text(-0.035, 0.48, 'Future', va='center', ha='center', fontsize=17, rotation='horizontal')
-    fig.text(-0.035, 0.18, 'Change', va='center', ha='center', fontsize=17, rotation='horizontal')
-
-    plt.subplots_adjust(hspace=-0.15)
-
-    plt.tight_layout()
- 
-    
-def plot_quintile_hist_with_overlap_shading(ax, present_data, future_data, bins, color_present='royalblue', color_future='indianred', overlap_color='lightgray'):
-    # Calculate histogram counts and bin edges
-    present_counts, bin_edges = np.histogram(present_data, bins=bins)
-    future_counts, _ = np.histogram(future_data, bins=bin_edges)  # Use the same bin edges
-
-    # Normalize counts to get proportions
-    present_props = present_counts / np.sum(present_counts)
-    print(present_props)
-    future_props = future_counts / np.sum(future_counts)
-
-    # Plot the histograms for Present and Future with proportions
-    ax.hist(present_data, bins=bin_edges, color=color_present, alpha=0.3, edgecolor='black', label="Present", weights=np.ones_like(present_data) / len(present_data))
-    ax.hist(future_data, bins=bin_edges, color=color_future, alpha=0.3, edgecolor='black', label="Future", weights=np.ones_like(future_data) / len(future_data))
-
-    # Prepare data for shading by repeating proportions to span full bin widths
-    x_values = np.repeat(bin_edges, 2)[1:-1]
-    present_props_extended = np.repeat(present_props, 2)
-    future_props_extended = np.repeat(future_props, 2)
-    overlap_props_extended = np.minimum(present_props_extended, future_props_extended)
-
-    # Shade overlap and non-overlap regions
-    ax.fill_between(x_values, 0, overlap_props_extended, color=overlap_color, label="Overlap", alpha=1)
-    ax.fill_between(x_values, overlap_props_extended, present_props_extended, where=(present_props_extended > future_props_extended), color=color_present, alpha=1)
-    ax.fill_between(x_values, overlap_props_extended, future_props_extended, where=(future_props_extended > present_props_extended), color=color_future, alpha=1)
+    return df, diffs_dict
 
     
 # Custom function to format ticks as percentages
 def percent_formatter(x, pos):
     return f"{x:.0f}%"  # Format the tick as an integer percentage (no decimals) 
 
-# Define the function to categorize ages
-def categorise_D50(D50):
-    if D50 > 50:
-        return 'B'
-    else:
-        return 'F'
     
-    
-def create_heatmap (ax_count, ax_count2, ax_heatmap, df, cmap, color):
-    # 1. Define bins for 'D50'
-    D50_bins = np.linspace(df['D50_new'].min(), df['D50_new'].max(), 10) 
-
-    # 2. Create a 2D histogram to count events for each D50 vs D combination
-    hist, D50_edges, D_edges = np.histogram2d(df['D50_new'].values, df['D'].values, bins=[D50_bins, np.arange(0, 366)])
-
-    # Example histogram creation (already done in previous code)
-    D_counts = hist.sum(axis=0)  # Total number of events per day (summed across all D50 bins)
-    normalized_hist = np.divide(hist, D_counts, where=D_counts!=0)  # Avoid division by zero
-
-    # 2. Plot the event counts (number of events per day) as a line plot on the first subplot
-    ax_count.bar(np.arange(0, 365), D_counts, color=color, linewidth=2, width=1)
-    ax_count.set_ylabel('Events count', fontsize=20)
-    
-    vals, counts = np.unique(df['D'], return_counts=True)
-    df=pd.DataFrame({'Day':vals, 'counts':counts})
-    ax_count2.bar(np.arange(0, len(df['counts'])), df['counts'], color='red', linewidth=2, width=1)
-    
-    # 3. Plot the normalized 2D histogram (proportions per day) as a heatmap on the second subplot
-    cax = ax_heatmap.imshow(normalized_hist, origin='lower', aspect='auto', extent=[0, 365, D50_bins[0], D50_bins[-1]], 
-                            cmap=cmap)
-
-    # Add colorbar to the heatmap
-    # cbar = fig.colorbar(cax, ax=ax_heatmap)
-    # cbar.set_label('Proportion of Events')
-
-    # 4. Label the heatmap axes
-    ax_heatmap.set_xlabel('Day of Year (D)', fontsize=20)
-    ax_heatmap.set_ylabel('D50', fontsize=20)
-    # ax_heatmap.set_title('Proportion of Events by Day of Year and D50')
-
-    ax_heatmap.tick_params(axis='both', which='major', labelsize=15)  
-    ax_count.tick_params(axis='both', which='major', labelsize=15)  
-
-    # Tight layout for better spacing between plots
-    plt.tight_layout() 
-    
-def plot_contour(fig, ax, data_x, data_y, x_label, y_label, title, cmap='Blues'):
-    
-    if x_label == "Day of year":
-        data_x = data_x.apply(lambda x: x + 365 if x < 50 else x)
-    
-    # Create a grid for the contour plot
-    x_grid = np.linspace(data_x.min(), data_x.max(), 100)
-    y_grid = np.linspace(data_y.min(), data_y.max(), 100)
-    X, Y = np.meshgrid(x_grid, y_grid)
-
-    # Perform Kernel Density Estimation (KDE)
-    kde = gaussian_kde([data_x, data_y])
-    Z = kde(np.vstack([X.ravel(), Y.ravel()])).reshape(X.shape)
-
-    # Normalize the density values to be between 0 and 1
-    Z_normalized = (Z - Z.min()) / (Z.max() - Z.min())
-
-    # Create the contour plot with fixed color limits between 0 and 1
-    contour = ax.contourf(X, Y, Z_normalized, levels=10, cmap=cmap, alpha=0.6, vmin=0, vmax=1)
-    if title =='All':
-        cbar = fig.colorbar(contour, ax=ax)
-        cbar.set_label('Density (normalized)')
-
-    # Calculate the R^2 value
-    slope, intercept, r_value, p_value, std_err = linregress(data_x, data_y)
-    r_squared = r_value**2
-    
-    if p_value <0.05:
-        p_value ='<0.05'
-    else:
-        p_value = '> 0.05'
-    
-    # Annotate the R^2 value on the plot
-    ax.text(0.95, 0.05, f'$R^2 = {r_squared:.2f}$, $P {p_value}$', transform=ax.transAxes,
-            ha='right', va='bottom', fontsize=10, bbox=dict(facecolor='white', alpha=0.6))
-
-    # Set labels
-    if title =='1hrs':
-        ax.set_ylabel(y_label, fontsize=15)
-    if cmap == 'Reds':
-        ax.set_xlabel(x_label, fontsize=15)
-    if cmap == 'Blues':
-        ax.set_title(title, fontsize=15)    
+##########################################################################################
+##########################################################################################
+##########################################################################################
+################################## CONTOUR AND SCATTER ###################################
+##########################################################################################
+##########################################################################################
+##########################################################################################  
     
 def plot_contour_all_events(ax, data_x, data_y,cmap):
     # Create a grid for the contour plot
@@ -1342,18 +231,78 @@ def plot_contour_all_events(ax, data_x, data_y,cmap):
 
     # Create the contour plot with fixed color limits between 0 and 1
     contour = ax.contourf(X, Y, Z_normalized, levels=10, cmap=cmap, alpha=0.6, vmin=0, vmax=1)
-#     cbar = fig.colorbar(contour, ax=ax)
-#     cbar.set_label('Density (normalized)')
 
     # Calculate R^2 and p-value
     slope, intercept, r_value, p_value, std_err = linregress(data_x, data_y)
     r_squared = r_value**2
 
     # Set labels and title
-    # ax.set_xlabel('%' if ax in [axs[1, 0], axs[1, 1]] else '')
     ax.set_ylabel("$D_{50}$",fontsize=18)
     ax.set_xlim(0,366)
-#     ax.set_ylim(0,6)
+
+def make_scatter_plot_durcats(df, duration, timeperiod, loadings, axes, ax_row):
+    df["D_mean_present"] = df["D_mean_present"].apply(lambda x: x + 365 if x < 50 else x)
+    df["D_mean_future"] = df["D_mean_future"].apply(lambda x: x + 365 if x < 50 else x)
+    
+    for ax_num, (loading, title) in enumerate(zip(loadings, loadings)):
+        if title != f'D50_mean':
+            title = title.split('_')[0]
+        else:
+            ax_num=ax_num+1
+        title = title if ax_row in[0,4] else ''
+        
+        if duration in ['<=7hr', '7-16hr','16hr+']:
+            this_duration = df[df['sampling_duration'] == duration]
+            make_point_density_plot(
+                axes[ax_row][ax_num],  # Updated indexing
+                this_duration[f"D_mean_{timeperiod}"],
+                this_duration[f"{loading}_{timeperiod}"],
+                title)
+        else:
+            make_point_density_plot(
+                axes[ax_row][ax_num],  # Updated indexing
+                df[f"D_mean_{timeperiod}"],
+                df[f"{loading}_{timeperiod}"],
+                title)           
+
+def make_point_density_plot(ax, data_x, data_y, title):
+    # Calculate point density
+    xy = np.vstack([data_x, data_y])
+    density = gaussian_kde(xy)(xy)
+
+    # Scatter plot with density-based coloring
+    sc = ax.scatter( data_x, data_y, c=density,cmap='viridis',  s=10, alpha=0.7)
+
+    # Linear regression for the line of best fit
+    slope, intercept, r_value, p_value, std_err = linregress(data_x, data_y)
+
+    # Generate the best-fit line
+    x_line = np.linspace(min(data_x), max(data_x), 500)
+    y_line = slope * x_line + intercept
+    ax.plot(x_line, y_line, color='black')
+
+    # Annotate with R² and p-value
+    r_squared = r_value ** 2
+    
+    if p_value <0.05:
+        p_value ='<0.05'
+    else:
+        p_value = '> 0.05'
+    
+    ax.text(0.05, 0.95, f"$R^2$ = {r_squared:.2f}, $p$ {p_value}",  transform=ax.transAxes, fontsize=12, 
+        verticalalignment='top', bbox=dict(facecolor='white', alpha=0.7))
+    
+    ax.set_title(title)
+    return sc
+
+
+##########################################################################################
+##########################################################################################
+##########################################################################################
+############################## SEASONAL HISTOGRAMS #######################################
+##########################################################################################
+##########################################################################################
+##########################################################################################    
     
 def plot_polar_months_plot(df, ax, title_on, title, rmax, name_variable_to_plot, original_D_mean, R):
     D_mean = 365  - round(original_D_mean,0)
@@ -1470,31 +419,52 @@ def plot_polar_months_plot_overlay(df_present, df_future, ax, title_on, title, l
                         'Sep', 'Aug', 'Jul',
                         'Jun', 'May', 'Apr'])
     
-    
-def plot_histogram_for_duration(df, variable, duration, duration_variable, ax, bins=25, label=None, color=None, alpha=0.5, density=True):
-    # Filter the DataFrame for the specified duration
-    duration_data = df[df[duration_variable].apply(
-        lambda x: isinstance(x, list) and str(duration) in x or x == str(duration))]
-    # Plot histogram for the specified duration with density normalization
-    if not duration_data.empty:
-        n, bins_used, patches = ax.hist(duration_data[variable], bins=bins, alpha=alpha, label=label, color=color, edgecolor='black', density=density)
-    else:
-        pass
 
-    # Set y-axis label to the specific duration bin it refers to
-    ax.set_ylabel(f"{duration}hrs", fontsize=10, rotation=0)
-    # Remove y-tick labels
-    # ax.set_yticks([])
+##########################################################################################
+##########################################################################################
+##########################################################################################
+############################## DENSITY DISTRIBUTIONS #####################################
+##########################################################################################
+##########################################################################################
+##########################################################################################    
     
-def plot_histogram(df, variable, duration, duration_variable, ax, bins=25, label=None, color=None, alpha=0.5, density=True):
-    # Plot histogram for the specified duration with density normalization
-    n, bins_used, patches = ax.hist(df[variable], bins=bins, alpha=alpha, label=label, color=color, edgecolor='black', density=density)
-
-    # Set y-axis label to the specific duration bin it refers to
-#     ax.set_ylabel(f"{duration}hrs", fontsize=10, rotation=0)
-    # Remove y-tick labels
-    # ax.set_yticks([])
-        
+def plot_proportion_histogram_with_overlap(ax, present, future, bins):
+    # Calculate the histogram counts and bin edges for both distributions
+    present_counts, present_bin_edges = np.histogram(present, bins=bins, density=True)
+    future_counts, future_bin_edges = np.histogram(future, bins=bins, density=True)
+    
+    # Normalize counts to get proportions (i.e., counts / total count)
+    present_proportions = present_counts / np.sum(present_counts)
+    future_proportions = future_counts / np.sum(future_counts)
+    
+    # If no axes are passed, create a new plot
+    if ax is None:
+        fig, ax = plt.subplots(figsize=(8, 6))
+    
+    # Plot the histograms as bar charts showing the proportions
+    ax.bar(present_bin_edges[:-1], present_proportions, width=np.diff(present_bin_edges), color='royalblue', edgecolor='black', alpha=1, label='Present', align='edge')
+    ax.bar(future_bin_edges[:-1], future_proportions, width=np.diff(future_bin_edges), color='indianred', edgecolor='black', alpha=1, label='Future', align='edge')
+    
+    # Prepare data for shading the overlap region
+    overlap_props = np.minimum(present_proportions, future_proportions)
+    # Shade the overlap area
+    ax.bar(future_bin_edges[:-1], overlap_props, width=np.diff(future_bin_edges), color='lightgrey', edgecolor='black', alpha=1, label='Both', align='edge',
+          linewidth=0.5)
+    
+    pres_mean = np.mean(present)
+    
+    fut_mean = np.mean(future)
+    
+    ax.axvline(x = pres_mean)
+    # Format the y-axis to show percentages
+    ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'{x*100:.0f}%'))
+    
+    # Show legend
+    ax.legend(loc='upper right')
+    # Display the plot
+    plt.tight_layout()     
+    
+    
 def plot_histogram_with_shaded_difference_all(present_data, future_data, variable, ax, bins, alpha=0.5):
     # Use logarithmic binning for the x-axis to focus on smaller values
     log_bins = np.logspace(np.log10(min(present_data[variable])), np.log10(max(present_data[variable])), bins)
@@ -1592,34 +562,7 @@ def plot_histogram_with_shaded_difference(present_data, future_data, variable, d
     # Optional: Adjust tick parameters to ensure the labels fit
     ax.tick_params(axis='x', which='both', labelbottom=True)
     
-    
-   # Function to plot with shaded overlapping regions
-def plot_hist_with_overlap(ax, present_data, future_data, bins=100, color_present='RoyalBlue', color_future='orange', overlap_color='gray'):
-    # Calculate histogram counts and bin edges for each dataset
-    present_counts, bin_edges = np.histogram(present_data, bins=bins, density=False)
-    future_counts, _ = np.histogram(future_data, bins=bin_edges, density=False)  # Use same bin edges
-
-    # Calculate bin centers for `fill_between`
-    bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
-
-    # Plot the individual histograms as steps for visibility
-    ax.hist(present_data, bins=bin_edges, color=color_present, alpha=1, label="Present", edgecolor=None, histtype='stepfilled')
-    ax.hist(future_data, bins=bin_edges, color=color_future, alpha=1, label="Future", edgecolor=None, histtype='stepfilled')
-
-    # Fill overlapping regions with the overlap color (gray)
-    overlap = np.minimum(present_counts, future_counts)
-    ax.fill_between(bin_centers, overlap, color=overlap_color, step='mid', label="Overlap")
-
-    # Fill the remaining regions with original colors for areas without overlap
-    ax.fill_between(bin_centers, present_counts, overlap, where=(present_counts > future_counts), 
-                    color=color_present, alpha=1, step='mid')
-    ax.fill_between(bin_centers, future_counts, overlap, where=(future_counts > present_counts), 
-                    color=color_future, alpha=1, step='mid')
-
-    # Add labels and legend
-    ax.set_xlabel('Mean day of year', fontsize=15)
-    
-    
+       
 def plot_hist_with_overlap_shading(ax, present_data, future_data, bins, color_present='royalblue', color_future='indianred', overlap_color='lightgray'):
     # Calculate histogram counts and bin edges
     present_counts, bin_edges = np.histogram(present_data, bins=bins)
@@ -1641,72 +584,620 @@ def plot_hist_with_overlap_shading(ax, present_data, future_data, bins, color_pr
     ax.fill_between(x_values, overlap_counts_extended, present_counts_extended, where=(present_counts_extended > future_counts_extended), color=color_present, alpha=1, step='mid')
     ax.fill_between(x_values, overlap_counts_extended, future_counts_extended, where=(future_counts_extended > present_counts_extended), color=color_future, alpha=1, step='mid')
      
-def plot_circular_colorbar(colors, month_labels):
-    # colors = colors[::-1]
-    # Create a ListedColormap with the provided colors
-    cmap = ListedColormap(colors, name="month_cmap")
-
-    # Generate polar coordinates for the circular colorbar
-    theta = np.linspace(0, 2 * np.pi, 1000)  # 1000 points for smooth gradient
-    r = np.linspace(0.9, 1, 2)  # Narrow ring
-
-    # Create a meshgrid for plotting
-    theta, r = np.meshgrid(theta, r)
-    z = theta  # Use theta to map colors
-
-    # Plot the circular colorbar
-    fig, ax = plt.subplots(figsize=(6, 6), subplot_kw={'projection': 'polar'})
-    c = ax.pcolormesh(theta, r, z, cmap=cmap, shading='auto')
-
-    # Adjust angles to center labels in each color segment
-    label_angles = np.linspace(0, 2 * np.pi, len(month_labels), endpoint=False) + (np.pi / 12)
-
-    # Add labels for each month at the centered positions
-    for angle, label in zip(label_angles, month_labels):
-        ax.text(angle, 1.08, label, ha='center', va='center', fontsize=12)
-
-    # Hide gridlines and ticks
-    ax.set_xticks([])
-    ax.set_yticks([])
-    ax.spines['polar'].set_visible(False)
-
-    # Display the plot
-    plt.show()        
- 
-def plot_2d_heatmap(ax, x, y, z, cmap="Blues", xlabel="Day of Year", ylabel="$D_{50}$", colorbar_label="Value"):
+        
+        
+##########################################################################################
+##########################################################################################
+##########################################################################################
+################################### SPATIAL PLOTTING #####################################
+################################### HELPER FUNCTIONS #####################################
+##########################################################################################
+##########################################################################################          
+  
+def plot_values_on_map(
+    ax, data, title, tbo_vals, value_column, 
+    low_lim=None, high_lim=None, norm=None, cmap='coolwarm', 
+    highlight_sig=False
+):
     """
-    Plots a 2D heatmap on the given axes.
+    Plots values on a map with optional customization for normalization and significance.
 
     Parameters:
-        ax: Matplotlib Axes object where the heatmap will be plotted.
-        x: 1D array-like. Data for the x-axis (e.g., day of the year).
-        y: 1D array-like. Data for the y-axis (e.g., $D_{50}$ values).
-        z: 1D array-like. Data for the color intensity (e.g., percentages or values to represent in heatmap).
-        cmap: Colormap for the heatmap.
-        xlabel: Label for the x-axis.
-        ylabel: Label for the y-axis.
-        colorbar_label: Label for the colorbar.
+        ax: Matplotlib axis object.
+        data: DataFrame containing the data to plot.
+        title: Title of the plot.
+        tbo_vals: DataFrame containing longitude and latitude values for gauges.
+        value_column: Column name in `data` containing values to plot.
+        low_lim: Minimum value for color scale (used if `norm` is not provided).
+        high_lim: Maximum value for color scale (used if `norm` is not provided).
+        norm: Matplotlib normalization object (e.g., LogNorm) for custom color scaling.
+        cmap: Colormap to use for scatter plot.
+        highlight_sig: Boolean, whether to highlight significant points with an outline.
+
+    Returns:
+        scatter: The scatter plot object.
     """
-    # Create a grid for the heatmap
-    heatmap_data, xedges, yedges = np.histogram2d(x, y, bins=[100, 100], weights=z, density=False)
+    gauge_locs = data['gauge_num'].copy()
+    lon = tbo_vals.loc[gauge_locs, 'Lon']
+    lat = tbo_vals.loc[gauge_locs, 'Lat']
     
-    # Normalize the grid to remove empty spaces
-    extent = [xedges[0], xedges[-1], yedges[0], yedges[-1]]
+    mean_val = data[value_column].mean()
+    min_val = data[value_column].min()
+    max_val = data[value_column].max()    
+
+    # Plot the background outline of Great Britain
+    gb_outline.plot(ax=ax, color='darkgrey', edgecolor='black', linewidth=1)
+
+    # Define base scatter plot arguments
+    scatter_kwargs = {'cmap': cmap,  'marker': 'o'}
+    if norm:
+        scatter_kwargs['norm'] = norm
+    else:
+        scatter_kwargs['vmin'] = low_lim
+        scatter_kwargs['vmax'] = high_lim
+
+    if highlight_sig:
+        # Identify points with and without significant values
+        significant_points = data[data['sig'] == 1]
+        nonsignificant_points = data[data['sig'] != 1]
+
+        ax.scatter(
+            tbo_vals.loc[nonsignificant_points['gauge_num'], 'Lon'],
+            tbo_vals.loc[nonsignificant_points['gauge_num'], 'Lat'],
+            c=nonsignificant_points[value_column],
+            alpha=1, s=12, linewidth=0.1, **scatter_kwargs)
+
+        # Plot significant points with a black outline
+        scatter = ax.scatter(
+            tbo_vals.loc[significant_points['gauge_num'], 'Lon'],
+            tbo_vals.loc[significant_points['gauge_num'], 'Lat'],
+            c=significant_points[value_column], 
+            edgecolor='black', linewidth=0.2, s=15, **scatter_kwargs)
+    else:
+        # Simple scatter plot without significance distinction
+        scatter = ax.scatter(lon, lat, c=data[value_column], edgecolor=None,s=10, **scatter_kwargs)
+
+    # Set title
+    ax.set_title(title, fontsize=20, fontweight='bold')
     
-    # Plot heatmap
-    cax = ax.imshow(
-        heatmap_data.T,
-        origin='lower',
-        extent=extent,
-        aspect='auto',
-        cmap=cmap,
-        interpolation='nearest',
-    )
+    ax.text(
+            0.98, 0.98, 
+            f"Mean: {mean_val:.1f} \nMin: {min_val:.1f} \nMax: {max_val:.1f}",
+            ha='right', va='top', transform=ax.transAxes, fontsize=15, color='black'
+        )
     
-    # Add a colorbar
-    cbar = plt.colorbar(cax, ax=ax, pad=0.01)
-    cbar.set_label(colorbar_label, fontsize=14)
+    # Remove axis labels
+    ax.set_xticklabels([])  
+    ax.set_yticklabels([])  
+
+    return scatter
     
-    # Set axis labels
-    ax.set_xlabel(xlabel, fontsize=14)
-    ax.set_ylabel(ylabel, fontsize=14)
+    
+# def plot_values_on_map(ax, data, title, tbo_vals, value_column, low_lim, high_lim, cmap='coolwarm'):
+#     gauge_locs = data['gauge_num'].copy()
+#     lon = tbo_vals.loc[gauge_locs, 'Lon']
+#     lat = tbo_vals.loc[gauge_locs, 'Lat']
+
+#     # Plot the background outline of Great Britain
+#     gb_outline.plot(ax=ax, color='darkgrey', edgecolor='black', linewidth=1)
+
+#     # Scatter plot for the specified value column
+#     scatter = ax.scatter(
+#         lon, lat, c=data[value_column], cmap=cmap, edgecolor=None, alpha=1, s=10, marker='o',
+#          vmin=low_lim,vmax=high_lim)
+    
+#     if 'present' in value_column:
+#         ax.set_title(title, fontsize=20, fontweight ='bold')
+#     ax.set_xticklabels([])  # No axis labels
+#     ax.set_yticklabels([])  # No axis labels
+    
+#     return scatter          
+        
+# def plot_values_on_map_norm_withsig(ax, data, title, tbo_vals, value_column, low_lim, high_lim, norm, cmap='coolwarm'):
+#     gauge_locs = data['gauge_num'].copy()
+#     lon = tbo_vals.loc[gauge_locs, 'Lon']
+#     lat = tbo_vals.loc[gauge_locs, 'Lat']
+
+#     # Plot the background outline of Great Britain
+#     gb_outline.plot(ax=ax, color='darkgrey', edgecolor='black', linewidth=1)
+
+#     # Identify points with and without significant values
+#     significant_points = data[data['sig'] == 1]
+#     nonsignificant_points = data[data['sig'] != 1]
+    
+#     # Scatter plot for the specified value column
+#     ax.scatter(
+#         tbo_vals.loc[nonsignificant_points['gauge_num'], 'Lon'],
+#         tbo_vals.loc[nonsignificant_points['gauge_num'], 'Lat'],
+#         c=nonsignificant_points[value_column], cmap=cmap, edgecolor=None, alpha=0.9, s=10, marker='o',
+#          norm=norm)
+    
+#     # Plot significant points with a black outline
+#     scatter = ax.scatter(
+#         tbo_vals.loc[significant_points['gauge_num'], 'Lon'],
+#         tbo_vals.loc[significant_points['gauge_num'], 'Lat'],
+#         c=significant_points[value_column], cmap=cmap, edgecolor='black', linewidth=1, alpha=0.9, s=20, marker='o',
+#         norm=norm)      
+    
+#     if 'present' in value_column:
+#         ax.set_title(title, fontsize=20, fontweight ='bold')
+#     ax.set_xticklabels([])  # No axis labels
+#     ax.set_yticklabels([])  # No axis labels  
+#     return scatter    
+    
+def plot_values_on_map_withsig(ax, data, title, tbo_vals, value_column, low_lim, high_lim, cmap='coolwarm'):
+    gauge_locs = data['gauge_num'].copy()
+    lon = tbo_vals.loc[gauge_locs, 'Lon']
+    lat = tbo_vals.loc[gauge_locs, 'Lat']
+
+    # Plot the background outline of Great Britain
+    gb_outline.plot(ax=ax, color='darkgrey', edgecolor='black', linewidth=1)
+
+    # Identify points with and without significant values
+    significant_points = data[data['sig'] == 1]
+    nonsignificant_points = data[data['sig'] != 1]
+    
+    ax.scatter(
+        tbo_vals.loc[nonsignificant_points['gauge_num'], 'Lon'],
+        tbo_vals.loc[nonsignificant_points['gauge_num'], 'Lat'],
+        c=nonsignificant_points[value_column], cmap=cmap, edgecolor=None, alpha=1, s=10, marker='o',
+         vmin=low_lim, vmax=high_lim)
+    
+    # Plot significant points with a black outline
+    scatter = ax.scatter(
+        tbo_vals.loc[significant_points['gauge_num'], 'Lon'],
+        tbo_vals.loc[significant_points['gauge_num'], 'Lat'],
+        c=significant_points[value_column], cmap=cmap, edgecolor='black', linewidth=0.5, alpha=1, s=20, marker='o',
+        vmin=low_lim, vmax=high_lim)      
+    
+    if 'present' in value_column:
+        ax.set_title(title, fontsize=20, fontweight ='bold')
+    ax.set_xticklabels([])  # No axis labels
+    ax.set_yticklabels([])  # No axis labels  
+    
+    return scatter
+
+# # Function to plot values on map with the customized color map
+def plot_values_on_map_norm(ax, data, title, tbo_vals, value_column, low_lim, high_lim, norm, cmap='coolwarm'):
+    gauge_locs = data['gauge_num'].copy()
+    lon = tbo_vals.loc[gauge_locs, 'Lon']
+    lat = tbo_vals.loc[gauge_locs, 'Lat']
+
+    # Plot the background outline of Great Britain
+    gb_outline.plot(ax=ax, color='darkgrey', edgecolor='black', linewidth=1)
+
+    # Scatter plot for the specified value column
+    scatter =ax.scatter(lon, lat, c=data[value_column], cmap=cmap, edgecolor=None, alpha=1, s=10, marker='o',
+    norm=norm)
+    
+    if 'present' in value_column:
+        ax.set_title(title, fontsize=20, fontweight ='bold')
+    ax.set_xticklabels([])  # No axis labels
+    ax.set_yticklabels([])  # No axis labels 
+    return scatter
+        
+        
+##########################################################################################
+##########################################################################################
+##########################################################################################
+################################### SPATIAL PLOTTING #####################################
+##########################################################################################
+##########################################################################################
+##########################################################################################        
+        
+def make_plot_durcats(
+    df_changes_all, df_changes_byduration, variable, cmap, diff_cmap, diffs_dict, plot_diffs, low_lim_diff, high_lim_diff,
+    low_lim=None, high_lim=None):
+    # Copy the dataframes to avoid modifying the originals
+    df_changes_all = df_changes_all.copy()
+    df_changes_byduration = df_changes_byduration.copy()
+    df_changes_all['sig'] = diffs_dict['All'].copy()
+
+    # Define subplots
+    fig, axes = plt.subplots(3, 4, figsize=(16, 13))
+
+    # Set variable names for present, future, and difference
+    variable_present = f'{variable}_present'
+    variable_future = f'{variable}_future'
+    variable_diff = f'{variable}_diff'
+
+    # Determine color limits if not provided
+    if high_lim is None or low_lim is None:
+        all_values = pd.concat([ 
+            df_changes_all[variable_present], 
+            df_changes_all[variable_future], 
+            df_changes_byduration[variable_present], 
+            df_changes_byduration[variable_future]
+        ])
+        low_lim = all_values.min() if low_lim is None else low_lim
+        high_lim = all_values.max() if high_lim is None else high_lim
+
+    # Set color normalization
+    norm = TwoSlopeNorm(vmin=low_lim, vcenter=50, vmax=high_lim) if variable == 'D50_new' else Normalize(vmin=low_lim, vmax=high_lim)
+    
+    # Plot present, future, and difference data
+    for row, (value_col, title, colormap, norm_func, highlight_sig) in enumerate([
+        (variable_present, 'Present', cmap, norm, False),
+        (variable_future, 'Future', cmap, norm, False),
+        (variable_diff, 'Change', diff_cmap, Normalize(vmin=low_lim_diff, vmax=high_lim_diff), plot_diffs)  # Use plot_diffs for highlighting
+    ]):
+        if title == 'Change':
+            low_lim = low_lim_diff
+            high_lim = high_lim_diff
+        for i, duration in enumerate(['<=7hr', '7-16hr', '16hr+']):
+            duration_data = df_changes_byduration[df_changes_byduration["sampling_duration"] == duration].copy()
+            duration_data['sig'] = diffs_dict[duration].copy()
+
+            if row == 2:  # Clip values for the difference plots
+                duration_data[variable_diff] = duration_data[variable_diff].clip(lower=low_lim_diff, upper=high_lim_diff)
+
+            # Use the plot_values_on_map function
+            scatter = plot_values_on_map(
+                axes[row, i], duration_data, duration, tbo_vals, value_col, 
+                low_lim, high_lim, norm_func, colormap, highlight_sig=highlight_sig
+            )
+
+        # Plot 'All' values for each row
+        scatter = plot_values_on_map(
+            axes[row, 3], df_changes_all, 'All', tbo_vals, value_col, 
+            low_lim, high_lim, norm_func, colormap, highlight_sig=highlight_sig
+        )
+
+        # Add colorbars for the row
+        cbar_ax = fig.add_axes([1.005, 0.68 - 0.31 * row, 0.01, 0.26])
+        cbar = fig.colorbar(scatter, cax=cbar_ax, orientation='vertical')
+        cbar.ax.tick_params(labelsize=16)
+
+        # Adjust colorbar ticks based on the row type
+        if variable == 'D50_new' and row < 2:
+            cbar.set_ticks([low_lim, 50, high_lim])
+            cbar.ax.set_yticklabels([f'{low_lim:.1f}', '50', f'{high_lim:.1f}'], fontsize=16)
+        elif row == 2:  # Difference row
+            ticks = np.linspace(low_lim, high_lim, 5)  # Custom ticks for the difference plot
+            cbar.set_ticks(ticks)
+            cbar.set_ticklabels([f'{tick:.0f}' if variable != 'R' else f'{tick:.1f}' for tick in ticks], fontsize=16)
+
+    # Add row labels
+    fig.text(-0.035, 0.82, 'Present', va='center', ha='center', fontsize=17, rotation='horizontal')
+    fig.text(-0.035, 0.48, 'Future', va='center', ha='center', fontsize=17, rotation='horizontal')
+    fig.text(-0.035, 0.18, 'Change', va='center', ha='center', fontsize=17, rotation='horizontal')
+
+    plt.subplots_adjust(hspace=-0.1)
+    plt.tight_layout()
+
+def make_plot_D_seasonal_durcats(df_changes_all, df_changes_byduration, variable, diff_cmap, diffs_dict):
+
+    colors = ["#005f99", "#0072b2", "#009e73", "#56b356", 
+        "#99d44f", "#d4e22f", "#ffc20a", "#ff7f00", 
+        "#e31a1c", "#a70021", "#6a3d9a", "#440154" ]  
+    # Create a ListedColormap with these colors
+    month_cmap = mcolors.ListedColormap(colors, name="month_cmap")
+    month_cmap = LinearSegmentedColormap.from_list("month_cmap", colors, N=12)
+    cmap = month_cmap 
+    df_changes_all = df_changes_all.copy()
+    df_changes_byduration = df_changes_byduration.copy()
+    
+    # Add sifnificance of changes
+    df_changes_all['sig'] = diffs_dict['All']
+
+    fig, axes = plt.subplots(3, 4, figsize=(16, 13))
+
+    variable_present = f'{variable}_present'
+    variable_future = f'{variable}_future'
+
+    #################################################
+    # Plot Present Data for Each Duration
+    #################################################
+    for i, duration in enumerate(['<=7hr', '7-16hr', '16hr+']):
+        this_duration = df_changes_byduration[df_changes_byduration["sampling_duration"] == duration].copy()
+        this_duration['month_present'] = this_duration['D_mean_present'].apply(get_month_from_doy)
+        plot_values_on_map(axes[0, i], this_duration, f'{duration}', tbo_vals, 'month_present', 1, 12, None, cmap)
+
+    # Plot 'All' present values
+    df_changes_all['month_present'] = df_changes_all['D_mean_present'].apply(get_month_from_doy)
+    scatter = plot_values_on_map(axes[0, 3], df_changes_all, 'All', tbo_vals, 'month_present', 1, 12, None, cmap)
+
+    # Define month names
+    month_labels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+
+    cbar_ax = fig.add_axes([1.005, 0.685, 0.01, 0.26])  # [left, bottom, width, height]
+    cbar = fig.colorbar(scatter, cax=cbar_ax, orientation='vertical')
+
+    # Set ticks at the center of each color block
+    tick_positions = np.arange(1, 13)  # Values 1 through 12
+    cbar.set_ticks(tick_positions)
+
+    # Label each tick with the corresponding month name
+    cbar.set_ticklabels(month_labels)
+
+    # Reverse the tick direction to match reversed colorbar
+    cbar.ax.invert_yaxis()
+
+    #################################################
+    # Plot Future Data for Each Duration
+    #################################################
+    for i, duration in enumerate(['<=7hr', '7-16hr', '16hr+']):
+        this_duration = df_changes_byduration[df_changes_byduration["sampling_duration"] == duration].copy()
+        this_duration['month_future'] = this_duration['D_mean_future'].apply(get_month_from_doy)
+        plot_values_on_map(axes[1, i], this_duration, f'{duration}', tbo_vals, 'month_future', 1, 12,  None, cmap)
+
+    # Plot 'All' future values
+    df_changes_all['month_future'] = df_changes_all['D_mean_future'].apply(get_month_from_doy)
+    scatter = plot_values_on_map(axes[1, 3], df_changes_all, 'All', tbo_vals, 'month_future', 1, 12, None, cmap)
+    
+    cbar_ax = fig.add_axes([1.005, 0.368, 0.01, 0.26])  # [left, bottom, width, height]
+    cbar = fig.colorbar(scatter, cax=cbar_ax, orientation='vertical')
+
+    # Set ticks at the center of each color block
+    tick_positions = np.arange(1, 13)  # Values 1 through 12
+    cbar.set_ticks(tick_positions)
+
+    # Label each tick with the corresponding month name
+    cbar.set_ticklabels(month_labels)
+
+    # Reverse the tick direction to match reversed colorbar
+    cbar.ax.invert_yaxis()
+    
+    #################################################
+    # Plot Difference Data if Available
+    #################################################
+    # Apply the transformation to both present and future values
+    df_changes_all['D_mean_present'] = df_changes_all['D_mean_present'].apply(lambda x: x + 365 if x < 50 else x)
+    df_changes_all['D_mean_future'] = df_changes_all['D_mean_future'].apply(lambda x: x + 365 if x < 50 else x)
+    df_changes_all['D_mean_diff'] = df_changes_all['D_mean_future'] - df_changes_all['D_mean_present']   
+    
+    df_changes_byduration['D_mean_present'] = df_changes_byduration['D_mean_present'].apply(lambda x: x + 365 if x < 50 else x)
+    df_changes_byduration['D_mean_future'] = df_changes_byduration['D_mean_future'].apply(lambda x: x + 365 if x < 50 else x)
+    df_changes_byduration['D_mean_diff'] = df_changes_byduration['D_mean_future'] - df_changes_byduration['D_mean_present']   
+    
+    # Color map setup for difference plot
+    colors = [(0, "blue"), (0.35, "lightblue"), (0.5, "white"), (0.7, "lightcoral"), (1, "red")]
+    cmap_diff = LinearSegmentedColormap.from_list("custom_cmap", colors)    
+
+    variable_diff = f'{variable}_diff'
+
+    # Calculate and apply color limits centered around 0 for the difference
+    low_lim_diff = -max(abs(df_changes_all[variable_diff].min()), abs(df_changes_all[variable_diff].max()),
+                        abs(df_changes_byduration[variable_diff].min()), abs(df_changes_byduration[variable_diff].max()))
+    low_lim_diff = -90
+    high_lim_diff = -low_lim_diff
+    norm = Normalize(vmin=low_lim_diff, vmax=high_lim_diff)        
+
+    # Plot Difference Data if Available
+    for i, duration in enumerate(['<=7hr', '7-16hr', '16hr+']):
+        this_duration = df_changes_byduration[df_changes_byduration["sampling_duration"] == duration].copy()
+        this_duration['sig'] =diffs_dict[duration].copy() 
+        scatter = plot_values_on_map(axes[2, i], this_duration, f'{duration}', tbo_vals, variable_diff, low_lim_diff, 
+                                     high_lim_diff, None, cmap_diff, True)
+
+    # Plot 'All' differences
+    scatter = plot_values_on_map(axes[2, 3], df_changes_all, 'All', tbo_vals,  variable_diff, low_lim_diff,
+                                         high_lim_diff, None, cmap_diff, True)
+
+    # Create the colorbar in this new axis
+    cbar_ax = fig.add_axes([1.007, 0.054, 0.01, 0.26])  # [left, bottom, width, height]
+    cbar = fig.colorbar(scatter, cax=cbar_ax, orientation='vertical')
+    
+    # Customize colorbar ticks and labels
+    ticks = np.linspace(low_lim_diff, high_lim_diff, 5)  # Define 11 tick positions (e.g., from 0 to 1)
+    cbar.set_ticks(ticks)  # Set the tick positions
+    if variable == 'R':
+        cbar.set_ticklabels([f'{tick:.1f}' for tick in ticks])  # Optional: set the labels with formatting
+    else:
+        cbar.set_ticklabels([f'{tick:.0f}' for tick in ticks])  # Optional: set the labels with formatting        
+
+    # Adjust label size and display colorbar
+    cbar.ax.tick_params(labelsize=16)  # Set the font size for labels
+    
+    fig.text(-0.035, 0.82, 'Present', va='center', ha='center', fontsize=17, rotation='horizontal')
+    fig.text(-0.035, 0.48, 'Future', va='center', ha='center', fontsize=17, rotation='horizontal')
+    fig.text(-0.035, 0.18, 'Change', va='center', ha='center', fontsize=17, rotation='horizontal')
+
+    plt.subplots_adjust(hspace=-0.15)
+
+    plt.tight_layout()
+    fig.savefig("day_of_year_seasonal_durcats.jpg")
+         
+def make_plot_durcats_quintiles(df_changes_all, df_changes_byduration, variable, cmap, diff_cmap, diffs_dict,category_num, low_lim=None, high_lim=None):
+    df_changes_all = df_changes_all.copy()
+    df_changes_byduration = df_changes_byduration.copy()
+    
+    df_changes_all['sig'] = diffs_dict['All'][category_num].copy()
+    
+    fig, axes = plt.subplots(3, 4, figsize=(16, 13))
+
+    #################################################
+    # Shift January Days in Both Present and Future
+    #################################################
+    variable_present = f'{variable}_present'
+    variable_future = f'{variable}_future'
+    
+    #################################################
+    # Determine Color Limits Based on Both Datasets
+    #################################################
+    if high_lim is None:
+        low_lim = min(df_changes_all[variable_present].min(), df_changes_all[variable_present].min(), 
+                      df_changes_byduration[variable_future].min(), df_changes_byduration[variable_future].min())
+        high_lim = max(df_changes_all[variable_present].max(), df_changes_all[variable_present].max(), 
+                      df_changes_byduration[variable_future].max(), df_changes_byduration[variable_future].max())   
+    
+    # Use a `TwoSlopeNorm` to focus on the middle (50 in this case)
+    high_lim= high_lim
+    low_lim = low_lim
+    
+    if variable == 'D50_new':
+        norm = TwoSlopeNorm(vmin=low_lim, vcenter=50, vmax=high_lim)
+    else:
+        norm = Normalize(vmin=low_lim, vmax=high_lim)
+
+    #################################################
+    # Plot Present Data for Each Duration
+    #################################################
+    for i, duration in enumerate(['<=7hr', '7-16hr','16hr+']):
+        this_duration = df_changes_byduration[df_changes_byduration["sampling_duration"] == duration].copy()
+        mean = this_duration[variable_present].mean()
+        this_min = this_duration[variable_present].min()
+        this_max= this_duration[variable_present].max()
+        
+        scatter = plot_values_on_map_norm(
+            axes[0, i], this_duration, f'{duration}', tbo_vals, variable_present,
+            low_lim, high_lim, norm, cmap )
+        
+        # Add the mean value to the top-right corner of the plot
+        axes[0, i].text(
+            0.98, 0.98,  # Position (98% along x, 98% along y in axis coordinates)
+            f"Mean: {mean:.1f} \n Min: {this_min:.1f} \n Max: {this_max:.1f}",  # Format the mean value with 1 decimal place
+            ha='right', va='top',  # Align text to the top-right
+            transform=axes[0, i].transAxes,  # Use axis coordinates
+            fontsize=15, color='black' )
+             
+    # Plot 'All' present values
+    scatter = plot_values_on_map_norm(axes[0, 3], df_changes_all, 'All', tbo_vals,
+                                 variable_present, low_lim, high_lim, norm, cmap)
+    mean = df_changes_all[variable_present].mean()
+    this_min = df_changes_all[variable_present].min()
+    this_max= df_changes_all[variable_present].max()
+
+    # Add the mean value to the top-right corner of the plot
+    axes[0, 3].text(
+            0.98, 0.98,  # Position (98% along x, 98% along y in axis coordinates)
+            f"Mean: {mean:.1f} \n Min: {this_min:.1f} \n Max: {this_max:.1f}",  # Format the mean value with 1 decimal place
+            ha='right', va='top',  # Align text to the top-right
+            transform=axes[0, 3].transAxes,  # Use axis coordinates
+            fontsize=15, color='black' )
+
+    cbar_ax = fig.add_axes([1.005, 0.68, 0.01, 0.26])  # [left, bottom, width, height]
+    cbar = fig.colorbar(scatter, cax=cbar_ax, orientation='vertical', norm=norm)
+    cbar.ax.tick_params(labelsize=16) 
+    
+    # Set ticks at the bottom, middle, and top
+    if variable =='D50_new':
+        cbar.set_ticks([low_lim, 50, high_lim])
+        # Set custom labels for the ticks
+        cbar.ax.set_yticklabels([f'{low_lim:.1f}', '50', f'{high_lim:.1f}'], fontsize=16)
+
+    #################################################
+    # Plot Future Data for Each Duration
+    #################################################
+    for i, duration in enumerate(['<=7hr', '7-16hr','16hr+']):
+        this_duration = df_changes_byduration[df_changes_byduration["sampling_duration"] == duration].copy()
+        mean = this_duration[variable_future].mean()
+        this_min = this_duration[variable_future].min()
+        this_max= this_duration[variable_future].max()
+        
+        scatter = plot_values_on_map_norm(
+            axes[1, i], this_duration, f'{duration}', tbo_vals, variable_future,
+            low_lim, high_lim, norm, cmap )
+        # Add the mean value to the top-right corner of the plot
+        axes[1, i].text(
+            0.98, 0.98,  # Position (98% along x, 98% along y in axis coordinates)
+            f"Mean: {mean:.1f} \n Min: {this_min:.1f} \n Max: {this_max:.1f}",  # Format the mean value with 1 decimal place
+            ha='right', va='top',  # Align text to the top-right
+            transform=axes[1, i].transAxes,  # Use axis coordinates
+            fontsize=15, color='black' )
+             
+        
+    # Plot 'All' future values
+    scatter = plot_values_on_map_norm(axes[1, 3], df_changes_all, 'All', tbo_vals,
+                                 variable_future, low_lim, high_lim, norm, cmap)
+    mean = df_changes_all[variable_future].mean()
+    this_min = df_changes_all[variable_future].min()
+    this_max= df_changes_all[variable_future].max()
+    # Add the mean value to the top-right corner of the plot
+    axes[1, 3].text(
+            0.98, 0.98,  # Position (98% along x, 98% along y in axis coordinates)
+            f"Mean: {mean:.1f} \n Min: {this_min:.1f} \n Max: {this_max:.1f}",  # Format the mean value with 1 decimal place
+            ha='right', va='top',  # Align text to the top-right
+            transform=axes[1, 3].transAxes,  # Use axis coordinates
+            fontsize=15, color='black' )
+    
+    #################################################
+    # Add Colorbar for Future Data
+    #################################################
+    cbar_ax = fig.add_axes([1.005, 0.38, 0.01, 0.24])  # [left, bottom, width, height]
+    cbar = fig.colorbar(scatter, cax=cbar_ax, orientation='vertical')
+    cbar.ax.tick_params(labelsize=16)
+
+    # Set ticks at the bottom, middle, and top
+    if variable =='D50_new':
+        cbar.set_ticks([low_lim, 50, high_lim])
+        # Set custom labels for the ticks
+        cbar.ax.set_yticklabels([f'{low_lim:.1f}', '50', f'{high_lim:.1f}'], fontsize=16)
+    
+    #################################################
+    # Plot Difference Data if Available
+    #################################################
+    variable_diff = f'{variable}_diff'
+
+    # Calculate and apply color limits centered around 0 for the difference
+    low_lim_diff = -max(abs(df_changes_all[variable_diff].min()), abs(df_changes_all[variable_diff].max()),
+                        abs(df_changes_byduration[variable_diff].min()), abs(df_changes_byduration[variable_diff].max()))
+#     low_lim_diff=-6
+    high_lim_diff = -low_lim_diff
+
+    for i, duration in enumerate(['<=7hr', '7-16hr','16hr+']):
+        this_duration = df_changes_byduration[df_changes_byduration["sampling_duration"] == duration].copy()
+        this_duration['sig'] = diffs_dict[duration][category_num].copy()
+        this_duration[f'{variable}_diff'] = this_duration[f'{variable}_diff'].clip(lower=-80, upper=80)
+        if variable =='R':
+            scatter = plot_values_on_map(axes[2, i], this_duration, f'{duration}', tbo_vals,
+                                         variable_diff, low_lim_diff, high_lim_diff, diff_cmap)                
+        else:
+            scatter = plot_values_on_map_withsig(axes[2, i], this_duration, f'{duration}', tbo_vals, variable_diff,
+                                                 low_lim_diff, high_lim_diff, diff_cmap)
+        
+        mean = this_duration[variable_diff].mean()
+        this_min = this_duration[variable_diff].min()
+        this_max= this_duration[variable_diff].max()
+        # Add the mean value to the top-right corner of the plot
+        axes[2, i].text(
+                0.98, 0.98,  # Position (98% along x, 98% along y in axis coordinates)
+                f"Mean: {mean:.1f} \n Min: {this_min:.1f} \n Max: {this_max:.1f}",  # Format the mean value with 1 decimal place
+                ha='right', va='top',  # Align text to the top-right
+                transform=axes[2, i].transAxes,  # Use axis coordinates
+                fontsize=15, color='black' )
+    # Plot 'All' differences
+    if variable =='R':
+        scatter = plot_values_on_map(axes[2, 3], df_changes_all, 'All', tbo_vals,
+                                         variable_diff, low_lim_diff, high_lim_diff, diff_cmap)           
+    else:   
+        scatter = plot_values_on_map_withsig(axes[2, 3], df_changes_all, 'All', tbo_vals,
+                                             variable_diff, low_lim_diff, high_lim_diff, diff_cmap)    
+    
+    mean = df_changes_all[variable_diff].mean()
+    this_min = df_changes_all[variable_diff].min()
+    this_max= df_changes_all[variable_diff].max()
+    # Add the mean value to the top-right corner of the plot
+    axes[2, 3].text(
+            0.98, 0.98,  # Position (98% along x, 98% along y in axis coordinates)
+            f"Mean: {mean:.1f} \n Min: {this_min:.1f} \n Max: {this_max:.1f}",  # Format the mean value with 1 decimal place
+            ha='right', va='top',  # Align text to the top-right
+            transform=axes[2, 3].transAxes,  # Use axis coordinates
+            fontsize=15, color='black' )
+    
+    
+    # Create the colorbar in this new axis
+    cbar_ax = fig.add_axes([1.007, 0.054, 0.01, 0.26])  # [left, bottom, width, height]
+    cbar = fig.colorbar(scatter, cax=cbar_ax, orientation='vertical')
+    
+    # Customize colorbar ticks and labels
+    ticks = np.linspace(low_lim_diff, high_lim_diff, 5)  # Define 11 tick positions (e.g., from 0 to 1)
+    cbar.set_ticks(ticks)  # Set the tick positions
+    if variable == 'R':
+        cbar.set_ticklabels([f'{tick:.1f}' for tick in ticks])  # Optional: set the labels with formatting
+    else:
+        cbar.set_ticklabels([f'{tick:.0f}' for tick in ticks])  # Optional: set the labels with formatting        
+
+    # Adjust label size and display colorbar
+    cbar.ax.tick_params(labelsize=16)  # Set the font size for labels
+    
+    if 'percentage' in variable:
+        cbar.ax.yaxis.set_major_formatter(FuncFormatter(percent_formatter))
+    
+    fig.text(-0.035, 0.82, 'Present', va='center', ha='center', fontsize=17, rotation='horizontal')
+    fig.text(-0.035, 0.48, 'Future', va='center', ha='center', fontsize=17, rotation='horizontal')
+    fig.text(-0.035, 0.18, 'Change', va='center', ha='center', fontsize=17, rotation='horizontal')
+    
+    plt.subplots_adjust(hspace=-0.1)
+    
+    plt.tight_layout()  

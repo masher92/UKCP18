@@ -6,7 +6,7 @@ year=$1
 echo $year
 
 # conda activate ukcp18
-python /nfs/a319/gy17m2a/PhD/Scripts/DataDownload/NIMROD/Download_from_CEDA.py $year
+#python /nfs/a319/gy17m2a/PhD/Scripts/DataDownload/NIMROD/Download_from_CEDA.py $year
 cd /nfs/a161/gy17m2a/PhD/datadir/NIMROD/5mins/OriginalFormat_1km/${year}/
 
 for file in *.tar ; do
@@ -20,4 +20,3 @@ for file in *.tar ; do
 done
 
 cd /nfs/a319/gy17m2a/PhD/Scripts/DataDownload/NIMROD/
-

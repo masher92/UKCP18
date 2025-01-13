@@ -2,6 +2,27 @@ import numpy as np
 import datetime
 import pandas as pd
 
+def find_dur_category (bin_edges, duration_labels, duration):
+    # Create a pandas Series with the duration
+    # Use pd.cut to assign the duration to a bin
+    binned_duration = pd.cut(pd.Series([duration]), bins=bin_edges, labels=duration_labels, right=True,  include_lowest=True)
+    return binned_duration.iloc[0]
+
+def apply_dur_category_to_column(df, duration_column, bin_edges, duration_labels):
+    """
+    This function applies the `find_dur_category` to a whole column in a DataFrame.
+    
+    Args:
+        df (DataFrame): The DataFrame containing the duration column.
+        duration_column (str): The name of the column to categorize.
+        bin_edges (list): The bin edges to categorize the values.
+        duration_labels (list): The labels to assign to the bins.
+    
+    Returns:
+        Series: A pandas Series with the categorized duration values.
+    """
+    return df[duration_column].apply(lambda duration: find_dur_category(bin_edges, duration_labels, duration))
+
 def calc_mean_day_and_dispersion(theta):
     
     x = np.cos(theta)
@@ -81,6 +102,7 @@ def get_season(date):
     else:
         return 'Autumn'
     
+    
 def group_data_calc_means(df, d50_variable, group_by_vars):
     # Group the dataframe by the specified variables
     grouped = df.groupby(group_by_vars)
@@ -126,6 +148,7 @@ def circular_day_difference(present_day, future_day):
     circular_diff = ((future_day - present_day + 182.625) % 365.25) - 182.625
     return circular_diff
 
+
 def find_change_values_in_groups_new(grouped_df, group_by_columns, sampling_duration):
     group_by_columns_no_climate = [col for col in group_by_columns if col != 'Climate']
     
@@ -148,21 +171,24 @@ def find_change_values_in_groups_new(grouped_df, group_by_columns, sampling_dura
     
     return merged_df.drop(columns=['Climate_present', 'Climate_future'], errors='ignore')
 
-
-# def find_change_values_in_groups_new(grouped_df, group_by_columns, sampling_duration):
-#     group_by_columns_no_climate = [col for col in group_by_columns if col != 'Climate']
+def find_change_values_in_groups_nimrod(grouped_df, group_by_columns, sampling_duration):
+    group_by_columns_no_climate = [col for col in group_by_columns if col != 'Climate']
     
-#     # Split data into present and future, renaming columns
-#     present_df = grouped_df[grouped_df['Climate'] == 'Present'].copy().rename(columns=lambda x: x + '_present' if x not in group_by_columns_no_climate else x)
-#     future_df = grouped_df[grouped_df['Climate'] == 'Future'].copy().rename(columns=lambda x: x + '_future' if x not in group_by_columns_no_climate else x)
+    # Split data into present and future, renaming columns
+    present_df = grouped_df[grouped_df['Climate'] == 'Present'].copy().rename(columns=lambda x: x + '_present' if x not in group_by_columns_no_climate else x)
+    future_df = grouped_df[grouped_df['Climate'] == 'NIMROD'].copy().rename(columns=lambda x: x + '_nimrod' if x not in group_by_columns_no_climate else x)
 
-#     # Merge present and future data on common columns
-#     merged_df = pd.merge(present_df, future_df, on=group_by_columns_no_climate, how='outer', suffixes=('_present', '_future'))
-
-#     # Calculate differences between present and future values
-#     for metric in ['D_mean', 'R', 'D50_mean', 'D50_median', 'D50_P90', 'D50_P10', 'F2_percentage', 'B2_percentage', 'C_percentage', 'F1_percentage', 'B1_percentage']:
-#         merged_df[f'{metric}_diff'] = merged_df[f'{metric}_future'] - merged_df[f'{metric}_present']
+    # Merge present and future data on common columns
+    merged_df = pd.merge(present_df, future_df, on=group_by_columns_no_climate, how='outer', suffixes=('_present', '_nimrod'))
+    # Calculate differences between present and future values
+    for metric in ['R', 'D50_mean', 'D50_median', 'D50_P90', 'D50_P10', 'F2_percentage', 'B2_percentage', 'C_percentage', 'F1_percentage', 'B1_percentage',
+                  "duration_mean"]:
+        merged_df[f'{metric}_diff'] = merged_df[f'{metric}_nimrod'] - merged_df[f'{metric}_present']
     
-#     merged_df['sampling_duration'] = sampling_duration
+    merged_df['sampling_duration'] = sampling_duration
 
-#     return merged_df.drop(columns=['Climate_present', 'Climate_future'], errors='ignore')
+    # Step 2: Apply the function to the DataFrame columns and create a new column
+    merged_df['D_mean_diff'] = merged_df.apply(
+        lambda row: circular_day_difference(row['D_mean_present'], row['D_mean_nimrod']), axis=1)
+    
+    return merged_df.drop(columns=['Climate_present', 'Climate_nimrod'], errors='ignore')

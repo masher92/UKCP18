@@ -7,7 +7,7 @@ echo $em_code
 # Ensure the directory exists, or create it if it doesn't
 mkdir -p /nfs/a319/gy17m2a/PhD/datadir/UKCP18_first30mins/2060_2081/${em_code}/
 
-for year in {2061..2080}
+for year in {2000..2020}
 do
     echo "Checking files for year: $year"
     for month in 01 02 03 04 05 06 07 08 09 10 11 12
@@ -18,7 +18,7 @@ do
             file_pattern="${em_code}a.pr${year}${month}${day}*"
             
             # Destination directory
-            dest_dir="/nfs/a319/gy17m2a/PhD/datadir/UKCP18_first30mins/2060_2081/${em_code}/"
+            dest_dir="/nfs/a161/gy17m2a/PhD/datadir/UKCP18_first30mins/2002_2020/${em_code}/"
             
             # Check if the file already exists at the destination
             file_exists=false

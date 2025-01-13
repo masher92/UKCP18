@@ -46,20 +46,21 @@ for year in range(year, year+1, 1):
     # Loop through list and download files
     ###########################
     for ffile in dir_list:
+        print(ffile)
 #         if ffile[35:37] in ['06', '07', '08']:
 #             print(ffile[37:39])
 #             if ffile[37:39] in ['26']:
-        if ffile == 'metoffice-c-band-rain-radar_uk_20121117_1km-composite.dat.gz.tar':
-                with open(ffile, 'wb') as fp:
-                    print("Downloading")
-                    # Download the file
-                    # If the file doesn't exist then this causes the exception to be generated
-                    res = f.retrbinary('RETR %s' % ffile , fp.write)
-                    # Don't know why this bit was there.
-                    if not res.startswith('226 Transfer complete'):
-                        print(ffile, 'Download failed')
-                        if os.path.isfile(ffile):
-                            os.remove(ffile)         
+#         if ffile == 'metoffice-c-band-rain-radar_uk_20121117_1km-composite.dat.gz.tar':
+        with open(ffile, 'wb') as fp:
+            print("Downloading")
+            # Download the file
+            # If the file doesn't exist then this causes the exception to be generated
+            res = f.retrbinary('RETR %s' % ffile , fp.write)
+            # Don't know why this bit was there.
+            if not res.startswith('226 Transfer complete'):
+                print(ffile, 'Download failed')
+                if os.path.isfile(ffile):
+                    os.remove(ffile)         
     print(f"Download complete for {year}")
     
     

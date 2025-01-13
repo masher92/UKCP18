@@ -26,7 +26,7 @@ tbo_vals.loc[tbo_vals['within_area'] == 'ME, SE', 'within_area'] = 'ME'
 
 em=sys.argv[1]
 # 'bb198', 'bb192', bb225, bb208 bb222 bb201 bb216 bb211 bb219
-ems_future = ['bb189', 'bb192', 'bb198', 'bb208', 'bb225','bb222', 'bb201', 'bb204', 'bb216', 'bb219', 'bb211'] # 'bb195',
+ems_future = ['bb189', 'bb192', 'bb198', 'bb208', 'bb225','bb222', 'bb201', 'bb204', 'bb216', 'bb219', 'bb211', 'bb195'] # 'bb195',
 ems_future = [ em]
 ems_present = ['bc005', 'bc006', 'bc007', 'bc009', 'bc010', 'bc011', 'bc012', 'bc013', 'bc015', 'bc016', 'bc017', 'bc018']
 ems_present = [em]

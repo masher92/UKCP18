@@ -15,17 +15,12 @@ from Steef_Functions import *
 home_dir = '/nfs/a319/gy17m2a/PhD/'
 home_dir2 = '/nfs/a161/gy17m2a/PhD/'
 
-quintile_mapping = {1: 'F2', 2: 'F1', 3: 'C', 4: 'B1', 5: 'B2'}
-quintile_mapping_thirds = {1: 'F', 2: 'C', 3: 'B'}
-
 tbo_vals = pd.read_csv(home_dir + 'datadir/RainGauge/interarrival_thresholds_CDD_noMissing.txt')
 # Check if the points are within the areas
 tbo_vals = check_for_gauge_in_areas(tbo_vals, home_dir, ['NW', 'NE', 'ME', 'SE', 'SW'])
 tbo_vals.loc[tbo_vals['within_area'] == 'NW, C', 'within_area'] = 'NW'
 tbo_vals.loc[tbo_vals['within_area'] == 'ME, SE', 'within_area'] = 'ME'
 
-home_dir = home_dir2
-tb0_vals = tbo_vals
 
 events_dict = {}
 event_props_ls = []
@@ -35,7 +30,8 @@ for gauge_num in range(0, 1294):
     if gauge_num not in [444, 827, 888]:
         if gauge_num % 100 == 0:
             print(f"Processing gauge {gauge_num}")
-        indy_events_fp = home_dir + f"ProcessedData/IndependentEvents/NIMROD_30mins/NIMROD_2.2km_filtered_100/{gauge_num}/WholeYear/"
+        indy_events_fp = home_dir2 + f"ProcessedData/IndependentEvents/NIMROD_30mins/NIMROD_2.2km_filtered_100/{gauge_num}/WholeYear/"
+
         files = [f for f in os.listdir(indy_events_fp) if f.endswith('.csv')]
         files = np.sort(files)
 
@@ -43,7 +39,6 @@ for gauge_num in range(0, 1294):
             fp = indy_events_fp + f"{file}"
             if '2080' in fp:
                 continue
-
             # Get event
             this_event = read_event(gauge_num, fp)
 
@@ -56,8 +51,8 @@ for gauge_num in range(0, 1294):
 
             # Create the DataFrame with corrected times
             event_df = pd.DataFrame({'precipitation (mm)': event_precip, 'times': event_times_fixed})
+            # Remove leading and trailing zeroes
             event_df = remove_leading_and_trailing_zeroes(event_df, indy_events_fp + f"{file}")
-
             # Create characteristics dictionary
             event_props = create_event_characteristics_dict(event_df)
 
@@ -65,9 +60,12 @@ for gauge_num in range(0, 1294):
             event_props['dur_for_which_this_is_amax'] = get_dur_for_which_this_is_amax(fp)
             # Add gauge number and ensemble member
             event_props['gauge_num'] = gauge_num
-            event_props['area'] = tb0_vals.iloc[gauge_num]['within_area']
+            event_props['area'] = tbo_vals.iloc[gauge_num]['within_area']
             event_props['em'] = 'nimrod'
             event_props['filename'] = file
+
+            event_props["max_precip"] =np.max(event_precip)
+            event_props["mean_precip"]= np.mean(event_precip)
 
             ##########################################
             # Specify the keys you want to check
@@ -86,8 +84,8 @@ for gauge_num in range(0, 1294):
                     break  # Exit the loop since we found a match
 
             if matched_dict:
-                # print("A matching dictionary found:", matched_dict, event_props)
 
+                ### Add duration
                 new_value = event_props['dur_for_which_this_is_amax']
                 existing_value = matched_dict.get('dur_for_which_this_is_amax', '')
                 # Create or update the value as a list
@@ -97,21 +95,33 @@ for gauge_num in range(0, 1294):
                     existing_value = [existing_value, new_value]  # Convert existing string to list and add 'yes'
                 matched_dict['dur_for_which_this_is_amax'] = existing_value
 
+                ### Add filepath
+                new_value_fp = event_props['filename']
+                existing_value_fp = matched_dict.get('filename', '')
+
+                # Create or update the value as a list
+                if isinstance(existing_value_fp, list):
+                    existing_value_fp.append(new_value_fp)
+                else:
+                    existing_value_fp = [existing_value_fp, new_value_fp]  # Convert existing string to list and add 'yes'
+                matched_dict['filename'] = existing_value_fp
+
                 event_props_ls[index]= matched_dict
 
             else:
                 # print("No matching dictionary found in the list.")
+
+                ##########################################
                 events_dict[f"nimrod, {gauge_num}, {event_num}"] = event_df
                 event_props_ls.append(event_props)
                 event_profiles_dict[f"nimrod, {gauge_num}, {event_num}"] = create_profiles_dict(event_df)
-                
-save_dir = '/nfs/a319/gy17m2a/PhD/'             
-                
-with open(save_dir + f"ProcessedData/AMAX_Events/NIMROD_30mins/events_dict.pickle", 'wb') as handle:
-    pickle.dump(events_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
-with open(save_dir + f"ProcessedData/AMAX_Events/NIMROD_30mins/event_profiles_dict.pickle", 'wb') as handle:
-    pickle.dump(event_profiles_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    with open(home_dir + f"ProcessedData/AMAX_Events/NIMROD_30mins/events_dict_NEW.pickle", 'wb') as handle:
+        pickle.dump(events_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
-with open(save_dir + f"ProcessedData/AMAX_Events/NIMROD_30mins/event_props_dict.pickle", 'wb') as handle:
-    pickle.dump(event_props_ls, handle, protocol=pickle.HIGHEST_PROTOCOL)                   
+    with open(home_dir + f"ProcessedData/AMAX_Events/NIMROD_30mins/event_profiles_dict_NEW.pickle", 'wb') as handle:
+        pickle.dump(event_profiles_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+    with open(home_dir + f"ProcessedData/AMAX_Events/NIMROD_30mins/event_props_dict_NEW.pickle", 'wb') as handle:
+        pickle.dump(event_props_ls, handle, protocol=pickle.HIGHEST_PROTOCOL)                   
+
