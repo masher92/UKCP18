@@ -9,7 +9,7 @@ import geopandas as gpd
 import pickle
 
 sys.path.insert(1, 'Old')
-from Steef_Functions import *
+# from Steef_Functions import *
 
 quintile_mapping = {1: 'F2', 2: 'F1', 3: 'C', 4: 'B1', 5: 'B2'}
 quintile_mapping_thirds = {1: 'F', 2: 'C', 3: 'B'}
@@ -101,8 +101,44 @@ def process_events_alltogether(home_dir, time_period, ems, tb0_vals, save_dir):
 
                 files = [f for f in os.listdir(indy_events_fp) if f.endswith('.csv')]
                 files = np.sort(files)
+                
+                # Step 1: Group files by base name
+                file_groups = {}
+                for file in files:
+                    base_name = file.replace('_part0.csv', '').replace('_part1.csv', '')
+                    file_groups.setdefault(base_name, []).append(file)
 
-                for event_num, file in enumerate(files):
+                # Step 2: Identify pairs where both part0 and part1 exist
+                pairs = []
+                for base_name, group in file_groups.items():
+                    if any('part0' in f for f in group) and any('part1' in f for f in group):
+                        part0_file = [f for f in group if 'part0' in f][0]  # Get part0 file
+                        part1_file = [f for f in group if 'part1' in f][0]  # Get part1 file
+                        pairs.append((part0_file, part1_file))
+
+                # Step 3: Compare precipitation totals and remove the lower one
+                files_to_keep = set(files)  # Start with all files
+                for part0_file, part1_file in pairs:
+                    # Read data for both files
+                    part0_df = read_event(gauge_num, indy_events_fp + part0_file)
+                    part1_df = read_event(gauge_num, indy_events_fp + part1_file)
+
+                    # Calculate total precipitation
+                    part0_precip = part0_df['precipitation (mm/hr)'].sum()
+                    part1_precip = part1_df['precipitation (mm/hr)'].sum()
+
+                    # Keep the file with the higher total precipitation
+                    if part0_precip >= part1_precip:
+                        #print(f"part1_file discarded, sum is {part1_precip}, part0 was {part0_precip}")
+                        files_to_keep.discard(part1_file)  # Remove part1 if part0 has higher or equal precipitation
+                    else:
+                        #print(f"part0_file discarded, sum is {part0_precip}, part0 was {part1_precip}")
+                        files_to_keep.discard(part0_file)  # Remove part0 if part1 has higher precipitation
+
+                # Step 4: Convert the result back to a list
+                updated_files = list(files_to_keep)
+
+                for event_num, file in enumerate(updated_files):
                     fp = indy_events_fp + f"{file}"
                     if '2080' in fp:
                         continue
@@ -127,7 +163,6 @@ def process_events_alltogether(home_dir, time_period, ems, tb0_vals, save_dir):
                     event_props['dur_for_which_this_is_amax'] = get_dur_for_which_this_is_amax(fp)
                     # Add gauge number and ensemble member
                     event_props['gauge_num'] = gauge_num
-                    event_props['area'] = tb0_vals.iloc[gauge_num]['within_area']
                     event_props['em'] = em
                     event_props['filename'] = file
                     
@@ -183,18 +218,16 @@ def process_events_alltogether(home_dir, time_period, ems, tb0_vals, save_dir):
                         event_props_ls.append(event_props)
                         event_profiles_dict[f"{em}, {gauge_num}, {event_num}"] = create_profiles_dict(event_df)
         
-        with open(save_dir + f"ProcessedData/AMAX_Events/UKCP18_30mins/{time_period}/events_dict_{em}_NEW.pickle", 'wb') as handle:
+        with open(save_dir + f"ProcessedData/AMAX_Events/UKCP18_30mins/{time_period}/events_dict_{em}.pickle", 'wb') as handle:
             pickle.dump(events_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
-        with open(save_dir + f"ProcessedData/AMAX_Events/UKCP18_30mins/{time_period}/event_profiles_dict_{em}_NEW.pickle", 'wb') as handle:
+        with open(save_dir + f"ProcessedData/AMAX_Events/UKCP18_30mins/{time_period}/event_profiles_dict_{em}.pickle", 'wb') as handle:
             pickle.dump(event_profiles_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
-        with open(save_dir + f"ProcessedData/AMAX_Events/UKCP18_30mins/{time_period}/event_props_dict_{em}_NEW.pickle", 'wb') as handle:
+        with open(save_dir + f"ProcessedData/AMAX_Events/UKCP18_30mins/{time_period}/event_props_dict_{em}.pickle", 'wb') as handle:
             pickle.dump(event_props_ls, handle, protocol=pickle.HIGHEST_PROTOCOL)                       
 
-    return events_dict, event_props_ls, event_profiles_dict                  
-
-    return events_dict, event_props_ls, event_profiles_dict
+    return events_dict, event_props_ls, event_profiles_dict          
 
 
 def calc_d50_with_interpolation(sample):

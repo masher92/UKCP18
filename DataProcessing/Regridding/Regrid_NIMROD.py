@@ -41,7 +41,10 @@ cube_2km_bng =iris.load_cube(file_model_2_2km_bng)
 ##########################################
 # Load LSM and use a NIMROD file to regrid it to 1km
 ##########################################
-file_nimrod_1km = "/nfs/a161/gy17m2a/PhD/datadir/NIMROD/30mins/OriginalFormat_1km/unfiltered/2006/metoffice-c-band-rain-radar_uk_20060419_30mins.nc"
+##########################################
+# Load LSM and use a NIMROD file to regrid it to 1km
+##########################################
+file_nimrod_1km = "/nfs/a161/gy17m2a/PhD/datadir/NIMROD/30mins/OriginalFormat_1km/filtered_100/2006/metoffice-c-band-rain-radar_uk_20060419_30mins.nc"
 nimrod_1km =iris.load_cube(file_nimrod_1km)
 nimrod_1km= trim_to_bbox_of_region_obs(nimrod_1km, uk_gdf, 'projection_y_coordinate', 'projection_x_coordinate')
 
@@ -51,14 +54,14 @@ lsm_1km = lsm.regrid(nimrod_1km, iris.analysis.Nearest())
 ###################
 # Load UKCP18 12km model data to use in regriddding
 ###################
-file_model_12km=f'/nfs/a161/gy17m2a/PhD/datadir/UKCP18_hourly/12km/01/01/pr_rcp85_land-rcm_uk_12km_01_day_19801201-19901130.nc'
+file_model_12km=f'/nfs/a161/gy17m2a/PhD/datadir/UKCP18_hourly/2.2km_bng_regridded_12km_masked/01/AreaWeighted/bng_pr_rcp85_land-rcm_uk_12km_01_day_19801201-19901130.nc'
 cube_12km=iris.load_cube(file_model_12km)
 
 ##############
 ### Loop through all years of data
 ##############
-year=sys.argv[1]
-for filtering_name in ["filtered_300", "filtered_100", "unfiltered"]:
+year=2019
+for filtering_name in ["filtered_100"]:
     print(year)
     # Change directory to be for correct year
     os.chdir(f"/nfs/a161/gy17m2a/PhD/datadir/NIMROD/30mins/OriginalFormat_1km/{filtering_name}/{year}")
@@ -99,7 +102,7 @@ for filtering_name in ["filtered_300", "filtered_100", "unfiltered"]:
             # Area Weighted
             reg_cube_masked_2km =cube_masked.regrid(cube_2km_bng,iris.analysis.AreaWeighted())    
             print("Regridded")
-            reg_cube_masked_12km =cube_masked.regrid(cube_12km,iris.analysis.AreaWeighted())    
+            reg_cube_masked_12km =cube_masked.regrid(cube_12km_bng,iris.analysis.AreaWeighted())    
             print("Regridded")           
 
             # Save 

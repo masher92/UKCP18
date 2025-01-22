@@ -25,11 +25,12 @@ import cartopy.crs as ccrs
 from matplotlib import colors
 import glob as glob
 import datetime
+from iris.util import unify_time_units
 warnings.simplefilter(action = 'ignore', category = FutureWarning)
 from iris.experimental.equalise_cubes import equalise_attributes
 
 # Set up path to root directory
-root_fp = "/nfs/a319/gy17m2a/PhD/"
+root_fp = "/nfs/a161/gy17m2a/PhD/"
 os.chdir(root_fp)
 
 # Create path to files containing functions
@@ -40,6 +41,10 @@ from Spatial_geometry_functions import *
 resolution = '12km'
 filtering_name='filtered_100'
 
+gb_gdf = create_gb_outline({'init' :'epsg:3857'})
+
+in_jja=iris.Constraint(time=lambda cell: 6 <= cell.point.month <= 8)
+
 ##################################################################
 # FOR ONE YEAR AT A TIME
 ##################################################################
@@ -49,20 +54,20 @@ filtering_name='filtered_100'
 for year in range(2015,2016):
     print(year)
     
-    if not  os.path.isfile("/nfs/a319/gy17m2a/PhD/" + ddir + f'compressed_{year}.npy'):
+    # Create directory to store outputs in and get general filename to load files from
+    if resolution =='1km':
+        ddir = f"ProcessedData/TimeSeries/NIMROD/30mins/OriginalFormat_1km/"
+        general_filename = f'datadir/NIMROD/30mins/OriginalFormat_1km/{year}/*'      
+    elif resolution == '2.2km':
+        ddir = f"ProcessedData/TimeSeries/NIMROD/30mins/NIMROD_regridded_2.2km/"
+        general_filename = f'datadir/NIMROD/30mins/NIMROD_regridded_2.2km/{filtering_name}/AreaWeighted/{year}/*'        
+    elif resolution == '12km':
+        ddir = f"ProcessedData/TimeSeries/NIMROD/30mins/NIMROD_regridded_12km/"    
+        general_filename = f'datadir/NIMROD/30mins/NIMROD_regridded_12km/{filtering_name}/AreaWeighted/{year}/*'      
+    if not os.path.isdir(ddir):
+        os.makedirs(ddir)
     
-        # Create directory to store outputs in and get general filename to load files from
-        if resolution =='1km':
-            ddir = f"ProcessedData/TimeSeries/NIMROD/30mins/OriginalFormat_1km/"
-            general_filename = f'datadir/NIMROD/30mins/OriginalFormat_1km/{year}/*'      
-        elif resolution == '2.2km':
-            ddir = f"ProcessedData/TimeSeries/NIMROD/30mins/NIMROD_regridded_2.2km/"
-            general_filename = f'datadir/NIMROD/30mins/NIMROD_regridded_2.2km/{filtering_name}/AreaWeighted/{year}/*'        
-        elif resolution == '12km':
-            ddir = f"ProcessedData/TimeSeries/NIMROD/30mins/NIMROD_regridded_12km/"    
-            general_filename = f'datadir/NIMROD/30mins/NIMROD_regridded_12km/{filtering_name}/AreaWeighted/{year}/*'      
-        if not os.path.isdir(ddir):
-            os.makedirs(ddir)
+    if not os.path.isfile("/nfs/a319/gy17m2a/PhD/" + ddir + f'timevalues_{year}_{filtering_name}.npy'):
 
         # GET LIST OF ALL FILENAMES FOR THIS YEAR
         filenames =[]
@@ -74,7 +79,12 @@ for year in range(2015,2016):
         sorted_list = sorted(filenames)
 
         # LOAD THE DATA
-        monthly_cubes_list = iris.load(sorted_list)
+        monthly_cubes_list = iris.load(sorted_list, in_jja)
+        
+        for num, cube in enumerate(monthly_cubes_list):
+            if len(cube.shape)<3:
+                cube = iris.util.new_axis(cube, 'time')
+                monthly_cubes_list[num] = cube    
 
         ##################################################################
         # CLEAN AND JOIN THE DATA
@@ -84,39 +94,84 @@ for year in range(2015,2016):
 
         for cube in monthly_cubes_list:
             cube.rename("Rain rate Composite")    
+            if cube.coords('forecast_period'):
+                cube.remove_coord('forecast_period')
+            if cube.coords('forecast_reference_time'):
+                cube.remove_coord('forecast_reference_time')
+            cube.var_name = 'stratiform_rainfall_flux'  
+            
+            if cube.coords('hour'):  # If 'hour' exists (auxiliary or scalar), remove it
+                cube.remove_coord('hour')
+
+            # Add a consistent 'hour' auxiliary coordinate
+            hour_coord = iris.coords.AuxCoord(0, long_name='hour', units='1')  # Use appropriate value
+            cube.add_aux_coord(hour_coord)            
 
         # CONVERT TO FLOAT64
         for i in range(0, len(monthly_cubes_list)):
             monthly_cubes_list[i].data = monthly_cubes_list[i].data.astype('float64')
+        
+        unify_time_units(monthly_cubes_list)  # Helps with time coordinate mismatches     
 
         model_cube = monthly_cubes_list.concatenate_cube()
-
-        print(model_cube.coord('time')[0])
-        print(model_cube.coord('time')[-1])
-
+        model_cube = trim_to_bbox_of_region_obs(model_cube, gb_gdf, 'projection_y_coordinate', 'projection_x_coordinate')
+        
+        ##################################################################
+        # Save data over UK
+        ##################################################################
         # Get rid of negative values
-        compressed = model_cube.data.compressed()
-        compressed.shape[0]
+        compressed_data = model_cube.data.compressed()
 
-        ########
-        # Get the times
-        ########
-        # Step 3: Extract corresponding time values
-        time_values = model_cube.coord('time')
+        # Masked array of the data
+        data = model_cube.data  # Original masked array
+        mask = np.ma.getmask(data)  # Get the mask (True for masked values)
+        valid_indices = np.where(~mask)
+        valid_times = model_cube.coord('time').points[valid_indices[0]]
 
-        # Save to file
-        np.save("/nfs/a319/gy17m2a/PhD/" + ddir + f'timevalues.npy', time_values) 
-        np.save("/nfs/a319/gy17m2a/PhD/" + ddir + f'compressed_{year}_{filtering_name}.npy', compressed) 
+        print(compressed_data.shape[0], valid_times.shape[0])
+
+        # # Save to file
+        np.save("/nfs/a319/gy17m2a/PhD/" + ddir + f'timevalues_{year}_{filtering_name}_UK_jja.npy', valid_times)
+        np.save("/nfs/a319/gy17m2a/PhD/" + ddir + f'compressed_{year}_{filtering_name}_UK_jja.npy', compressed_data) 
 
         # Generate the plot
         iplt.contourf(model_cube[10])
-
         # Add a title, labels, or any customization if needed
-        plt.title("Contour Plot of Model Cube at Index 10")
-        plt.xlabel("X Coordinate")
-        plt.ylabel("Y Coordinate")
+        plt.savefig("/nfs/a319/gy17m2a/PhD/" + ddir + f"model_cube_contour_{year}_UK.png", dpi=300, bbox_inches='tight') 
+        plt.clf()
+        
+        ##################################################################
+        # Trim data to GB
+        ##################################################################
+        gb_mask = np.load("/nfs/a319/gy17m2a/PhD/datadir/Masks/UKCP18_12km_GB_Mask.npy")
+        masked_cube_data = model_cube * gb_mask[np.newaxis, :, :]   
+        # APPLY THE MASK
+        reshaped_mask = np.tile(gb_mask, (model_cube.shape[0], 1, 1))
+        reshaped_mask = reshaped_mask.astype(int)
+        reversed_array = ~reshaped_mask.astype(bool)
 
-        # Save the figure to a file
-        plt.savefig("/nfs/a319/gy17m2a/PhD/" + ddir + f"model_cube_contour_{year}.png", dpi=300, bbox_inches='tight')    
+        # Mask the cube
+        masked_cube = iris.util.mask_cube(model_cube, reversed_array)    
+
+        ##################################################################
+        # Save data for GB
+        ##################################################################
+        # Get rid of negative values
+        compressed_data = masked_cube.data.compressed()
+        # Get times associated with these values
+        data = masked_cube.data
+        mask = np.ma.getmask(data)  # Get the mask (True for masked values)
+        valid_indices = np.where(~mask)
+        valid_times = masked_cube.coord('time').points[valid_indices[0]]
+
+        print(compressed_data.shape[0], valid_times.shape[0])
+
+        np.save("/nfs/a319/gy17m2a/PhD/" + ddir + f'compressed_{year}_{filtering_name}_GB_jja.npy', compressed_data) 
+        np.save("/nfs/a319/gy17m2a/PhD/" + ddir + f'timevalues_{year}_{filtering_name}_GB_jja.npy', valid_times)
+
+        iplt.contourf(masked_cube[1,:,:])        
+        plt.savefig("/nfs/a319/gy17m2a/PhD/" + ddir + f"model_cube_contour_{year}_GB.png", dpi=300, bbox_inches='tight')        
+    
     else:
         print(f"Already exists for {year}")
+

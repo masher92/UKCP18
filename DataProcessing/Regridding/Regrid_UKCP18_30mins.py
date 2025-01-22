@@ -57,9 +57,8 @@ lsm_2km = lsm.regrid(cube_2km_30mins_bng, iris.analysis.Nearest())
 broadcasted_lsm_2km_30mins_data = np.broadcast_to(lsm_2km.data.data, cube_2km_30mins_bng.shape)
 broadcasted_lsm_2km_30mins_data_reversed = ~broadcasted_lsm_2km_30mins_data.astype(bool)
 
-file_model_12km=f'/nfs/a161/gy17m2a/PhD/datadir/UKCP18_hourly/12km/01/01/pr_rcp85_land-rcm_uk_12km_01_day_19801201-19901130.nc'
+file_model_12km=f'/nfs/a161/gy17m2a/PhD/datadir/UKCP18_hourly/2.2km_bng_regridded_12km_masked/04/AreaWeighted/1980_2001/bng_rg_pr_rcp85_land-cpm_uk_2.2km_04_1hr_19810601-19810630.nc'
 cube_12km=iris.load_cube(file_model_12km)
-
 
 ##################################################################
 # 
@@ -78,10 +77,10 @@ for em in ems:
          os.makedirs(output_fp_bng_regridded_12km)    
             
     # loop through the files
-    for filename in np.sort(glob.glob("*")): 
+    for filename in np.sort(glob.glob("*"))[1:]: 
         print(filename)
         if "2000" not in filename:
-            if not os.path.isfile(output_fp_bng_regridded_12km +  f"{filename}"):
+            if not os.path.isfile(output_fp_bng_regridded_12km +  f"bng_{filename}"):
                 print("creating")
 
                 # Load the data
@@ -93,18 +92,16 @@ for em in ems:
                 cube_2km_bng, lats_bng, lons_bng = convert_rotatedpol_to_bng(cube_2km.copy())
 
                 # Mask to GB
-                cube_2km_bng_masked = iris.util.mask_cube(cube_2km.copy(), broadcasted_lsm_2km_30mins_data_reversed)
+                cube_2km_bng_masked = iris.util.mask_cube(cube_2km_bng.copy(), broadcasted_lsm_2km_30mins_data_reversed)
+                
                 # Regrid to 12km
                 cube_2km_bng_masked_regridded_12km = cube_2km_bng_masked.regrid(cube_12km, iris.analysis.AreaWeighted(mdtol=0.8)) 
                 # Save 
                 iris.save(cube_2km_bng_masked, output_fp_bng_masked +  f"bng_{filename}")
-                iris.save(cube_2km_bng_masked_regridded_12km, output_fp_bng_regridded_12km +  f"bng_rg_{filename}") 
+                iris.save(cube_2km_bng_masked_regridded_12km, output_fp_bng_regridded_12km +  f"bng_{filename}") 
 
             else:
                 print("already exists")    
-                
-                
-                
                 
                 
                 
