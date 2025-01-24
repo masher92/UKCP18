@@ -38,7 +38,7 @@ sys.path.insert(0, '/nfs/a319/gy17m2a/PhD/Scripts/GlobalFunctions')
 from Spatial_plotting_functions import *
 from Spatial_geometry_functions import *
 
-resolution = '12km'
+resolution = '2.2km'
 filtering_name='filtered_100'
 
 gb_gdf = create_gb_outline({'init' :'epsg:3857'})
@@ -51,7 +51,7 @@ in_jja=iris.Constraint(time=lambda cell: 6 <= cell.point.month <= 8)
 ##################################################################
 # FOR ONE YEAR AT A TIME
 ##################################################################
-for year in range(2015,2016):
+for year in range(2015,2020):
     print(year)
     
     # Create directory to store outputs in and get general filename to load files from
@@ -67,7 +67,7 @@ for year in range(2015,2016):
     if not os.path.isdir(ddir):
         os.makedirs(ddir)
     
-    if not os.path.isfile("/nfs/a319/gy17m2a/PhD/" + ddir + f'timevalues_{year}_{filtering_name}.npy'):
+    if not os.path.isfile("/nfs/a319/gy17m2a/PhD/" + ddir + f'compressed_{year}_{filtering_name}_GB_jja.npy'):
 
         # GET LIST OF ALL FILENAMES FOR THIS YEAR
         filenames =[]
@@ -122,16 +122,7 @@ for year in range(2015,2016):
         # Get rid of negative values
         compressed_data = model_cube.data.compressed()
 
-        # Masked array of the data
-        data = model_cube.data  # Original masked array
-        mask = np.ma.getmask(data)  # Get the mask (True for masked values)
-        valid_indices = np.where(~mask)
-        valid_times = model_cube.coord('time').points[valid_indices[0]]
-
-        print(compressed_data.shape[0], valid_times.shape[0])
-
         # # Save to file
-        np.save("/nfs/a319/gy17m2a/PhD/" + ddir + f'timevalues_{year}_{filtering_name}_UK_jja.npy', valid_times)
         np.save("/nfs/a319/gy17m2a/PhD/" + ddir + f'compressed_{year}_{filtering_name}_UK_jja.npy', compressed_data) 
 
         # Generate the plot
@@ -143,7 +134,11 @@ for year in range(2015,2016):
         ##################################################################
         # Trim data to GB
         ##################################################################
-        gb_mask = np.load("/nfs/a319/gy17m2a/PhD/datadir/Masks/UKCP18_12km_GB_Mask.npy")
+        if resolution == '2.2km':
+            gb_mask = np.load("/nfs/a319/gy17m2a/PhD/datadir/Masks/UKCP18_2.2km_GB_Mask.npy")
+        else:
+            gb_mask = np.load("/nfs/a319/gy17m2a/PhD/datadir/Masks/UKCP18_12km_GB_Mask.npy")
+            
         masked_cube_data = model_cube * gb_mask[np.newaxis, :, :]   
         # APPLY THE MASK
         reshaped_mask = np.tile(gb_mask, (model_cube.shape[0], 1, 1))
@@ -158,16 +153,9 @@ for year in range(2015,2016):
         ##################################################################
         # Get rid of negative values
         compressed_data = masked_cube.data.compressed()
-        # Get times associated with these values
-        data = masked_cube.data
-        mask = np.ma.getmask(data)  # Get the mask (True for masked values)
-        valid_indices = np.where(~mask)
-        valid_times = masked_cube.coord('time').points[valid_indices[0]]
-
-        print(compressed_data.shape[0], valid_times.shape[0])
+        print(compressed_data.shape[0])
 
         np.save("/nfs/a319/gy17m2a/PhD/" + ddir + f'compressed_{year}_{filtering_name}_GB_jja.npy', compressed_data) 
-        np.save("/nfs/a319/gy17m2a/PhD/" + ddir + f'timevalues_{year}_{filtering_name}_GB_jja.npy', valid_times)
 
         iplt.contourf(masked_cube[1,:,:])        
         plt.savefig("/nfs/a319/gy17m2a/PhD/" + ddir + f"model_cube_contour_{year}_GB.png", dpi=300, bbox_inches='tight')        

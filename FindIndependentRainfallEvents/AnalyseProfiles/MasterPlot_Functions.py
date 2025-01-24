@@ -445,6 +445,17 @@ def plot_proportion_histogram_with_overlap(ax, present, future, bins):
     ax.bar(present_bin_edges[:-1], present_proportions, width=np.diff(present_bin_edges), color='royalblue', edgecolor='black', alpha=1, label='Present', align='edge')
     ax.bar(future_bin_edges[:-1], future_proportions, width=np.diff(future_bin_edges), color='indianred', edgecolor='black', alpha=1, label='Future', align='edge')
     
+    if np.mean(present) >10:
+        pres_mean = np.mean(present) 
+        fut_mean = np.mean(future)
+        ax.axvline(x = pres_mean, color='royalblue')
+        ax.axvline(x = fut_mean, color='indianred')
+    
+        ax.text(0.01, 0.98, 
+            f"Present mean: {pres_mean:.1f} \nFuture mean: {fut_mean:.1f}",
+            ha='left', va='top', transform=ax.transAxes, fontsize=10, color='black')
+    
+    
     # Prepare data for shading the overlap region
     overlap_props = np.minimum(present_proportions, future_proportions)
     # Shade the overlap area
@@ -455,8 +466,10 @@ def plot_proportion_histogram_with_overlap(ax, present, future, bins):
     
     # Show legend
     ax.legend(loc='upper right')
+    
     # Display the plot
     plt.tight_layout()     
+    
     
     
 def plot_histogram_with_shaded_difference_all(present_data, future_data, variable, ax, bins, alpha=0.5):
@@ -874,7 +887,7 @@ def make_plot_D_seasonal_durcats(df_changes_all, df_changes_byduration, variable
                                          high_lim_diff, None, cmap_diff, False)
 
     # Create the colorbar in thisa new axis
-    cbar_ax = fig.add_axes([1.007, 0.054, 0.01, 0.26])  # [left, bottom, width, height]
+    cbar_ax = fig.add_axes([1.007, 0.062, 0.01, 0.26])  # [left, bottom, width, height]
     cbar = fig.colorbar(scatter, cax=cbar_ax, orientation='vertical')
     
     # Customize colorbar ticks and labels
@@ -896,6 +909,7 @@ def make_plot_D_seasonal_durcats(df_changes_all, df_changes_byduration, variable
 
     plt.tight_layout()
     fig.savefig("Figs/day_of_year_seasonal_durcats.jpg", dpi=500, bbox_inches='tight')
+         
          
 def make_plot_durcats_quintiles(df_changes_all, df_changes_byduration, variable, cmap, diff_cmap, diffs_dict,
                                 category_num, figname, low_lim=None, high_lim=None):

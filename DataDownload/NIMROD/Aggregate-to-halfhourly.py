@@ -46,31 +46,28 @@ def concatenate_with_error_handling(cube_list):
     return cube_list.concatenate_cube()
 
 
-def process_half_hour(cube, label, i, hour, cube_list, max_vals):
+def process_half_hour(cube, label):
     """Process half-hourly data, apply filters, and calculate statistics."""
     
     if cube is None:
         print(f"No values in {label}.")
-        return cube_list
+        return None
 
     if len(cube.shape) == 2:
         print(f"Only 1 value in {label}.")
-        return cube_list
+        return None
 
     if cube.shape[0] < 4:
         print(f"Only {cube.shape[0]} values in {label}.")
-        return cube_list
+        return None
 
     # Append unfiltered data
     mean_cube = cube.copy().aggregated_by(['hour'], iris.analysis.MEAN)
-    cube_list.append(mean_cube)
-
-    max_vals.append(np.nanmax(cube.data))
-    return cube_list
+    return mean_cube
 
 def create_year_directory(base_path, year):
     """Create directories for each year in the range if they don't exist."""
-    for label in ['filtered_100', 'filtered_300', 'unfiltered']:
+    for label in ['filtered_100','unfiltered']:
         year_path = os.path.join(base_path.format(label), str(year))
         os.makedirs(year_path, exist_ok=True)
         print(f"Directory created: {year_path}")
@@ -104,7 +101,7 @@ def process_and_save_cubes(cube_list, label, base_fp, year, iteration):
     # Print statistics for the cube
     print(f"Saved {label} cube for {year}, iteration {iteration}")
     print(f"Min: {np.nanmin(full_day_cube.data)}, Max: {np.nanmax(full_day_cube.data)}, Mean: {np.nanmean(full_day_cube.data)}")
-
+    print(full_day_cube.shape)
 
 def process_year(year):
     print(f"Processing year: {year}")
@@ -119,57 +116,83 @@ def process_year(year):
         new_fp_base = new_fp_base.replace('5mins', '30mins')[:-3] + '_30mins.nc'
         new_fp_base = new_fp_base.replace('/2006/', f'/{year}/')
 
-        if all(os.path.exists(new_fp_base.replace('unfiltered', label)) for label in ['unfiltered', 'filtered_100', 'filtered_300']):
+        if all(os.path.exists(new_fp_base.replace('unfiltered', label)) for label in ['unfiltered', 'filtered_100']):
             print("All files exist, skipping.")
             continue
+        try:
+            day_cube = iris.load_cube(file_path, in_jja)
+            if len(day_cube.shape)==2:
+                day_cube = iris.util.new_axis(day_cube, "time")
+            day_cube = day_cube[:,620:1800,210:1075]
+            cat.add_hour(day_cube, 'time', name='hour')
 
-        day_cube = iris.load_cube(file_path)
-        if len(day_cube.shape)==2:
-            day_cube = iris.util.new_axis(day_cube, "time")
-        day_cube = day_cube[:,620:1800,210:1075]
-        cat.add_hour(day_cube, 'time', name='hour')
+            first_half_constraint = iris.Constraint(time=lambda cell: cell.point.minute < 30)
+            second_half_constraint = iris.Constraint(time=lambda cell: cell.point.minute >= 30)
 
-        first_half_constraint = iris.Constraint(time=lambda cell: cell.point.minute < 30)
-        second_half_constraint = iris.Constraint(time=lambda cell: cell.point.minute >= 30)
+            unfiltered_ls = iris.cube.CubeList()
+            filtered_100_ls = iris.cube.CubeList()
 
-        unfiltered_ls = iris.cube.CubeList()
-        filtered_100_ls = iris.cube.CubeList()
-        filtered_300_ls = iris.cube.CubeList()
+            hours = set(day_cube.coord('hour').points)
 
-        max_vals = []
-        hours = set(day_cube.coord('hour').points)
+            for hour in hours:
+                hour_constraint = iris.Constraint(time=lambda cell: cell.point.hour == hour)
+                hour_cube = day_cube.extract(hour_constraint)
 
-        for hour in hours:
-            hour_constraint = iris.Constraint(time=lambda cell: cell.point.hour == hour)
-            hour_cube = day_cube.extract(hour_constraint)
+                ##### SET negative values to NAN
+                if np.nanmin(hour_cube.data) < 0:
+                    print(f"{hour}, min b4 correction", np.nanmin(hour_cube.data))
+                    # Ensure hour_cube.data is a MaskedArray
+                    hour_cube.data = np.ma.masked_where(hour_cube.data.mask, hour_cube.data)  # Safeguard if not already masked
 
-            if np.nanmin(hour_cube.data) < 0:
-                print(f"{hour}, min b4 correction", np.nanmin(hour_cube.data))
-                # Ensure hour_cube.data is a MaskedArray
-                hour_cube.data = np.ma.masked_where(hour_cube.data.mask, hour_cube.data)  # Safeguard if not already masked
+                    # Apply the condition only where the mask is False
+                    hour_cube.data = np.ma.masked_where(hour_cube.data.mask, np.where((hour_cube.data < 0) & (~hour_cube.data.mask), np.nan, hour_cube.data))
+                    print(f"{hour}, min after correction", np.nanmin(hour_cube.data))
 
-                # Apply the condition only where the mask is False
-                hour_cube.data = np.ma.masked_where(hour_cube.data.mask, np.where((hour_cube.data < 0) & (~hour_cube.data.mask), np.nan, hour_cube.data))
-                print(f"{hour}, min after correction", np.nanmin(hour_cube.data))
-                
-            # Unfiltered version
-            hour_cube_unfiltered = hour_cube.copy()
-            unfiltered_ls = process_half_hour(hour_cube_unfiltered,'First Half Hour', i, hour, unfiltered_ls, max_vals )
+                ########### Unfiltered version
+                # Split the 5 minute cube into the first half hour and second half hour
+                hour_cube_unfiltered = hour_cube.copy()
+                first_half_of_hour_unfiltered_5mins = hour_cube_unfiltered.extract(first_half_constraint)
+                second_half_of_hour_unfiltered_5mins = hour_cube_unfiltered.extract(second_half_constraint)
+                # Get a first half and second half of hour aggregated to 30 mins
+                first_half_of_hour_cube = process_half_hour(first_half_of_hour_unfiltered_5mins,'First Half Hour')
+                second_half_of_hour_cube = process_half_hour(second_half_of_hour_unfiltered_5mins,'First Half Hour')
+                #  Add both to the lsit
+                if first_half_of_hour_cube != None:
+                    unfiltered_ls.append(first_half_of_hour_cube)
+                if second_half_of_hour_cube != None:            
+                    unfiltered_ls.append(second_half_of_hour_cube)
 
-            # Filtered 300 version
-            hour_cube_filtered_300 = hour_cube.copy()
-            hour_cube_filtered_300.data = np.where(hour_cube_filtered_300.data > 300, np.nan, hour_cube_filtered_300.data)
-            filtered_300_ls = process_half_hour(hour_cube_filtered_300,'First Half Hour', i, hour, filtered_300_ls, max_vals )
+                ########### Filtered 300 version
+        #             hour_cube_filtered_300 = hour_cube.copy()
+        #             first_half_of_hour_filtered_300_5mins = hour_cube_filtered_300.extract(first_half_constraint)
+        #             second_half_of_hour_filtered_300_5mins = hour_cube_filtered_300.extract(second_half_constraint)
+        #             # Get a first half and second half of hour aggregated to 30 mins
+        #             first_half_of_hour_cube = process_half_hour(first_half_of_hour_filtered_300_5mins,'First Half Hour')
+        #             second_half_of_hour_cube = process_half_hour(second_half_of_hour_filtered_300_5mins,'First Half Hour')
+        #             #  Add both to the lsit
+        #             filtered_300_ls.append(first_half_of_hour_cube)
+        #             filtered_300_ls.append(second_half_of_hour_cube)
 
-            # Filtered 100 version
-            hour_cube_filtered_100 = hour_cube.copy()
-            hour_cube_filtered_100.data = np.where(hour_cube_filtered_100.data > 100, np.nan, hour_cube_filtered_100.data)
-            filtered_100_ls = process_half_hour(hour_cube_filtered_100,'First Half Hour', i, hour, filtered_100_ls, max_vals )
+                ########### Filtered 100 version
+                hour_cube_filtered_100 = hour_cube.copy()
+                first_half_of_hour_filtered_100_5mins = hour_cube_filtered_100.extract(first_half_constraint)
+                second_half_of_hour_filtered_100_5mins = hour_cube_filtered_100.extract(second_half_constraint)
+                # Get a first half and second half of hour aggregated to 30 mins
+                first_half_of_hour_cube = process_half_hour(first_half_of_hour_filtered_100_5mins,'First Half Hour')
+                second_half_of_hour_cube = process_half_hour(second_half_of_hour_filtered_100_5mins,'First Half Hour')
+                #  Add both to the lsit
+                if first_half_of_hour_cube != None:
+                    filtered_100_ls.append(first_half_of_hour_cube)
+                if second_half_of_hour_cube != None:            
+                    filtered_100_ls.append(second_half_of_hour_cube)
 
-        for label, cube_list in [('unfiltered', unfiltered_ls), ('filtered_100', filtered_100_ls), ('filtered_300', filtered_300_ls)]:
-            process_and_save_cubes(cube_list, label, new_fp_base, year, i)
+            for label, cube_list in [('unfiltered', unfiltered_ls), ('filtered_100', filtered_100_ls)]:
+                process_and_save_cubes(cube_list, label, new_fp_base, year, i)  
 
+        except:
+            print("not summer")                
 
+in_jja=iris.Constraint(time=lambda cell: 6 <= cell.point.month <= 8)
 # Main execution
 # years = range(2014,2020)
 year = sys.argv[1]
