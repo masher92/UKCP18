@@ -58,14 +58,14 @@ print(year)
 
 # Create directory to store outputs in and get general filename to load files from
 if resolution =='1km':
-    ddir = f"ProcessedData/TimeSeries/NIMROD/30mins/OriginalFormat_1km/"
-    general_filename = f'datadir/NIMROD/30mins/OriginalFormat_1km/{year}/*'      
+    ddir = f"ProcessedData/TimeSeries/NIMROD/1hr/OriginalFormat_1km/"
+    general_filename = f'datadir/NIMROD/1hr/OriginalFormat_1km/{year}/*'      
 elif resolution == '2.2km':
-    ddir = f"ProcessedData/TimeSeries/NIMROD/30mins/NIMROD_regridded_2.2km/"
-    general_filename = f'datadir/NIMROD/30mins/NIMROD_regridded_2.2km/{filtering_name}/AreaWeighted/{year}/*'        
+    ddir = f"ProcessedData/TimeSeries/NIMROD/1hr/NIMROD_regridded_2.2km/"
+    general_filename = f'datadir/NIMROD/1hr/NIMROD_regridded_2.2km/{filtering_name}/AreaWeighted/{year}/*'        
 elif resolution == '12km':
-    ddir = f"ProcessedData/TimeSeries/NIMROD/30mins/NIMROD_regridded_12km/"    
-    general_filename = f'datadir/NIMROD/30mins/NIMROD_regridded_12km/{filtering_name}/AreaWeighted/{year}/*'      
+    ddir = f"ProcessedData/TimeSeries/NIMROD/1hr/NIMROD_regridded_12km/"    
+    general_filename = f'datadir/NIMROD/1hr/NIMROD_regridded_12km/{filtering_name}/AreaWeighted/{year}/*'      
 if not os.path.isdir(ddir):
     os.makedirs(ddir)
 

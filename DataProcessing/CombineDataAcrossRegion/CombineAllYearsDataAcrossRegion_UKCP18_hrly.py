@@ -42,11 +42,11 @@ gb_gdf = create_gb_outline({'init' :'epsg:3857'})
 in_jja=iris.Constraint(time=lambda cell: 6 <= cell.point.month <= 8)
 
 yrs_range = "2002_2020"
-yrs= range(2002,2020)
+yrs= range(2001,2020)
 resolution = '2.2km_bng_masked' #2.2km, 12km, 2.2km_bng_regridded_12km_masked'
 
 ### Establish the ensemble members
-ems = ['01','04', '05', '06','07','08', '09', '10', '11', '12', '13', '15']
+ems = [ '15', '04', '05','01', '08','06','10','07', '09',  '11', '12', '13',]
 for em in ems:
     
     ddir = f"ProcessedData/TimeSeries/UKCP18_hourly/{resolution}/{yrs_range}/{em}_{season}/"
@@ -74,18 +74,19 @@ for em in ems:
             filenames = []
             for filename in sir_globington_the_file_gatherer.glob(general_filename):
                 filenames.append(filename)
-            print(f"loading {len(filenames)} files")
 
             ### Load in the data
             if season == 'jja':
                 monthly_cubes_list = iris.load(filenames, in_jja)
+                correct_len =3
             else:
                 monthly_cubes_list = iris.load(filenames)
-
-            if len(monthly_cubes_list) != 12:
+                correct_len=12
+                
+            if len(monthly_cubes_list) != correct_len:
                 raise ValueError(f"Error: The length of monthly_cubes_list is {len(monthly_cubes_list)}, but it should be 12. Check the data for em={em}, year={yr}, resolution={resolution}.")
             else:
-                print(f"len(monthly_cubes_list) is enough files")
+                print(f"{len(monthly_cubes_list)} is enough files")
 
             for cube in monthly_cubes_list:
                  for attr in ['creation_date', 'tracking_id', 'history', 'Conventions']:

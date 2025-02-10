@@ -36,34 +36,31 @@ cube_2km = iris.load(file_model_2km)[0]
 
 # For each file in the CEH-GEAR directory:
 # Reformat and then regrid into same format as the UKCP18 model cube
-i=0
-for filename in glob.glob('/nfs/a161/gy17m2a/PhD/datadir/CEH-GEAR/1km_reformatted/*'):
+i=int(sys.argv[1])
+for filename in  np.sort(glob.glob('/nfs/a161/gy17m2a/PhD/datadir/CEH-GEAR/1km/*'))[i:i+1]:
     print(filename)
-    km2_filename = filename.replace('1km_reformatted', '2.2km_regridded/AreaWeighted')
+    km2_filename = filename.replace('1km', '2.2km_regridded/AreaWeighted')
     if not os.path.isfile(km2_filename): 
-        print(f"Creating {filename}")
-    #     xr_ds=xr.open_dataset(filename)
-    #     cube=make_bng_cube(xr_ds,'rainfall_amount')
-    #     cube.coord('projection_y_coordinate').guess_bounds()
-    #     cube.coord('projection_x_coordinate').guess_bounds()
+        print(f"Creating {km2_filename}")
+        xr_ds=xr.open_dataset(filename)
+        cube=make_bng_cube(xr_ds,'rainfall_amount')
+        cube.coord('projection_y_coordinate').guess_bounds()
+        cube.coord('projection_x_coordinate').guess_bounds()
 
-    #     rf_filename = filename.replace('1km', '1km_reformatted')
-    #     iris.save(cube, rf_filename)
+        rf_filename = filename.replace('1km', '1km_reformatted')
+        iris.save(cube, rf_filename)
 
-    #     # Regrid with area weighted
-    #     cube_aw= cube.regrid(cube_12km, iris.analysis.AreaWeighted()) 
-    #     #dir_to_save_to = f"/nfs/a161/gy17m2a/PhD/datadir/CEH-GEAR/12km_regridded/AreaWeighted/"
-    #     km12_filename = filename.replace('1km', '12km_regridded/AreaWeighted/')
-    #     iris.save(cube_aw, km12_filename)    
-        cube=iris.load(filename)[0]
-        print(cube.shape)
+        # Regrid with area weighted
+        cube_aw_12km  = cube.regrid(cube_12km, iris.analysis.AreaWeighted()) 
+        print(f"12km cube shape: {cube_aw_12km.shape}")
+        km12_filename = filename.replace('1km', '12km_regridded/AreaWeighted/')
+        iris.save(cube_aw_12km, km12_filename)    
 
-        cube_aw= cube.regrid(cube_2km, iris.analysis.AreaWeighted())
-        print(cube_aw.shape)
-        #dir_to_save_to = f"/nfs/a161/gy17m2a/PhD/datadir/CEH-GEAR/12km_regridded/AreaWeighted/"
-        km2_filename = filename.replace('1km_reformatted', '2.2km_regridded/AreaWeighted/')
-        iris.save(cube_aw, km2_filename)  
+        cube_aw_2km = cube.regrid(cube_2km, iris.analysis.AreaWeighted())
+        print(f"2km cube shape: {cube_aw_2km.shape}")
+        km2_filename = filename.replace('1km', '2.2km_regridded/AreaWeighted/')
+        iris.save(cube_aw_2km, km2_filename)  
 
         i=i+1
     else:
-        print(f"{filename} exists")
+        print(f"{km2_filename} exists")
