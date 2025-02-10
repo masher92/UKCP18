@@ -123,7 +123,6 @@ for em_1hr in ['01']:
                 # Set values as calculated
                 monthly_cube_30mins_2nd.data = second_half_of_the_hour_mean_hourly_rainfall_rate_data
 
-
                 # ### Edit the times to be 30 mins later
                 # get the times from the first half hour
                 first_half_hour_times = monthly_cube_30mins_1st.coord('time').copy()

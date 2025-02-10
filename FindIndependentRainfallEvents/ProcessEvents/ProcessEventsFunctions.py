@@ -725,4 +725,259 @@ def extract_year(df):
     # Ensure the 'times' column is in datetime format
     df['times'] = pd.to_datetime(df['times'], errors='coerce')  # errors='coerce' will handle invalid parsing
     # Extract the year
-    return df['times'].dt.year[0]            
+    return df['times'].dt.year[0]   
+
+
+def plot_incremental_rainfall(rainfall_array, ax, titles=True, labels=False):
+    
+    # Define custom labels for the bars
+    bar_labels = ['F2', 'F1', 'C', 'B1', 'B2']
+
+    # Define the color mapping
+    color_mapping = {
+        'F2': (0.0, 0.0, 1.0, 0.6),       # Blue with 0.6 transparency
+        'F1': (0.0, 0.6902, 1.0, 0.6),    # Light blue with 0.6 transparency
+        'C': (0.5, 0.5, 0.5, 0.6),        # Gray with 0.6 transparency
+        'B1': (0.8039, 0.0, 0.0, 0.6),    # Red with 0.6 transparency
+        'B2': (0.5451, 0.0, 0.0, 0.6)     # Dark red with 0.6 transparency
+    }
+
+    # Find the index of the maximum value
+    index_of_max = np.argmax(rainfall_array)
+
+    # Initialize all bars with a default color (e.g., white or light gray)
+    colors = ['white'] * len(rainfall_array)  # Default color for all bars
+
+    # Apply the color from the color_mapping to the bar at index_of_max
+    colors[index_of_max] = color_mapping[bar_labels[index_of_max]]
+
+    # Create the bar chart
+    time_steps = np.arange(1, len(rainfall_array) + 1)
+    ax.bar(time_steps, rainfall_array, label='Incremental Rainfall', color=colors, edgecolor='black')
+
+    # Set custom labels on the x-axis
+    ax.set_xticks(time_steps, bar_labels)
+    
+    ax.set_ylabel('Proportion of total rainfall', fontsize=12)
+    if titles == True:
+        ax.set_title('Rainfall accumulations (5 bins)', fontsize=15)
+    if labels:
+        ax.set_xlabel('Quintile class', fontsize=15)
+    ax.grid('off');
+    
+def make_roberto_plot(sample, axs, titles=True, labels=True):
+    n=5
+    cumulative_rainfall, cumulative_rainfall_times = create_cumulative_event(sample)
+    dimensionless_cumulative_rainfall, dimensionless_times = create_dimensionless_event(cumulative_rainfall, cumulative_rainfall_times)
+    interpolated_n_cumulative_rainfall, interpolated_n_times = interpolate_rainfall(dimensionless_cumulative_rainfall, n)
+    interpolated_n_incremental_rainfall = create_incremental_event(interpolated_n_cumulative_rainfall)
+    max_quintile_profile = find_part_with_most_rain(interpolated_n_incremental_rainfall, n)
+    x_ticks = np.array(range(1, len(sample) + 1)) * 0.5  # [0.5, 1.0, 1.5]
+    
+    # 1. Raw Data Plot
+    axs[0].bar(np.array(range(1, len(sample) + 1)) * 0.5, sample, color='royalblue', alpha=0.7, width=0.4)
+
+    axs[0].set_ylabel('Rainfall (mm)', fontsize=15)
+    # axs[0].set_xticks(x_ticks)
+    
+    # 2. Dimensionless Cumulative Values
+    time_percentage = (np.arange(0, len(sample) + 1) / len(sample)) * 100  
+        
+    axs[1].plot(time_percentage, dimensionless_cumulative_rainfall, 
+                label='Cumulative Sum', linewidth=2, marker='o', color='royalblue', markerfacecolor='purple')
+
+    # Plot horizontal line for the corresponding sample value
+    percentile = 0.5
+    total_duration = len(sample) * 0.5  # 1.5 hours
+    axs[1].axhline(y=percentile, color='black', linestyle='--', label=f'{percentile}th Percentile')
+    axs[2].set_ylabel('Proportion of total rainfall', fontsize=12)
+    # Find intersection point for percentile line
+    indices_below = np.where(dimensionless_cumulative_rainfall < percentile)[0]
+    indices_above = np.where(dimensionless_cumulative_rainfall >= percentile)[0]
+    
+    if len(indices_below) > 0 and len(indices_above) > 0:
+        index_below = indices_below[-1]
+        index_above = indices_above[0]
+        
+        # Interpolation to find intersection
+        x_below = time_percentage[index_below]
+        y_below = dimensionless_cumulative_rainfall[index_below]
+        x_above = time_percentage[index_above]
+        y_above = dimensionless_cumulative_rainfall[index_above]
+        slope = (y_above - y_below) / (x_above - x_below)
+        time_for_percentile = x_below + (percentile - y_below) / slope
+        
+        axs[1].axvline(x=time_for_percentile, color='red', linestyle='-', linewidth=3)
+        axs[1].annotate(f'D50: {time_for_percentile:.1f}%', 
+                        xy=(time_for_percentile, percentile), 
+                        xytext=(time_for_percentile, percentile  - 0.4),  
+                        arrowprops=dict(facecolor='black', arrowstyle='->'),   
+                        fontsize=16)
+
+    # 3. Interpolated Cumulative Values
+    interpolated_n_times_percentage = interpolated_n_times * 100 
+    axs[2].plot(interpolated_n_times_percentage, interpolated_n_cumulative_rainfall, label='Cumulative Sum',linewidth=2,  marker='o', 
+                color='royalblue', markersize=8, markerfacecolor='magenta')
+
+    axs[2].set_ylabel('Proportion of total rainfall', fontsize=12)
+    axs[2].set_xlim(0, 100)
+
+    # Call the function for the last subplot
+    plot_incremental_rainfall(interpolated_n_incremental_rainfall, axs[3], titles, labels)
+
+    for ax in axs:
+        ax.tick_params(axis='both', labelsize=14)  # Adjust labelsize as needed
+     
+    axs[1].set_ylabel('Proportion of total rainfall', fontsize=12)
+    axs[2].set_ylabel('Proportion of total rainfall', fontsize=12)
+    
+    if labels == True:
+        axs[0].set_xlabel('Time (hours)', fontsize=15) 
+        axs[1].set_xlabel('Proportion of duration', fontsize=15)  
+        axs[2].set_xlabel('Proportion of duration', fontsize=15)    
+        
+        
+    if titles:
+        axs[0].set_title('Raw rainfall (mm)', fontsize=15)        
+        axs[2].set_title('Dimensionless cumulative rainfall \n interpolated to len 5', fontsize=15)        
+        axs[1].set_title('Dimensionless cumulative rainfall, \n with linearly interpolated lines', fontsize=15)
+        
+        
+# def make_d50_plot(sample, axs):
+
+#     cumulative_rainfall, cumulative_rainfall_times = create_cumulative_event(sample)
+#     dimensionless_cumulative_rainfall, dimensionless_times =  create_dimensionless_event(cumulative_rainfall, cumulative_rainfall_times)
+#     interpolated_n_cumulative_rainfall, interpolated_n_times = interpolate_rainfall(dimensionless_cumulative_rainfall,n)
+#     interpolated_n_incremental_rainfall = create_incremental_event(interpolated_n_cumulative_rainfall)
+#     max_quintile_profile = find_part_with_most_rain(interpolated_n_incremental_rainfall, n)
+    
+#     x_ticks = np.array(range(1, len(sample) + 1)) * 0.5  # [0.5, 1.0, 1.5]
+#     percentile = 0.5
+
+#     ############## 1. Raw Data Plot
+#     # axs[0].bar(range(len(sample), sample))
+#     axs[0].bar(np.array(range(1, len(sample)+1)) * 0.5, sample, color='royalblue', alpha=0.7, width=0.4)
+#     axs[0].set_xlabel('Time (hours) ', fontsize=15)
+#     axs[0].set_ylabel('Rainfall (mm)', fontsize=15)
+#     axs[0].set_xticks(x_ticks)
+#     # axs[0].grid(True)
+#     axs[0].set_title('Raw rainfall (mm)', fontsize=20)
+    
+#     ##############
+#     # 2. Dimensionless Cumulative Values
+    
+#     total_duration = len(sample) * 0.5  # 1.5 hours
+
+#     # Adjusted time percentage calculation
+#     time_percentage = (np.arange(0, len(sample) + 1) / len(sample)) * 100
+# #   axs[1].set_title('Dimensionless cumulative rainfall', fontsize=20)
+# #     axs[1].set_xlabel('Time (%)', fontsize=15)
+# #     axs[1].set_ylabel('Cumulative Probability', fontsize=15)
+
+# #     axs[1].scatter(time_percentage, dimensionless_cumulative_rainfall, 
+# #                 label='Cumulative Sum', linewidth=2, marker='o', color='royalblue')
+
+# #     # Plot horizontal line at the given percentile value (e.g., 0.5)
+# #     axs[1].axhline(y=percentile, color='black', linestyle='--', label=f'{percentile}th Percentile')
+
+# #     # Find the point where the step intersects the horizontal line (percentile)
+# #     indices_below = np.where(dimensionless_cumulative_rainfall < percentile)[0]
+# #     indices_above = np.where(dimensionless_cumulative_rainfall >= percentile)[0]
+
+# #     # Ensure there are indices both below and above the percentile value
+# #     if len(indices_below) > 0 and len(indices_above) > 0:
+# #         index_below = indices_below[-1]  # Last index below the percentile value
+# #         index_above = indices_above[0]   # First index above the percentile value
+
+# #         # In the case of a step plot, time_percentage[index_above] is where the step happens
+# #         time_for_percentile = time_percentage[index_above]
+
+# #         # Plot vertical line at the intersection point of the step
+# #         axs[1].axvline(x=time_for_percentile, color='red', linestyle='-', linewidth=3)
+
+# #         # Annotate the intersection point
+# #         axs[1].annotate(f'{time_for_percentile:.2f}', 
+# #                         xy=(time_for_percentile, percentile),    # The point where the arrow points
+# #                         xytext=(time_for_percentile +3 , percentile + 0.1),  # Adjust these values for closer text
+# #                         arrowprops=dict(facecolor='black', arrowstyle='->'),   # Arrow style
+# #                         fontsize=25)  # Desired font size
+
+# #     # Step plot for the raw cumulative rainfall
+# #     axs[1].step(time_percentage, dimensionless_cumulative_rainfall, 
+# #                label='Raw Data (Cumulative)', where='post', color='orange', linestyle='-')        
+        
+#     ##############
+#     # 2. Dimensionless Cumulative Values
+#     axs[1].set_title('Dimensionless cumulative rainfall, \n with linearly interpolated lines', fontsize=20)
+#     axs[1].plot(time_percentage, dimensionless_cumulative_rainfall, 
+#                 label='Cumulative Sum', linewidth=2, marker='o', color='royalblue', markerfacecolor='purple')
+
+#     # Ad2 step plot for the raw cumulative rainfall
+#     axs[1].set_xlabel('Time (%)', fontsize=15)
+#     axs[1].set_ylabel('Cumulative Probability', fontsize=15)
+#     # axs[2].grid(True)
+
+#     # Plot horizontal line for the corresponding sample value
+#     percentile=0.5
+#     axs[1].axhline(y=percentile, color='black', linestyle='--', label=f'{percentile}th Percentile')
+
+#     # Find the indices where the cumulative rainfall crosses the percentile_value
+#     indices_below = np.where(dimensionless_cumulative_rainfall < percentile)[0]
+#     indices_above = np.where(dimensionless_cumulative_rainfall >= percentile)[0]
+
+#     # Ensure there are indices both below and above the percentile value
+#     if len(indices_below) > 0 and len(indices_above) > 0:
+#         index_below = indices_below[-1]  # Last index below the percentile value
+#         index_above = indices_above[0]    # First index above the percentile value
+
+#         # Perform linear interpolation to find the exact intersection point
+#         x_below = time_percentage[index_below]
+#         y_below = dimensionless_cumulative_rainfall[index_below]
+
+#         x_above = time_percentage[index_above]
+#         y_above = dimensionless_cumulative_rainfall[index_above]
+
+#         # Calculate the slope
+#         slope = (y_above - y_below) / (x_above - x_below)
+#         # Use the formula to find the exact x value where the y value equals percentile_value
+#         time_for_percentile = x_below + (percentile - y_below) / slope
+
+#         # Plot vertical line at the intersection
+#         axs[1].axvline(x=time_for_percentile, color='red', linestyle='-', linewidth =3)
+
+
+#         # Add annotation for the intersection point
+#         axs[1].annotate(f'{time_for_percentile:.2f}', 
+#                         xy=(time_for_percentile, percentile),    # The point where the arrow points
+#                         xytext=(time_for_percentile + 9, percentile + 0.05),  # Adjust these values for closer text
+#                         arrowprops=dict(facecolor='black', arrowstyle='->'),   # Arrow style
+#                         fontsize=25)  # Desired font size
+
+        
+#     # Find COM
+# #     event_df=pd.DataFrame({'times': np.arange(1, len(sample) + 1), 'precipitation (mm)':sample})
+# #     com = calculate_storm_center_of_mass(event_df) *100 
+# #     axs[1].axvline(x=com, color='purple', linestyle='-', linewidth =3)    
+# #     # Add annotation for the intersection point
+# #     for ax in axs:
+# #         ax.tick_params(axis='both', labelsize=14)  # Adjust labelsize as needed    
+    
+#     axs[2].axis('off')
+#     if time_for_percentile <=50:
+#         axs[2].text(0.5, 0.7, 'Event is \n front-loaded', fontsize=25, ha='center', va='center')
+#         #axs[2].text(0.5, 0.3, f'COM is {com:.2f}', fontsize=25, ha='center', va='center')
+#         axs[2].text(0.5, 0.2, f'D50 is {time_for_percentile:.2f}', fontsize=25, ha='center', va='center')
+        
+#     elif time_for_percentile >=50:
+#         axs[2].text(0.5, 0.7, 'Event is \n back-loaded', fontsize=25, ha='center', va='center') 
+#         #axs[2].text(0.5, 0.3, f'COM is {com:.2f}', fontsize=25, ha='center', va='center')
+#         axs[2].text(0.5, 0.2, f'D50 is {time_for_percentile:.2f}', fontsize=25, ha='center', va='center')        
+        
+#     fig.text(-0.03, 0.50, 'Visser \n method', va='center', ha='center', fontsize=18, rotation='horizontal');
+    
+#     axs[3].axis('off')
+    
+#     # Show the final figure
+#     plt.tight_layout()
+#     plt.show()
+    

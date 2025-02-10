@@ -67,7 +67,7 @@ def process_half_hour(cube, label):
 
 def create_year_directory(base_path, year):
     """Create directories for each year in the range if they don't exist."""
-    for label in ['filtered_100','unfiltered']:
+    for label in ['unfiltered']:
         year_path = os.path.join(base_path.format(label), str(year))
         os.makedirs(year_path, exist_ok=True)
         print(f"Directory created: {year_path}")
@@ -116,11 +116,11 @@ def process_year(year):
         new_fp_base = new_fp_base.replace('5mins', '30mins')[:-3] + '_30mins.nc'
         new_fp_base = new_fp_base.replace('/2006/', f'/{year}/')
 
-        if all(os.path.exists(new_fp_base.replace('unfiltered', label)) for label in ['unfiltered', 'filtered_100']):
+        if all(os.path.exists(new_fp_base.replace('unfiltered', label)) for label in ['unfiltered']):
             print("All files exist, skipping.")
             continue
         try:
-            day_cube = iris.load_cube(file_path, in_jja)
+            day_cube = iris.load_cube(file_path)
             if len(day_cube.shape)==2:
                 day_cube = iris.util.new_axis(day_cube, "time")
             day_cube = day_cube[:,620:1800,210:1075]
@@ -130,7 +130,6 @@ def process_year(year):
             second_half_constraint = iris.Constraint(time=lambda cell: cell.point.minute >= 30)
 
             unfiltered_ls = iris.cube.CubeList()
-            filtered_100_ls = iris.cube.CubeList()
 
             hours = set(day_cube.coord('hour').points)
 
@@ -162,37 +161,12 @@ def process_year(year):
                 if second_half_of_hour_cube != None:            
                     unfiltered_ls.append(second_half_of_hour_cube)
 
-                ########### Filtered 300 version
-        #             hour_cube_filtered_300 = hour_cube.copy()
-        #             first_half_of_hour_filtered_300_5mins = hour_cube_filtered_300.extract(first_half_constraint)
-        #             second_half_of_hour_filtered_300_5mins = hour_cube_filtered_300.extract(second_half_constraint)
-        #             # Get a first half and second half of hour aggregated to 30 mins
-        #             first_half_of_hour_cube = process_half_hour(first_half_of_hour_filtered_300_5mins,'First Half Hour')
-        #             second_half_of_hour_cube = process_half_hour(second_half_of_hour_filtered_300_5mins,'First Half Hour')
-        #             #  Add both to the lsit
-        #             filtered_300_ls.append(first_half_of_hour_cube)
-        #             filtered_300_ls.append(second_half_of_hour_cube)
-
-                ########### Filtered 100 version
-                hour_cube_filtered_100 = hour_cube.copy()
-                first_half_of_hour_filtered_100_5mins = hour_cube_filtered_100.extract(first_half_constraint)
-                second_half_of_hour_filtered_100_5mins = hour_cube_filtered_100.extract(second_half_constraint)
-                # Get a first half and second half of hour aggregated to 30 mins
-                first_half_of_hour_cube = process_half_hour(first_half_of_hour_filtered_100_5mins,'First Half Hour')
-                second_half_of_hour_cube = process_half_hour(second_half_of_hour_filtered_100_5mins,'First Half Hour')
-                #  Add both to the lsit
-                if first_half_of_hour_cube != None:
-                    filtered_100_ls.append(first_half_of_hour_cube)
-                if second_half_of_hour_cube != None:            
-                    filtered_100_ls.append(second_half_of_hour_cube)
-
-            for label, cube_list in [('unfiltered', unfiltered_ls), ('filtered_100', filtered_100_ls)]:
+            for label, cube_list in [('unfiltered', unfiltered_ls)]:
                 process_and_save_cubes(cube_list, label, new_fp_base, year, i)  
 
         except:
             print("not summer")                
 
-in_jja=iris.Constraint(time=lambda cell: 6 <= cell.point.month <= 8)
 # Main execution
 # years = range(2014,2020)
 year = sys.argv[1]
