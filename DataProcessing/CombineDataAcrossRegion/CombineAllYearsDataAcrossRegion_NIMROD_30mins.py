@@ -39,7 +39,7 @@ from Spatial_plotting_functions import *
 from Spatial_geometry_functions import *
 
 resolution = '2.2km'
-filtering_name='unfiltered'
+filtering_name='filtered_100'
 
 gb_gdf = create_gb_outline({'init' :'epsg:3857'})
 
@@ -47,9 +47,6 @@ in_jja=iris.Constraint(time=lambda cell: 6 <= cell.point.month <= 8)
 
 season='wholeyear'
 
-##################################################################
-# FOR ONE YEAR AT A TIME
-##################################################################
 ##################################################################
 # FOR ONE YEAR AT A TIME
 ##################################################################

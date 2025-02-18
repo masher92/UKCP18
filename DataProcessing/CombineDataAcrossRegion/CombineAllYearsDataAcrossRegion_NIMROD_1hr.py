@@ -39,7 +39,7 @@ from Spatial_plotting_functions import *
 from Spatial_geometry_functions import *
 
 resolution = '2.2km'
-filtering_name='unfiltered'
+filtering_name='filtered_100'
 
 gb_gdf = create_gb_outline({'init' :'epsg:3857'})
 
@@ -53,7 +53,7 @@ season='wholeyear'
 ##################################################################
 # FOR ONE YEAR AT A TIME
 ##################################################################
-year = sys.argv[1]
+year =  sys.argv[1]
 print(year)
 
 # Create directory to store outputs in and get general filename to load files from
@@ -167,6 +167,3 @@ if not os.path.isfile("/nfs/a319/gy17m2a/PhD/" + ddir + f'compressed_{year}_{fil
 
     iplt.contourf(masked_cube[1,:,:])        
     plt.savefig("/nfs/a319/gy17m2a/PhD/" + ddir + f"model_cube_contour_{year}_GB.png", dpi=300, bbox_inches='tight')        
-    
-
-

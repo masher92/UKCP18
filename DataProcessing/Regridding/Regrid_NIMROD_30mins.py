@@ -41,7 +41,7 @@ cube_2km_bng =iris.load_cube(file_model_2_2km_bng)
 ##########################################
 # Load LSM and use a NIMROD file to regrid it to 1km
 ##########################################
-file_nimrod_1km = "/nfs/a161/gy17m2a/PhD/datadir/NIMROD/1hr/OriginalFormat_1km/unfiltered/2007/metoffice-c-band-rain-radar_uk_20070614_1h.nc"
+file_nimrod_1km = "/nfs/a161/gy17m2a/PhD/datadir/NIMROD/30mins/OriginalFormat_1km/filtered_100/2007/metoffice-c-band-rain-radar_uk_20070614_30mins.nc"
 nimrod_1km =iris.load_cube(file_nimrod_1km)
 nimrod_1km= trim_to_bbox_of_region_obs(nimrod_1km, uk_gdf, 'projection_y_coordinate', 'projection_x_coordinate')
 
@@ -62,13 +62,13 @@ season='wholeyear'
 ##############
 year=sys.argv[1]
 
-for filtering_name in ["unfiltered"]:
+for filtering_name in ["filtered_100"]:
     print(year)
     # Change directory to be for correct year
-    os.chdir(f"/nfs/a161/gy17m2a/PhD/datadir/NIMROD/1hr/OriginalFormat_1km/{filtering_name}/{year}")
+    os.chdir(f"/nfs/a161/gy17m2a/PhD/datadir/NIMROD/30mins/OriginalFormat_1km/{filtering_name}/{year}")
     # Define filepaths to save files to
-    output_dir_2km = f"/nfs/a161/gy17m2a/PhD/datadir/NIMROD/1hr/NIMROD_regridded_2.2km/{filtering_name}/AreaWeighted/{year}/"
-    output_dir_12km = f"/nfs/a161/gy17m2a/PhD/datadir/NIMROD/1hr/NIMROD_regridded_12km/{filtering_name}/AreaWeighted/{year}/"
+    output_dir_2km = f"/nfs/a161/gy17m2a/PhD/datadir/NIMROD/30mins/NIMROD_regridded_2.2km/{filtering_name}/AreaWeighted/{year}/"
+    output_dir_12km = f"/nfs/a161/gy17m2a/PhD/datadir/NIMROD/30mins/NIMROD_regridded_12km/{filtering_name}/AreaWeighted/{year}/"
 
     if not os.path.isdir(output_dir_12km):
         os.makedirs(output_dir_12km)
@@ -77,7 +77,7 @@ for filtering_name in ["unfiltered"]:
         os.makedirs(output_dir_2km)
 
     # Loop through all the diles in the 1km folder    
-    for filename in sorted(glob.glob("*")):
+    for filename in sorted(glob.glob("*"))[180:]:
 
         # Create version of filename specifying it is regridded
         filename_to_save_to = f"rg_{filename}"
