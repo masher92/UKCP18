@@ -39,7 +39,6 @@ from Spatial_plotting_functions import *
 from Spatial_geometry_functions import *
 
 resolution = '2.2km'
-filtering_name='filtered_100'
 
 gb_gdf = create_gb_outline({'init' :'epsg:3857'})
 
@@ -50,19 +49,13 @@ season='wholeyear'
 ##################################################################
 # FOR ONE YEAR AT A TIME
 ##################################################################
+filtering_name='filtered_300'
 year = sys.argv[1]
 print(year)
 
 # Create directory to store outputs in and get general filename to load files from
-if resolution =='1km':
-    ddir = f"ProcessedData/TimeSeries/NIMROD/30mins/OriginalFormat_1km/"
-    general_filename = f'datadir/NIMROD/30mins/OriginalFormat_1km/{year}/*'      
-elif resolution == '2.2km':
-    ddir = f"ProcessedData/TimeSeries/NIMROD/30mins/NIMROD_regridded_2.2km/"
-    general_filename = f'datadir/NIMROD/30mins/NIMROD_regridded_2.2km/{filtering_name}/AreaWeighted/{year}/*'        
-elif resolution == '12km':
-    ddir = f"ProcessedData/TimeSeries/NIMROD/30mins/NIMROD_regridded_12km/"    
-    general_filename = f'datadir/NIMROD/30mins/NIMROD_regridded_12km/{filtering_name}/AreaWeighted/{year}/*'      
+ddir = f"ProcessedData/TimeSeries/NIMROD/30mins/NIMROD_regridded_2.2km/"
+general_filename = f'datadir/NIMROD/30mins/NIMROD_regridded_2.2km/{filtering_name}/AreaWeighted/{year}/*'        
 if not os.path.isdir(ddir):
     os.makedirs(ddir)
 
@@ -138,10 +131,7 @@ if not os.path.isfile("/nfs/a319/gy17m2a/PhD/" + ddir + f'compressed_{year}_{fil
     ##################################################################
     # Trim data to GB
     ##################################################################
-    if resolution == '2.2km':
-        gb_mask = np.load("/nfs/a319/gy17m2a/PhD/datadir/Masks/UKCP18_2.2km_GB_Mask.npy")
-    else:
-        gb_mask = np.load("/nfs/a319/gy17m2a/PhD/datadir/Masks/UKCP18_12km_GB_Mask.npy")
+    gb_mask = np.load("/nfs/a319/gy17m2a/PhD/datadir/Masks/UKCP18_2.2km_GB_Mask.npy")
 
     masked_cube_data = model_cube * gb_mask[np.newaxis, :, :]   
     gb_mask = gb_mask.astype(np.int8) 
@@ -160,7 +150,7 @@ if not os.path.isfile("/nfs/a319/gy17m2a/PhD/" + ddir + f'compressed_{year}_{fil
     compressed_data = masked_cube.data.compressed()
     print(compressed_data.shape[0])
 
-    np.save("/nfs/a319/gy17m2a/PhD/" + ddir + f'compressed_{year}_{filtering_name}_GB_{season}.npy', compressed_data) 
+    np.save("/nfs/a319/gy17m2a/PhD/" + ddir + f'compressed_{year}_{filtering_name}_GB_{season}_new.npy', compressed_data) 
 
     iplt.contourf(masked_cube[1,:,:])        
     plt.savefig("/nfs/a319/gy17m2a/PhD/" + ddir + f"model_cube_contour_{year}_GB.png", dpi=300, bbox_inches='tight')        

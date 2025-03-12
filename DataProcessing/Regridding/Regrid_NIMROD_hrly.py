@@ -60,60 +60,62 @@ season='wholeyear'
 ##############
 ### Loop through all years of data
 ##############
-year=sys.argv[1]
+for year in range [2006,2013]:
 
-for filtering_name in ["filtered_100"]:
-    print(year)
-    # Change directory to be for correct year
-    os.chdir(f"/nfs/a161/gy17m2a/PhD/datadir/NIMROD/1hr/OriginalFormat_1km/{filtering_name}/{year}")
-    # Define filepaths to save files to
-    output_dir_2km = f"/nfs/a161/gy17m2a/PhD/datadir/NIMROD/1hr/NIMROD_regridded_2.2km/{filtering_name}/AreaWeighted/{year}/"
-    output_dir_12km = f"/nfs/a161/gy17m2a/PhD/datadir/NIMROD/1hr/NIMROD_regridded_12km/{filtering_name}/AreaWeighted/{year}/"
+    for filtering_name in ["filtered_300"]:
+        print(year)
+        # Change directory to be for correct year
+        os.chdir(f"/nfs/a161/gy17m2a/PhD/datadir/NIMROD/1hr/OriginalFormat_1km/{filtering_name}/{year}")
+        # Define filepaths to save files to
+        output_dir_2km = f"/nfs/a161/gy17m2a/PhD/datadir/NIMROD/1hr/NIMROD_regridded_2.2km/{filtering_name}/AreaWeighted/{year}/"
+        output_dir_12km = f"/nfs/a161/gy17m2a/PhD/datadir/NIMROD/1hr/NIMROD_regridded_12km/{filtering_name}/AreaWeighted/{year}/"
 
-    if not os.path.isdir(output_dir_12km):
-        os.makedirs(output_dir_12km)
-    # Create these directories if they don't exist already
-    if not os.path.isdir(output_dir_2km):
-        os.makedirs(output_dir_2km)
+        if not os.path.isdir(output_dir_12km):
+            os.makedirs(output_dir_12km)
+        # Create these directories if they don't exist already
+        if not os.path.isdir(output_dir_2km):
+            os.makedirs(output_dir_2km)
 
-    # Loop through all the diles in the 1km folder    
-    for filename in sorted(glob.glob("*"))[200:]:
+        # Loop through all the diles in the 1km folder    
+        for filename in sorted(glob.glob("*")):
 
-        # Create version of filename specifying it is regridded
-        filename_to_save_to = f"rg_{filename}"
-        if not os.path.isfile(output_dir_2km + filename_to_save_to):
-            cube = iris.load(filename)[0] 
-            print(f"{filename} doesn't exist: Creating now")
+            # Create version of filename specifying it is regridded
+            filename_to_save_to = f"rg_{filename}"
+            if not os.path.isfile(output_dir_2km + filename_to_save_to):
+                cube = iris.load(filename)[0] 
+                print(f"{filename} doesn't exist: Creating now")
+                try:
+                     # Fill in missing bounds
+                    cube.coord('projection_y_coordinate').guess_bounds()
+                    cube.coord('projection_x_coordinate').guess_bounds()
+                    # Align small rounding error in coordinates
+                    cube.coord('projection_x_coordinate').coord_system = cube_2km_bng.coord('projection_x_coordinate').coord_system
+                    cube.coord('projection_y_coordinate').coord_system = cube_2km_bng.coord('projection_y_coordinate').coord_system
 
-             # Fill in missing bounds
-            cube.coord('projection_y_coordinate').guess_bounds()
-            cube.coord('projection_x_coordinate').guess_bounds()
-            # Align small rounding error in coordinates
-            cube.coord('projection_x_coordinate').coord_system = cube_2km_bng.coord('projection_x_coordinate').coord_system
-            cube.coord('projection_y_coordinate').coord_system = cube_2km_bng.coord('projection_y_coordinate').coord_system
+                    cube = trim_to_bbox_of_region_obs(cube, uk_gdf, 'projection_y_coordinate', 'projection_x_coordinate')
 
-            cube = trim_to_bbox_of_region_obs(cube, uk_gdf, 'projection_y_coordinate', 'projection_x_coordinate')
+                    broadcasted_lsm_1km_data = np.broadcast_to(lsm_1km.data.data, cube.shape)
+                    broadcasted_lsm_1km_data_reversed = ~broadcasted_lsm_1km_data.astype(bool)
 
-            broadcasted_lsm_1km_data = np.broadcast_to(lsm_1km.data.data, cube.shape)
-            broadcasted_lsm_1km_data_reversed = ~broadcasted_lsm_1km_data.astype(bool)
+                    # Apply mask
+                    cube_masked = iris.util.mask_cube(cube.copy(), broadcasted_lsm_1km_data_reversed)
 
-            # Apply mask
-            cube_masked = iris.util.mask_cube(cube.copy(), broadcasted_lsm_1km_data_reversed)
+                    # Area Weighted
+                    reg_cube_masked_2km =cube_masked.regrid(cube_2km_bng,iris.analysis.AreaWeighted())    
+                    print("Regridded")
+                    reg_cube_masked_12km =cube_masked.regrid(cube_12km_bng,iris.analysis.AreaWeighted())    
+                    print("Regridded")     
 
-            # Area Weighted
-            reg_cube_masked_2km =cube_masked.regrid(cube_2km_bng,iris.analysis.AreaWeighted())    
-            print("Regridded")
-            reg_cube_masked_12km =cube_masked.regrid(cube_12km_bng,iris.analysis.AreaWeighted())    
-            print("Regridded")     
+                    print(cube_masked.shape)    
+                    print(reg_cube_masked_2km.shape)
+                    print(reg_cube_masked_12km.shape)
 
-            print(cube_masked.shape)    
-            print(reg_cube_masked_2km.shape)
-            print(reg_cube_masked_12km.shape)
+                    # Save 
+                    print(output_dir_2km + filename_to_save_to)
+                    iris.save(reg_cube_masked_2km, output_dir_2km + filename_to_save_to)    
+                    iris.save(reg_cube_masked_12km, output_dir_12km + filename_to_save_to) 
+                except:
+                    print("ERRRRROR")
 
-            # Save 
-            print(output_dir_2km + filename_to_save_to)
-            iris.save(reg_cube_masked_2km, output_dir_2km + filename_to_save_to)    
-            iris.save(reg_cube_masked_12km, output_dir_12km + filename_to_save_to) 
-            
-        else:
-            print(f"{output_dir_12km + filename_to_save_to} exists")
+            else:
+                print(f"{output_dir_2km + filename_to_save_to} exists")

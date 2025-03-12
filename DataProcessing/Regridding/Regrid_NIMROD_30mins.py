@@ -62,7 +62,7 @@ season='wholeyear'
 ##############
 year=sys.argv[1]
 
-for filtering_name in ["filtered_100"]:
+for filtering_name in ["filtered_300"]:
     print(year)
     # Change directory to be for correct year
     os.chdir(f"/nfs/a161/gy17m2a/PhD/datadir/NIMROD/30mins/OriginalFormat_1km/{filtering_name}/{year}")
@@ -77,7 +77,7 @@ for filtering_name in ["filtered_100"]:
         os.makedirs(output_dir_2km)
 
     # Loop through all the diles in the 1km folder    
-    for filename in sorted(glob.glob("*"))[180:]:
+    for filename in sorted(glob.glob("*"))[300:]:
 
         # Create version of filename specifying it is regridded
         filename_to_save_to = f"rg_{filename}"
@@ -110,7 +110,7 @@ for filtering_name in ["filtered_100"]:
             print(reg_cube_masked_2km.shape)
             print(reg_cube_masked_12km.shape)
 
-            # Save 
+            # Save sac
             print(output_dir_2km + filename_to_save_to)
             iris.save(reg_cube_masked_2km, output_dir_2km + filename_to_save_to)    
             iris.save(reg_cube_masked_12km, output_dir_12km + filename_to_save_to) 

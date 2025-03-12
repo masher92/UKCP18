@@ -39,33 +39,21 @@ from Spatial_plotting_functions import *
 from Spatial_geometry_functions import *
 
 resolution = '2.2km'
-filtering_name='filtered_100'
-
 gb_gdf = create_gb_outline({'init' :'epsg:3857'})
-
 in_jja=iris.Constraint(time=lambda cell: 6 <= cell.point.month <= 8)
 
+filtering_name='filtered_300'
 season='wholeyear'
 
 ##################################################################
 # FOR ONE YEAR AT A TIME
 ##################################################################
-##################################################################
-# FOR ONE YEAR AT A TIME
-##################################################################
-year =  sys.argv[1]
+year=sys.argv[1]
 print(year)
 
 # Create directory to store outputs in and get general filename to load files from
-if resolution =='1km':
-    ddir = f"ProcessedData/TimeSeries/NIMROD/1hr/OriginalFormat_1km/"
-    general_filename = f'datadir/NIMROD/1hr/OriginalFormat_1km/{year}/*'      
-elif resolution == '2.2km':
-    ddir = f"ProcessedData/TimeSeries/NIMROD/1hr/NIMROD_regridded_2.2km/"
-    general_filename = f'datadir/NIMROD/1hr/NIMROD_regridded_2.2km/{filtering_name}/AreaWeighted/{year}/*'        
-elif resolution == '12km':
-    ddir = f"ProcessedData/TimeSeries/NIMROD/1hr/NIMROD_regridded_12km/"    
-    general_filename = f'datadir/NIMROD/1hr/NIMROD_regridded_12km/{filtering_name}/AreaWeighted/{year}/*'      
+ddir = f"ProcessedData/TimeSeries/NIMROD/1hr/NIMROD_regridded_2.2km/{filtering_name}/"
+general_filename = f'datadir/NIMROD/1hr/NIMROD_regridded_2.2km/{filtering_name}/AreaWeighted/{year}/*'        
 if not os.path.isdir(ddir):
     os.makedirs(ddir)
 
@@ -82,17 +70,25 @@ if not os.path.isfile("/nfs/a319/gy17m2a/PhD/" + ddir + f'compressed_{year}_{fil
 
     # LOAD THE DATA
     if season == 'jja':
-        monthly_cubes_list = iris.load(filenames, in_jja)
+        monthly_cubes_list = iris.load(sorted_list, in_jja)
     else:
-        monthly_cubes_list = iris.load(filenames)
-
-    print(f"{len(monthly_cubes_list)} is enough files")        
+        monthly_cubes_list = iris.load(sorted_list)
+    
+    if len(monthly_cubes_list) <360:
+        print(f"{len(monthly_cubes_list)} is CONCERNING")
+    else:
+        print(f"{len(monthly_cubes_list)} is enough files")        
 
     for num, cube in enumerate(monthly_cubes_list):
         if len(cube.shape)<3:
             cube = iris.util.new_axis(cube, 'time')
             monthly_cubes_list[num] = cube    
 
+    ### Keep only ones with enough data
+#     print(len(monthly_cubes_list))
+#     monthly_cubes_list = iris.cube.CubeList(cube for cube in monthly_cubes_list if cube.coord('time').shape[0] >= 22)
+#     print(len(monthly_cubes_list))
+    
     ##################################################################
     # CLEAN AND JOIN THE DATA
     ##################################################################
@@ -124,27 +120,11 @@ if not os.path.isfile("/nfs/a319/gy17m2a/PhD/" + ddir + f'compressed_{year}_{fil
     model_cube = trim_to_bbox_of_region_obs(model_cube, gb_gdf, 'projection_y_coordinate', 'projection_x_coordinate')
 
     ##################################################################
-    # Save data over UK
-    ##################################################################
-    # Get rid of negative values
-    compressed_data = model_cube.data.compressed()
-
-    # # Save to file
-    np.save("/nfs/a319/gy17m2a/PhD/" + ddir + f'compressed_{year}_{filtering_name}_UK_{season}.npy', compressed_data) 
-
-    # Generate the plot
-    iplt.contourf(model_cube[10])
-    # Add a title, labels, or any customization if needed
-    plt.savefig("/nfs/a319/gy17m2a/PhD/" + ddir + f"model_cube_contour_{year}_UK.png", dpi=300, bbox_inches='tight') 
-    plt.clf()
-
-    ##################################################################
     # Trim data to GB
     ##################################################################
-    if resolution == '2.2km':
-        gb_mask = np.load("/nfs/a319/gy17m2a/PhD/datadir/Masks/UKCP18_2.2km_GB_Mask.npy")
-    else:
-        gb_mask = np.load("/nfs/a319/gy17m2a/PhD/datadir/Masks/UKCP18_12km_GB_Mask.npy")
+    compressed_data = model_cube.data.compressed()
+    
+    gb_mask = np.load("/nfs/a319/gy17m2a/PhD/datadir/Masks/UKCP18_2.2km_GB_Mask.npy")
 
     masked_cube_data = model_cube * gb_mask[np.newaxis, :, :]   
     gb_mask = gb_mask.astype(np.int8) 
@@ -164,6 +144,6 @@ if not os.path.isfile("/nfs/a319/gy17m2a/PhD/" + ddir + f'compressed_{year}_{fil
     print(compressed_data.shape[0])
 
     np.save("/nfs/a319/gy17m2a/PhD/" + ddir + f'compressed_{year}_{filtering_name}_GB_{season}.npy', compressed_data) 
+     
 
-    iplt.contourf(masked_cube[1,:,:])        
-    plt.savefig("/nfs/a319/gy17m2a/PhD/" + ddir + f"model_cube_contour_{year}_GB.png", dpi=300, bbox_inches='tight')        
+
