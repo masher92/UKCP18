@@ -26,7 +26,6 @@ years_available = list(range(1980, 2022))
 
 # Login to FTP
 #f=ftplib.FTP("ftp.ceda.ac.uk", 'masher', '4C)LyJ-f/t@')
-f = ftplib.FTP("ftp.ceda.ac.uk", 'masher', 'Ug@nda!1Leeds23')
 # f = ftplib.FTP('ftp.ceda.ac.uk')
 #f.login('masher', 'Leedsz23')
 
